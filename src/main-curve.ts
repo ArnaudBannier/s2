@@ -30,12 +30,6 @@ class SceneFigure extends S2Scene {
             'fill-opacity': '0',
         };
 
-        // const partialStyle: S2StyleDecl = {
-        //     stroke: MTL.GREEN,
-        //     'stroke-width': '3',
-        //     'fill-opacity': '0',
-        // };
-
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY);
 
         const p0 = new Vector2(-3, -2);
