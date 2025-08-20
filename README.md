@@ -1,27 +1,6 @@
-# Création d'un projet
+# S2
 
-```bash
-npm create vite@latest
-```
+La librairie S2 (pour SVG 2D) a pour but la création de figures SVG interactives pour l'enseignement de Mathématiques et d'algorithmie.
 
-Il faut ensuite aller dans le dossier créé et installer les packages
-
-```bash
-cd mon-cours
-npm install
-```
-
-Pour démarrer un serveur local de dev :
-
-```bash
-npm run dev
-```
-
-Puis pour exporter le site, on génère le dossier `dist` avec
-
-```bash
-npm run build
-npm run preview
-```
-
-La command `npm run preview` permet de tester le site distant.
+> [IMPORTANT]
+> Ce projet est amené à évoluer et ne doit pas être considéré comme stable. Aucune release n'est prévue pour l'instant.
