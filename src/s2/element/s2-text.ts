@@ -1,0 +1,87 @@
+import { Vector2 } from '../../math/vector2';
+import { type S2SceneInterface } from '../s2-scene-interface';
+import { svgNS } from '../s2-globals';
+import { S2Shape } from './s2-shape';
+
+// "text-anchor": "start | middle | end"
+// "dominant-baseline": "auto | middle | hanging" + autres
+// "font-family"
+// "font-size"
+// "font-stretch"
+// "font-style"
+// "font-variant"
+// "font-weight"
+
+export class S2Text extends S2Shape<SVGTextElement> {
+    protected viewExtents: Vector2;
+    protected tspans: Array<S2Tspan>;
+
+    constructor(scene: S2SceneInterface) {
+        const element = document.createElementNS(svgNS, 'text');
+        super(element, scene);
+        this.tspans = [];
+        this.viewExtents = new Vector2(0, 0);
+    }
+
+    addContent(content: string): this {
+        this.element.appendChild(document.createTextNode(content));
+        return this;
+    }
+
+    addSpan(content: string): S2Tspan {
+        const tspan = new S2Tspan(this.scene);
+        this.tspans.push(tspan);
+        this.element.appendChild(tspan.getElement());
+        tspan.setContent(content);
+        return tspan;
+    }
+
+    clearText(): this {
+        this.element.replaceChildren();
+        this.tspans.length = 0;
+        return this;
+    }
+
+    getBBox(): DOMRect {
+        return this.element.getBBox();
+    }
+
+    getDimensions(): Vector2 {
+        const bbox = this.element.getBBox();
+        return new Vector2(bbox.width, bbox.height);
+    }
+
+    updateDimensions(): this {
+        const bbox = this.element.getBBox();
+        this.viewExtents.x = bbox.width / 2;
+        this.viewExtents.y = bbox.height / 2;
+        return this;
+    }
+
+    setTextAnchor(anchor: 'start' | 'middle' | 'end'): this {
+        this.element.setAttribute('text-anchor', anchor);
+        return this;
+    }
+
+    update(): this {
+        super.update();
+        this.updateDimensions();
+
+        const position = this.getPosition('view');
+        this.element.setAttribute('x', position.x.toString());
+        this.element.setAttribute('y', position.y.toString());
+        return this;
+    }
+}
+
+export class S2Tspan extends S2Shape<SVGTSpanElement> {
+    constructor(scene: S2SceneInterface) {
+        const element = document.createElementNS(svgNS, 'tspan');
+        super(element, scene);
+    }
+
+    setContent(content: string): this {
+        this.element.textContent = content;
+        return this;
+    }
+}
