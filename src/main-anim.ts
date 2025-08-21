@@ -4,44 +4,60 @@ import { S2Camera } from './s2/math/s2-camera.ts';
 import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle } from './s2/element/s2-circle.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
+import type { S2Path } from './s2/element/s2-path.ts';
 
-const viewport = new Vector2(1.5 * 640.0, 1.5 * 360.0);
+const viewport = new Vector2(640.0, 360.0);
 const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);
 
 class SceneFigure extends S2AnimatedScene {
     protected circle: S2Circle;
+    protected path: S2Path;
     protected styles = {
         backBase: {
-            fill: MTL.GREY_6,
-            stroke: MTL.GREY_4,
+            'fill': MTL.GREY_6,
+            'stroke': MTL.GREY_4,
             'stroke-width': '4',
         },
         backSlct: {
-            fill: MTL.BLUE_GREY_9,
-            stroke: MTL.LIGHT_BLUE_5,
+            'fill': MTL.BLUE_GREY_9,
+            'stroke': MTL.LIGHT_BLUE_5,
         },
         backExpl: {
-            fill: MTL.LIGHT_BLUE_7,
-            stroke: MTL.LIGHT_BLUE_2,
+            'fill': MTL.LIGHT_BLUE_7,
+            'stroke': MTL.LIGHT_BLUE_2,
         },
+        path: {
+            'stroke': MTL.CYAN,
+            'stroke-width': '4',
+            'fill-opacity': '0'
+        }
     };
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
+
         this.addFillRect().setAttribute('fill', MTL.GREY_8);
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
-
+        
         this.circle = this.addCircle();
-        this.circle.setPosition(0, 0, 'world').setRadius(2, 'world').setStyle(this.styles.backBase);
-
-        this.update();
+        this.path = this.addPath();
         this.createAnimation();
+    }
+
+    createInitialState(): void {
+        this.circle.setPosition(0, 0, 'world').setRadius(2, 'world').setStyle(this.styles.backBase);
+        this.path.setStyle(this.styles.path);
+        this.path.clear().setSpace('world').setStart(-5, 0)
+            .cubicTo(0, -4, 0, -4, +5, 0)
+            .cubicTo(0, +4, 0, +4, -5, 0);//.close();
+        this.path.makePartial(0, 0);
     }
 
     createAnimation(): void {
         this.resetTimeline();
+        this.createInitialState();
+        this.update();
 
-        this.circle.setStyle(this.styles.backBase);
         this.makeStep();
         console.log('step', this.targetStepIndex);
         this.addStyleAnimation(
@@ -51,6 +67,7 @@ class SceneFigure extends S2AnimatedScene {
             { duration: 1000, easing: 'inOut' },
             '+=0',
         );
+        this.addDrawAnimation(this.path, [0, 0], [0, 0.5], { duration: 1000 }, "<<+=200");
         this.makeStep();
         this.addStyleAnimation(
             this.circle,
@@ -59,6 +76,7 @@ class SceneFigure extends S2AnimatedScene {
             { duration: 1000, easing: 'inOut' },
             '+=0',
         );
+        this.addDrawAnimation(this.path, [0, 0.5], [0.5, 1], { duration: 1000 }, "<<+=200");
         this.makeStep();
         this.addStyleAnimation(
             this.circle,
@@ -67,6 +85,7 @@ class SceneFigure extends S2AnimatedScene {
             { duration: 1000, easing: 'inOut' },
             '+=0',
         );
+        this.addDrawAnimation(this.path, [0.5, 1], [0, 1], { duration: 1000 }, "<<");
     }
 }
 
@@ -79,8 +98,8 @@ if (appDiv) {
             <div>
                 <button id="reset-button">Recommencer</button>
                 <button id="prev-button">Retour</button>
-                <button id="next-button">Suivant</button>
                 <button id="play-button">Rejouer</button>
+                <button id="next-button">Suivant</button>
             </div>
         </div>`;
 }

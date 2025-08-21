@@ -1,10 +1,11 @@
 import { type S2Camera } from './math/s2-camera';
 import { S2Scene } from './s2-scene';
 import { S2Graphics } from './element/s2-graphics';
-import { Timeline, type TweenKeyValue } from 'animejs';
+import { Timeline, type TimerParams, type TweenKeyValue } from 'animejs';
 import { type AnimationParams } from 'animejs';
 import { type S2StyleDecl } from './s2-globals';
-import { clamp } from '../math/utils';
+import { clamp, lerp } from '../math/utils';
+import type { S2Path } from './element/s2-path';
 
 export class S2AnimatedScene extends S2Scene {
     protected targetStepIndex: number = 0;
@@ -34,6 +35,7 @@ export class S2AnimatedScene extends S2Scene {
     }
 
     createNextStep(): void {
+        if (this.targetStepIndex >= this.stepCount) return;
         this.targetStepIndex = clamp(this.targetStepIndex + 1, 0, this.stepCount);
         this.createAnimation();
         this.timeline.play();
@@ -73,6 +75,31 @@ export class S2AnimatedScene extends S2Scene {
                 {
                     ...this.getTween(currStyle, nextStyle),
                     ...parameters,
+                },
+                position,
+            );
+        }
+    }
+
+    addDrawAnimation(
+        target: S2Path,
+        currDraw: [number, number],
+        nextDraw: [number, number],
+        parameters: TimerParams,
+        position?: number | string,
+    ): void {
+        if (this.currStepIndex < this.targetStepIndex) {
+            target.makePartial(nextDraw[0], nextDraw[1]).update();
+        } else if (this.currStepIndex === this.targetStepIndex) {
+            this.timeline.add(
+                {
+                    ...parameters,
+                    onUpdate: self => {
+                        const p = self.progress;
+                        const from = lerp(currDraw[0], nextDraw[0], p);
+                        const to = lerp(currDraw[1], nextDraw[1], p);
+                        target.makePartial(from, to).update();
+                    }
                 },
                 position,
             );
