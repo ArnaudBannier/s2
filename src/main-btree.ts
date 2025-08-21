@@ -311,7 +311,7 @@ class SceneFigure extends S2Scene {
             .setAttribute('fill', MTL.GREY_8);
 
         // Grid
-        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
+        //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
 
         // Tree
         this.tree = new BTree(this, new BTreeStyle(), userTree);

@@ -21,35 +21,46 @@ class SceneFigure extends S2AnimatedScene {
         backSlct: {
             'fill': MTL.BLUE_GREY_9,
             'stroke': MTL.LIGHT_BLUE_5,
+            'stroke-width': '4',
         },
         backExpl: {
             'fill': MTL.LIGHT_BLUE_7,
             'stroke': MTL.LIGHT_BLUE_2,
+            'stroke-width': '4',
+        },
+        backOpaque: {
+            'opacity': '1',
+        },
+        backTransparent: {
+            'opacity': '0',
         },
         path: {
             'stroke': MTL.CYAN,
             'stroke-width': '4',
-            'fill-opacity': '0'
-        }
+            'fill-opacity': '0',
+        },
+        path2: {
+            'stroke': MTL.AMBER,
+        },
     };
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
-
-        this.addFillRect().setAttribute('fill', MTL.GREY_8);
-        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
-        
         this.circle = this.addCircle();
         this.path = this.addPath();
         this.createAnimation();
     }
 
     createInitialState(): void {
+        this.svg.removeChildren();
+        this.addFillRect().setAttribute('fill', MTL.GREY_8);
+        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
+
+        this.circle = this.addCircle();
+        this.path = this.addPath();
         this.circle.setPosition(0, 0, 'world').setRadius(2, 'world').setStyle(this.styles.backBase);
         this.path.setStyle(this.styles.path);
-        this.path.clear().setSpace('world').setStart(-5, 0)
-            .cubicTo(0, -4, 0, -4, +5, 0)
-            .cubicTo(0, +4, 0, +4, -5, 0);//.close();
+        this.path.setSpace('world').setStart(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
         this.path.makePartial(0, 0);
     }
 
@@ -59,33 +70,39 @@ class SceneFigure extends S2AnimatedScene {
         this.update();
 
         this.makeStep();
-        console.log('step', this.targetStepIndex);
         this.addStyleAnimation(
             this.circle,
             this.styles.backBase,
             this.styles.backSlct,
-            { duration: 1000, easing: 'inOut' },
+            { duration: 1000, easing: 'outCubic' },
             '+=0',
         );
-        this.addDrawAnimation(this.path, [0, 0], [0, 0.5], { duration: 1000 }, "<<+=200");
+        this.addDrawAnimation(this.path, [0, 0], [0.2, 0.5], { duration: 1000, ease: 'outCubic' }, '<<+=200');
+
         this.makeStep();
         this.addStyleAnimation(
             this.circle,
             this.styles.backSlct,
             this.styles.backExpl,
-            { duration: 1000, easing: 'inOut' },
+            { duration: 1000, easing: 'outBounce' },
             '+=0',
         );
-        this.addDrawAnimation(this.path, [0, 0.5], [0.5, 1], { duration: 1000 }, "<<+=200");
+        this.addDrawAnimation(this.path, [0.2, 0.5], [0.5, 1], { duration: 1000, ease: 'outBounce' }, '<<+=200');
+        this.addStyleAnimation(this.path, this.styles.path, this.styles.path2, { duration: 1000 }, '<<');
+
+        const circle = this.addCircle()
+            .setStyle({ ...this.styles.backExpl, ...this.styles.backTransparent })
+            .setPosition(5, 0, 'world')
+            .setRadius(10, 'view')
+            .update();
+        this.addStyleAnimation(circle, this.styles.backTransparent, this.styles.backOpaque, { duration: 500 }, '<<');
+
         this.makeStep();
-        this.addStyleAnimation(
-            this.circle,
-            this.styles.backExpl,
-            this.styles.backBase,
-            { duration: 1000, easing: 'inOut' },
-            '+=0',
-        );
-        this.addDrawAnimation(this.path, [0.5, 1], [0, 1], { duration: 1000 }, "<<");
+        this.addStyleAnimation(circle, this.styles.backOpaque, this.styles.backTransparent, { duration: 500 }, '+=0');
+
+        this.makeStep();
+        this.addStyleAnimation(this.circle, this.styles.backExpl, this.styles.backBase, { duration: 1000 }, '+=0');
+        this.addDrawAnimation(this.path, [0.5, 1], [0, 1], { duration: 1000, ease: 'inOut' }, '<<');
     }
 }
 
@@ -100,6 +117,7 @@ if (appDiv) {
                 <button id="prev-button">Retour</button>
                 <button id="play-button">Rejouer</button>
                 <button id="next-button">Suivant</button>
+                <button id="full-button">Tout</button>
             </div>
         </div>`;
 }
@@ -120,5 +138,8 @@ if (svgElement) {
     });
     document.querySelector<HTMLButtonElement>('#play-button')?.addEventListener('click', () => {
         scene.play();
+    });
+    document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
+        scene.createFullAnimation();
     });
 }

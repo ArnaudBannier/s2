@@ -1,7 +1,7 @@
 import { type S2Camera } from './math/s2-camera';
 import { S2Scene } from './s2-scene';
 import { S2Graphics } from './element/s2-graphics';
-import { Timeline, type TimerParams, type TweenKeyValue } from 'animejs';
+import { Timeline, type TweenKeyValue } from 'animejs';
 import { type AnimationParams } from 'animejs';
 import { type S2StyleDecl } from './s2-globals';
 import { clamp, lerp } from '../math/utils';
@@ -21,12 +21,18 @@ export class S2AnimatedScene extends S2Scene {
     makeStep(): boolean {
         this.currStepIndex++;
         this.stepCount = this.currStepIndex;
-        return this.currStepIndex > this.targetStepIndex;
+        return this.targetStepIndex < 0 ? false : this.currStepIndex > this.targetStepIndex;
     }
 
     setTargetAnimIndex(targetIndex: number): this {
         this.targetStepIndex = targetIndex;
         return this;
+    }
+
+    createFullAnimation(): void {
+        this.targetStepIndex = -1;
+        this.createAnimation();
+        this.timeline.play();
     }
 
     createPrevStep(): void {
@@ -48,7 +54,8 @@ export class S2AnimatedScene extends S2Scene {
     }
 
     play(): void {
-        this.timeline.restart();
+        this.createAnimation();
+        this.timeline.play();
     }
 
     protected resetTimeline(): void {
@@ -67,9 +74,7 @@ export class S2AnimatedScene extends S2Scene {
         parameters: AnimationParams,
         position?: number | string,
     ): void {
-        if (this.currStepIndex < this.targetStepIndex) {
-            target.setStyle(nextStyle);
-        } else if (this.currStepIndex === this.targetStepIndex) {
+        if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
             this.timeline.add(
                 target.getElement(),
                 {
@@ -78,6 +83,8 @@ export class S2AnimatedScene extends S2Scene {
                 },
                 position,
             );
+        } else if (this.currStepIndex < this.targetStepIndex) {
+            target.setStyle(nextStyle);
         }
     }
 
@@ -85,24 +92,27 @@ export class S2AnimatedScene extends S2Scene {
         target: S2Path,
         currDraw: [number, number],
         nextDraw: [number, number],
-        parameters: TimerParams,
+        parameters: AnimationParams,
         position?: number | string,
     ): void {
-        if (this.currStepIndex < this.targetStepIndex) {
-            target.makePartial(nextDraw[0], nextDraw[1]).update();
-        } else if (this.currStepIndex === this.targetStepIndex) {
+        if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
+            const animeTarget = { progress: 0 };
             this.timeline.add(
+                animeTarget,
                 {
+                    progress: { to: [0, 1] },
                     ...parameters,
-                    onUpdate: self => {
-                        const p = self.progress;
+                    onUpdate: (_) => {
+                        const p = animeTarget.progress;
                         const from = lerp(currDraw[0], nextDraw[0], p);
                         const to = lerp(currDraw[1], nextDraw[1], p);
                         target.makePartial(from, to).update();
-                    }
+                    },
                 },
                 position,
             );
+        } else if (this.currStepIndex < this.targetStepIndex) {
+            target.makePartial(nextDraw[0], nextDraw[1]).update();
         }
     }
 

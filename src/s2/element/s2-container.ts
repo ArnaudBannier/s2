@@ -24,6 +24,12 @@ export abstract class S2Container<T extends SVGGraphicsElement, U extends S2Base
         return this;
     }
 
+    removeChildren(): this {
+        this.children.length = 0;
+        this.element.replaceChildren();
+        return this;
+    }
+
     removeChild(child: U): this {
         const index = this.children.indexOf(child);
         if (index !== -1) {
