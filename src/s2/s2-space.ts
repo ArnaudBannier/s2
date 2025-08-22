@@ -12,6 +12,16 @@ export class S2Position {
         this.space = space;
     }
 
+    clone(): S2Position {
+        return new S2Position(this.value.x, this.value.y, this.space);
+    }
+
+    copy(other: S2Position): this {
+        this.value.copy(other.value);
+        this.space = other.space;
+        return this;
+    }
+
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {
         if (this.space === space) {
             // this = other

@@ -5,7 +5,6 @@ import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle } from './s2/element/s2-circle.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 import type { S2Path } from './s2/element/s2-path.ts';
-import { S2Position } from './s2/s2-space.ts';
 
 const viewportScale = 1.5;
 const viewport = new Vector2(640.0, 360.0).scale(viewportScale);
@@ -71,14 +70,18 @@ class SceneFigure extends S2AnimatedScene {
         this.createInitialState();
         this.update();
 
+        this.recordElement(this.circle);
+        this.recordElement(this.path);
+
         this.makeStep();
         this.addStyleAnimation(this.circle, this.styles.backSlct, { duration: 1000, easing: 'outCubic' }, '+=0');
-        this.path.makePartial(0, 0);
-        this.addDrawAnimation(this.path, 0.2, 0.5, { duration: 1000, ease: 'outCubic' }, '<<+=200');
+        this.path.makePartial(0.2, 0.5);
+        this.addDrawAnimation(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
 
         this.makeStep();
         this.addStyleAnimation(this.circle, this.styles.backExpl, { duration: 1000, easing: 'outBounce' }, '+=0');
-        this.addDrawAnimation(this.path, 0.5, 1, { duration: 1000, ease: 'outBounce' }, '<<+=200');
+        this.path.makePartial(0.5, 1.0);
+        this.addDrawAnimation(this.path, { duration: 1000, ease: 'outBounce' }, '<<+=200');
         this.addStyleAnimation(this.path, this.styles.path2, { duration: 1000 }, '<<');
 
         const circle = this.addCircle()
@@ -86,15 +89,20 @@ class SceneFigure extends S2AnimatedScene {
             .setPosition(5, 0, 'world')
             .setRadius(10, 'view')
             .update();
-        this.addMoveAnimation(this.circle, new S2Position(-1, 0, 'world'), { duration: 1000, ease: 'inOut' }, '<<');
+
+        this.circle.setPosition(-1, 1, 'world');
+        this.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '<<');
         this.addStyleAnimation(circle, this.styles.backOpaque, { duration: 500 }, '<<');
 
         this.makeStep();
         this.addStyleAnimation(circle, this.styles.backTransparent, { duration: 500 }, '+=0');
+        this.circle.setPosition(+1, 1, 'world');
+        this.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '<<');
 
         this.makeStep();
         this.addStyleAnimation(this.circle, this.styles.backBase, { duration: 1000 }, '+=0');
-        this.addDrawAnimation(this.path, 0, 1, { duration: 1000, ease: 'inOut' }, '<<');
+        this.path.makePartial(0, 1);
+        this.addDrawAnimation(this.path, { duration: 1000, ease: 'inOut' }, '<<');
     }
 }
 

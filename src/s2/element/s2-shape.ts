@@ -39,6 +39,10 @@ export abstract class S2Shape<T extends SVGGraphicsElement>
         return this.position.toSpace(space, this.getActiveCamera());
     }
 
+    getS2Position(): S2Position {
+        return this.position.clone();
+    }
+
     getStrokeWidth(space: S2Space = this.strokeWidth.space): number {
         return this.strokeWidth.toSpace(space, this.getActiveCamera());
     }

@@ -9,16 +9,37 @@ import { S2Path } from './element/s2-path';
 import { S2Position } from './s2-space';
 import { type S2BaseElement } from './element/s2-element';
 import { type S2HasPosition } from './s2-interface';
+import { S2Shape } from './element/s2-shape';
+
+interface RecordedParams {
+    position?: S2Position;
+    partialFrom?: number;
+    partialTo?: number;
+}
 
 export class S2AnimatedScene extends S2Scene {
     protected targetStepIndex: number = 0;
     protected currStepIndex: number = -1;
     protected timeline: Timeline;
     protected stepCount: number = 0;
+    protected paramMap: WeakMap<S2BaseElement, RecordedParams> = new WeakMap();
 
     constructor(element: SVGSVGElement, camera: S2Camera) {
         super(element, camera);
         this.timeline = new Timeline({ autoplay: false });
+    }
+
+    recordElement(target: S2BaseElement): this {
+        const params: RecordedParams = {};
+        if (target instanceof S2Shape) {
+            params.position = target.getS2Position();
+        }
+        if (target instanceof S2Path) {
+            params.partialFrom = target.getPartialFrom();
+            params.partialTo = target.getPartialTo();
+        }
+        this.paramMap.set(target, params);
+        return this;
     }
 
     makeStep(): boolean {
@@ -90,43 +111,48 @@ export class S2AnimatedScene extends S2Scene {
         }
     }
 
-    addMoveAnimation(
-        target: S2BaseElement & S2HasPosition,
-        targetPosition: S2Position,
-        parameters: AnimationParams,
-        position?: number | string,
-    ): void {
+    animateMove(target: S2BaseElement & S2HasPosition, parameters: AnimationParams, position?: number | string): void {
+        const recordedPos = this.paramMap.get(target)?.position;
+        if (recordedPos === undefined) {
+            console.warn('Position of target not recorded.');
+            return;
+        }
+        const currPos = target.getS2Position();
         if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
-            const currPos = target.getPosition(targetPosition.space);
-            const animeTarget = { x: currPos.x, y: currPos.y };
+            const startPos = recordedPos.toSpace(currPos.space, this.activeCamera);
+            const endPos = currPos.value;
+            const animeTarget = { x: startPos.x, y: startPos.y };
             this.timeline.add(
                 animeTarget,
                 {
-                    x: { to: [currPos.x, targetPosition.value.x] },
-                    y: { to: [currPos.y, targetPosition.value.y] },
+                    x: { to: [startPos.x, endPos.x] },
+                    y: { to: [startPos.y, endPos.y] },
                     ...parameters,
                     onUpdate: (_) => {
                         void _;
-                        target.setPosition(animeTarget.x, animeTarget.y, targetPosition.space).update();
+                        target.setPosition(animeTarget.x, animeTarget.y, currPos.space).update();
                     },
                 },
                 position,
             );
+            recordedPos.copy(currPos);
         } else if (this.currStepIndex < this.targetStepIndex) {
-            target.setPositionV(targetPosition.value, targetPosition.space).update();
+            recordedPos.copy(currPos);
+            target.update();
         }
     }
 
-    addDrawAnimation(
-        target: S2Path,
-        targetPartialFrom: number,
-        targetPartialTo: number,
-        parameters: AnimationParams,
-        position?: number | string,
-    ): void {
+    addDrawAnimation(target: S2Path, parameters: AnimationParams, position?: number | string): void {
+        const params = this.paramMap.get(target);
+        if (params?.partialFrom === undefined || params?.partialTo === undefined) {
+            console.warn('Position of target not recorded.');
+            return;
+        }
+        const endPartialFrom = target.getPartialFrom();
+        const endPartialTo = target.getPartialTo();
         if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
-            const currPartialFrom = target.getPartialFrom();
-            const currPartialTo = target.getPartialTo();
+            const startPartialFrom = params.partialFrom;
+            const startPartialTo = params.partialTo;
             const animeTarget = { progress: 0 };
             this.timeline.add(
                 animeTarget,
@@ -136,16 +162,43 @@ export class S2AnimatedScene extends S2Scene {
                     onUpdate: (_) => {
                         void _;
                         const p = animeTarget.progress;
-                        const from = lerp(currPartialFrom, targetPartialFrom, p);
-                        const to = lerp(currPartialTo, targetPartialTo, p);
+                        const from = lerp(startPartialFrom, endPartialFrom, p);
+                        const to = lerp(startPartialTo, endPartialTo, p);
                         target.makePartial(from, to).update();
                     },
                 },
                 position,
             );
+            params.partialFrom = endPartialFrom;
+            params.partialTo = endPartialTo;
         } else if (this.currStepIndex < this.targetStepIndex) {
-            target.makePartial(targetPartialFrom, targetPartialTo).update();
+            params.partialFrom = endPartialFrom;
+            params.partialTo = endPartialTo;
+            target.update();
         }
+
+        // if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
+        //     const currPartialFrom = target.getPartialFrom();
+        //     const currPartialTo = target.getPartialTo();
+        //     const animeTarget = { progress: 0 };
+        //     this.timeline.add(
+        //         animeTarget,
+        //         {
+        //             progress: { to: [0, 1] },
+        //             ...parameters,
+        //             onUpdate: (_) => {
+        //                 void _;
+        //                 const p = animeTarget.progress;
+        //                 const from = lerp(currPartialFrom, targetPartialFrom, p);
+        //                 const to = lerp(currPartialTo, targetPartialTo, p);
+        //                 target.makePartial(from, to).update();
+        //             },
+        //         },
+        //         position,
+        //     );
+        // } else if (this.currStepIndex < this.targetStepIndex) {
+        //     target.makePartial(targetPartialFrom, targetPartialTo).update();
+        // }
     }
 
     getTween(currStyle: S2StyleDecl, nextStyle: S2StyleDecl): { [key: string]: TweenKeyValue } {
