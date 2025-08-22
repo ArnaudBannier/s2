@@ -1,5 +1,5 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 
@@ -16,7 +16,7 @@ export class S2Text extends S2Shape<SVGTextElement> {
     protected viewExtents: Vector2;
     protected tspans: Array<S2Tspan>;
 
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'text');
         super(element, scene);
         this.tspans = [];
@@ -75,7 +75,7 @@ export class S2Text extends S2Shape<SVGTextElement> {
 }
 
 export class S2Tspan extends S2Shape<SVGTSpanElement> {
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'tspan');
         super(element, scene);
     }

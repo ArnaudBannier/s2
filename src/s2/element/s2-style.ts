@@ -1,11 +1,11 @@
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { S2Element } from './s2-element';
 import { svgNS, type S2StyleDecl } from '../s2-globals';
 
 export class S2Style extends S2Element<SVGStyleElement> {
     protected rules: Record<string, S2StyleDecl>;
 
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'style');
         super(element, scene);
         this.rules = {};

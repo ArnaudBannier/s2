@@ -1,9 +1,9 @@
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { S2Container } from './s2-container';
 import { type S2BaseElement } from './s2-element';
 
 export class S2SVG extends S2Container<SVGSVGElement, S2BaseElement> {
-    constructor(element: SVGSVGElement, scene: S2SceneInterface) {
+    constructor(element: SVGSVGElement, scene: S2BaseScene) {
         super(element, scene);
         this.update();
     }

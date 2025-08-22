@@ -1,4 +1,4 @@
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { type S2BaseElement } from './s2-element';
 import { S2Graphics } from './s2-graphics';
 
@@ -7,7 +7,7 @@ export type S2BaseContainer = S2Container<SVGGraphicsElement, S2BaseElement>;
 export abstract class S2Container<T extends SVGGraphicsElement, U extends S2BaseElement> extends S2Graphics<T> {
     protected children: Array<U>;
 
-    constructor(element: T, scene: S2SceneInterface) {
+    constructor(element: T, scene: S2BaseScene) {
         super(element, scene);
         this.children = [];
     }

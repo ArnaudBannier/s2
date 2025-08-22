@@ -1,13 +1,13 @@
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2HasRadius, type S2BaseScene } from '../s2-interface';
 import { Vector2 } from '../../math/vector2';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length } from '../s2-space';
 
-export class S2Circle extends S2Shape<SVGCircleElement> {
+export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
     public radius: S2Length;
 
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'circle');
         super(element, scene);
         this.radius = new S2Length(1, 'world');

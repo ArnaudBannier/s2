@@ -1,14 +1,14 @@
 import { S2Camera } from '../math/s2-camera';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { type S2StyleDecl } from '../s2-globals';
 export type S2BaseElement = S2Element<SVGElement>;
 
 export abstract class S2Element<T extends SVGElement> {
     protected element: T;
-    protected scene: S2SceneInterface;
+    protected scene: S2BaseScene;
     protected parent: S2Element<SVGElement> | null = null;
 
-    constructor(element: T, scene: S2SceneInterface) {
+    constructor(element: T, scene: S2BaseScene) {
         this.element = element;
         this.scene = scene;
     }

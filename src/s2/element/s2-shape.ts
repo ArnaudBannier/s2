@@ -1,13 +1,17 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { S2Graphics } from './s2-graphics';
 import { type S2Space, S2Position, S2Length } from '../s2-space';
+import { type S2HasPosition, type S2HasStrokeWidth } from '../s2-interface';
 
-export abstract class S2Shape<T extends SVGGraphicsElement> extends S2Graphics<T> {
+export abstract class S2Shape<T extends SVGGraphicsElement>
+    extends S2Graphics<T>
+    implements S2HasPosition, S2HasStrokeWidth
+{
     protected position: S2Position;
     protected strokeWidth: S2Length;
 
-    constructor(element: T, scene: S2SceneInterface) {
+    constructor(element: T, scene: S2BaseScene) {
         super(element, scene);
         this.position = new S2Position(0, 0, 'world');
         this.strokeWidth = new S2Length(0, 'view');

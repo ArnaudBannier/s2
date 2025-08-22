@@ -1,4 +1,4 @@
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { Vector2 } from '../../math/vector2';
 import { Matrix2x3 } from '../../math/matrix2x3';
 import { MatrixBuilder2x3 } from '../../math/matrix-builder-2x3';
@@ -7,7 +7,7 @@ import { S2Element } from './s2-element';
 export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element<T> {
     public transform: Matrix2x3;
 
-    constructor(element: T, scene: S2SceneInterface) {
+    constructor(element: T, scene: S2BaseScene) {
         super(element, scene);
         this.transform = Matrix2x3.createIdentity();
     }

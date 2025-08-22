@@ -1,5 +1,5 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { S2Line } from './s2-line';
 import { S2Shape } from './s2-shape';
 import { S2Group } from './s2-group';
@@ -11,7 +11,7 @@ export class S2Grid extends S2Shape<SVGGElement> {
     protected epsilon: number = 1e-5;
     protected lineGroup: S2Group<S2Line>;
 
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const lineGroup = new S2Group<S2Line>(scene);
         super(lineGroup.getElement(), scene);
 

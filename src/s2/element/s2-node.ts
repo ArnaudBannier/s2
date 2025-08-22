@@ -1,5 +1,5 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { svgNS, type S2Anchor, S2AnchorUtils, type S2StyleDecl, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
@@ -29,7 +29,7 @@ export class S2Node extends S2Shape<SVGGElement> {
     protected backRect: S2Rect | null = null;
     protected backCircle: S2Circle | null = null;
 
-    constructor(scene: S2SceneInterface, partCount: number = 1) {
+    constructor(scene: S2BaseScene, partCount: number = 1) {
         const element = document.createElementNS(svgNS, 'g');
         super(element, scene);
 

@@ -1,5 +1,5 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { S2Group } from './s2-group';
 import { S2Shape } from './s2-shape';
@@ -36,7 +36,7 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
     protected lineHeight: number = 24;
     protected ascenderHeight: number = 18;
 
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const textGroup = new S2Group<S2Text>(scene);
         super(textGroup.getElement(), scene);
 

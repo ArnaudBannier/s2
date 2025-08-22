@@ -1,5 +1,5 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { S2Node } from './s2-node';
 import { S2Path } from './s2-path';
 import { S2Shape } from './s2-shape';
@@ -20,7 +20,7 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape<SVGPathEle
     protected path: S2Path;
     public options: T;
 
-    constructor(scene: S2SceneInterface, start: S2Node | S2Position, end: S2Node | S2Position, options: T) {
+    constructor(scene: S2BaseScene, start: S2Node | S2Position, end: S2Node | S2Position, options: T) {
         const path = new S2Path(scene);
         super(path.getElement(), scene);
 
@@ -67,7 +67,7 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape<SVGPathEle
 }
 
 export class S2LineEdge extends S2Edge<S2EdgeOptions> {
-    constructor(scene: S2SceneInterface, start: S2Node | S2Position, end: S2Node | S2Position, options: S2EdgeOptions) {
+    constructor(scene: S2BaseScene, start: S2Node | S2Position, end: S2Node | S2Position, options: S2EdgeOptions) {
         super(scene, start, end, options);
         this.addClass('s2-line-edge');
     }
@@ -101,12 +101,7 @@ export interface S2CubicEdgeOptions extends S2EdgeOptions {
 }
 
 export class S2CubicEdge extends S2Edge<S2CubicEdgeOptions> {
-    constructor(
-        scene: S2SceneInterface,
-        start: S2Node | S2Position,
-        end: S2Node | S2Position,
-        options: S2CubicEdgeOptions,
-    ) {
+    constructor(scene: S2BaseScene, start: S2Node | S2Position, end: S2Node | S2Position, options: S2CubicEdgeOptions) {
         super(scene, start, end, options);
         this.addClass('s2-cubic-edge');
     }

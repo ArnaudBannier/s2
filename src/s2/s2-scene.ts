@@ -14,9 +14,9 @@ import { S2CubicEdge, S2LineEdge, type S2CubicEdgeOptions, type S2EdgeOptions } 
 import { S2Position } from './s2-space';
 import { type S2BaseContainer } from './element/s2-container';
 import { type S2BaseElement } from './element/s2-element';
-import { type S2SceneInterface } from './s2-scene-interface';
+import { type S2BaseScene } from './s2-interface';
 
-export class S2Scene implements S2SceneInterface {
+export class S2Scene implements S2BaseScene {
     readonly svg: S2SVG;
     activeCamera: S2Camera;
 

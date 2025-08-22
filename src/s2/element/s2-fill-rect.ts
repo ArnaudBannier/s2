@@ -1,9 +1,9 @@
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Element } from './s2-element';
 
 export class S2FillRect extends S2Element<SVGRectElement> {
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'rect');
         super(element, scene);
         this.addClass('s2-fill-rect');

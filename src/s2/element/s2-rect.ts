@@ -1,16 +1,16 @@
 import { ShapeUtils } from '../../math/shape-utils';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2BaseScene, type S2HasExtents, type S2HasRadius } from '../s2-interface';
 import { Vector2 } from '../../math/vector2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length, S2Extents } from '../s2-space';
 
-export class S2Rect extends S2Shape<SVGRectElement> {
+export class S2Rect extends S2Shape<SVGRectElement> implements S2HasRadius, S2HasExtents {
     public radius: S2Length;
     public extents: S2Extents;
     protected anchor: S2Anchor = 'north';
 
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'rect');
         super(element, scene);
 

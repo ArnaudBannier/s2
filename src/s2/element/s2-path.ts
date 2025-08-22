@@ -1,11 +1,11 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2SceneInterface } from '../s2-scene-interface';
+import { type S2HasPartialRendering, type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { S2Length, S2Position, type S2Space } from '../s2-space';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 
-export class S2Path extends S2Shape<SVGPathElement> {
+export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRendering {
     protected space: S2Space = 'world';
     protected sampleCount: number = 0;
     protected polyCurve: S2PolyCurve;
@@ -14,7 +14,7 @@ export class S2Path extends S2Shape<SVGPathElement> {
     protected paramFrom: number = -1;
     protected paramTo: number = 2;
 
-    constructor(scene: S2SceneInterface) {
+    constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'path');
         super(element, scene);
         this.polyCurve = new S2PolyCurve();
@@ -167,6 +167,18 @@ export class S2Path extends S2Shape<SVGPathElement> {
         this.paramFrom = from;
         this.paramTo = to;
         return this;
+    }
+
+    getPartialFrom(): number {
+        return this.paramFrom;
+    }
+
+    getPartialTo(): number {
+        return this.paramTo;
+    }
+
+    getPartialRange(): [number, number] {
+        return [this.paramFrom, this.paramTo];
     }
 
     private polyCurveToPath(polyCurve: S2PolyCurve): string {
