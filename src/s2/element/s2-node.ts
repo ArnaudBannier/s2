@@ -153,21 +153,21 @@ export class S2Node extends S2Shape<SVGGElement> {
     }
 
     setBackgroundStyle(style: S2StyleDecl): this {
-        if (this.backCircle) this.backCircle.setStyle(style);
-        else if (this.backRect) this.backRect.setStyle(style);
+        if (this.backCircle) this.backCircle.setStyleDecl(style);
+        else if (this.backRect) this.backRect.setStyleDecl(style);
         return this;
     }
 
     setTextStyle(style: S2StyleDecl): this {
         for (const textGroup of this.textGroups) {
-            textGroup.setStyle(style);
+            textGroup.setStyleDecl(style);
         }
         return this;
     }
 
     setSeparatorStyle(style: S2StyleDecl): this {
         for (const line of this.lines) {
-            line.setStyle(style);
+            line.setStyleDecl(style);
         }
         return this;
     }

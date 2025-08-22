@@ -59,50 +59,57 @@ class SceneFigure extends S2AnimatedScene {
 
         this.circle = this.addCircle();
         this.path = this.addPath();
-        this.circle.setPosition(0, 0, 'world').setRadius(2, 'world').setStyle(this.styles.backBase);
-        this.path.setStyle(this.styles.path);
+        this.circle.setPosition(0, 0, 'world').setRadius(2, 'world').setStyleDecl(this.styles.backBase);
+        this.path.setStyleDecl(this.styles.path);
         this.path.setSpace('world').setStart(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
         this.path.makePartial(0, 0);
     }
 
     createAnimation(): void {
-        this.resetTimeline();
+        this.animator.resetTimeline();
         this.createInitialState();
         this.update();
 
-        this.recordElement(this.circle);
-        this.recordElement(this.path);
+        this.animator.saveState(this.circle);
+        this.animator.saveState(this.path);
 
-        this.makeStep();
-        this.addStyleAnimation(this.circle, this.styles.backSlct, { duration: 1000, easing: 'outCubic' }, '+=0');
         this.path.makePartial(0.2, 0.5);
-        this.addDrawAnimation(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
+        this.circle.setStyleDecl(this.styles.backSlct);
 
-        this.makeStep();
-        this.addStyleAnimation(this.circle, this.styles.backExpl, { duration: 1000, easing: 'outBounce' }, '+=0');
-        this.path.makePartial(0.5, 1.0);
-        this.addDrawAnimation(this.path, { duration: 1000, ease: 'outBounce' }, '<<+=200');
-        this.addStyleAnimation(this.path, this.styles.path2, { duration: 1000 }, '<<');
+        this.animator.makeStep();
+        this.animator.animateStyle(this.circle, { duration: 1000, easing: 'outCubic' }, '+=0');
+        this.animator.animateDraw(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
+
+        this.path.makePartial(0.5, 1.0).setStyleDecl(this.styles.path2);
+        this.circle.setStyleDecl(this.styles.backExpl);
+
+        this.animator.makeStep();
+        this.animator.animateStyle(this.circle, { duration: 1000, easing: 'outBounce' }, '+=0');
+        this.animator.animateDraw(this.path, { duration: 1000, ease: 'outBounce' }, '<<+=200');
+        this.animator.animateStyle(this.path, { duration: 1000 }, '<<');
 
         const circle = this.addCircle()
-            .setStyle({ ...this.styles.backExpl, ...this.styles.backTransparent })
+            .setStyleDecl({ ...this.styles.backExpl, ...this.styles.backTransparent })
             .setPosition(5, 0, 'world')
             .setRadius(10, 'view')
             .update();
-
+        this.animator.saveState(circle);
+        circle.setStyleDecl(this.styles.backOpaque);
         this.circle.setPosition(-1, 1, 'world');
-        this.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '<<');
-        this.addStyleAnimation(circle, this.styles.backOpaque, { duration: 500 }, '<<');
 
-        this.makeStep();
-        this.addStyleAnimation(circle, this.styles.backTransparent, { duration: 500 }, '+=0');
-        this.circle.setPosition(+1, 1, 'world');
-        this.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '<<');
+        this.animator.makeStep();
+        this.animator.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
+        this.animator.animateStyle(circle, { duration: 500 }, '<<');
 
-        this.makeStep();
-        this.addStyleAnimation(this.circle, this.styles.backBase, { duration: 1000 }, '+=0');
-        this.path.makePartial(0, 1);
-        this.addDrawAnimation(this.path, { duration: 1000, ease: 'inOut' }, '<<');
+        // this.animator.makeStep();
+        // this.animator.animateStyle(circle, this.styles.backTransparent, { duration: 500 }, '+=0');
+        // this.circle.setPosition(+1, 1, 'world');
+        // this.animator.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '<<');
+
+        // this.animator.makeStep();
+        // this.animator.animateStyle(this.circle, this.styles.backBase, { duration: 1000 }, '+=0');
+        // this.path.makePartial(0, 1);
+        // this.animator.animateDraw(this.path, { duration: 1000, ease: 'inOut' }, '<<');
     }
 }
 

@@ -1,5 +1,5 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2HasPartialRendering, type S2BaseScene } from '../s2-interface';
+import { type S2HasPartialRendering, type S2BaseScene, type S2Parameters } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { S2Length, S2Position, type S2Space } from '../s2-space';
@@ -19,6 +19,14 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
         super(element, scene);
         this.polyCurve = new S2PolyCurve();
         this.endPosition = new Vector2(0, 0);
+    }
+
+    getAnimationState(): S2Parameters {
+        return {
+            ...super.getAnimationState(),
+            pathFrom: this.getPartialFrom(),
+            pathTo: this.getPartialTo(),
+        };
     }
 
     setSampleCount(sampleCount: number): this {

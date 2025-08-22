@@ -46,11 +46,11 @@ class SceneFigure extends S2Scene {
             .cubicToV(co0, ci1, p1)
             .smoothCubicToV(ci2, p2)
             .lineToV(Vector2.sub(p2, ci2));
-        path.setStyle(pathStyle);
+        path.setStyleDecl(pathStyle);
         path.makePartial(0.15, 0.95);
         this.path = path;
 
-        this.tangent = this.addLine().setStyle(this.tangentStyle);
+        this.tangent = this.addLine().setStyleDecl(this.tangentStyle);
 
         this.update();
     }

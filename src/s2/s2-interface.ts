@@ -1,11 +1,23 @@
 import { S2Camera } from './math/s2-camera';
 import { S2SVG } from './element/s2-svg';
-import { type S2Space, S2Position } from './s2-space';
+import { type S2Space, S2Length, S2Position } from './s2-space';
 import { Vector2 } from '../math/vector2';
+import { type S2StyleDecl } from './s2-globals';
 
 export interface S2BaseScene {
     readonly svg: S2SVG;
     activeCamera: S2Camera;
+}
+
+export interface S2Parameters {
+    position?: S2Position;
+    pathFrom?: number;
+    pathTo?: number;
+    style?: S2StyleDecl;
+    fill?: string;
+    opacity?: number;
+    strokeColor?: string;
+    strokeWidth?: S2Length;
 }
 
 export interface S2HasExtents {

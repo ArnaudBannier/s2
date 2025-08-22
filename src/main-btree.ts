@@ -140,11 +140,11 @@ class BTree {
         if (parent) {
             node.parentEdge = this.scene
                 .addLineEdge(parent.s2Node, node.s2Node, this.style.edgeOpts, this.edgeGroup)
-                .setStyle(this.style.edgeBase);
+                .setStyleDecl(this.style.edgeBase);
 
             node.parentEmphEdge = this.scene
                 .addLineEdge(parent.s2Node, node.s2Node, this.style.edgeOpts, this.edgeGroup)
-                .setStyle(this.style.edgeEmph);
+                .setStyleDecl(this.style.edgeEmph);
             node.parentDrawableEdge = svg.createDrawable(node.parentEmphEdge.getElement());
         }
         this.createNodeLines(node.left, node);
