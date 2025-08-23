@@ -2,7 +2,6 @@ import { S2Camera } from './math/s2-camera';
 import { S2SVG } from './element/s2-svg';
 import { type S2Space, S2Length, S2Position } from './s2-space';
 import { Vector2 } from '../math/vector2';
-import { type S2StyleDecl } from './s2-globals';
 import { S2Color } from './s2-globals';
 
 export interface S2BaseScene {
@@ -10,16 +9,40 @@ export interface S2BaseScene {
     activeCamera: S2Camera;
 }
 
-export interface S2Parameters {
+export class S2Parameters {
     position?: S2Position;
     pathFrom?: number;
     pathTo?: number;
-    style?: S2StyleDecl;
     fillColor?: S2Color;
     fillOpacity?: number;
     opacity?: number;
     strokeColor?: S2Color;
     strokeWidth?: S2Length;
+
+    clone(): S2Parameters {
+        const params = new S2Parameters();
+        if (this.position !== undefined) params.position = this.position.clone();
+        if (this.pathFrom !== undefined) params.pathFrom = this.pathFrom;
+        if (this.pathTo !== undefined) params.pathTo = this.pathTo;
+        if (this.fillColor !== undefined) params.fillColor = this.fillColor.clone();
+        if (this.fillOpacity !== undefined) params.fillOpacity = this.fillOpacity;
+        if (this.opacity !== undefined) params.opacity = this.opacity;
+        if (this.strokeColor !== undefined) params.strokeColor = this.strokeColor.clone();
+        if (this.strokeWidth !== undefined) params.strokeWidth = this.strokeWidth.clone();
+        return params;
+    }
+
+    copy(params: S2Parameters): this {
+        this.position = params.position ? params.position.clone() : undefined;
+        this.pathFrom = params.pathFrom;
+        this.pathTo = params.pathTo;
+        this.fillColor = params.fillColor ? params.fillColor.clone() : undefined;
+        this.fillOpacity = params.fillOpacity;
+        this.opacity = params.opacity;
+        this.strokeColor = params.strokeColor ? params.strokeColor.clone() : undefined;
+        this.strokeWidth = params.strokeWidth ? params.strokeWidth.clone() : undefined;
+        return this;
+    }
 }
 
 export interface S2HasExtents {

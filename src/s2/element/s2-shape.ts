@@ -19,10 +19,8 @@ export abstract class S2Shape<T extends SVGGraphicsElement> extends S2Graphics<T
     }
 
     getParameters(): S2Parameters {
-        const parameters: S2Parameters = {
-            ...super.getParameters(),
-            position: this.position.clone(),
-        };
+        const parameters = super.getParameters();
+        parameters.position = this.position.clone();
         return parameters;
     }
 

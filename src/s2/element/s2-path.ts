@@ -23,11 +23,10 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
     }
 
     getParameters(): S2Parameters {
-        return {
-            ...super.getParameters(),
-            pathFrom: this.getPartialFrom(),
-            pathTo: this.getPartialTo(),
-        };
+        const parameters = super.getParameters();
+        parameters.pathFrom = this.paramFrom;
+        parameters.pathTo = this.paramTo;
+        return parameters;
     }
 
     setParameters(params: S2Parameters): this {

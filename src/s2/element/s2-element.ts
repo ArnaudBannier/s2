@@ -1,7 +1,7 @@
 import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2StyleDecl } from '../s2-globals';
-import { type S2Parameters } from '../s2-interface';
+import { S2Parameters } from '../s2-interface';
 export type S2BaseElement = S2Element<SVGElement>;
 
 export abstract class S2Element<T extends SVGElement> {
@@ -21,7 +21,7 @@ export abstract class S2Element<T extends SVGElement> {
     }
 
     getParameters(): S2Parameters {
-        return { style: this.getStyle() };
+        return new S2Parameters();
     }
 
     setAttribute(qualifiedName: string, value: string): this {

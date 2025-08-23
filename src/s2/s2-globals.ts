@@ -26,6 +26,10 @@ export class S2Color {
         this.b = b;
     }
 
+    clone(): S2Color {
+        return new S2Color(this.r, this.g, this.b);
+    }
+
     copy(color: S2Color): this {
         this.r = color.r;
         this.g = color.g;
@@ -38,7 +42,7 @@ export class S2Color {
     }
 
     toRgb(): string {
-        return `rgb(${this.r}, ${this.g}, ${this.b})`;
+        return `rgb(${Math.floor(this.r)}, ${Math.floor(this.g)}, ${Math.floor(this.b)})`;
     }
 
     static lerp(color0: S2Color, color1: S2Color, t: number): S2Color {
