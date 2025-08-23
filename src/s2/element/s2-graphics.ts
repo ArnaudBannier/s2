@@ -4,14 +4,15 @@ import { Matrix2x3 } from '../../math/matrix2x3';
 import { MatrixBuilder2x3 } from '../../math/matrix-builder-2x3';
 import { type S2Space, S2Length } from '../s2-space';
 import { S2Element } from './s2-element';
+import { S2Color } from '../s2-globals';
 
 export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element<T> implements S2HasStrokeWidth {
     public transform: Matrix2x3;
-    public fill: string = '#FFFFFF';
+    public fill: S2Color = new S2Color(255, 255, 255);
     public fillOpacity: number = 1;
     public opacity: number = 1;
     protected strokeWidth: S2Length;
-    public strokeColor: string = '#000000';
+    public strokeColor: S2Color = new S2Color(255, 255, 255);
 
     constructor(element: T, scene: S2BaseScene) {
         super(element, scene);
@@ -22,7 +23,7 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
     setParameters(params: S2Parameters): this {
         super.setParameters(params);
         if (params.strokeWidth) this.setStrokeWidth(params.strokeWidth.value, params.strokeWidth.space);
-        if (params.fill) this.fill = params.fill;
+        if (params.fillColor) this.fill = params.fillColor;
         if (params.fillOpacity) this.fillOpacity = params.fillOpacity;
         if (params.opacity) this.opacity = params.opacity;
         if (params.strokeColor) this.strokeColor = params.strokeColor;
@@ -35,24 +36,24 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         };
         if (this.strokeColor !== undefined) parameters.strokeColor = this.strokeColor;
         if (this.strokeWidth.value > 0) parameters.strokeWidth = this.strokeWidth.clone();
-        if (this.fill !== undefined) parameters.fill = this.fill;
+        if (this.fill !== undefined) parameters.fillColor = this.fill;
         if (this.fillOpacity !== undefined) parameters.fillOpacity = this.fillOpacity;
         if (this.opacity !== undefined) parameters.opacity = this.opacity;
         return parameters;
     }
 
-    setFill(fill: string): this {
-        this.fill = fill;
+    setFill(color: S2Color): this {
+        this.fill.copy(color);
+        return this;
+    }
+
+    setStrokeColor(color: S2Color): this {
+        this.strokeColor.copy(color);
         return this;
     }
 
     setOpacity(opacity: number): this {
         this.opacity = opacity;
-        return this;
-    }
-
-    setStrokeColor(strokeColor: string): this {
-        this.strokeColor = strokeColor;
         return this;
     }
 
@@ -140,10 +141,10 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
                 `matrix(${te[0]}, ${te[1]}, ${te[2]}, ${te[3]}, ${te[4]}, ${te[5]})`,
             );
         }
-        if (this.fill !== undefined) this.element.setAttribute('fill', this.fill);
+        if (this.fill !== undefined) this.element.setAttribute('fill', this.fill.toRgb());
         if (this.fillOpacity !== undefined) this.element.setAttribute('fill-opacity', this.fillOpacity.toString());
         if (this.opacity !== undefined) this.element.setAttribute('opacity', this.opacity.toString());
-        if (this.strokeColor !== undefined) this.element.setAttribute('stroke', this.strokeColor);
+        if (this.strokeColor !== undefined) this.element.setAttribute('stroke', this.strokeColor.toRgb());
         if (this.strokeWidth.value > 0) {
             const strokeWidth = this.getStrokeWidth('view');
             this.element.setAttribute('stroke-width', strokeWidth.toString());

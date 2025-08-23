@@ -1,11 +1,12 @@
 import './style.css';
 import { Vector2 } from './math/vector2.ts';
 import { S2Camera } from './s2/math/s2-camera.ts';
-import { MTL } from './utils/mtl-colors.ts';
+import { MTL, MTL_COLORS } from './utils/mtl-colors.ts';
 import { S2Circle } from './s2/element/s2-circle.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 import type { S2Path } from './s2/element/s2-path.ts';
 import { S2Length } from './s2/s2-space.ts';
+import type { S2Parameters } from './s2/s2-interface.ts';
 
 const viewportScale = 1.5;
 const viewport = new Vector2(640.0, 360.0).scale(viewportScale);
@@ -14,48 +15,21 @@ const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewpo
 class SceneFigure extends S2AnimatedScene {
     protected circle: S2Circle;
     protected path: S2Path;
-    protected newStyles = {
+    protected styles: { backBase: S2Parameters; backSlct: S2Parameters; path: S2Parameters } = {
         backBase: {
-            fill: MTL.GREY_6,
-            strokeColor: MTL.GREY_4,
+            fillColor: MTL_COLORS.GREY_6,
+            strokeColor: MTL_COLORS.GREY_4,
             strokeWidth: new S2Length(4, 'view'),
         },
         backSlct: {
-            fill: MTL.BLUE_GREY_9,
-            strokeColor: MTL.LIGHT_BLUE_5,
+            fillColor: MTL_COLORS.BLUE_GREY_9,
+            strokeColor: MTL_COLORS.LIGHT_BLUE_5,
             strokeWidth: new S2Length(8, 'view'),
         },
-    };
-
-    protected styles = {
-        backBase: {
-            fill: MTL.GREY_6,
-            stroke: MTL.GREY_4,
-            'stroke-width': '4',
-        },
-        backSlct: {
-            fill: MTL.BLUE_GREY_9,
-            stroke: MTL.LIGHT_BLUE_5,
-            'stroke-width': '4',
-        },
-        backExpl: {
-            fill: MTL.LIGHT_BLUE_7,
-            stroke: MTL.LIGHT_BLUE_2,
-            'stroke-width': '4',
-        },
-        backOpaque: {
-            opacity: '1',
-        },
-        backTransparent: {
-            opacity: '0',
-        },
         path: {
-            stroke: MTL.CYAN,
-            'stroke-width': '4',
-            'fill-opacity': '0',
-        },
-        path2: {
-            stroke: MTL.AMBER,
+            strokeColor: MTL_COLORS.CYAN_5,
+            strokeWidth: new S2Length(4, 'view'),
+            fillOpacity: 0,
         },
     };
 
@@ -72,10 +46,10 @@ class SceneFigure extends S2AnimatedScene {
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
 
         this.circle = this.addCircle();
-        this.circle.setParameters(this.newStyles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
+        this.circle.setParameters(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
 
         this.path = this.addPath();
-        this.path.setStyleDecl(this.styles.path);
+        this.path.setParameters(this.styles.path);
         this.path.setSpace('world').setStart(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
         this.path.makePartial(0, 0);
     }
@@ -89,32 +63,23 @@ class SceneFigure extends S2AnimatedScene {
         this.animator.saveState(this.path);
 
         this.path.makePartial(0.2, 0.5);
-        this.circle.setParameters(this.newStyles.backSlct);
+        this.circle.setParameters(this.styles.backSlct);
 
         this.animator.makeStep();
-        this.animator.animateStyle(this.circle, { duration: 1000, easing: 'outCubic' }, '+=0');
-        this.animator.animateDraw(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
+        this.animator.animate(this.circle, { duration: 1000, easing: 'outCubic' }, '+=0');
+        this.animator.animate(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
 
-        this.path.makePartial(0.5, 1.0).setStyleDecl(this.styles.path2);
-        this.circle.setStyleDecl(this.styles.backExpl);
+        this.path.makePartial(0.5, 1.0);
 
         this.animator.makeStep();
         this.animator.animateStyle(this.circle, { duration: 1000, easing: 'outBounce' }, '+=0');
         this.animator.animateDraw(this.path, { duration: 1000, ease: 'outBounce' }, '<<+=200');
         this.animator.animateStyle(this.path, { duration: 1000 }, '<<');
 
-        const circle = this.addCircle()
-            .setStyleDecl({ ...this.styles.backExpl, ...this.styles.backTransparent })
-            .setPosition(5, 0, 'world')
-            .setRadius(10, 'view')
-            .update();
-        this.animator.saveState(circle);
-        circle.setStyleDecl(this.styles.backOpaque);
         this.circle.setPosition(-1, 1, 'world');
 
         this.animator.makeStep();
         this.animator.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
-        this.animator.animateStyle(circle, { duration: 500 }, '<<');
         this.animator.finalize();
 
         // this.animator.makeStep();

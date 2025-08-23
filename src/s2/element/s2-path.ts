@@ -30,6 +30,13 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
         };
     }
 
+    setParameters(params: S2Parameters): this {
+        super.setParameters(params);
+        if (params.pathFrom !== undefined) this.paramFrom = params.pathFrom;
+        if (params.pathTo !== undefined) this.paramTo = params.pathTo;
+        return this;
+    }
+
     setSampleCount(sampleCount: number): this {
         this.sampleCount = sampleCount;
         return this;

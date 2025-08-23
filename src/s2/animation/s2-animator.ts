@@ -6,6 +6,7 @@ import { type AnimationParams } from 'animejs';
 import { lerp } from '../../math/utils';
 import type { S2Shape } from '../element/s2-shape';
 import { S2Position, S2Length } from '../s2-space';
+import { S2Color } from '../s2-globals';
 
 abstract class S2Animation {
     protected scene: S2BaseScene;
@@ -15,16 +16,17 @@ abstract class S2Animation {
     abstract update(t: number): void;
 }
 
-class S2ParamAnim extends S2Animation {
+class S2ElementAnim extends S2Animation {
     target: S2BaseElement;
     targetParams: S2Parameters = {};
 
     position?: [S2Position, S2Position];
-    path?: { from: [number, number]; to: [number, number] };
-    fill?: [string, string];
+    pathFrom?: [number, number];
+    pathTo?: [number, number];
+    fillColor?: [S2Color, S2Color];
     fillOpacity?: [number, number];
     opacity?: [number, number];
-    strokeColor?: [string, string];
+    strokeColor?: [S2Color, S2Color];
     strokeWidth?: [S2Length, S2Length];
 
     constructor(scene: S2BaseScene, target: S2BaseElement, from: S2Parameters, to: S2Parameters) {
@@ -36,30 +38,62 @@ class S2ParamAnim extends S2Animation {
         if (from.strokeWidth && to.strokeWidth) {
             this.strokeWidth = [from.strokeWidth, to.strokeWidth];
         }
+        if (from.pathFrom !== undefined && to.pathFrom !== undefined) {
+            this.pathFrom = [from.pathFrom, to.pathFrom];
+        }
+        if (from.pathTo !== undefined && to.pathTo !== undefined) {
+            this.pathTo = [from.pathTo, to.pathTo];
+        }
+        if (from.fillColor && to.fillColor) {
+            this.fillColor = [from.fillColor, to.fillColor];
+        }
+        if (from.strokeColor && to.strokeColor) {
+            this.strokeColor = [from.strokeColor, to.strokeColor];
+        }
+        if (from.fillOpacity !== undefined && to.fillOpacity !== undefined) {
+            this.fillOpacity = [from.fillOpacity, to.fillOpacity];
+        }
+        if (from.opacity !== undefined && to.opacity !== undefined) {
+            this.opacity = [from.opacity, to.opacity];
+        }
     }
 
     update(t: number): void {
         if (this.position) {
-            this.updatePosition(t, this.position[0], this.position[1]);
+            const from = this.position[0];
+            const to = this.position[1];
+            from.changeSpace(to.space, this.scene.activeCamera);
+            this.targetParams.position = new S2Position(
+                lerp(from.value.x, to.value.x, t),
+                lerp(from.value.y, to.value.y, t),
+                to.space,
+            );
         }
         if (this.strokeWidth) {
-            this.updateStrokeWidth(t, this.strokeWidth[0], this.strokeWidth[1]);
+            const from = this.strokeWidth[0];
+            const to = this.strokeWidth[1];
+            from.changeSpace(to.space, this.scene.activeCamera);
+            this.targetParams.strokeWidth = new S2Length(lerp(from.value, to.value, t), to.space);
+        }
+        if (this.pathFrom) {
+            this.targetParams.pathFrom = lerp(this.pathFrom[0], this.pathFrom[1], t);
+        }
+        if (this.pathTo) {
+            this.targetParams.pathTo = lerp(this.pathTo[0], this.pathTo[1], t);
+        }
+        if (this.fillColor) {
+            this.targetParams.fillColor = S2Color.lerp(this.fillColor[0], this.fillColor[1], t);
+        }
+        if (this.strokeColor) {
+            this.targetParams.strokeColor = S2Color.lerp(this.strokeColor[0], this.strokeColor[1], t);
+        }
+        if (this.opacity) {
+            this.targetParams.opacity = lerp(this.opacity[0], this.opacity[1], t);
+        }
+        if (this.fillOpacity) {
+            this.targetParams.fillOpacity = lerp(this.fillOpacity[0], this.fillOpacity[1], t);
         }
         this.target.setParameters(this.targetParams).update();
-    }
-
-    private updatePosition(t: number, from: S2Position, to: S2Position): void {
-        from.changeSpace(to.space, this.scene.activeCamera);
-        this.targetParams.position = new S2Position(
-            lerp(from.value.x, to.value.x, t),
-            lerp(from.value.y, to.value.y, t),
-            to.space,
-        );
-    }
-
-    private updateStrokeWidth(t: number, from: S2Length, to: S2Length): void {
-        from.changeSpace(to.space, this.scene.activeCamera);
-        this.targetParams.strokeWidth = new S2Length(lerp(from.value, to.value, t), to.space);
     }
 }
 
@@ -128,37 +162,64 @@ export class S2Animator {
         return this.timeline;
     }
 
-    animateStyle(
-        target: S2Shape<SVGGraphicsElement>,
-        parameters: AnimationParams,
-        timelinePos?: number | string,
-    ): void {
+    animate(target: S2Shape<SVGGraphicsElement>, parameters: AnimationParams, timelinePos?: number | string): void {
         const savedState = this.stateMap.get(target);
         if (savedState === undefined) {
             console.warn('Target not saved.');
             return;
         }
         if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
-            const fill0 = savedState.currentParams.fill ?? target.fill;
-            const fill1 = target.fill;
-            const animeTarget = { fill: fill0 };
+            const anim = new S2ElementAnim(this.scene, target, savedState.currentParams, target.getParameters());
+            const animeTarget = { t: 0 };
             this.timeline.add(
                 animeTarget,
                 {
-                    fill: { to: [fill0, fill1] },
+                    t: { to: [0, 1] },
                     ...parameters,
                     onUpdate: (_) => {
                         void _;
-                        target.setFill(animeTarget.fill).update();
+                        anim.update(animeTarget.t);
                     },
                 },
                 timelinePos,
             );
-            savedState.currentParams.fill = fill1;
         } else if (this.currStepIndex < this.targetStepIndex) {
-            savedState.currentParams.fill = target.fill;
+            savedState.currentParams = target.getParameters();
             target.update();
         }
+    }
+
+    animateStyle(
+        target: S2Shape<SVGGraphicsElement>,
+        parameters: AnimationParams,
+        timelinePos?: number | string,
+    ): void {
+        // const savedState = this.stateMap.get(target);
+        // if (savedState === undefined) {
+        //     console.warn('Target not saved.');
+        //     return;
+        // }
+        // if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
+        //     const fill0 = savedState.currentParams.fill ?? target.fill;
+        //     const fill1 = target.fill;
+        //     const animeTarget = { fill: fill0 };
+        //     this.timeline.add(
+        //         animeTarget,
+        //         {
+        //             fill: { to: [fill0, fill1] },
+        //             ...parameters,
+        //             onUpdate: (_) => {
+        //                 void _;
+        //                 target.setFill(animeTarget.fill).update();
+        //             },
+        //         },
+        //         timelinePos,
+        //     );
+        //     savedState.currentParams.fill = fill1;
+        // } else if (this.currStepIndex < this.targetStepIndex) {
+        //     savedState.currentParams.fill = target.fill;
+        //     target.update();
+        // }
     }
 
     animateMove(

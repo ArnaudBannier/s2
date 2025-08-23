@@ -3,6 +3,7 @@ import { S2SVG } from './element/s2-svg';
 import { type S2Space, S2Length, S2Position } from './s2-space';
 import { Vector2 } from '../math/vector2';
 import { type S2StyleDecl } from './s2-globals';
+import { S2Color } from './s2-globals';
 
 export interface S2BaseScene {
     readonly svg: S2SVG;
@@ -14,10 +15,10 @@ export interface S2Parameters {
     pathFrom?: number;
     pathTo?: number;
     style?: S2StyleDecl;
-    fill?: string;
+    fillColor?: S2Color;
     fillOpacity?: number;
     opacity?: number;
-    strokeColor?: string;
+    strokeColor?: S2Color;
     strokeWidth?: S2Length;
 }
 
