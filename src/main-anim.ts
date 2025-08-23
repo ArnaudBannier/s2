@@ -5,6 +5,7 @@ import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle } from './s2/element/s2-circle.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 import type { S2Path } from './s2/element/s2-path.ts';
+import { S2Length } from './s2/s2-space.ts';
 
 const viewportScale = 1.5;
 const viewport = new Vector2(640.0, 360.0).scale(viewportScale);
@@ -13,6 +14,19 @@ const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewpo
 class SceneFigure extends S2AnimatedScene {
     protected circle: S2Circle;
     protected path: S2Path;
+    protected newStyles = {
+        backBase: {
+            fill: MTL.GREY_6,
+            strokeColor: MTL.GREY_4,
+            strokeWidth: new S2Length(4, 'view'),
+        },
+        backSlct: {
+            fill: MTL.BLUE_GREY_9,
+            strokeColor: MTL.LIGHT_BLUE_5,
+            strokeWidth: new S2Length(8, 'view'),
+        },
+    };
+
     protected styles = {
         backBase: {
             fill: MTL.GREY_6,
@@ -58,8 +72,9 @@ class SceneFigure extends S2AnimatedScene {
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
 
         this.circle = this.addCircle();
+        this.circle.setParameters(this.newStyles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
+
         this.path = this.addPath();
-        this.circle.setPosition(0, 0, 'world').setRadius(2, 'world').setStyleDecl(this.styles.backBase);
         this.path.setStyleDecl(this.styles.path);
         this.path.setSpace('world').setStart(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
         this.path.makePartial(0, 0);
@@ -74,7 +89,7 @@ class SceneFigure extends S2AnimatedScene {
         this.animator.saveState(this.path);
 
         this.path.makePartial(0.2, 0.5);
-        this.circle.setStyleDecl(this.styles.backSlct);
+        this.circle.setParameters(this.newStyles.backSlct);
 
         this.animator.makeStep();
         this.animator.animateStyle(this.circle, { duration: 1000, easing: 'outCubic' }, '+=0');
@@ -100,6 +115,7 @@ class SceneFigure extends S2AnimatedScene {
         this.animator.makeStep();
         this.animator.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
         this.animator.animateStyle(circle, { duration: 500 }, '<<');
+        this.animator.finalize();
 
         // this.animator.makeStep();
         // this.animator.animateStyle(circle, this.styles.backTransparent, { duration: 500 }, '+=0');

@@ -15,6 +15,7 @@ export interface S2Parameters {
     pathTo?: number;
     style?: S2StyleDecl;
     fill?: string;
+    fillOpacity?: number;
     opacity?: number;
     strokeColor?: string;
     strokeWidth?: S2Length;

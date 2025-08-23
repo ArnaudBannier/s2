@@ -1,15 +1,74 @@
-import { type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene, type S2HasStrokeWidth, type S2Parameters } from '../s2-interface';
 import { Vector2 } from '../../math/vector2';
 import { Matrix2x3 } from '../../math/matrix2x3';
 import { MatrixBuilder2x3 } from '../../math/matrix-builder-2x3';
+import { type S2Space, S2Length } from '../s2-space';
 import { S2Element } from './s2-element';
 
-export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element<T> {
+export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element<T> implements S2HasStrokeWidth {
     public transform: Matrix2x3;
+    public fill: string = '#FFFFFF';
+    public fillOpacity: number = 1;
+    public opacity: number = 1;
+    protected strokeWidth: S2Length;
+    public strokeColor: string = '#000000';
 
     constructor(element: T, scene: S2BaseScene) {
         super(element, scene);
         this.transform = Matrix2x3.createIdentity();
+        this.strokeWidth = new S2Length(0, 'view');
+    }
+
+    setParameters(params: S2Parameters): this {
+        super.setParameters(params);
+        if (params.strokeWidth) this.setStrokeWidth(params.strokeWidth.value, params.strokeWidth.space);
+        if (params.fill) this.fill = params.fill;
+        if (params.fillOpacity) this.fillOpacity = params.fillOpacity;
+        if (params.opacity) this.opacity = params.opacity;
+        if (params.strokeColor) this.strokeColor = params.strokeColor;
+        return this;
+    }
+
+    getParameters(): S2Parameters {
+        const parameters: S2Parameters = {
+            ...super.getParameters(),
+        };
+        if (this.strokeColor !== undefined) parameters.strokeColor = this.strokeColor;
+        if (this.strokeWidth.value > 0) parameters.strokeWidth = this.strokeWidth.clone();
+        if (this.fill !== undefined) parameters.fill = this.fill;
+        if (this.fillOpacity !== undefined) parameters.fillOpacity = this.fillOpacity;
+        if (this.opacity !== undefined) parameters.opacity = this.opacity;
+        return parameters;
+    }
+
+    setFill(fill: string): this {
+        this.fill = fill;
+        return this;
+    }
+
+    setOpacity(opacity: number): this {
+        this.opacity = opacity;
+        return this;
+    }
+
+    setStrokeColor(strokeColor: string): this {
+        this.strokeColor = strokeColor;
+        return this;
+    }
+
+    setStrokeWidth(strokeWidth: number, space?: S2Space): this {
+        if (space) this.strokeWidth.space = space;
+        this.strokeWidth.value = strokeWidth;
+        return this;
+    }
+
+    getStrokeWidth(space: S2Space = this.strokeWidth.space): number {
+        return this.strokeWidth.toSpace(space, this.getActiveCamera());
+    }
+
+    changeStrokeWidthSpace(space: S2Space): this {
+        this.strokeWidth.changeSpace(space, this.getActiveCamera());
+        return this;
     }
 
     buildTransform(builder?: MatrixBuilder2x3, makeIdentity: boolean = true): MatrixBuilder2x3 {
@@ -80,6 +139,14 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
                 'transform',
                 `matrix(${te[0]}, ${te[1]}, ${te[2]}, ${te[3]}, ${te[4]}, ${te[5]})`,
             );
+        }
+        if (this.fill !== undefined) this.element.setAttribute('fill', this.fill);
+        if (this.fillOpacity !== undefined) this.element.setAttribute('fill-opacity', this.fillOpacity.toString());
+        if (this.opacity !== undefined) this.element.setAttribute('opacity', this.opacity.toString());
+        if (this.strokeColor !== undefined) this.element.setAttribute('stroke', this.strokeColor);
+        if (this.strokeWidth.value > 0) {
+            const strokeWidth = this.getStrokeWidth('view');
+            this.element.setAttribute('stroke-width', strokeWidth.toString());
         }
         return this;
     }

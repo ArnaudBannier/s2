@@ -19,11 +19,12 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
         super(element, scene);
         this.polyCurve = new S2PolyCurve();
         this.endPosition = new Vector2(0, 0);
+        this.fillOpacity = 0;
     }
 
-    getAnimationState(): S2Parameters {
+    getParameters(): S2Parameters {
         return {
-            ...super.getAnimationState(),
+            ...super.getParameters(),
             pathFrom: this.getPartialFrom(),
             pathTo: this.getPartialTo(),
         };

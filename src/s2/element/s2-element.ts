@@ -20,7 +20,7 @@ export abstract class S2Element<T extends SVGElement> {
         return this;
     }
 
-    getAnimationState(): S2Parameters {
+    getParameters(): S2Parameters {
         return { style: this.getStyle() };
     }
 

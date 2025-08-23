@@ -4,6 +4,16 @@ import { type S2BaseElement } from './element/s2-element';
 import { type S2Parameters, type S2BaseScene, type S2HasPosition } from './s2-interface';
 import { type AnimationParams } from 'animejs';
 import { lerp } from '../math/utils';
+import type { S2Shape } from './element/s2-shape';
+
+class AnimState {
+    initialParams: S2Parameters;
+    currentParams: S2Parameters;
+    constructor(state: S2Parameters) {
+        this.initialParams = state;
+        this.currentParams = state;
+    }
+}
 
 export class S2Animator {
     protected scene: S2BaseScene;
@@ -11,7 +21,9 @@ export class S2Animator {
     protected currStepIndex: number = -1;
     protected timeline: Timeline;
     protected stepCount: number = 0;
-    protected stateMap: WeakMap<S2BaseElement, S2Parameters> = new WeakMap();
+    protected currParamMap: Map<S2BaseElement, S2Parameters> = new Map();
+    protected startParamsMap: Map<S2BaseElement, S2Parameters> = new Map();
+    protected stateMap: Map<S2BaseElement, AnimState> = new Map();
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
@@ -32,8 +44,16 @@ export class S2Animator {
     }
 
     saveState(target: S2BaseElement): this {
-        this.stateMap.set(target, target.getAnimationState());
+        this.currParamMap.set(target, target.getParameters());
+        this.startParamsMap.set(target, target.getParameters());
+        this.stateMap.set(target, new AnimState(target.getParameters()));
         return this;
+    }
+
+    finalize(): void {
+        this.stateMap.forEach((state, target) => {
+            target.setParameters(state.initialParams).update();
+        });
     }
 
     makeStep(): boolean {
@@ -52,34 +72,35 @@ export class S2Animator {
         return this.timeline;
     }
 
-    animateStyle(target: S2BaseElement, parameters: AnimationParams, timelinePos?: number | string): void {
+    animateStyle(
+        target: S2Shape<SVGGraphicsElement>,
+        parameters: AnimationParams,
+        timelinePos?: number | string,
+    ): void {
         const savedState = this.stateMap.get(target);
-        const savedStyle = savedState?.style;
-        if (savedState === undefined || savedStyle === undefined) {
+        if (savedState === undefined) {
             console.warn('Target not saved.');
             return;
         }
-        const style = target.getStyle();
         if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
-            const p0 = { ...savedStyle };
-            const p1 = target.getStyle();
-            const animeTarget: Record<string, { to: [string, string] }> = {};
-            Object.entries(p0).forEach(([key, value]) => {
-                if (Object.hasOwn(p1, key)) {
-                    animeTarget[key] = { to: [value, p1[key]] };
-                }
-            });
+            const fill0 = savedState.currentParams.fill ?? target.fill;
+            const fill1 = target.fill;
+            const animeTarget = { fill: fill0 };
             this.timeline.add(
-                target.getElement(),
+                animeTarget,
                 {
-                    ...animeTarget,
+                    fill: { to: [fill0, fill1] },
                     ...parameters,
+                    onUpdate: (_) => {
+                        void _;
+                        target.setFill(animeTarget.fill).update();
+                    },
                 },
                 timelinePos,
             );
-            savedState.style = style;
+            savedState.currentParams.fill = fill1;
         } else if (this.currStepIndex < this.targetStepIndex) {
-            savedState.style = style;
+            savedState.currentParams.fill = target.fill;
             target.update();
         }
     }
@@ -90,7 +111,7 @@ export class S2Animator {
         timelinePos?: number | string,
     ): void {
         const savedState = this.stateMap.get(target);
-        const savedPosition = savedState?.position;
+        const savedPosition = savedState?.currentParams.position;
         if (savedPosition === undefined) {
             console.warn('Target not saved.');
             return;
@@ -122,15 +143,15 @@ export class S2Animator {
 
     animateDraw(target: S2Path, parameters: AnimationParams, timelinePos?: number | string): void {
         const savedState = this.stateMap.get(target);
-        if (savedState?.pathFrom === undefined || savedState?.pathTo === undefined) {
+        if (savedState?.currentParams.pathFrom === undefined || savedState?.currentParams.pathTo === undefined) {
             console.warn('Target not recorded.');
             return;
         }
         const pathFrom1 = target.getPartialFrom();
         const pathTo1 = target.getPartialTo();
         if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
-            const pathFrom0 = savedState.pathFrom;
-            const pathTo0 = savedState.pathTo;
+            const pathFrom0 = savedState.currentParams.pathFrom;
+            const pathTo0 = savedState.currentParams.pathTo;
             const animeTarget = { progress: 0 };
             this.timeline.add(
                 animeTarget,
@@ -147,11 +168,11 @@ export class S2Animator {
                 },
                 timelinePos,
             );
-            savedState.pathFrom = pathFrom1;
-            savedState.pathTo = pathTo1;
+            savedState.currentParams.pathFrom = pathFrom1;
+            savedState.currentParams.pathTo = pathTo1;
         } else if (this.currStepIndex < this.targetStepIndex) {
-            savedState.pathFrom = pathFrom1;
-            savedState.pathTo = pathTo1;
+            savedState.currentParams.pathFrom = pathFrom1;
+            savedState.currentParams.pathTo = pathTo1;
             target.update();
         }
     }

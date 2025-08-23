@@ -82,6 +82,10 @@ export class S2Length {
         this.space = space;
     }
 
+    clone(): S2Length {
+        return new S2Length(this.value, this.space);
+    }
+
     setValueFromSpace(space: S2Space, camera: S2Camera, value: number): this {
         if (this.space === space) {
             // this = other
