@@ -35,6 +35,7 @@ class SceneFigure extends S2AnimatedScene {
         this.styles.path.strokeColor = MTL_COLORS.CYAN_5;
         this.styles.path.strokeWidth = new S2Length(4, 'view');
         this.styles.path.fillOpacity = 0;
+        this.styles.path.lineCap = 'round';
 
         this.circle = this.addCircle();
         this.path = this.addPath();
@@ -80,8 +81,6 @@ class SceneFigure extends S2AnimatedScene {
 
         this.animator.makeStep();
         this.animator.animate(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
-
-        console.log(this.animator.stateMap.get(this.path));
 
         this.circle.setPosition(1, 1, 'world');
         this.circle.setParameters(this.styles.backBase);

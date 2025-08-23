@@ -6,11 +6,11 @@ import { S2Shape } from '../element/s2-shape';
 import { S2ElementAnim } from './s2-animation';
 
 class S2AnimState {
-    initialParams: S2Parameters;
-    currentParams: S2Parameters;
-    constructor(state: S2Parameters) {
-        this.initialParams = state.clone();
-        this.currentParams = state.clone();
+    params: S2Parameters;
+    index: number;
+    constructor(params: S2Parameters, index: number = 0) {
+        this.params = params.clone();
+        this.index = index;
     }
 }
 
@@ -20,11 +20,20 @@ export class S2Animator {
     protected currStepIndex: number = -1;
     protected timeline: Timeline;
     protected stepCount: number = 0;
-    public stateMap: Map<S2BaseElement, S2AnimState> = new Map();
+    public statesMap: Map<S2BaseElement, S2AnimState[]> = new Map();
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
         this.timeline = new Timeline({ autoplay: false });
+    }
+
+    private getSavedParams(states: S2AnimState[], index: number): S2Parameters {
+        for (let i = states.length - 1; i >= 0; i--) {
+            if (states[i].index < index) {
+                return states[i].params;
+            }
+        }
+        return states[0].params;
     }
 
     getStepCount(): number {
@@ -41,14 +50,16 @@ export class S2Animator {
     }
 
     saveState(target: S2BaseElement): this {
-        this.stateMap.set(target, new S2AnimState(target.getParameters()));
+        this.statesMap.set(target, [new S2AnimState(target.getParameters(), this.currStepIndex)]);
         return this;
     }
 
     finalize(): void {
-        this.stateMap.forEach((state, target) => {
-            target.setParameters(state.initialParams).update();
+        this.statesMap.forEach((states, target) => {
+            const state = this.getSavedParams(states, this.targetStepIndex);
+            target.setParameters(state).update();
         });
+        this.stepCount = this.currStepIndex;
     }
 
     makeStep(): boolean {
@@ -68,17 +79,15 @@ export class S2Animator {
     }
 
     animate(target: S2Shape<SVGGraphicsElement>, parameters: AnimationParams, timelinePos?: number | string): void {
-        const savedState = this.stateMap.get(target);
-        if (savedState === undefined) {
+        const states = this.statesMap.get(target);
+        if (states === undefined || states.length === 0) {
             console.warn('Target not saved.');
             return;
         }
+        const savedParams = this.getSavedParams(states, this.currStepIndex);
         const currentParams = target.getParameters();
-        if (this.currStepIndex < this.targetStepIndex) {
-            savedState.initialParams.copy(currentParams);
-        }
         if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
-            const anim = new S2ElementAnim(this.scene, target, savedState.currentParams, currentParams);
+            const anim = new S2ElementAnim(this.scene, target, savedParams, currentParams);
             const animeTarget = { t: 0 };
             this.timeline.add(
                 animeTarget,
@@ -92,10 +101,36 @@ export class S2Animator {
                 },
                 timelinePos,
             );
-            savedState.currentParams.copy(currentParams);
-        } else if (this.currStepIndex < this.targetStepIndex) {
-            savedState.currentParams.copy(currentParams);
-            target.update();
         }
+        states.push(new S2AnimState(currentParams, this.currStepIndex));
     }
 }
+
+// class S2AnimatorStep {
+//     public animations: S2Animation[] = [];
+//     timelinePos: Array<number | string> = [];
+
+//     addAnimation(animation: S2Animation, timelinePos: number | string = '+=0'): this {
+//         this.animations.push(animation);
+//         this.timelinePos.push(timelinePos);
+//         return this;
+//     }
+
+//     // appendToTimeline(timeline: Timeline): void {
+//     //     this.animations.forEach((anim, index) => {
+//     //         const animeTarget = { t: 0 };
+//     //         timeline.add(
+//     //             animeTarget,
+//     //             {
+//     //                 t: { to: [0, 1] },
+//     //                 ...anim.parameters,
+//     //                 onUpdate: (_) => {
+//     //                     void _;
+//     //                     anim.update(animeTarget.t);
+//     //                 },
+//     //             },
+//     //             this.timelinePos[index],
+//     //         );
+//     //     });
+//     // }
+// }

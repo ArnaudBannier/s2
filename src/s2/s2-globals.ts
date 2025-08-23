@@ -53,6 +53,9 @@ export class S2Color {
     }
 }
 
+export type S2LineCap = 'butt' | 'round' | 'square';
+export type S2LineJoin = 'miter' | 'round' | 'bevel';
+
 export type S2Anchor =
     | 'north west'
     | 'north'

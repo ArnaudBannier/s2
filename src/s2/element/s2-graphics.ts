@@ -4,15 +4,18 @@ import { Matrix2x3 } from '../../math/matrix2x3';
 import { MatrixBuilder2x3 } from '../../math/matrix-builder-2x3';
 import { type S2Space, S2Length } from '../s2-space';
 import { S2Element } from './s2-element';
-import { S2Color } from '../s2-globals';
+import { S2Color, type S2LineCap, type S2LineJoin } from '../s2-globals';
 
 export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element<T> implements S2HasStrokeWidth {
     public transform: Matrix2x3;
-    public fillColor: S2Color | undefined = undefined;
-    public fillOpacity: number | undefined = undefined;
-    public opacity: number | undefined = undefined;
     protected strokeWidth: S2Length;
-    public strokeColor: S2Color | undefined = undefined;
+
+    public fillColor?: S2Color;
+    public fillOpacity?: number;
+    public opacity?: number;
+    public strokeColor?: S2Color;
+    public lineCap?: S2LineCap;
+    public lineJoin?: S2LineJoin;
 
     constructor(element: T, scene: S2BaseScene) {
         super(element, scene);
@@ -27,6 +30,8 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         if (params.fillOpacity) this.fillOpacity = params.fillOpacity;
         if (params.opacity) this.opacity = params.opacity;
         if (params.strokeColor) this.strokeColor = params.strokeColor;
+        if (params.lineCap) this.lineCap = params.lineCap;
+        if (params.lineJoin) this.lineJoin = params.lineJoin;
         return this;
     }
 
@@ -37,6 +42,8 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         if (this.fillColor !== undefined) parameters.fillColor = this.fillColor;
         if (this.fillOpacity !== undefined) parameters.fillOpacity = this.fillOpacity;
         if (this.opacity !== undefined) parameters.opacity = this.opacity;
+        if (this.lineCap !== undefined) parameters.lineCap = this.lineCap;
+        if (this.lineJoin !== undefined) parameters.lineJoin = this.lineJoin;
         return parameters;
     }
 
@@ -143,6 +150,8 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         if (this.fillOpacity !== undefined) this.element.setAttribute('fill-opacity', this.fillOpacity.toString());
         if (this.opacity !== undefined) this.element.setAttribute('opacity', this.opacity.toString());
         if (this.strokeColor !== undefined) this.element.setAttribute('stroke', this.strokeColor.toRgb());
+        if (this.lineCap !== undefined) this.element.setAttribute('stroke-linecap', this.lineCap);
+        if (this.lineJoin !== undefined) this.element.setAttribute('stroke-linejoin', this.lineJoin);
         if (this.strokeWidth.value > 0) {
             const strokeWidth = this.getStrokeWidth('view');
             this.element.setAttribute('stroke-width', strokeWidth.toString());

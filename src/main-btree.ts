@@ -1,7 +1,7 @@
 import './style.css';
 import { Vector2 } from './math/vector2.ts';
 import { S2Camera } from './s2/math/s2-camera.ts';
-import { MTL } from './utils/mtl-colors.ts';
+import { MTL, MTL_COLORS } from './utils/mtl-colors.ts';
 import { S2Scene } from './s2/s2-scene.ts';
 import { type S2StyleDecl } from './s2/s2-globals.ts';
 import { S2Node } from './s2/element/s2-node.ts';
@@ -9,46 +9,32 @@ import { S2LineEdge, type S2EdgeOptions } from './s2/element/s2-edge.ts';
 import { S2Group } from './s2/element/s2-group.ts';
 import { S2Length } from './s2/s2-space.ts';
 import { svg, type DrawableSVGGeometry } from 'animejs';
-import { AnimationScheduler } from './utils/anim-scheduler.ts';
+import { S2Parameters } from './s2/s2-interface.ts';
 
 const viewport = new Vector2(640.0, 360.0);
 const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);
 
 class BTreeStyle {
-    public backBase: S2StyleDecl;
-    public backSlct: S2StyleDecl;
-    public backExpl: S2StyleDecl;
-    public edgeBase: S2StyleDecl;
+    public backBase = new S2Parameters();
+    public backExpl = new S2Parameters();
+    public edgeBase = new S2Parameters();
     public edgeEmph: S2StyleDecl;
-    public edgeSlct: S2StyleDecl;
+    public edgeSlct = new S2Parameters();
     public edgeExpl: S2StyleDecl;
     public text: S2StyleDecl;
     public edgeOpts: S2EdgeOptions;
 
     constructor() {
         // Background
-        this.backBase = {
-            fill: MTL.GREY_6,
-            stroke: MTL.GREY_4,
-            'stroke-width': '4',
-        };
-        this.backSlct = {
-            fill: MTL.BLUE_GREY_9,
-            stroke: MTL.LIGHT_BLUE_5,
-        };
-        this.backExpl = {
-            fill: MTL.LIGHT_BLUE_7,
-            stroke: MTL.LIGHT_BLUE_2,
-        };
+        this.backBase.setFillColor(MTL_COLORS.GREY_6).setStrokeColor(MTL_COLORS.GREY_4).setStrokeWidth(4, 'view');
+        this.backExpl
+            .setFillColor(MTL_COLORS.BLUE_GREY_9)
+            .setStrokeColor(MTL_COLORS.LIGHT_BLUE_5)
+            .setStrokeWidth(4, 'view');
+
         // Edge
-        this.edgeBase = {
-            stroke: MTL.GREY_6,
-            'stroke-width': '4',
-            'stroke-linecap': 'round',
-        };
-        this.edgeSlct = {
-            stroke: MTL.LIGHT_BLUE_6,
-        };
+        this.edgeBase.setStrokeColor(MTL_COLORS.GREY_6).setStrokeWidth(4, 'view').setLineCap('round');
+        this.edgeSlct.setStrokeColor(MTL_COLORS.LIGHT_BLUE_6);
 
         this.edgeEmph = {
             stroke: '#FFFFFF',
@@ -72,7 +58,6 @@ class BTreeStyle {
     }
 }
 
-//type UserTree = {left?:}
 interface UserTreeNode<T> {
     data: T;
     left?: UserTreeNode<T>;

@@ -3,6 +3,7 @@ import { S2SVG } from './element/s2-svg';
 import { type S2Space, S2Length, S2Position } from './s2-space';
 import { Vector2 } from '../math/vector2';
 import { S2Color } from './s2-globals';
+import { type S2LineCap, type S2LineJoin } from './s2-globals';
 
 export interface S2BaseScene {
     readonly svg: S2SVG;
@@ -18,29 +19,97 @@ export class S2Parameters {
     opacity?: number;
     strokeColor?: S2Color;
     strokeWidth?: S2Length;
+    lineCap?: S2LineCap;
+    lineJoin?: S2LineJoin;
+
+    setPosition(x: number, y: number, space: S2Space = 'world'): this {
+        if (this.position) {
+            this.position.value.set(x, y);
+            this.position.space = space;
+        } else {
+            this.position = new S2Position(x, y, space);
+        }
+        return this;
+    }
+
+    setPathFrom(value: number): this {
+        this.pathFrom = value;
+        return this;
+    }
+
+    setPathTo(value: number): this {
+        this.pathTo = value;
+        return this;
+    }
+
+    setFillColor(color: S2Color): this {
+        if (this.fillColor) this.fillColor.copy(color);
+        else this.fillColor = color.clone();
+        return this;
+    }
+
+    setFillOpacity(value: number): this {
+        this.fillOpacity = value;
+        return this;
+    }
+
+    setOpacity(value: number): this {
+        this.opacity = value;
+        return this;
+    }
+
+    setStrokeColor(color: S2Color): this {
+        if (this.strokeColor) this.strokeColor.copy(color);
+        else this.strokeColor = color.clone();
+        return this;
+    }
+
+    setStrokeWidth(value: number, space: S2Space = 'view'): this {
+        if (this.strokeWidth) {
+            this.strokeWidth.value = value;
+            this.strokeWidth.space = space;
+        } else {
+            this.strokeWidth = new S2Length(value, space);
+        }
+        return this;
+    }
+
+    setLineCap(lineCap: S2LineCap): this {
+        this.lineCap = lineCap;
+        return this;
+    }
+
+    setLineJoin(lineJoin: S2LineJoin): this {
+        this.lineJoin = lineJoin;
+        return this;
+    }
 
     clone(): S2Parameters {
         const params = new S2Parameters();
         if (this.position !== undefined) params.position = this.position.clone();
-        if (this.pathFrom !== undefined) params.pathFrom = this.pathFrom;
-        if (this.pathTo !== undefined) params.pathTo = this.pathTo;
         if (this.fillColor !== undefined) params.fillColor = this.fillColor.clone();
-        if (this.fillOpacity !== undefined) params.fillOpacity = this.fillOpacity;
-        if (this.opacity !== undefined) params.opacity = this.opacity;
         if (this.strokeColor !== undefined) params.strokeColor = this.strokeColor.clone();
         if (this.strokeWidth !== undefined) params.strokeWidth = this.strokeWidth.clone();
+        params.pathFrom = this.pathFrom;
+        params.pathTo = this.pathTo;
+        params.fillOpacity = this.fillOpacity;
+        params.opacity = this.opacity;
+        params.lineCap = this.lineCap;
+        params.lineJoin = this.lineJoin;
         return params;
     }
 
     copy(params: S2Parameters): this {
         this.position = params.position ? params.position.clone() : undefined;
-        this.pathFrom = params.pathFrom;
-        this.pathTo = params.pathTo;
         this.fillColor = params.fillColor ? params.fillColor.clone() : undefined;
-        this.fillOpacity = params.fillOpacity;
-        this.opacity = params.opacity;
         this.strokeColor = params.strokeColor ? params.strokeColor.clone() : undefined;
         this.strokeWidth = params.strokeWidth ? params.strokeWidth.clone() : undefined;
+        this.pathFrom = params.pathFrom;
+        this.pathTo = params.pathTo;
+        this.fillOpacity = params.fillOpacity;
+        this.opacity = params.opacity;
+        this.lineCap = params.lineCap;
+        this.lineJoin = params.lineJoin;
         return this;
     }
 }
