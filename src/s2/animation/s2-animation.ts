@@ -29,10 +29,10 @@ export class S2ElementAnim extends S2Animation {
         super(scene);
         this.target = target;
         if (from.position && to.position) {
-            this.position = [from.position, to.position];
+            this.position = [from.position.clone(), to.position.clone()];
         }
         if (from.strokeWidth && to.strokeWidth) {
-            this.strokeWidth = [from.strokeWidth, to.strokeWidth];
+            this.strokeWidth = [from.strokeWidth.clone(), to.strokeWidth.clone()];
         }
         if (from.pathFrom !== undefined && to.pathFrom !== undefined) {
             this.pathFrom = [from.pathFrom, to.pathFrom];
@@ -41,10 +41,10 @@ export class S2ElementAnim extends S2Animation {
             this.pathTo = [from.pathTo, to.pathTo];
         }
         if (from.fillColor && to.fillColor) {
-            this.fillColor = [from.fillColor, to.fillColor];
+            this.fillColor = [from.fillColor.clone(), to.fillColor.clone()];
         }
         if (from.strokeColor && to.strokeColor) {
-            this.strokeColor = [from.strokeColor, to.strokeColor];
+            this.strokeColor = [from.strokeColor.clone(), to.strokeColor.clone()];
         }
         if (from.fillOpacity !== undefined && to.fillOpacity !== undefined) {
             this.fillOpacity = [from.fillOpacity, to.fillOpacity];

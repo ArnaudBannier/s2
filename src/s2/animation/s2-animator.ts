@@ -9,8 +9,8 @@ class S2AnimState {
     initialParams: S2Parameters;
     currentParams: S2Parameters;
     constructor(state: S2Parameters) {
-        this.initialParams = state;
-        this.currentParams = state;
+        this.initialParams = state.clone();
+        this.currentParams = state.clone();
     }
 }
 
@@ -20,7 +20,7 @@ export class S2Animator {
     protected currStepIndex: number = -1;
     protected timeline: Timeline;
     protected stepCount: number = 0;
-    protected stateMap: Map<S2BaseElement, S2AnimState> = new Map();
+    public stateMap: Map<S2BaseElement, S2AnimState> = new Map();
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
@@ -74,10 +74,10 @@ export class S2Animator {
             return;
         }
         const currentParams = target.getParameters();
+        if (this.currStepIndex < this.targetStepIndex) {
+            savedState.initialParams.copy(currentParams);
+        }
         if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
-            if (this.targetStepIndex >= 0) {
-                savedState.initialParams = savedState.currentParams.clone();
-            }
             const anim = new S2ElementAnim(this.scene, target, savedState.currentParams, currentParams);
             const animeTarget = { t: 0 };
             this.timeline.add(
@@ -92,9 +92,9 @@ export class S2Animator {
                 },
                 timelinePos,
             );
-            savedState.currentParams = currentParams;
+            savedState.currentParams.copy(currentParams);
         } else if (this.currStepIndex < this.targetStepIndex) {
-            savedState.currentParams = currentParams;
+            savedState.currentParams.copy(currentParams);
             target.update();
         }
     }
