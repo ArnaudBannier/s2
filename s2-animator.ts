@@ -1,12 +1,22 @@
 import { Timeline } from 'animejs';
-import { S2Path } from './element/s2-path';
-import { type S2BaseElement } from './element/s2-element';
-import { type S2Parameters, type S2BaseScene, type S2HasPosition } from './s2-interface';
+import { S2Path } from './src/s2/element/s2-path';
+import { type S2BaseElement } from './src/s2/element/s2-element';
+import { type S2Parameters, type S2BaseScene, type S2HasPosition } from './src/s2/s2-interface';
 import { type AnimationParams } from 'animejs';
-import { lerp } from '../math/utils';
-import type { S2Shape } from './element/s2-shape';
+import { lerp } from './src/math/utils';
+import type { S2Shape } from './src/s2/element/s2-shape';
 
-class AnimState {
+class S2Animation {
+    from: S2Parameters;
+    to: S2Parameters;
+    constructor(from: S2Parameters, to: S2Parameters) {
+        this.from = from;
+        this.to = to;
+    }
+    update(t: number): void {}
+}
+
+class S2AnimState {
     initialParams: S2Parameters;
     currentParams: S2Parameters;
     constructor(state: S2Parameters) {
@@ -14,7 +24,6 @@ class AnimState {
         this.currentParams = state;
     }
 }
-
 export class S2Animator {
     protected scene: S2BaseScene;
     protected targetStepIndex: number = 0;
@@ -23,7 +32,7 @@ export class S2Animator {
     protected stepCount: number = 0;
     protected currParamMap: Map<S2BaseElement, S2Parameters> = new Map();
     protected startParamsMap: Map<S2BaseElement, S2Parameters> = new Map();
-    protected stateMap: Map<S2BaseElement, AnimState> = new Map();
+    protected stateMap: Map<S2BaseElement, S2AnimState> = new Map();
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
@@ -46,7 +55,7 @@ export class S2Animator {
     saveState(target: S2BaseElement): this {
         this.currParamMap.set(target, target.getParameters());
         this.startParamsMap.set(target, target.getParameters());
-        this.stateMap.set(target, new AnimState(target.getParameters()));
+        this.stateMap.set(target, new S2AnimState(target.getParameters()));
         return this;
     }
 
