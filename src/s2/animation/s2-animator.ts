@@ -5,15 +5,62 @@ import { type S2Parameters, type S2BaseScene, type S2HasPosition } from '../s2-i
 import { type AnimationParams } from 'animejs';
 import { lerp } from '../../math/utils';
 import type { S2Shape } from '../element/s2-shape';
+import { S2Position, S2Length } from '../s2-space';
 
-class S2Animation {
-    from: S2Parameters;
-    to: S2Parameters;
-    constructor(from: S2Parameters, to: S2Parameters) {
-        this.from = from;
-        this.to = to;
+abstract class S2Animation {
+    protected scene: S2BaseScene;
+    constructor(scene: S2BaseScene) {
+        this.scene = scene;
     }
-    update(t: number): void {}
+    abstract update(t: number): void;
+}
+
+class S2ParamAnim extends S2Animation {
+    target: S2BaseElement;
+    targetParams: S2Parameters = {};
+
+    position?: [S2Position, S2Position];
+    path?: { from: [number, number]; to: [number, number] };
+    fill?: [string, string];
+    fillOpacity?: [number, number];
+    opacity?: [number, number];
+    strokeColor?: [string, string];
+    strokeWidth?: [S2Length, S2Length];
+
+    constructor(scene: S2BaseScene, target: S2BaseElement, from: S2Parameters, to: S2Parameters) {
+        super(scene);
+        this.target = target;
+        if (from.position && to.position) {
+            this.position = [from.position, to.position];
+        }
+        if (from.strokeWidth && to.strokeWidth) {
+            this.strokeWidth = [from.strokeWidth, to.strokeWidth];
+        }
+    }
+
+    update(t: number): void {
+        if (this.position) {
+            this.updatePosition(t, this.position[0], this.position[1]);
+        }
+        if (this.strokeWidth) {
+            this.updateStrokeWidth(t, this.strokeWidth[0], this.strokeWidth[1]);
+        }
+        this.target.setParameters(this.targetParams).update();
+    }
+
+    private updatePosition(t: number, from: S2Position, to: S2Position): void {
+        from.changeSpace(to.space, this.scene.activeCamera);
+        this.targetParams.position = new S2Position(
+            lerp(from.value.x, to.value.x, t),
+            lerp(from.value.y, to.value.y, t),
+            to.space,
+        );
+    }
+
+    private updateStrokeWidth(t: number, from: S2Length, to: S2Length): void {
+        from.changeSpace(to.space, this.scene.activeCamera);
+        this.targetParams.strokeWidth = new S2Length(lerp(from.value, to.value, t), to.space);
+    }
 }
 
 class S2AnimState {
