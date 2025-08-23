@@ -30,15 +30,15 @@ export class Matrix2 {
         const be = b.elements;
         const te = this.elements;
 
-        const a00 = ae[0],
-            a01 = ae[2];
-        const a10 = ae[1],
-            a11 = ae[3];
+        const a00 = ae[0];
+        const a10 = ae[1];
+        const a01 = ae[2];
+        const a11 = ae[3];
 
-        const b00 = be[0],
-            b01 = be[2];
-        const b10 = be[1],
-            b11 = be[3];
+        const b00 = be[0];
+        const b10 = be[1];
+        const b01 = be[2];
+        const b11 = be[3];
 
         te[0] = a00 * b00 + a01 * b10;
         te[2] = a00 * b01 + a01 * b11;

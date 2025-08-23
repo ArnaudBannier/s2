@@ -44,19 +44,19 @@ export class Matrix2x3 {
         const be = b.elements;
         const te = this.elements;
 
-        const a00 = ae[0],
-            a01 = ae[2],
-            a02 = ae[4];
-        const a10 = ae[1],
-            a11 = ae[3],
-            a12 = ae[5];
-
-        const b00 = be[0],
-            b01 = be[2],
-            b02 = be[4];
-        const b10 = be[1],
-            b11 = be[3],
-            b12 = be[5];
+        const a00 = ae[0];
+        const a10 = ae[1];
+        const a01 = ae[2];
+        const a11 = ae[3];
+        const a02 = ae[4];
+        const a12 = ae[5];
+        0;
+        const b00 = be[0];
+        const b10 = be[1];
+        const b01 = be[2];
+        const b11 = be[3];
+        const b02 = be[4];
+        const b12 = be[5];
 
         te[0] = a00 * b00 + a01 * b10;
         te[1] = a10 * b00 + a11 * b10;
