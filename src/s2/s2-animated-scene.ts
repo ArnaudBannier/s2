@@ -1,7 +1,7 @@
 import { S2Camera } from './math/s2-camera';
 import { S2Scene } from './s2-scene';
 import { clamp } from '../math/utils';
-import { S2Animator } from '../../s2-animator';
+import { S2Animator } from './animation/s2-animator';
 
 export abstract class S2AnimatedScene extends S2Scene {
     protected animator: S2Animator;

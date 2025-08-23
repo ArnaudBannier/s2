@@ -1,10 +1,10 @@
 import { Timeline } from 'animejs';
-import { S2Path } from './src/s2/element/s2-path';
-import { type S2BaseElement } from './src/s2/element/s2-element';
-import { type S2Parameters, type S2BaseScene, type S2HasPosition } from './src/s2/s2-interface';
+import { S2Path } from '../element/s2-path';
+import { type S2BaseElement } from '../element/s2-element';
+import { type S2Parameters, type S2BaseScene, type S2HasPosition } from '../s2-interface';
 import { type AnimationParams } from 'animejs';
-import { lerp } from './src/math/utils';
-import type { S2Shape } from './src/s2/element/s2-shape';
+import { lerp } from '../../math/utils';
+import type { S2Shape } from '../element/s2-shape';
 
 class S2Animation {
     from: S2Parameters;
