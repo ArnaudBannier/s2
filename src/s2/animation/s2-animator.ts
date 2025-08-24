@@ -1,15 +1,16 @@
 import { Timeline } from 'animejs';
 import { type S2BaseElement } from '../element/s2-element';
-import { S2OldAttributes, type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { type AnimationParams } from 'animejs';
 import { S2Shape } from '../element/s2-shape';
 import { S2ElementAnim } from './s2-animation';
+import { S2Animatable } from '../s2-attributes';
 
 class S2AnimState {
-    params: S2OldAttributes;
+    attributes: S2Animatable;
     index: number;
-    constructor(params: S2OldAttributes, index: number = 0) {
-        this.params = params.clone();
+    constructor(params: S2Animatable, index: number = 0) {
+        this.attributes = params.clone();
         this.index = index;
     }
 }
@@ -27,13 +28,13 @@ export class S2Animator {
         this.timeline = new Timeline({ autoplay: false });
     }
 
-    private getSavedParams(states: S2AnimState[], index: number): S2OldAttributes {
+    private getSavedParams(states: S2AnimState[], index: number): S2Animatable {
         for (let i = states.length - 1; i >= 0; i--) {
             if (states[i].index < index) {
-                return states[i].params;
+                return states[i].attributes;
             }
         }
-        return states[0].params;
+        return states[0].attributes;
     }
 
     getStepCount(): number {
@@ -50,14 +51,14 @@ export class S2Animator {
     }
 
     saveState(target: S2BaseElement): this {
-        this.statesMap.set(target, [new S2AnimState(target.getParameters(), this.currStepIndex)]);
+        this.statesMap.set(target, [new S2AnimState(target.getAnimatableAttributes(), this.currStepIndex)]);
         return this;
     }
 
     finalize(): void {
         this.statesMap.forEach((states, target) => {
             const state = this.getSavedParams(states, this.targetStepIndex);
-            target.setParameters(state).update();
+            target.setAnimatableAttributes(state).update();
         });
         this.stepCount = this.currStepIndex;
     }
@@ -85,7 +86,7 @@ export class S2Animator {
             return;
         }
         const savedParams = this.getSavedParams(states, this.currStepIndex);
-        const currentParams = target.getParameters();
+        const currentParams = target.getAnimatableAttributes();
         if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
             const anim = new S2ElementAnim(this.scene, target, savedParams, currentParams);
             const animeTarget = { t: 0 };

@@ -1,8 +1,7 @@
 import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2SVGAttributes } from '../s2-globals';
-import { S2OldAttributes } from '../s2-interface';
-import { S2Attributes } from '../s2-attributes';
+import { S2Animatable, S2Attributes } from '../s2-attributes';
 export type S2BaseElement = S2Element<SVGElement>;
 
 export abstract class S2Element<T extends SVGElement> {
@@ -20,6 +19,15 @@ export abstract class S2Element<T extends SVGElement> {
         this.id = scene.nextId++;
     }
 
+    setAnimatableAttributes(attributes: S2Animatable): this {
+        void attributes;
+        return this;
+    }
+
+    getAnimatableAttributes(): S2Animatable {
+        return new S2Animatable();
+    }
+
     setAttributes(attributes: S2Attributes): this {
         void attributes;
         return this;
@@ -27,15 +35,6 @@ export abstract class S2Element<T extends SVGElement> {
 
     getAttributes(): S2Attributes {
         return new S2Attributes();
-    }
-
-    setParameters(params: S2OldAttributes): this {
-        void params;
-        return this;
-    }
-
-    getParameters(): S2OldAttributes {
-        return new S2OldAttributes();
     }
 
     setSVGAttribute(qualifiedName: string, value: string): this {

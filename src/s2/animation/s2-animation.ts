@@ -1,8 +1,9 @@
 import { type S2BaseElement } from '../element/s2-element';
-import { S2OldAttributes, type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { lerp } from '../../math/utils';
 import { S2Position, S2Length } from '../math/s2-space';
 import { S2Color } from '../s2-globals';
+import { S2Animatable } from '../s2-attributes';
 
 export abstract class S2Animation {
     protected scene: S2BaseScene;
@@ -14,7 +15,7 @@ export abstract class S2Animation {
 
 export class S2ElementAnim extends S2Animation {
     target: S2BaseElement;
-    targetParams: S2OldAttributes = new S2OldAttributes();
+    targetParams: S2Animatable = new S2Animatable();
 
     position?: [S2Position, S2Position];
     pathFrom?: [number, number];
@@ -25,7 +26,7 @@ export class S2ElementAnim extends S2Animation {
     strokeColor?: [S2Color, S2Color];
     strokeWidth?: [S2Length, S2Length];
 
-    constructor(scene: S2BaseScene, target: S2BaseElement, from: S2OldAttributes, to: S2OldAttributes) {
+    constructor(scene: S2BaseScene, target: S2BaseElement, from: S2Animatable, to: S2Animatable) {
         super(scene);
         this.target = target;
         if (from.position && to.position) {
@@ -89,6 +90,6 @@ export class S2ElementAnim extends S2Animation {
         if (this.fillOpacity) {
             this.targetParams.fillOpacity = lerp(this.fillOpacity[0], this.fillOpacity[1], t);
         }
-        this.target.setParameters(this.targetParams).update();
+        this.target.setAnimatableAttributes(this.targetParams).update();
     }
 }

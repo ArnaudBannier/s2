@@ -1,8 +1,9 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2OldAttributes, type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene } from '../s2-interface';
 import { S2Graphics } from './s2-graphics';
 import { type S2Space, S2Position } from '../math/s2-space';
 import { type S2HasPosition } from '../s2-interface';
+import type { S2Animatable, S2Attributes } from '../s2-attributes';
 
 export abstract class S2Shape<T extends SVGGraphicsElement> extends S2Graphics<T> implements S2HasPosition {
     protected position: S2Position;
@@ -12,16 +13,28 @@ export abstract class S2Shape<T extends SVGGraphicsElement> extends S2Graphics<T
         this.position = new S2Position(0, 0, 'world');
     }
 
-    setParameters(params: S2OldAttributes): this {
-        super.setParameters(params);
-        if (params.position) this.setPositionV(params.position.value, params.position.space);
+    setAnimatableAttributes(attributes: S2Animatable): this {
+        super.setAnimatableAttributes(attributes);
+        if (attributes.position) this.position.copy(attributes.position);
         return this;
     }
 
-    getParameters(): S2OldAttributes {
-        const parameters = super.getParameters();
-        parameters.position = this.position.clone();
-        return parameters;
+    getAnimatableAttributes(): S2Animatable {
+        const attributes = super.getAnimatableAttributes();
+        attributes.position = this.position.clone();
+        return attributes;
+    }
+
+    setAttributes(attributes: S2Attributes): this {
+        super.setAttributes(attributes);
+        if (attributes.position) this.position.copy(attributes.position);
+        return this;
+    }
+
+    getAttributes(): S2Attributes {
+        const attributes = super.getAttributes();
+        attributes.position = this.position.clone();
+        return attributes;
     }
 
     setPosition(x: number, y: number, space?: S2Space): this {

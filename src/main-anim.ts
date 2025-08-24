@@ -6,7 +6,6 @@ import { S2Circle } from './s2/element/s2-circle.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 import { S2Path } from './s2/element/s2-path.ts';
 import { S2Length, S2Position } from './s2/math/s2-space.ts';
-import { S2OldAttributes } from './s2/s2-interface.ts';
 import { S2Attributes } from './s2/s2-attributes.ts';
 
 /*
@@ -27,27 +26,26 @@ class SceneFigure extends S2AnimatedScene {
     protected circle: S2Circle;
     protected path: S2Path;
     protected styles = {
-        backBase: new S2OldAttributes(),
-        backSlct: new S2OldAttributes(),
-        path: new S2OldAttributes(),
+        backBase: new S2Attributes({
+            fillColor: MTL_COLORS.GREY_6,
+            strokeColor: MTL_COLORS.GREY_4,
+            strokeWidth: new S2Length(4, 'view'),
+        }),
+        backSlct: new S2Attributes({
+            fillColor: MTL_COLORS.BLUE_GREY_9,
+            strokeColor: MTL_COLORS.LIGHT_BLUE_5,
+            strokeWidth: new S2Length(8, 'view'),
+        }),
+        path: new S2Attributes({
+            strokeColor: MTL_COLORS.CYAN_5,
+            strokeWidth: new S2Length(4, 'view'),
+            fillOpacity: 0,
+            lineCap: 'round',
+        }),
     };
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
-
-        this.styles.backBase.fillColor = MTL_COLORS.GREY_6;
-        this.styles.backBase.strokeColor = MTL_COLORS.GREY_4;
-        this.styles.backBase.strokeWidth = new S2Length(4, 'view');
-
-        this.styles.backSlct.fillColor = MTL_COLORS.BLUE_GREY_9;
-        this.styles.backSlct.strokeColor = MTL_COLORS.LIGHT_BLUE_5;
-        this.styles.backSlct.strokeWidth = new S2Length(8, 'view');
-
-        this.styles.path.strokeColor = MTL_COLORS.CYAN_5;
-        this.styles.path.strokeWidth = new S2Length(4, 'view');
-        this.styles.path.fillOpacity = 0;
-        this.styles.path.lineCap = 'round';
-
         this.circle = this.addCircle();
         this.path = this.addPath();
         this.createAnimation();
@@ -59,28 +57,12 @@ class SceneFigure extends S2AnimatedScene {
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
 
         this.path = this.addPath();
-        this.path.setParameters(this.styles.path);
+        this.path.setAttributes(this.styles.path);
         this.path.setSpace('world').setStart(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
         this.path.makePartial(0, 0);
 
         this.circle = this.addCircle();
-        this.circle.setParameters(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
-
-        const style = new S2Attributes({
-            position: new S2Position(0, 0),
-            anchor: 'center',
-        });
-        const style2 = style.clone();
-        if (style2.position) {
-            style2.position.space = 'view';
-            style2.position.value.set(1, 1);
-        }
-        style2.anchor = 'east';
-        const style3 = new S2Attributes();
-        style3.copy(style2);
-        style3.position?.value.set(2, 2);
-        style3.anchor = 'west';
-        console.log(style, style2, style3);
+        this.circle.setAttributes(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
     }
 
     createAnimation(): void {
@@ -92,7 +74,7 @@ class SceneFigure extends S2AnimatedScene {
         this.animator.saveState(this.path);
 
         this.path.makePartial(0.2, 0.5);
-        this.circle.setParameters(this.styles.backSlct);
+        this.circle.setAttributes(this.styles.backSlct);
 
         this.animator.makeStep();
         this.animator.animate(this.circle, { duration: 1000, easing: 'outCubic' }, '+=0');
@@ -110,7 +92,7 @@ class SceneFigure extends S2AnimatedScene {
         this.animator.animate(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
 
         this.circle.setPosition(1, 1, 'world');
-        this.circle.setParameters(this.styles.backBase);
+        this.circle.setAttributes(this.styles.backBase);
 
         this.animator.makeStep();
         this.path.setStrokeWidth(0.5, 'world').setStrokeColor(MTL_COLORS.GREY_7);

@@ -1,10 +1,11 @@
-import { type S2BaseScene, type S2HasStrokeWidth, S2OldAttributes } from '../s2-interface';
+import { type S2BaseScene, type S2HasStrokeWidth } from '../s2-interface';
 import { Vector2 } from '../../math/vector2';
 import { Matrix2x3 } from '../../math/matrix2x3';
 import { MatrixBuilder2x3 } from '../../math/matrix-builder-2x3';
 import { type S2Space, S2Length } from '../math/s2-space';
 import { S2Element } from './s2-element';
 import { S2Color, type S2LineCap, type S2LineJoin } from '../s2-globals';
+import { S2Animatable, S2Attributes } from '../s2-attributes';
 
 export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element<T> implements S2HasStrokeWidth {
     public transform: Matrix2x3;
@@ -23,28 +24,48 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         this.strokeWidth = new S2Length(0, 'view');
     }
 
-    setParameters(params: S2OldAttributes): this {
-        super.setParameters(params);
-        if (params.strokeWidth) this.setStrokeWidth(params.strokeWidth.value, params.strokeWidth.space);
-        if (params.fillColor) this.fillColor = params.fillColor;
-        if (params.fillOpacity) this.fillOpacity = params.fillOpacity;
-        if (params.opacity) this.opacity = params.opacity;
-        if (params.strokeColor) this.strokeColor = params.strokeColor;
-        if (params.lineCap) this.lineCap = params.lineCap;
-        if (params.lineJoin) this.lineJoin = params.lineJoin;
+    setAnimatableAttributes(attributes: S2Animatable): this {
+        super.setAnimatableAttributes(attributes);
+        if (attributes.strokeWidth) this.strokeWidth.copy(attributes.strokeWidth);
+        if (attributes.fillColor) this.fillColor = attributes.fillColor.clone();
+        if (attributes.fillOpacity) this.fillOpacity = attributes.fillOpacity;
+        if (attributes.opacity) this.opacity = attributes.opacity;
+        if (attributes.strokeColor) this.strokeColor = attributes.strokeColor.clone();
         return this;
     }
 
-    getParameters(): S2OldAttributes {
-        const parameters = super.getParameters();
-        if (this.strokeColor !== undefined) parameters.strokeColor = this.strokeColor;
-        if (this.strokeWidth.value > 0) parameters.strokeWidth = this.strokeWidth.clone();
-        if (this.fillColor !== undefined) parameters.fillColor = this.fillColor;
-        if (this.fillOpacity !== undefined) parameters.fillOpacity = this.fillOpacity;
-        if (this.opacity !== undefined) parameters.opacity = this.opacity;
-        if (this.lineCap !== undefined) parameters.lineCap = this.lineCap;
-        if (this.lineJoin !== undefined) parameters.lineJoin = this.lineJoin;
-        return parameters;
+    getAnimatableAttributes(): S2Animatable {
+        const attributes = super.getAnimatableAttributes();
+        if (this.strokeColor !== undefined) attributes.strokeColor = this.strokeColor.clone();
+        if (this.strokeWidth.value > 0) attributes.strokeWidth = this.strokeWidth.clone();
+        if (this.fillColor !== undefined) attributes.fillColor = this.fillColor.clone();
+        if (this.fillOpacity !== undefined) attributes.fillOpacity = this.fillOpacity;
+        if (this.opacity !== undefined) attributes.opacity = this.opacity;
+        return attributes;
+    }
+
+    setAttributes(attributes: S2Attributes): this {
+        super.setAttributes(attributes);
+        if (attributes.strokeWidth) this.strokeWidth.copy(attributes.strokeWidth);
+        if (attributes.fillColor) this.fillColor = attributes.fillColor;
+        if (attributes.fillOpacity) this.fillOpacity = attributes.fillOpacity;
+        if (attributes.opacity) this.opacity = attributes.opacity;
+        if (attributes.strokeColor) this.strokeColor = attributes.strokeColor;
+        if (attributes.lineCap) this.lineCap = attributes.lineCap;
+        if (attributes.lineJoin) this.lineJoin = attributes.lineJoin;
+        return this;
+    }
+
+    getAttributes(): S2Attributes {
+        const attributes = super.getAttributes();
+        if (this.strokeColor !== undefined) attributes.strokeColor = this.strokeColor;
+        if (this.strokeWidth.value > 0) attributes.strokeWidth = this.strokeWidth.clone();
+        if (this.fillColor !== undefined) attributes.fillColor = this.fillColor;
+        if (this.fillOpacity !== undefined) attributes.fillOpacity = this.fillOpacity;
+        if (this.opacity !== undefined) attributes.opacity = this.opacity;
+        if (this.lineCap !== undefined) attributes.lineCap = this.lineCap;
+        if (this.lineJoin !== undefined) attributes.lineJoin = this.lineJoin;
+        return attributes;
     }
 
     setFillColor(color?: S2Color): this {

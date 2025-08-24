@@ -2,7 +2,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Element } from './s2-element';
 import { S2Color } from '../s2-globals';
-import { S2OldAttributes } from '../s2-interface';
+import { S2Attributes } from '../s2-attributes';
 
 export class S2FillRect extends S2Element<SVGRectElement> {
     public fillColor: S2Color = new S2Color(255, 255, 255);
@@ -12,18 +12,19 @@ export class S2FillRect extends S2Element<SVGRectElement> {
         super(element, scene);
         this.addClass('s2-fill-rect');
     }
-    setParameters(params: S2OldAttributes): this {
-        super.setParameters(params);
-        if (params.fillColor) this.fillColor = params.fillColor;
-        if (params.fillOpacity) this.fillOpacity = params.fillOpacity;
+
+    setAttributes(attributes: S2Attributes): this {
+        super.setAttributes(attributes);
+        if (attributes.fillColor) this.fillColor.copy(attributes.fillColor);
+        if (attributes.fillOpacity) this.fillOpacity = attributes.fillOpacity;
         return this;
     }
 
-    getParameters(): S2OldAttributes {
-        const parameters = super.getParameters();
-        if (this.fillColor !== undefined) parameters.fillColor = this.fillColor;
-        if (this.fillOpacity !== undefined) parameters.fillOpacity = this.fillOpacity;
-        return parameters;
+    getAttributes(): S2Attributes {
+        const attributes = super.getAttributes();
+        if (this.fillColor !== undefined) attributes.fillColor = this.fillColor.clone();
+        if (this.fillOpacity !== undefined) attributes.fillOpacity = this.fillOpacity;
+        return attributes;
     }
 
     setFillColor(color: S2Color): this {

@@ -1,9 +1,10 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2HasPartialRendering, type S2BaseScene, type S2OldAttributes } from '../s2-interface';
+import { type S2HasPartialRendering, type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { S2Length, S2Position, type S2Space } from '../math/s2-space';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
+import type { S2Animatable, S2Attributes } from '../s2-attributes';
 
 export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRendering {
     protected space: S2Space = 'world';
@@ -22,18 +23,32 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
         this.fillOpacity = 0;
     }
 
-    getParameters(): S2OldAttributes {
-        const parameters = super.getParameters();
-        parameters.pathFrom = this.paramFrom;
-        parameters.pathTo = this.paramTo;
-        return parameters;
+    setAnimatableAttributes(attributes: S2Animatable): this {
+        super.setAnimatableAttributes(attributes);
+        if (attributes.pathFrom !== undefined) this.paramFrom = attributes.pathFrom;
+        if (attributes.pathTo !== undefined) this.paramTo = attributes.pathTo;
+        return this;
     }
 
-    setParameters(params: S2OldAttributes): this {
-        super.setParameters(params);
-        if (params.pathFrom !== undefined) this.paramFrom = params.pathFrom;
-        if (params.pathTo !== undefined) this.paramTo = params.pathTo;
+    getAnimatableAttributes(): S2Animatable {
+        const attributes = super.getAnimatableAttributes();
+        attributes.pathFrom = this.paramFrom;
+        attributes.pathTo = this.paramTo;
+        return attributes;
+    }
+
+    setAttributes(attributes: S2Attributes): this {
+        super.setAttributes(attributes);
+        if (attributes.pathFrom !== undefined) this.paramFrom = attributes.pathFrom;
+        if (attributes.pathTo !== undefined) this.paramTo = attributes.pathTo;
         return this;
+    }
+
+    getAttributes(): S2Attributes {
+        const attributes = super.getAttributes();
+        attributes.pathFrom = this.paramFrom;
+        attributes.pathTo = this.paramTo;
+        return attributes;
     }
 
     setSampleCount(sampleCount: number): this {
