@@ -5,8 +5,9 @@ import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { S2Circle } from './s2/element/s2-circle.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 import { S2Path } from './s2/element/s2-path.ts';
-import { S2Length } from './s2/s2-space.ts';
+import { S2Length, S2Position } from './s2/math/s2-space.ts';
 import { S2OldAttributes } from './s2/s2-interface.ts';
+import { S2Attributes } from './s2/s2-attributes.ts';
 
 const viewportScale = 1.5;
 const viewport = new Vector2(640.0, 360.0).scale(viewportScale);
@@ -54,6 +55,22 @@ class SceneFigure extends S2AnimatedScene {
 
         this.circle = this.addCircle();
         this.circle.setParameters(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
+
+        const style = new S2Attributes({
+            position: new S2Position(0, 0),
+            anchor: 'center',
+        });
+        const style2 = style.clone();
+        if (style2.position) {
+            style2.position.space = 'view';
+            style2.position.value.set(1, 1);
+        }
+        style2.anchor = 'east';
+        const style3 = new S2Attributes();
+        style3.copy(style2);
+        style3.position?.value.set(2, 2);
+        style3.anchor = 'west';
+        console.log(style, style2, style3);
     }
 
     createAnimation(): void {

@@ -1,7 +1,7 @@
 import { Vector2 } from '../../math/vector2';
 import { type S2OldAttributes, type S2BaseScene } from '../s2-interface';
 import { S2Graphics } from './s2-graphics';
-import { type S2Space, S2Position } from '../s2-space';
+import { type S2Space, S2Position } from '../math/s2-space';
 import { type S2HasPosition } from '../s2-interface';
 
 export abstract class S2Shape<T extends SVGGraphicsElement> extends S2Graphics<T> implements S2HasPosition {

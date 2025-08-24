@@ -1,6 +1,6 @@
 import { S2Camera } from './math/s2-camera';
 import { S2SVG } from './element/s2-svg';
-import { type S2Space, S2Length, S2Position } from './s2-space';
+import { type S2Space, S2Length, S2Position } from './math/s2-space';
 import { Vector2 } from '../math/vector2';
 import { S2Color, type S2Anchor } from './s2-globals';
 import { type S2LineCap, type S2LineJoin } from './s2-globals';

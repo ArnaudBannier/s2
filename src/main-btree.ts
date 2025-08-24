@@ -7,7 +7,7 @@ import { type S2StyleDecl } from './s2/s2-globals.ts';
 import { S2Node } from './s2/element/s2-node.ts';
 import { S2LineEdge, type S2EdgeOptions } from './s2/element/s2-edge.ts';
 import { S2Group } from './s2/element/s2-group.ts';
-import { S2Length } from './s2/s2-space.ts';
+import { S2Length } from './s2/math/s2-space.ts';
 import { svg, type DrawableSVGGeometry } from 'animejs';
 import { S2OldAttributes } from './s2/s2-interface.ts';
 

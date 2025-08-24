@@ -2,7 +2,7 @@ import { Vector2 } from '../../math/vector2';
 import { type S2HasPartialRendering, type S2BaseScene, type S2OldAttributes } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
-import { S2Length, S2Position, type S2Space } from '../s2-space';
+import { S2Length, S2Position, type S2Space } from '../math/s2-space';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 
 export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRendering {

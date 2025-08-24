@@ -1,6 +1,6 @@
-import { S2Position } from './s2-space';
+import { S2Position } from './math/s2-space';
 import { S2Color, type S2Anchor, type S2LineCap, type S2LineJoin } from './s2-globals';
-import { S2Length } from './s2-space';
+import { S2Length } from './math/s2-space';
 
 export class S2Attributes {
     position?: S2Position;
@@ -11,14 +11,45 @@ export class S2Attributes {
     opacity?: number;
     strokeColor?: S2Color;
     strokeWidth?: S2Length;
+
     lineCap?: S2LineCap;
     lineJoin?: S2LineJoin;
     anchor?: S2Anchor;
 
-    static animatable = ['position', 'fillColor', 'fillOpacity'] as const;
+    private static animatable = [
+        'position',
+        'pathFrom',
+        'pathTo',
+        'fillColor',
+        'fillOpacity',
+        'opacity',
+        'strokeColor',
+        'strokeWidth',
+    ] as const;
+    private static attrPosition = ['position'] as const;
+    private static attrLength = ['strokeWidth'] as const;
+    private static attrColor = ['fillColor', 'strokeColor'] as const;
 
     constructor(init?: Partial<S2Attributes>) {
         Object.assign(this, init);
+        for (const key of S2Attributes.attrPosition) {
+            const value = this[key];
+            if (value !== undefined) {
+                this[key] = value.clone();
+            }
+        }
+        for (const key of S2Attributes.attrLength) {
+            const value = this[key];
+            if (value !== undefined) {
+                this[key] = value.clone();
+            }
+        }
+        for (const key of S2Attributes.attrColor) {
+            const value = this[key];
+            if (value !== undefined) {
+                this[key] = value.clone();
+            }
+        }
     }
 
     onlyAnimatable(): S2Attributes {
@@ -37,27 +68,45 @@ export class S2Attributes {
     }
 
     clone(): S2Attributes {
-        const obj = new S2Attributes();
-        for (const key of Object.keys(S2Attributes) as (keyof S2Attributes)[]) {
-            const value = this[key];
-            if (value === undefined) continue;
-            if (typeof value === 'number' || typeof value === 'string') {
-                S2Attributes.setAttr(obj, key, value);
-            } else if (value !== undefined && 'clone' in value) {
-                S2Attributes.setAttr(obj, key, value.clone());
-            }
-        }
-        return obj;
+        return new S2Attributes(this);
     }
 
     copy(other: S2Attributes): this {
-        for (const key of Object.keys(S2Attributes) as (keyof S2Attributes)[]) {
-            const value = other[key];
-            if (value === undefined) continue;
-            if (typeof value === 'number' || typeof value === 'string') {
-                S2Attributes.setAttr(this, key, value);
-            } else if (value !== undefined && 'clone' in value) {
-                S2Attributes.setAttr(this, key, value.clone());
+        Object.assign(this, other);
+        for (const key of S2Attributes.attrPosition) {
+            const otherValue = other[key];
+            if (otherValue !== undefined) {
+                if (this[key] !== undefined) {
+                    this[key].copy(otherValue);
+                } else {
+                    this[key] = otherValue.clone();
+                }
+            } else {
+                this[key] = otherValue;
+            }
+        }
+        for (const key of S2Attributes.attrLength) {
+            const otherValue = other[key];
+            if (otherValue !== undefined) {
+                if (this[key] !== undefined) {
+                    this[key].copy(otherValue);
+                } else {
+                    this[key] = otherValue.clone();
+                }
+            } else {
+                this[key] = otherValue;
+            }
+        }
+        for (const key of S2Attributes.attrColor) {
+            const otherValue = other[key];
+            if (otherValue !== undefined) {
+                if (this[key] !== undefined) {
+                    this[key].copy(otherValue);
+                } else {
+                    this[key] = otherValue.clone();
+                }
+            } else {
+                this[key] = otherValue;
             }
         }
         return this;

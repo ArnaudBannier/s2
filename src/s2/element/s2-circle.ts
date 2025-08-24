@@ -2,7 +2,7 @@ import { type S2HasRadius, type S2BaseScene } from '../s2-interface';
 import { Vector2 } from '../../math/vector2';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
-import { type S2Space, S2Length } from '../s2-space';
+import { type S2Space, S2Length } from '../math/s2-space';
 
 export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
     public radius: S2Length;

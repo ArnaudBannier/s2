@@ -3,7 +3,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { S2Line } from './s2-line';
 import { S2Shape } from './s2-shape';
 import { S2Group } from './s2-group';
-import { type S2Space, S2Extents } from '../s2-space';
+import { type S2Space, S2Extents } from '../math/s2-space';
 
 export class S2Grid extends S2Shape<SVGGElement> {
     protected extents: S2Extents;

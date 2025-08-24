@@ -1,5 +1,5 @@
-import { Vector2 } from '../math/vector2';
-import { S2Camera } from './math/s2-camera';
+import { Vector2 } from '../../math/vector2';
+import { S2Camera } from './s2-camera';
 
 export type S2Space = 'world' | 'view';
 
@@ -86,6 +86,12 @@ export class S2Length {
         return new S2Length(this.value, this.space);
     }
 
+    copy(other: S2Length): this {
+        this.value = other.value;
+        this.space = other.space;
+        return this;
+    }
+
     setValueFromSpace(space: S2Space, camera: S2Camera, value: number): this {
         if (this.space === space) {
             // this = other
@@ -140,6 +146,16 @@ export class S2Extents {
     constructor(x: number, y: number, space: S2Space = 'world') {
         this.value = new Vector2(x, y);
         this.space = space;
+    }
+
+    clone(): S2Extents {
+        return new S2Extents(this.value.x, this.value.y, this.space);
+    }
+
+    copy(other: S2Extents): this {
+        this.value.copy(other.value);
+        this.space = other.space;
+        return this;
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {

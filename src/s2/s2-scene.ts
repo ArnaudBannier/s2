@@ -11,7 +11,7 @@ import { S2Line } from './element/s2-line';
 import { S2FillRect } from './element/s2-fill-rect';
 import { S2Group } from './element/s2-group';
 import { S2CubicEdge, S2LineEdge, type S2CubicEdgeOptions, type S2EdgeOptions } from './element/s2-edge';
-import { S2Position } from './s2-space';
+import { S2Position } from './math/s2-space';
 import { type S2BaseContainer } from './element/s2-container';
 import { type S2BaseElement } from './element/s2-element';
 import { type S2BaseScene } from './s2-interface';

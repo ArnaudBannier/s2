@@ -3,7 +3,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { S2Node } from './s2-node';
 import { S2Path } from './s2-path';
 import { S2Shape } from './s2-shape';
-import { type S2Space, S2Length, S2Position } from '../s2-space';
+import { type S2Space, S2Length, S2Position } from '../math/s2-space';
 
 // S2NodeArcManhattan
 

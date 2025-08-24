@@ -2,7 +2,7 @@ import { type S2BaseScene, type S2HasStrokeWidth, S2OldAttributes } from '../s2-
 import { Vector2 } from '../../math/vector2';
 import { Matrix2x3 } from '../../math/matrix2x3';
 import { MatrixBuilder2x3 } from '../../math/matrix-builder-2x3';
-import { type S2Space, S2Length } from '../s2-space';
+import { type S2Space, S2Length } from '../math/s2-space';
 import { S2Element } from './s2-element';
 import { S2Color, type S2LineCap, type S2LineJoin } from '../s2-globals';
 

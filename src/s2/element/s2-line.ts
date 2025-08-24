@@ -2,7 +2,7 @@ import { Vector2 } from '../../math/vector2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
-import { type S2Space, S2Position } from '../s2-space';
+import { type S2Space, S2Position } from '../math/s2-space';
 
 export class S2Line extends S2Shape<SVGLineElement> {
     protected endPosition: S2Position;

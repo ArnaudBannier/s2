@@ -1,7 +1,7 @@
 import { type S2BaseElement } from '../element/s2-element';
 import { S2OldAttributes, type S2BaseScene } from '../s2-interface';
 import { lerp } from '../../math/utils';
-import { S2Position, S2Length } from '../s2-space';
+import { S2Position, S2Length } from '../math/s2-space';
 import { S2Color } from '../s2-globals';
 
 export abstract class S2Animation {

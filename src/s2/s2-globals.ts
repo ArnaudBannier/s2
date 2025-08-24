@@ -1,6 +1,6 @@
 import type { S2Camera } from './math/s2-camera';
 import { Vector2 } from '../math/vector2';
-import { type S2Space, S2Position, S2Extents } from './s2-space';
+import { type S2Space, S2Position, S2Extents } from './math/s2-space';
 import { lerp } from '../math/utils';
 
 export const svgNS = 'http://www.w3.org/2000/svg';
