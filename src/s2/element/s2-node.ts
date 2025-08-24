@@ -9,6 +9,7 @@ import { S2Extents, S2Length, type S2Space } from '../math/s2-space';
 import { S2TextGroup, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../../math/utils';
 import { S2Line } from './s2-line';
+import type { S2Attributes } from '../s2-attributes';
 
 export class S2Node extends S2Shape<SVGGElement> {
     protected anchor: S2Anchor;
@@ -149,6 +150,13 @@ export class S2Node extends S2Shape<SVGGElement> {
         if (this.backRect) {
             this.backRect.setRadius(radius, space);
         }
+        return this;
+    }
+
+    setAttributes(attributes: S2Attributes): this {
+        super.setAttributes(attributes);
+        if (this.backCircle) this.backCircle.setAttributes(attributes);
+        else if (this.backRect) this.backRect.setAttributes(attributes);
         return this;
     }
 

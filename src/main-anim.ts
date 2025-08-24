@@ -5,7 +5,7 @@ import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { S2Circle } from './s2/element/s2-circle.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 import { S2Path } from './s2/element/s2-path.ts';
-import { S2Length, S2Position } from './s2/math/s2-space.ts';
+import { S2Length } from './s2/math/s2-space.ts';
 import { S2Attributes } from './s2/s2-attributes.ts';
 
 /*
@@ -99,16 +99,6 @@ class SceneFigure extends S2AnimatedScene {
         this.animator.animate(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
         this.animator.animate(this.path, { duration: 800, ease: 'out' }, '<<+=200');
         this.animator.finalize();
-
-        // this.animator.makeStep();
-        // this.animator.animateStyle(circle, this.styles.backTransparent, { duration: 500 }, '+=0');
-        // this.circle.setPosition(+1, 1, 'world');
-        // this.animator.animateMove(this.circle, { duration: 1000, ease: 'inOut' }, '<<');
-
-        // this.animator.makeStep();
-        // this.animator.animateStyle(this.circle, this.styles.backBase, { duration: 1000 }, '+=0');
-        // this.path.makePartial(0, 1);
-        // this.animator.animateDraw(this.path, { duration: 1000, ease: 'inOut' }, '<<');
     }
 }
 

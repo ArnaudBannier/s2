@@ -9,53 +9,50 @@ import { S2LineEdge, type S2EdgeOptions } from './s2/element/s2-edge.ts';
 import { S2Group } from './s2/element/s2-group.ts';
 import { S2Length } from './s2/math/s2-space.ts';
 import { svg, type DrawableSVGGeometry } from 'animejs';
-import { S2OldAttributes } from './s2/s2-interface.ts';
+import { S2Attributes } from './s2/s2-attributes.ts';
+import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 
 const viewport = new Vector2(640.0, 360.0);
 const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);
 
 class BTreeStyle {
-    public backBase = new S2OldAttributes();
-    public backExpl = new S2OldAttributes();
-    public edgeBase = new S2OldAttributes();
-    public edgeEmph: S2SVGAttributes;
-    public edgeSlct = new S2OldAttributes();
-    public edgeExpl: S2SVGAttributes;
-    public text: S2SVGAttributes;
-    public edgeOpts: S2EdgeOptions;
-
-    constructor() {
-        // Background
-        this.backBase.setFillColor(MTL_COLORS.GREY_6).setStrokeColor(MTL_COLORS.GREY_4).setStrokeWidth(4, 'view');
-        this.backExpl
-            .setFillColor(MTL_COLORS.BLUE_GREY_9)
-            .setStrokeColor(MTL_COLORS.LIGHT_BLUE_5)
-            .setStrokeWidth(4, 'view');
-
-        // Edge
-        this.edgeBase.setStrokeColor(MTL_COLORS.GREY_6).setStrokeWidth(4, 'view').setLineCap('round');
-        this.edgeSlct.setStrokeColor(MTL_COLORS.LIGHT_BLUE_6);
-
-        this.edgeEmph = {
-            stroke: '#FFFFFF',
-            'stroke-width': '6',
-            'stroke-linecap': 'round',
-        };
-        this.edgeExpl = {
-            stroke: MTL.GREY_7,
-        };
-        // Text
-        this.text = {
-            fill: MTL.WHITE,
-            'font-family': 'monospace',
-            'font-size': '20px',
-        };
-
-        this.edgeOpts = {
-            startDistance: new S2Length(0, 'view'),
-            endDistance: new S2Length(10, 'view'),
-        };
-    }
+    // Background
+    public backBase = new S2Attributes({
+        fillColor: MTL_COLORS.GREY_6,
+        strokeColor: MTL_COLORS.GREY_4,
+        strokeWidth: new S2Length(4, 'view'),
+    });
+    public backExpl = new S2Attributes({
+        fillColor: MTL_COLORS.BLUE_GREY_9,
+        strokeColor: MTL_COLORS.LIGHT_BLUE_5,
+        strokeWidth: new S2Length(4, 'view'),
+    });
+    // Edge
+    public edgeBase = new S2Attributes({
+        strokeColor: MTL_COLORS.GREY_6,
+        strokeWidth: new S2Length(4, 'view'),
+        lineCap: 'round',
+    });
+    public edgeEmph = new S2Attributes({
+        strokeColor: MTL_COLORS.WHITE,
+        strokeWidth: new S2Length(6, 'view'),
+        lineCap: 'round',
+    });
+    public edgeSlct = new S2Attributes({
+        strokeColor: MTL_COLORS.LIGHT_BLUE_6,
+    });
+    public edgeExpl = new S2Attributes({
+        strokeColor: MTL_COLORS.GREY_7,
+    });
+    public edgeOpts: S2EdgeOptions = {
+        startDistance: new S2Length(0, 'view'),
+        endDistance: new S2Length(10, 'view'),
+    };
+    public text: S2SVGAttributes = {
+        fill: MTL.WHITE,
+        'font-family': 'monospace',
+        'font-size': '20px',
+    };
 }
 
 interface UserTreeNode<T> {
@@ -103,7 +100,8 @@ class BTree {
         this.height = Math.max(this.height, depth);
 
         this.nodeGroup.appendChild(node.s2Node);
-        node.s2Node.setBackgroundStyle(this.style.backBase);
+        //node.s2Node.setBackgroundStyle(this.style.backBase);
+        node.s2Node.setAttributes(this.style.backBase);
         node.s2Node.setTextStyle(this.style.text);
         if (userTree.sepScale) {
             node.sepScale = userTree.sepScale;
@@ -125,11 +123,11 @@ class BTree {
         if (parent) {
             node.parentEdge = this.scene
                 .addLineEdge(parent.s2Node, node.s2Node, this.style.edgeOpts, this.edgeGroup)
-                .setSVGAttributes(this.style.edgeBase);
+                .setAttributes(this.style.edgeBase);
 
             node.parentEmphEdge = this.scene
                 .addLineEdge(parent.s2Node, node.s2Node, this.style.edgeOpts, this.edgeGroup)
-                .setSVGAttributes(this.style.edgeEmph);
+                .setAttributes(this.style.edgeEmph);
             node.parentDrawableEdge = svg.createDrawable(node.parentEmphEdge.getElement());
         }
         this.createNodeLines(node.left, node);
@@ -280,30 +278,35 @@ class BTreeNode {
     }
 }
 
-const animScheduler = new AnimationScheduler();
-
-class SceneFigure extends S2Scene {
+class SceneFigure extends S2AnimatedScene {
     public tree: BTree;
 
     constructor(svgElement: SVGSVGElement, userTree: UserTreeNode<number>) {
         super(svgElement, camera);
+        this.tree = new BTree(this, new BTreeStyle(), userTree);
+    }
 
-        // Background
-        this.addRect()
-            .setPosition(0, 0, 'view')
-            .setExtents(viewport.x / 2, viewport.y / 2, 'view')
-            .setAnchor('north west')
-            .setSVGAttribute('fill', MTL.GREY_8);
+    createInitialState(): void {
+        //this.svg.removeChildren();
+        this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
+        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
 
         // Grid
         //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
 
         // Tree
-        this.tree = new BTree(this, new BTreeStyle(), userTree);
         this.tree.computeLayout(new Vector2(0, 0));
         this.tree.update();
+        this.createAnimation();
 
         this.update();
+    }
+
+    createAnimation(): void {
+        this.animator.resetTimeline();
+        this.createInitialState();
+        this.update();
+        createInOrderAnimation(this.tree.root);
     }
 
     createInOrderAnimation(scheduler: AnimationScheduler, node: BTreeNode | null) {
@@ -398,10 +401,10 @@ if (svgElement && sliderZoom) {
         },
     };
     const scene = new SceneFigure(svgElement, userTree);
-    scene.createInOrderAnimation(animScheduler, scene.tree.root);
+    void scene;
+    //scene.createInOrderAnimation(animScheduler, scene.tree.root);
     //scene.createPreOrderAnimation(animScheduler, scene.tree.root);
     //scene.createPostOrderAnimation(animScheduler, scene.tree.root);
-    //void scene;
 
     sliderZoom?.addEventListener('input', () => {
         camera.viewScale = sliderZoom.valueAsNumber / 10;
