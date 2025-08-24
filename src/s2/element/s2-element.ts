@@ -1,18 +1,32 @@
 import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
-import { type S2StyleDecl } from '../s2-globals';
+import { type S2SVGAttributes } from '../s2-globals';
 import { S2OldAttributes } from '../s2-interface';
+import { S2Attributes } from '../s2-attributes';
 export type S2BaseElement = S2Element<SVGElement>;
 
 export abstract class S2Element<T extends SVGElement> {
     protected element: T;
     protected scene: S2BaseScene;
     protected parent: S2Element<SVGElement> | null = null;
-    protected styleDecl: S2StyleDecl = {};
+    protected styleDecl: S2SVGAttributes = {};
+    protected id: number;
+    protected layer: number = 0;
+    protected isVisible: boolean = true;
 
     constructor(element: T, scene: S2BaseScene) {
         this.element = element;
         this.scene = scene;
+        this.id = scene.nextId++;
+    }
+
+    setAttributes(attributes: S2Attributes): this {
+        void attributes;
+        return this;
+    }
+
+    getAttributes(): S2Attributes {
+        return new S2Attributes();
     }
 
     setParameters(params: S2OldAttributes): this {
@@ -24,7 +38,7 @@ export abstract class S2Element<T extends SVGElement> {
         return new S2OldAttributes();
     }
 
-    setAttribute(qualifiedName: string, value: string): this {
+    setSVGAttribute(qualifiedName: string, value: string): this {
         this.element.setAttribute(qualifiedName, value);
         return this;
     }
@@ -39,7 +53,7 @@ export abstract class S2Element<T extends SVGElement> {
         return this;
     }
 
-    setStyleDecl(style: S2StyleDecl): this {
+    setSVGAttributes(style: S2SVGAttributes): this {
         this.styleDecl = { ...this.styleDecl, ...style };
         for (const [key, value] of Object.entries(style)) {
             this.element.setAttribute(key, value);
@@ -47,7 +61,7 @@ export abstract class S2Element<T extends SVGElement> {
         return this;
     }
 
-    getStyle(): S2StyleDecl {
+    getSVGAttributes(): S2SVGAttributes {
         return { ...this.styleDecl };
     }
 

@@ -9,6 +9,16 @@ import { S2Length, S2Position } from './s2/math/s2-space.ts';
 import { S2OldAttributes } from './s2/s2-interface.ts';
 import { S2Attributes } from './s2/s2-attributes.ts';
 
+/*
+    TODO:
+    - Layer et ID (num de création)
+    - visible qui indique s'il faut l'ajouter au SVG
+    - S2Container: update trie ses enfants selon le layer puis l'ID
+    - S2Attributes potentiellement sans copie profonde
+        - Contient toutes les propriétés, y compris pour les noeuds.
+    - S2Animatable avec une copie profonde
+*/
+
 const viewportScale = 1.5;
 const viewport = new Vector2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);

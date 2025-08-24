@@ -19,12 +19,14 @@ import { type S2BaseScene } from './s2-interface';
 export class S2Scene implements S2BaseScene {
     readonly svg: S2SVG;
     activeCamera: S2Camera;
+    nextId: number;
 
     constructor(element: SVGSVGElement, camera: S2Camera) {
         this.activeCamera = camera;
         this.svg = new S2SVG(element, this);
         element.innerHTML = '';
         this.svg.update();
+        this.nextId = 0;
     }
 
     addCircle(parent: S2BaseContainer = this.svg): S2Circle {

@@ -4,7 +4,7 @@ import { type S2Space, S2Position, S2Extents } from './math/s2-space';
 import { lerp } from '../math/utils';
 
 export const svgNS = 'http://www.w3.org/2000/svg';
-export type S2StyleDecl = Record<string, string>;
+export type S2SVGAttributes = Record<string, string>;
 
 export class S2Color {
     r: number;

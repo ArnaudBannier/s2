@@ -6,7 +6,7 @@ import { S2Node } from './s2/element/s2-node.ts';
 import { lerp } from './math/utils.ts';
 import { S2LineEdge } from './s2/element/s2-edge.ts';
 import { S2Length } from './s2/math/s2-space.ts';
-import type { S2StyleDecl } from './s2/s2-globals.ts';
+import type { S2SVGAttributes } from './s2/s2-globals.ts';
 import { S2Scene } from './s2/s2-scene.ts';
 
 const viewport = new Vector2(2 * 640.0, 2 * 360.0);
@@ -19,7 +19,7 @@ class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
-        this.addRect().setPosition(0, 0, 'view').setExtentsV(viewport).setAttribute('fill', MTL.GREY_1);
+        this.addRect().setPosition(0, 0, 'view').setExtentsV(viewport).setSVGAttribute('fill', MTL.GREY_1);
 
         const style = this.addStyle();
         style.addRule('.s2-node-background', { fill: MTL.BLUE_3, stroke: MTL.BLUE_8 });
@@ -29,13 +29,13 @@ class SceneFigure extends S2Scene {
             'stroke-width': '4',
             'fill-opacity': '0',
         });
-        const sepStyle: S2StyleDecl = {
+        const sepStyle: S2SVGAttributes = {
             stroke: MTL.BLUE_8,
             'stroke-width': '4',
         };
         style.update();
 
-        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY);
+        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setSVGAttribute('stroke', MTL.GREY);
 
         for (let i = 0; i < 2; i++) {
             const node = this.addNode(3);

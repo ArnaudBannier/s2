@@ -3,7 +3,7 @@ import { Vector2 } from './math/vector2.ts';
 import { S2Camera } from './s2/math/s2-camera.ts';
 import { MTL, MTL_COLORS } from './utils/mtl-colors.ts';
 import { S2Scene } from './s2/s2-scene.ts';
-import { type S2StyleDecl } from './s2/s2-globals.ts';
+import { type S2SVGAttributes } from './s2/s2-globals.ts';
 import { S2Node } from './s2/element/s2-node.ts';
 import { S2LineEdge, type S2EdgeOptions } from './s2/element/s2-edge.ts';
 import { S2Group } from './s2/element/s2-group.ts';
@@ -18,10 +18,10 @@ class BTreeStyle {
     public backBase = new S2OldAttributes();
     public backExpl = new S2OldAttributes();
     public edgeBase = new S2OldAttributes();
-    public edgeEmph: S2StyleDecl;
+    public edgeEmph: S2SVGAttributes;
     public edgeSlct = new S2OldAttributes();
-    public edgeExpl: S2StyleDecl;
-    public text: S2StyleDecl;
+    public edgeExpl: S2SVGAttributes;
+    public text: S2SVGAttributes;
     public edgeOpts: S2EdgeOptions;
 
     constructor() {
@@ -125,11 +125,11 @@ class BTree {
         if (parent) {
             node.parentEdge = this.scene
                 .addLineEdge(parent.s2Node, node.s2Node, this.style.edgeOpts, this.edgeGroup)
-                .setStyleDecl(this.style.edgeBase);
+                .setSVGAttributes(this.style.edgeBase);
 
             node.parentEmphEdge = this.scene
                 .addLineEdge(parent.s2Node, node.s2Node, this.style.edgeOpts, this.edgeGroup)
-                .setStyleDecl(this.style.edgeEmph);
+                .setSVGAttributes(this.style.edgeEmph);
             node.parentDrawableEdge = svg.createDrawable(node.parentEmphEdge.getElement());
         }
         this.createNodeLines(node.left, node);
@@ -293,7 +293,7 @@ class SceneFigure extends S2Scene {
             .setPosition(0, 0, 'view')
             .setExtents(viewport.x / 2, viewport.y / 2, 'view')
             .setAnchor('north west')
-            .setAttribute('fill', MTL.GREY_8);
+            .setSVGAttribute('fill', MTL.GREY_8);
 
         // Grid
         //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);

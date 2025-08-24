@@ -1,9 +1,9 @@
 import { type S2BaseScene } from '../s2-interface';
 import { S2Element } from './s2-element';
-import { svgNS, type S2StyleDecl } from '../s2-globals';
+import { svgNS, type S2SVGAttributes } from '../s2-globals';
 
 export class S2Style extends S2Element<SVGStyleElement> {
-    protected rules: Record<string, S2StyleDecl>;
+    protected rules: Record<string, S2SVGAttributes>;
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'style');
@@ -11,16 +11,16 @@ export class S2Style extends S2Element<SVGStyleElement> {
         this.rules = {};
     }
 
-    addRule(selector: string, declarations: S2StyleDecl): this {
+    addRule(selector: string, declarations: S2SVGAttributes): this {
         this.rules[selector] = declarations;
         return this;
     }
 
-    getRule(selector: string): S2StyleDecl {
+    getRule(selector: string): S2SVGAttributes {
         if (selector in this.rules) {
             return this.rules[selector];
         } else {
-            const rule: S2StyleDecl = {};
+            const rule: S2SVGAttributes = {};
             this.rules[selector] = rule;
             return rule;
         }

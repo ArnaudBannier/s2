@@ -48,7 +48,7 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
 
     addLine(options?: { align?: S2TextAlign; skip?: number }): S2Text {
         const text = new S2Text(this.scene);
-        text.setAttribute('text-anchor', 'start');
+        text.setSVGAttribute('text-anchor', 'start');
         this.textGroup.appendChild(text);
 
         const info: S2LineInfo = {

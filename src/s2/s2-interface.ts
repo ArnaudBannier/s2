@@ -8,6 +8,7 @@ import { type S2LineCap, type S2LineJoin } from './s2-globals';
 export interface S2BaseScene {
     readonly svg: S2SVG;
     activeCamera: S2Camera;
+    nextId: number;
 }
 
 export class S2OldAttributes {

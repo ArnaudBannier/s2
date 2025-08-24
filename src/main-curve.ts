@@ -2,7 +2,7 @@ import './style.css';
 import { Vector2 } from './math/vector2.ts';
 import { S2Camera } from './s2/math/s2-camera.ts';
 import { MTL } from './utils/mtl-colors.ts';
-import { type S2StyleDecl } from './s2/s2-globals.ts';
+import { type S2SVGAttributes } from './s2/s2-globals.ts';
 import { S2Scene } from './s2/s2-scene.ts';
 import { invLerp } from './math/utils.ts';
 import type { S2Path } from './s2/element/s2-path.ts';
@@ -14,7 +14,7 @@ const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewpo
 class SceneFigure extends S2Scene {
     protected path: S2Path;
     protected tangent: S2Line;
-    protected tangentStyle: S2StyleDecl = {
+    protected tangentStyle: S2SVGAttributes = {
         stroke: MTL.RED,
         'stroke-width': '3',
     };
@@ -22,15 +22,15 @@ class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
-        this.addFillRect().setAttribute('fill', MTL.GREY_2);
+        this.addFillRect().setSVGAttribute('fill', MTL.GREY_2);
 
-        const pathStyle: S2StyleDecl = {
+        const pathStyle: S2SVGAttributes = {
             stroke: MTL.GREEN,
             'stroke-width': '6',
             'fill-opacity': '0',
         };
 
-        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY);
+        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setSVGAttribute('stroke', MTL.GREY);
 
         const p0 = new Vector2(-3, -2);
         const co0 = new Vector2(4, 8);
@@ -46,11 +46,11 @@ class SceneFigure extends S2Scene {
             .cubicToV(co0, ci1, p1)
             .smoothCubicToV(ci2, p2)
             .lineToV(Vector2.sub(p2, ci2));
-        path.setStyleDecl(pathStyle);
+        path.setSVGAttributes(pathStyle);
         path.makePartial(0.15, 0.95);
         this.path = path;
 
-        this.tangent = this.addLine().setStyleDecl(this.tangentStyle);
+        this.tangent = this.addLine().setSVGAttributes(this.tangentStyle);
 
         this.update();
     }

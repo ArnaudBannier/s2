@@ -1,6 +1,7 @@
-import { S2Position } from './math/s2-space';
+import { S2Extents, S2Position } from './math/s2-space';
 import { S2Color, type S2Anchor, type S2LineCap, type S2LineJoin } from './s2-globals';
 import { S2Length } from './math/s2-space';
+import type { S2TextAlign, S2VerticalAlign } from './element/s2-text-group';
 
 export class S2Attributes {
     position?: S2Position;
@@ -11,10 +12,15 @@ export class S2Attributes {
     opacity?: number;
     strokeColor?: S2Color;
     strokeWidth?: S2Length;
+    minExtents?: S2Extents;
+    padding?: S2Extents;
+    partSep?: S2Length;
 
     lineCap?: S2LineCap;
     lineJoin?: S2LineJoin;
     anchor?: S2Anchor;
+    textAlign?: S2TextAlign;
+    verticalAlign?: S2VerticalAlign;
 
     private static animatable = [
         'position',
@@ -27,8 +33,9 @@ export class S2Attributes {
         'strokeWidth',
     ] as const;
     private static attrPosition = ['position'] as const;
-    private static attrLength = ['strokeWidth'] as const;
+    private static attrLength = ['strokeWidth', 'partSep'] as const;
     private static attrColor = ['fillColor', 'strokeColor'] as const;
+    private static attrExtents = ['minExtents', 'padding'] as const;
 
     constructor(init?: Partial<S2Attributes>) {
         Object.assign(this, init);
@@ -45,6 +52,12 @@ export class S2Attributes {
             }
         }
         for (const key of S2Attributes.attrColor) {
+            const value = this[key];
+            if (value !== undefined) {
+                this[key] = value.clone();
+            }
+        }
+        for (const key of S2Attributes.attrExtents) {
             const value = this[key];
             if (value !== undefined) {
                 this[key] = value.clone();
@@ -98,6 +111,18 @@ export class S2Attributes {
             }
         }
         for (const key of S2Attributes.attrColor) {
+            const otherValue = other[key];
+            if (otherValue !== undefined) {
+                if (this[key] !== undefined) {
+                    this[key].copy(otherValue);
+                } else {
+                    this[key] = otherValue.clone();
+                }
+            } else {
+                this[key] = otherValue;
+            }
+        }
+        for (const key of S2Attributes.attrExtents) {
             const otherValue = other[key];
             if (otherValue !== undefined) {
                 if (this[key] !== undefined) {

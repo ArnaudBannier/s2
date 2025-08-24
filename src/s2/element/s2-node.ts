@@ -1,6 +1,6 @@
 import { Vector2 } from '../../math/vector2';
 import { type S2BaseScene } from '../s2-interface';
-import { svgNS, type S2Anchor, S2AnchorUtils, type S2StyleDecl, FlexUtils } from '../s2-globals';
+import { svgNS, type S2Anchor, S2AnchorUtils, type S2SVGAttributes, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
 import { S2Shape } from './s2-shape';
@@ -152,22 +152,22 @@ export class S2Node extends S2Shape<SVGGElement> {
         return this;
     }
 
-    setBackgroundStyle(style: S2StyleDecl): this {
-        if (this.backCircle) this.backCircle.setStyleDecl(style);
-        else if (this.backRect) this.backRect.setStyleDecl(style);
+    setBackgroundStyle(style: S2SVGAttributes): this {
+        if (this.backCircle) this.backCircle.setSVGAttributes(style);
+        else if (this.backRect) this.backRect.setSVGAttributes(style);
         return this;
     }
 
-    setTextStyle(style: S2StyleDecl): this {
+    setTextStyle(style: S2SVGAttributes): this {
         for (const textGroup of this.textGroups) {
-            textGroup.setStyleDecl(style);
+            textGroup.setSVGAttributes(style);
         }
         return this;
     }
 
-    setSeparatorStyle(style: S2StyleDecl): this {
+    setSeparatorStyle(style: S2SVGAttributes): this {
         for (const line of this.lines) {
-            line.setStyleDecl(style);
+            line.setSVGAttributes(style);
         }
         return this;
     }
