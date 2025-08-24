@@ -1,12 +1,19 @@
 import { S2Position } from './s2-space';
-import { S2Color, type S2Anchor } from './s2-globals';
+import { S2Color, type S2Anchor, type S2LineCap, type S2LineJoin } from './s2-globals';
+import { S2Length } from './s2-space';
 
 export class S2Attributes {
     position?: S2Position;
+    pathFrom?: number;
+    pathTo?: number;
     fillColor?: S2Color;
     fillOpacity?: number;
-    anchor?: S2Anchor;
+    opacity?: number;
     strokeColor?: S2Color;
+    strokeWidth?: S2Length;
+    lineCap?: S2LineCap;
+    lineJoin?: S2LineJoin;
+    anchor?: S2Anchor;
 
     static animatable = ['position', 'fillColor', 'fillOpacity'] as const;
 
