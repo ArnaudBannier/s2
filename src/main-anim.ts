@@ -7,6 +7,7 @@ import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 import { S2Path } from './s2/element/s2-path.ts';
 import { S2Length } from './s2/math/s2-space.ts';
 import { S2Attributes } from './s2/s2-attributes.ts';
+import { S2Node } from './s2/element/s2-node.ts';
 
 /*
     TODO:
@@ -25,6 +26,7 @@ const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewpo
 class SceneFigure extends S2AnimatedScene {
     protected circle: S2Circle;
     protected path: S2Path;
+    protected node: S2Node;
     protected styles = {
         backBase: new S2Attributes({
             fillColor: MTL_COLORS.GREY_6,
@@ -46,13 +48,7 @@ class SceneFigure extends S2AnimatedScene {
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
-        this.circle = this.addCircle();
-        this.path = this.addPath();
-        this.createAnimation();
-    }
 
-    createInitialState(): void {
-        this.svg.removeChildren();
         this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
 
@@ -63,20 +59,23 @@ class SceneFigure extends S2AnimatedScene {
 
         this.circle = this.addCircle();
         this.circle.setAttributes(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
+
+        this.node = this.addNode().setAttributes(this.styles.backSlct);
+        this.node.setPosition(-5, 0);
+        this.node.createRectBackground();
+        this.node.addLine().addContent('Coucou');
+
+        this.update();
+        this.createAnimation();
     }
 
     createAnimation(): void {
-        this.animator.resetTimeline();
-        this.createInitialState();
-        this.update();
-
         this.animator.saveState(this.circle);
         this.animator.saveState(this.path);
 
         this.path.makePartial(0.2, 0.5);
         this.circle.setAttributes(this.styles.backSlct);
 
-        this.animator.makeStep();
         this.animator.animate(this.circle, { duration: 1000, easing: 'outCubic' }, '+=0');
         this.animator.animate(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
 

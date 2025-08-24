@@ -73,6 +73,7 @@ export class S2Node extends S2Shape<SVGGElement> {
         if (this.backRect === null) {
             this.backRect = new S2Rect(this.scene);
             this.backRect.addClass('s2-node-background').setAnchor(this.anchor);
+            this.backRect.setAttributes(this.getAttributes());
             this.element.insertBefore(this.backRect.getElement(), this.textGroups[0].getElement());
         }
         return this.backRect;
@@ -82,6 +83,7 @@ export class S2Node extends S2Shape<SVGGElement> {
         if (this.backCircle === null) {
             this.backCircle = new S2Circle(this.scene);
             this.backCircle.addClass('s2-node-background');
+            this.backCircle.setAttributes(this.getAttributes());
             this.element.insertBefore(this.backCircle.getElement(), this.textGroups[0].getElement());
         }
         return this.backCircle;
@@ -239,6 +241,9 @@ export class S2Node extends S2Shape<SVGGElement> {
 
     update(): this {
         super.update();
+        this.element.removeAttribute('fill');
+        this.element.removeAttribute('stroke-width');
+        this.element.removeAttribute('stroke');
 
         const partHeights: Array<number> = [];
         let maxPartWidth = 0;

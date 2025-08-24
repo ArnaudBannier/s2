@@ -17,15 +17,16 @@ class S2AnimState {
 
 export class S2Animator {
     protected scene: S2BaseScene;
-    protected targetStepIndex: number = 0;
-    protected currStepIndex: number = -1;
+    protected currStepIndex: number = 0;
     protected timeline: Timeline;
+    protected stepTimelines: Timeline[];
     protected stepCount: number = 0;
     public statesMap: Map<S2BaseElement, S2AnimState[]> = new Map();
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
         this.timeline = new Timeline({ autoplay: false });
+        this.stepTimelines = [new Timeline({ autoplay: false })];
     }
 
     private getSavedParams(states: S2AnimState[], index: number): S2Animatable {
@@ -41,42 +42,38 @@ export class S2Animator {
         return this.stepCount;
     }
 
-    getTargetStepIndex(): number {
-        return this.targetStepIndex;
-    }
-
-    setTargetStepIndex(targetIndex: number): this {
-        this.targetStepIndex = targetIndex;
-        return this;
-    }
-
     saveState(target: S2BaseElement): this {
-        this.statesMap.set(target, [new S2AnimState(target.getAnimatableAttributes(), this.currStepIndex)]);
+        this.statesMap.set(target, [new S2AnimState(target.getAnimatableAttributes(), this.currStepIndex - 1)]);
         return this;
+    }
+
+    setupStep(index: number): void {
+        this.statesMap.forEach((states, target) => {
+            const state = this.getSavedParams(states, index);
+            target.setAnimatableAttributes(state).update();
+        });
     }
 
     finalize(): void {
-        this.statesMap.forEach((states, target) => {
-            const state = this.getSavedParams(states, this.targetStepIndex);
-            target.setAnimatableAttributes(state).update();
-        });
         this.stepCount = this.currStepIndex;
+
+        for (const step of this.stepTimelines) {
+            this.timeline.sync(step);
+        }
     }
 
-    makeStep(): boolean {
+    makeStep(): void {
         this.currStepIndex++;
         this.stepCount = this.currStepIndex;
-        return this.targetStepIndex < 0 ? false : this.currStepIndex > this.targetStepIndex;
-    }
-
-    resetTimeline(): void {
-        this.timeline.cancel();
-        this.timeline = new Timeline({ autoplay: false });
-        this.currStepIndex = 0;
+        this.stepTimelines.push(new Timeline({ autoplay: false }));
     }
 
     getTimeline(): Timeline {
         return this.timeline;
+    }
+
+    getStepTimeline(index: number): Timeline {
+        return this.stepTimelines[index];
     }
 
     animate(target: S2Shape<SVGGraphicsElement>, parameters: AnimationParams, timelinePos?: number | string): void {
@@ -87,51 +84,20 @@ export class S2Animator {
         }
         const savedParams = this.getSavedParams(states, this.currStepIndex);
         const currentParams = target.getAnimatableAttributes();
-        if (this.currStepIndex === this.targetStepIndex || this.targetStepIndex < 0) {
-            const anim = new S2ElementAnim(this.scene, target, savedParams, currentParams);
-            const animeTarget = { t: 0 };
-            this.timeline.add(
-                animeTarget,
-                {
-                    t: { to: [0, 1] },
-                    ...parameters,
-                    onUpdate: (_) => {
-                        void _;
-                        anim.update(animeTarget.t);
-                    },
+        const anim = new S2ElementAnim(this.scene, target, savedParams, currentParams);
+        const animeTarget = { t: 0 };
+        this.stepTimelines[this.currStepIndex].add(
+            animeTarget,
+            {
+                t: { to: [0, 1] },
+                ...parameters,
+                onUpdate: (_) => {
+                    void _;
+                    anim.update(animeTarget.t);
                 },
-                timelinePos,
-            );
-        }
+            },
+            timelinePos,
+        );
         states.push(new S2AnimState(currentParams, this.currStepIndex));
     }
 }
-
-// class S2AnimatorStep {
-//     public animations: S2Animation[] = [];
-//     timelinePos: Array<number | string> = [];
-
-//     addAnimation(animation: S2Animation, timelinePos: number | string = '+=0'): this {
-//         this.animations.push(animation);
-//         this.timelinePos.push(timelinePos);
-//         return this;
-//     }
-
-//     // appendToTimeline(timeline: Timeline): void {
-//     //     this.animations.forEach((anim, index) => {
-//     //         const animeTarget = { t: 0 };
-//     //         timeline.add(
-//     //             animeTarget,
-//     //             {
-//     //                 t: { to: [0, 1] },
-//     //                 ...anim.parameters,
-//     //                 onUpdate: (_) => {
-//     //                     void _;
-//     //                     anim.update(animeTarget.t);
-//     //                 },
-//     //             },
-//     //             this.timelinePos[index],
-//     //         );
-//     //     });
-//     // }
-// }
