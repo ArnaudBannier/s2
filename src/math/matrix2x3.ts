@@ -50,7 +50,7 @@ export class Matrix2x3 {
         const a11 = ae[3];
         const a02 = ae[4];
         const a12 = ae[5];
-        0;
+
         const b00 = be[0];
         const b10 = be[1];
         const b01 = be[2];

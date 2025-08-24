@@ -10,7 +10,7 @@ export interface S2BaseScene {
     activeCamera: S2Camera;
 }
 
-export class S2Attributes {
+export class S2OldAttributes {
     position?: S2Position;
     pathFrom?: number;
     pathTo?: number;
@@ -90,8 +90,8 @@ export class S2Attributes {
         return this;
     }
 
-    clone(): S2Attributes {
-        const params = new S2Attributes();
+    clone(): S2OldAttributes {
+        const params = new S2OldAttributes();
         if (this.position !== undefined) params.position = this.position.clone();
         if (this.fillColor !== undefined) params.fillColor = this.fillColor.clone();
         if (this.strokeColor !== undefined) params.strokeColor = this.strokeColor.clone();
@@ -105,7 +105,7 @@ export class S2Attributes {
         return params;
     }
 
-    copy(params: S2Attributes): this {
+    copy(params: S2OldAttributes): this {
         this.position = params.position ? params.position.clone() : undefined;
         this.fillColor = params.fillColor ? params.fillColor.clone() : undefined;
         this.strokeColor = params.strokeColor ? params.strokeColor.clone() : undefined;

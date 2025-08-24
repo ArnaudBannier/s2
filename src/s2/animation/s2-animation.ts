@@ -1,5 +1,5 @@
 import { type S2BaseElement } from '../element/s2-element';
-import { S2Attributes, type S2BaseScene } from '../s2-interface';
+import { S2OldAttributes, type S2BaseScene } from '../s2-interface';
 import { lerp } from '../../math/utils';
 import { S2Position, S2Length } from '../s2-space';
 import { S2Color } from '../s2-globals';
@@ -14,7 +14,7 @@ export abstract class S2Animation {
 
 export class S2ElementAnim extends S2Animation {
     target: S2BaseElement;
-    targetParams: S2Attributes = new S2Attributes();
+    targetParams: S2OldAttributes = new S2OldAttributes();
 
     position?: [S2Position, S2Position];
     pathFrom?: [number, number];
@@ -25,7 +25,7 @@ export class S2ElementAnim extends S2Animation {
     strokeColor?: [S2Color, S2Color];
     strokeWidth?: [S2Length, S2Length];
 
-    constructor(scene: S2BaseScene, target: S2BaseElement, from: S2Attributes, to: S2Attributes) {
+    constructor(scene: S2BaseScene, target: S2BaseElement, from: S2OldAttributes, to: S2OldAttributes) {
         super(scene);
         this.target = target;
         if (from.position && to.position) {

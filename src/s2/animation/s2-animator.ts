@@ -1,14 +1,14 @@
 import { Timeline } from 'animejs';
 import { type S2BaseElement } from '../element/s2-element';
-import { S2Attributes, type S2BaseScene } from '../s2-interface';
+import { S2OldAttributes, type S2BaseScene } from '../s2-interface';
 import { type AnimationParams } from 'animejs';
 import { S2Shape } from '../element/s2-shape';
 import { S2ElementAnim } from './s2-animation';
 
 class S2AnimState {
-    params: S2Attributes;
+    params: S2OldAttributes;
     index: number;
-    constructor(params: S2Attributes, index: number = 0) {
+    constructor(params: S2OldAttributes, index: number = 0) {
         this.params = params.clone();
         this.index = index;
     }
@@ -27,7 +27,7 @@ export class S2Animator {
         this.timeline = new Timeline({ autoplay: false });
     }
 
-    private getSavedParams(states: S2AnimState[], index: number): S2Attributes {
+    private getSavedParams(states: S2AnimState[], index: number): S2OldAttributes {
         for (let i = states.length - 1; i >= 0; i--) {
             if (states[i].index < index) {
                 return states[i].params;
