@@ -32,11 +32,13 @@ class SceneFigure extends S2AnimatedScene {
             fillColor: MTL_COLORS.GREY_6,
             strokeColor: MTL_COLORS.GREY_4,
             strokeWidth: new S2Length(4, 'view'),
+            textFillColor: MTL_COLORS.GREY_1,
         }),
         backSlct: new S2Attributes({
             fillColor: MTL_COLORS.BLUE_GREY_9,
             strokeColor: MTL_COLORS.LIGHT_BLUE_5,
             strokeWidth: new S2Length(8, 'view'),
+            textFillColor: MTL_COLORS.LIGHT_BLUE_1,
         }),
         path: new S2Attributes({
             strokeColor: MTL_COLORS.CYAN_5,
@@ -61,7 +63,7 @@ class SceneFigure extends S2AnimatedScene {
         this.circle.setAttributes(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
 
         this.node = this.addNode().setAttributes(this.styles.backSlct);
-        this.node.setPosition(-5, 0);
+        this.node.setPosition(-5, -2);
         this.node.createRectBackground();
         this.node.addLine().addContent('Coucou');
 
@@ -72,6 +74,7 @@ class SceneFigure extends S2AnimatedScene {
     createAnimation(): void {
         this.animator.saveState(this.circle);
         this.animator.saveState(this.path);
+        this.animator.saveState(this.node);
 
         this.path.makePartial(0.2, 0.5);
         this.circle.setAttributes(this.styles.backSlct);
@@ -80,9 +83,10 @@ class SceneFigure extends S2AnimatedScene {
         this.animator.animate(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
 
         this.path.makePartial(0.5, 1.0).setStrokeColor(MTL_COLORS.LIGHT_GREEN_5);
+        this.node.setPosition(-5, 0);
 
         this.animator.makeStep();
-        this.animator.animate(this.circle, { duration: 1000, easing: 'outBounce' }, '+=0');
+        this.animator.animate(this.node, { duration: 1000, easing: 'outBounce' }, '+=0');
         this.animator.animate(this.path, { duration: 1000, ease: 'outBounce' }, '<<+=200');
 
         this.circle.setPosition(-1, 1, 'world');

@@ -5,6 +5,7 @@ import { S2Group } from './s2-group';
 import { S2Shape } from './s2-shape';
 import { S2Text } from './s2-text';
 import { S2Extents, type S2Space } from '../math/s2-space';
+import { S2Attributes } from '../s2-attributes';
 
 // "text-anchor": "start | middle | end"
 // "dominant-baseline": "auto | middle | hanging" + autres
@@ -44,6 +45,16 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
         this.textExtents = new S2Extents(0, 0, 'view');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.lines = [];
+    }
+
+    setAttributes(attributes: S2Attributes): this {
+        super.setAttributes(attributes);
+        if (attributes.textFillColor) this.fillColor = attributes.textFillColor.clone();
+        if (attributes.textStrokeColor) this.strokeColor = attributes.textStrokeColor.clone();
+        if (attributes.textFillOpacity) this.fillOpacity = attributes.textFillOpacity;
+        if (attributes.textOpacity) this.opacity = attributes.textOpacity;
+        if (attributes.textStrokeWidth) this.strokeWidth = attributes.textStrokeWidth.clone();
+        return this;
     }
 
     addLine(options?: { align?: S2TextAlign; skip?: number }): S2Text {

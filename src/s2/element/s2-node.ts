@@ -9,7 +9,8 @@ import { S2Extents, S2Length, type S2Space } from '../math/s2-space';
 import { S2TextGroup, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../../math/utils';
 import { S2Line } from './s2-line';
-import type { S2Attributes } from '../s2-attributes';
+import { S2Attributes } from '../s2-attributes';
+import { S2Color } from '../s2-globals';
 
 export class S2Node extends S2Shape<SVGGElement> {
     protected anchor: S2Anchor;
@@ -29,6 +30,11 @@ export class S2Node extends S2Shape<SVGGElement> {
 
     protected backRect: S2Rect | null = null;
     protected backCircle: S2Circle | null = null;
+
+    public textFillColor?: S2Color;
+    public textFillOpacity?: number;
+    public textOpacity?: number;
+    public textStrokeColor?: S2Color;
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
         const element = document.createElementNS(svgNS, 'g');
@@ -159,6 +165,16 @@ export class S2Node extends S2Shape<SVGGElement> {
         super.setAttributes(attributes);
         if (this.backCircle) this.backCircle.setAttributes(attributes);
         else if (this.backRect) this.backRect.setAttributes(attributes);
+
+        const textAttributes = new S2Attributes();
+        if (attributes.textFillColor) textAttributes.textFillColor = attributes.textFillColor;
+        if (attributes.textFillOpacity) textAttributes.textFillOpacity = attributes.textFillOpacity;
+        if (attributes.textStrokeColor) textAttributes.strokeColor = attributes.textStrokeColor;
+        if (attributes.textOpacity) textAttributes.opacity = attributes.textOpacity;
+        if (attributes.textStrokeWidth) textAttributes.strokeWidth = attributes.textStrokeWidth;
+        for (const textGroup of this.textGroups) {
+            textGroup.setAttributes(textAttributes);
+        }
         return this;
     }
 

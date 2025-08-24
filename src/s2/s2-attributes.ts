@@ -25,14 +25,20 @@ export class S2Animatable {
 }
 
 export class S2Attributes {
-    position?: S2Position;
-    pathFrom?: number;
-    pathTo?: number;
     fillColor?: S2Color;
     fillOpacity?: number;
     opacity?: number;
+    position?: S2Position;
+    pathFrom?: number;
+    pathTo?: number;
     strokeColor?: S2Color;
     strokeWidth?: S2Length;
+
+    textFillColor?: S2Color;
+    textFillOpacity?: number;
+    textOpacity?: number;
+    textStrokeColor?: S2Color;
+    textStrokeWidth?: S2Length;
 
     minExtents?: S2Extents;
     padding?: S2Extents;
@@ -43,6 +49,7 @@ export class S2Attributes {
     anchor?: S2Anchor;
     textAlign?: S2TextAlign;
     verticalAlign?: S2VerticalAlign;
+
     constructor(init?: Partial<S2Attributes>) {
         Object.assign(this, init);
     }
