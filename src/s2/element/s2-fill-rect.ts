@@ -2,7 +2,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Element } from './s2-element';
 import { S2Color } from '../s2-globals';
-import { S2Parameters } from '../s2-interface';
+import { S2Attributes } from '../s2-interface';
 
 export class S2FillRect extends S2Element<SVGRectElement> {
     public fillColor: S2Color = new S2Color(255, 255, 255);
@@ -12,14 +12,14 @@ export class S2FillRect extends S2Element<SVGRectElement> {
         super(element, scene);
         this.addClass('s2-fill-rect');
     }
-    setParameters(params: S2Parameters): this {
+    setParameters(params: S2Attributes): this {
         super.setParameters(params);
         if (params.fillColor) this.fillColor = params.fillColor;
         if (params.fillOpacity) this.fillOpacity = params.fillOpacity;
         return this;
     }
 
-    getParameters(): S2Parameters {
+    getParameters(): S2Attributes {
         const parameters = super.getParameters();
         if (this.fillColor !== undefined) parameters.fillColor = this.fillColor;
         if (this.fillOpacity !== undefined) parameters.fillOpacity = this.fillOpacity;

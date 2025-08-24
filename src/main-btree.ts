@@ -9,17 +9,17 @@ import { S2LineEdge, type S2EdgeOptions } from './s2/element/s2-edge.ts';
 import { S2Group } from './s2/element/s2-group.ts';
 import { S2Length } from './s2/s2-space.ts';
 import { svg, type DrawableSVGGeometry } from 'animejs';
-import { S2Parameters } from './s2/s2-interface.ts';
+import { S2Attributes } from './s2/s2-interface.ts';
 
 const viewport = new Vector2(640.0, 360.0);
 const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);
 
 class BTreeStyle {
-    public backBase = new S2Parameters();
-    public backExpl = new S2Parameters();
-    public edgeBase = new S2Parameters();
+    public backBase = new S2Attributes();
+    public backExpl = new S2Attributes();
+    public edgeBase = new S2Attributes();
     public edgeEmph: S2StyleDecl;
-    public edgeSlct = new S2Parameters();
+    public edgeSlct = new S2Attributes();
     public edgeExpl: S2StyleDecl;
     public text: S2StyleDecl;
     public edgeOpts: S2EdgeOptions;

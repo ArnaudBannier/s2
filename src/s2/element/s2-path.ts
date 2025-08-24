@@ -1,5 +1,5 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2HasPartialRendering, type S2BaseScene, type S2Parameters } from '../s2-interface';
+import { type S2HasPartialRendering, type S2BaseScene, type S2Attributes } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { S2Length, S2Position, type S2Space } from '../s2-space';
@@ -22,14 +22,14 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
         this.fillOpacity = 0;
     }
 
-    getParameters(): S2Parameters {
+    getParameters(): S2Attributes {
         const parameters = super.getParameters();
         parameters.pathFrom = this.paramFrom;
         parameters.pathTo = this.paramTo;
         return parameters;
     }
 
-    setParameters(params: S2Parameters): this {
+    setParameters(params: S2Attributes): this {
         super.setParameters(params);
         if (params.pathFrom !== undefined) this.paramFrom = params.pathFrom;
         if (params.pathTo !== undefined) this.paramTo = params.pathTo;

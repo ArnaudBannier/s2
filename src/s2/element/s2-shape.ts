@@ -1,5 +1,5 @@
 import { Vector2 } from '../../math/vector2';
-import { type S2Parameters, type S2BaseScene } from '../s2-interface';
+import { type S2Attributes, type S2BaseScene } from '../s2-interface';
 import { S2Graphics } from './s2-graphics';
 import { type S2Space, S2Position } from '../s2-space';
 import { type S2HasPosition } from '../s2-interface';
@@ -12,13 +12,13 @@ export abstract class S2Shape<T extends SVGGraphicsElement> extends S2Graphics<T
         this.position = new S2Position(0, 0, 'world');
     }
 
-    setParameters(params: S2Parameters): this {
+    setParameters(params: S2Attributes): this {
         super.setParameters(params);
         if (params.position) this.setPositionV(params.position.value, params.position.space);
         return this;
     }
 
-    getParameters(): S2Parameters {
+    getParameters(): S2Attributes {
         const parameters = super.getParameters();
         parameters.position = this.position.clone();
         return parameters;

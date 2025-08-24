@@ -1,4 +1,4 @@
-import { type S2BaseScene, type S2HasStrokeWidth, S2Parameters } from '../s2-interface';
+import { type S2BaseScene, type S2HasStrokeWidth, S2Attributes } from '../s2-interface';
 import { Vector2 } from '../../math/vector2';
 import { Matrix2x3 } from '../../math/matrix2x3';
 import { MatrixBuilder2x3 } from '../../math/matrix-builder-2x3';
@@ -23,7 +23,7 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         this.strokeWidth = new S2Length(0, 'view');
     }
 
-    setParameters(params: S2Parameters): this {
+    setParameters(params: S2Attributes): this {
         super.setParameters(params);
         if (params.strokeWidth) this.setStrokeWidth(params.strokeWidth.value, params.strokeWidth.space);
         if (params.fillColor) this.fillColor = params.fillColor;
@@ -35,7 +35,7 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         return this;
     }
 
-    getParameters(): S2Parameters {
+    getParameters(): S2Attributes {
         const parameters = super.getParameters();
         if (this.strokeColor !== undefined) parameters.strokeColor = this.strokeColor;
         if (this.strokeWidth.value > 0) parameters.strokeWidth = this.strokeWidth.clone();

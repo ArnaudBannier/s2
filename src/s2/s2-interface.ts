@@ -2,7 +2,7 @@ import { S2Camera } from './math/s2-camera';
 import { S2SVG } from './element/s2-svg';
 import { type S2Space, S2Length, S2Position } from './s2-space';
 import { Vector2 } from '../math/vector2';
-import { S2Color } from './s2-globals';
+import { S2Color, type S2Anchor } from './s2-globals';
 import { type S2LineCap, type S2LineJoin } from './s2-globals';
 
 export interface S2BaseScene {
@@ -10,7 +10,7 @@ export interface S2BaseScene {
     activeCamera: S2Camera;
 }
 
-export class S2Parameters {
+export class S2Attributes {
     position?: S2Position;
     pathFrom?: number;
     pathTo?: number;
@@ -21,6 +21,7 @@ export class S2Parameters {
     strokeWidth?: S2Length;
     lineCap?: S2LineCap;
     lineJoin?: S2LineJoin;
+    anchor?: S2Anchor;
 
     setPosition(x: number, y: number, space: S2Space = 'world'): this {
         if (this.position) {
@@ -84,8 +85,13 @@ export class S2Parameters {
         return this;
     }
 
-    clone(): S2Parameters {
-        const params = new S2Parameters();
+    setAnchor(anchor: S2Anchor): this {
+        this.anchor = anchor;
+        return this;
+    }
+
+    clone(): S2Attributes {
+        const params = new S2Attributes();
         if (this.position !== undefined) params.position = this.position.clone();
         if (this.fillColor !== undefined) params.fillColor = this.fillColor.clone();
         if (this.strokeColor !== undefined) params.strokeColor = this.strokeColor.clone();
@@ -99,7 +105,7 @@ export class S2Parameters {
         return params;
     }
 
-    copy(params: S2Parameters): this {
+    copy(params: S2Attributes): this {
         this.position = params.position ? params.position.clone() : undefined;
         this.fillColor = params.fillColor ? params.fillColor.clone() : undefined;
         this.strokeColor = params.strokeColor ? params.strokeColor.clone() : undefined;

@@ -6,7 +6,7 @@ import { S2Circle } from './s2/element/s2-circle.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
 import { S2Path } from './s2/element/s2-path.ts';
 import { S2Length } from './s2/s2-space.ts';
-import { S2Parameters } from './s2/s2-interface.ts';
+import { S2Attributes } from './s2/s2-interface.ts';
 
 const viewportScale = 1.5;
 const viewport = new Vector2(640.0, 360.0).scale(viewportScale);
@@ -16,9 +16,9 @@ class SceneFigure extends S2AnimatedScene {
     protected circle: S2Circle;
     protected path: S2Path;
     protected styles = {
-        backBase: new S2Parameters(),
-        backSlct: new S2Parameters(),
-        path: new S2Parameters(),
+        backBase: new S2Attributes(),
+        backSlct: new S2Attributes(),
+        path: new S2Attributes(),
     };
 
     constructor(svgElement: SVGSVGElement) {
