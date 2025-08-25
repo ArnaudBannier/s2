@@ -23,8 +23,8 @@ class BTreeStyle {
         strokeWidth: new S2Length(4, 'view'),
     });
     public backSlct = new S2Attributes({
-        fillColor: MTL_COLORS.BLUE_GREY_8,
-        strokeColor: MTL_COLORS.LIGHT_BLUE_4,
+        fillColor: MTL_COLORS.GREY_8,
+        strokeColor: MTL_COLORS.LIGHT_BLUE_6,
         strokeWidth: new S2Length(4, 'view'),
         textFillColor: MTL_COLORS.WHITE,
     });
@@ -34,6 +34,7 @@ class BTreeStyle {
         strokeWidth: new S2Length(6, 'view'),
         textFillColor: MTL_COLORS.WHITE,
     });
+
     // Edge
     public edgeBase = new S2Attributes({
         strokeColor: MTL_COLORS.GREY_6,
@@ -55,6 +56,8 @@ class BTreeStyle {
         startDistance: new S2Length(0, 'view'),
         endDistance: new S2Length(10, 'view'),
     };
+
+    // Text
     public text: S2SVGAttributes = {
         fill: MTL.WHITE,
         'font-family': 'monospace',
@@ -102,9 +105,7 @@ class BTree {
 
     private createNodes(userTree: UserTreeNode<number>, depth: number = 0): BTreeNode {
         const node = new BTreeNode(this.scene, userTree.data);
-
         this.height = Math.max(this.height, depth);
-
         this.nodeGroup.appendChild(node.s2Node);
         node.s2Node.setAttributes(this.style.backBase);
         node.s2Node.setTextStyle(this.style.text);
@@ -131,7 +132,6 @@ class BTree {
                 .addLineEdge(parent.s2Node, node.s2Node, this.style.edgeOpts, this.edgeGroup)
                 .setAttributes(this.style.edgeEmph)
                 .setPathRange(0, 0);
-            //node.parentDrawableEdge = svg.createDrawable(node.parentEmphEdge.getElement());
         }
         this.createNodeLines(node.left, node);
         this.createNodeLines(node.right, node);
@@ -142,7 +142,6 @@ class BTree {
         this.extents.x = (this.nodeGroup.getChildCount() - 1) * this.baseSep;
         this.extents.y = this.height * this.levelDistance;
         this.extents.scale(0.5);
-
         this.computeLayoutRec(this.root, 0, 0);
     }
 
@@ -206,8 +205,6 @@ class BTreeNode {
     s2Node: S2Node;
     parentEdge: S2LineEdge | null = null;
     parentEmphEdge: S2LineEdge | null = null;
-    //parentDrawableEdge: DrawableSVGGeometry[] = [];
-    sepScale: number = 1.0;
 
     constructor(scene: S2Scene, data: number = 0) {
         this.data = data;
@@ -217,7 +214,6 @@ class BTreeNode {
         this.s2Node.setMinExtents(0.5, 0, 'world').setPadding(0, 0, 'world');
         this.s2Node.addLine().addContent(data.toString());
         this.s2Node.createCircleBackground();
-        //this.s2Node.setMinExtents(0, 0).setPadding(0, 0).createRectBackground();
     }
 
     setLeft(node: BTreeNode) {
@@ -234,7 +230,11 @@ class BTreeNode {
 class SceneFigure extends S2AnimatedScene {
     public tree: BTree;
 
-    constructor(svgElement: SVGSVGElement, userTree: UserTreeNode<number>) {
+    constructor(
+        svgElement: SVGSVGElement,
+        userTree: UserTreeNode<number>,
+        order: 'inorder' | 'preorder' | 'postorder',
+    ) {
         super(svgElement, camera);
         this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
         //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
@@ -248,9 +248,18 @@ class SceneFigure extends S2AnimatedScene {
         this.update();
 
         this.saveTree(this.tree.root);
-        this.createInOrderAnimation(this.tree.root);
+        switch (order) {
+            case 'inorder':
+                this.createInOrderAnimation(this.tree.root);
+                break;
+            case 'preorder':
+                this.createPreOrderAnimation(this.tree.root);
+                break;
+            case 'postorder':
+                this.createPostOrderAnimation(this.tree.root);
+                break;
+        }
         this.animator.finalize();
-        console.log(this.animator.getStepCount());
     }
 
     saveTree(node: BTreeNode | null): void {
@@ -323,9 +332,14 @@ const appDiv = document.querySelector<HTMLDivElement>('#app');
 if (appDiv) {
     appDiv.innerHTML = `
         <div>
-            <h1>My first SVG</h1>
-            <svg xmlns="http://www.w3.org/2000/svg" id=test-svg></svg>
-            <div>
+            <h1>Parcours d'un arbre binaire</h1>
+            <svg xmlns="http://www.w3.org/2000/svg" id="test-svg" class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
+            <div class="figure-nav">
+                <select id="order-select">
+                    <option value="preorder">Préfixe</option>
+                    <option value="inorder">Infixe</option>
+                    <option value="postorder">Postfixe</option>
+                </select>
                 <button id="reset-button">Recommencer</button>
                 <button id="prev-button">Retour</button>
                 <button id="play-button">Rejouer</button>
@@ -351,7 +365,7 @@ if (svgElement) {
             right: { data: 6, left: { data: 11 } },
         },
     };
-    const scene = new SceneFigure(svgElement, userTree);
+    let scene = new SceneFigure(svgElement, userTree, 'preorder');
 
     document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
         scene.reset();
@@ -367,5 +381,23 @@ if (svgElement) {
     });
     document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
         scene.createFullAnimation();
+    });
+
+    const selectElement = document.getElementById('order-select') as HTMLSelectElement;
+
+    selectElement.addEventListener('change', (event) => {
+        const target = event.target as HTMLSelectElement;
+        switch (target.value) {
+            case 'inorder':
+                scene = new SceneFigure(svgElement, userTree, 'inorder');
+                break;
+            case 'preorder':
+                scene = new SceneFigure(svgElement, userTree, 'preorder');
+                break;
+            case 'posorder':
+            default:
+                scene = new SceneFigure(svgElement, userTree, 'postorder');
+                break;
+        }
     });
 }

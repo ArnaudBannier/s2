@@ -8,6 +8,7 @@ La librairie S2 (pour SVG 2D) a pour but la création de figures SVG interactive
 ## Building
 
 Make sure you have Node.js installed on your system, cd to the `s2` directory and run
+
 ```bash
 npm install
 ```

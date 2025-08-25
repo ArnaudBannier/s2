@@ -11,8 +11,9 @@ export class S2SVG extends S2Container<SVGSVGElement, S2BaseElement> {
     update(): this {
         super.update();
         const camera = this.getActiveCamera();
-        this.element.setAttribute('width', camera.viewport.width.toString());
-        this.element.setAttribute('height', camera.viewport.height.toString());
+        this.element.setAttribute('viewBox', `0 0 ${camera.viewport.width} ${camera.viewport.height}`);
+        // this.element.setAttribute('width', camera.viewport.width.toString());
+        // this.element.setAttribute('height', camera.viewport.height.toString());
         return this;
     }
 }
