@@ -233,7 +233,7 @@ class SceneFigure extends S2AnimatedScene {
     constructor(
         svgElement: SVGSVGElement,
         userTree: UserTreeNode<number>,
-        order: 'inorder' | 'preorder' | 'postorder',
+        order: 'in-order' | 'pre-order' | 'post-order',
     ) {
         super(svgElement, camera);
         this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
@@ -249,13 +249,13 @@ class SceneFigure extends S2AnimatedScene {
 
         this.saveTree(this.tree.root);
         switch (order) {
-            case 'inorder':
+            case 'in-order':
                 this.createInOrderAnimation(this.tree.root);
                 break;
-            case 'preorder':
+            case 'pre-order':
                 this.createPreOrderAnimation(this.tree.root);
                 break;
-            case 'postorder':
+            case 'post-order':
                 this.createPostOrderAnimation(this.tree.root);
                 break;
         }
@@ -336,15 +336,15 @@ if (appDiv) {
             <svg xmlns="http://www.w3.org/2000/svg" id="test-svg" class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
                 <select id="order-select">
-                    <option value="preorder">Préfixe</option>
-                    <option value="inorder">Infixe</option>
-                    <option value="postorder">Postfixe</option>
+                    <option value="pre-order">Préfixe</option>
+                    <option value="in-order">Infixe</option>
+                    <option value="post-order">Suffixe</option>
                 </select>
-                <button id="reset-button">Recommencer</button>
-                <button id="prev-button">Retour</button>
-                <button id="play-button">Rejouer</button>
-                <button id="next-button">Suivant</button>
-                <button id="full-button">Tout</button>
+                <button id="reset-button"><i class="fa-solid fa-rotate-right"></i></button>
+                <button id="prev-button"><i class="fa-solid fa-backward"></i></button>
+                <button id="play-button"><i class="fa-solid fa-arrows-rotate"></i></button>
+                <button id="next-button"><i class="fa-solid fa-forward"></i></button>
+                <button id="full-button"><i class="fa-solid fa-play"></i></button>
             </div>
         </div>`;
 }
@@ -365,7 +365,7 @@ if (svgElement) {
             right: { data: 6, left: { data: 11 } },
         },
     };
-    let scene = new SceneFigure(svgElement, userTree, 'preorder');
+    let scene = new SceneFigure(svgElement, userTree, 'pre-order');
 
     document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
         scene.reset();
@@ -388,15 +388,15 @@ if (svgElement) {
     selectElement.addEventListener('change', (event) => {
         const target = event.target as HTMLSelectElement;
         switch (target.value) {
-            case 'inorder':
-                scene = new SceneFigure(svgElement, userTree, 'inorder');
+            case 'in-order':
+                scene = new SceneFigure(svgElement, userTree, 'in-order');
                 break;
-            case 'preorder':
-                scene = new SceneFigure(svgElement, userTree, 'preorder');
+            case 'pre-order':
+                scene = new SceneFigure(svgElement, userTree, 'pre-order');
                 break;
-            case 'posorder':
+            case 'post-order':
             default:
-                scene = new SceneFigure(svgElement, userTree, 'postorder');
+                scene = new SceneFigure(svgElement, userTree, 'post-order');
                 break;
         }
     });
