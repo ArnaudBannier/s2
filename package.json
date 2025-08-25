@@ -1,7 +1,7 @@
 {
-    "name": "svg-project",
+    "name": "s2",
     "private": true,
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -10,13 +10,15 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "lint": "eslint .",
-        "lint:fix": "eslint . --fix"
+        "lint:fix": "eslint . --fix",
+        "deploy": "gh-pages -d dist"
     },
     "devDependencies": {
         "@eslint/js": "^9.33.0",
         "@typescript-eslint/eslint-plugin": "^8.40.0",
         "@typescript-eslint/parser": "^8.40.0",
         "eslint": "^9.33.0",
+        "gh-pages": "^6.3.0",
         "globals": "^16.3.0",
         "prettier": "^3.6.2",
         "typescript": "~5.8.3",
