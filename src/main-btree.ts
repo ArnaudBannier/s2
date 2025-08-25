@@ -8,9 +8,9 @@ import { S2Node } from './s2/element/s2-node.ts';
 import { S2LineEdge, type S2EdgeOptions } from './s2/element/s2-edge.ts';
 import { S2Group } from './s2/element/s2-group.ts';
 import { S2Length } from './s2/math/s2-space.ts';
-import { svg, type DrawableSVGGeometry } from 'animejs';
 import { S2Attributes } from './s2/s2-attributes.ts';
 import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
+import type { S2Animator } from './s2/animation/s2-animator.ts';
 
 const viewport = new Vector2(640.0, 360.0);
 const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);
@@ -22,10 +22,17 @@ class BTreeStyle {
         strokeColor: MTL_COLORS.GREY_4,
         strokeWidth: new S2Length(4, 'view'),
     });
-    public backExpl = new S2Attributes({
-        fillColor: MTL_COLORS.BLUE_GREY_9,
-        strokeColor: MTL_COLORS.LIGHT_BLUE_5,
+    public backSlct = new S2Attributes({
+        fillColor: MTL_COLORS.BLUE_GREY_8,
+        strokeColor: MTL_COLORS.LIGHT_BLUE_4,
         strokeWidth: new S2Length(4, 'view'),
+        textFillColor: MTL_COLORS.WHITE,
+    });
+    public backExpl = new S2Attributes({
+        fillColor: MTL_COLORS.LIGHT_BLUE_7,
+        strokeColor: MTL_COLORS.LIGHT_BLUE_3,
+        strokeWidth: new S2Length(6, 'view'),
+        textFillColor: MTL_COLORS.WHITE,
     });
     // Edge
     public edgeBase = new S2Attributes({
@@ -59,7 +66,6 @@ interface UserTreeNode<T> {
     data: T;
     left?: UserTreeNode<T>;
     right?: UserTreeNode<T>;
-    sepScale?: number;
 }
 
 class BTree {
@@ -100,12 +106,8 @@ class BTree {
         this.height = Math.max(this.height, depth);
 
         this.nodeGroup.appendChild(node.s2Node);
-        //node.s2Node.setBackgroundStyle(this.style.backBase);
         node.s2Node.setAttributes(this.style.backBase);
         node.s2Node.setTextStyle(this.style.text);
-        if (userTree.sepScale) {
-            node.sepScale = userTree.sepScale;
-        }
 
         if (userTree.left) {
             const child = this.createNodes(userTree.left, depth + 1);
@@ -127,8 +129,9 @@ class BTree {
 
             node.parentEmphEdge = this.scene
                 .addLineEdge(parent.s2Node, node.s2Node, this.style.edgeOpts, this.edgeGroup)
-                .setAttributes(this.style.edgeEmph);
-            node.parentDrawableEdge = svg.createDrawable(node.parentEmphEdge.getElement());
+                .setAttributes(this.style.edgeEmph)
+                .setPathRange(0, 0);
+            //node.parentDrawableEdge = svg.createDrawable(node.parentEmphEdge.getElement());
         }
         this.createNodeLines(node.left, node);
         this.createNodeLines(node.right, node);
@@ -162,85 +165,35 @@ class BTree {
         return this;
     }
 
-    animateSelectNode(scheduler: AnimationScheduler, node: BTreeNode) {
-        const s2node = node.s2Node;
-        const background = s2node.getBackgroundCircle();
-        const text = s2node.getTextGroup();
-        if (!background || !text) return;
-
-        let animPosition = '+=0';
-        if (node.parentDrawableEdge.length > 0) {
-            scheduler.addAnimation(node.parentDrawableEdge, {
-                draw: '0 1',
-                ease: 'inOutQuad',
-                duration: 500,
-            });
-            animPosition = '<-=200';
+    animateSelectNode(animator: S2Animator, node: BTreeNode) {
+        if (node.parentEmphEdge) {
+            node.parentEmphEdge.setPathRange(0, 1);
+            animator.animate(node.parentEmphEdge, { duration: 500, easing: 'inOutQuad' }, '+=0');
         }
-
-        scheduler.addAnimation(
-            background.getElement(),
-            {
-                ...scheduler.getTween(this.style.backBase, this.style.backSlct),
-                duration: 300,
-                easing: 'inOut',
-            },
-            animPosition,
-        );
+        node.s2Node.setAttributes(this.style.backSlct);
+        animator.animate(node.s2Node, { duration: 300, easing: 'inOut' }, node.parentEdge ? '<-=200' : '+=0');
 
         if (node.left && node.left.parentEdge) {
-            scheduler.addAnimation(
-                node.left.parentEdge.getElement(),
-                {
-                    ...scheduler.getTween(this.style.edgeBase, this.style.edgeSlct),
-                    duration: 300,
-                    easing: 'inOut',
-                },
-                '<<',
-            );
+            node.left.parentEdge.setAttributes(this.style.edgeSlct);
+            animator.animate(node.left.parentEdge, { duration: 300, easing: 'inOut' }, '<<');
         }
         if (node.right && node.right.parentEdge) {
-            scheduler.addAnimation(
-                node.right.parentEdge.getElement(),
-                {
-                    ...scheduler.getTween(this.style.edgeBase, this.style.edgeSlct),
-                    duration: 300,
-                    easing: 'inOut',
-                },
-                '<<',
-            );
+            node.right.parentEdge.setAttributes(this.style.edgeSlct);
+            animator.animate(node.right.parentEdge, { duration: 300, easing: 'inOut' }, '<<');
         }
     }
 
-    animateExploreNode(scheduler: AnimationScheduler, node: BTreeNode) {
-        const s2node = node.s2Node;
-        const background = s2node.getBackgroundCircle();
-        const text = s2node.getTextGroup();
-        if (!background || !text) return;
-
-        scheduler.addAnimation(background.getElement(), {
-            ...scheduler.getTween(this.style.backSlct, this.style.backExpl),
-            duration: 300,
-            easing: 'inOut',
-        });
+    animateExploreNode(animator: S2Animator, node: BTreeNode) {
+        node.s2Node.setAttributes(this.style.backExpl);
+        animator.animate(node.s2Node, { duration: 300, easing: 'inOut' }, '+=0');
     }
 
-    animateExitParentEdge(scheduler: AnimationScheduler, node: BTreeNode) {
-        if (node.parentDrawableEdge.length <= 0 || !node.parentEdge) return;
-        scheduler.addAnimation(node.parentDrawableEdge, {
-            draw: '0 0',
-            ease: 'inOutQuad',
-            duration: 500,
-        });
-        scheduler.addAnimation(
-            node.parentEdge.getElement(),
-            {
-                ...scheduler.getTween(this.style.edgeSlct, this.style.edgeExpl),
-                duration: 300,
-                easing: 'inOut',
-            },
-            '<-=200',
-        );
+    animateExitParentEdge(animator: S2Animator, node: BTreeNode) {
+        if (!node.parentEdge || !node.parentEmphEdge) return;
+        node.parentEmphEdge.setPathRange(0, 0);
+        node.parentEdge.setAttributes(this.style.edgeExpl);
+        animator.animate(node.parentEmphEdge, { duration: 500, easing: 'inOutQuad' }, '+=0');
+        animator.animate(node.parentEdge, { duration: 300, easing: 'inOut' }, '<-=200');
     }
 }
 
@@ -253,7 +206,7 @@ class BTreeNode {
     s2Node: S2Node;
     parentEdge: S2LineEdge | null = null;
     parentEmphEdge: S2LineEdge | null = null;
-    parentDrawableEdge: DrawableSVGGeometry[] = [];
+    //parentDrawableEdge: DrawableSVGGeometry[] = [];
     sepScale: number = 1.0;
 
     constructor(scene: S2Scene, data: number = 0) {
@@ -283,81 +236,81 @@ class SceneFigure extends S2AnimatedScene {
 
     constructor(svgElement: SVGSVGElement, userTree: UserTreeNode<number>) {
         super(svgElement, camera);
-        this.tree = new BTree(this, new BTreeStyle(), userTree);
-    }
-
-    createInitialState(): void {
-        //this.svg.removeChildren();
         this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
-        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
-
-        // Grid
-        //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setAttribute('stroke', MTL.GREY_7);
+        //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
 
         // Tree
+        const treeStyle = new BTreeStyle();
+        this.tree = new BTree(this, treeStyle, userTree);
         this.tree.computeLayout(new Vector2(0, 0));
         this.tree.update();
-        this.createAnimation();
 
         this.update();
+
+        this.saveTree(this.tree.root);
+        this.createInOrderAnimation(this.tree.root);
+        this.animator.finalize();
+        console.log(this.animator.getStepCount());
     }
 
-    createAnimation(): void {
-        this.animator.resetTimeline();
-        this.createInitialState();
-        this.update();
-        createInOrderAnimation(this.tree.root);
+    saveTree(node: BTreeNode | null): void {
+        if (!node) return;
+        this.animator.saveState(node.s2Node);
+        if (node.parentEdge) this.animator.saveState(node.parentEdge);
+        if (node.parentEmphEdge) this.animator.saveState(node.parentEmphEdge);
+        this.saveTree(node.left);
+        this.saveTree(node.right);
     }
 
-    createInOrderAnimation(scheduler: AnimationScheduler, node: BTreeNode | null) {
+    createInOrderAnimation(node: BTreeNode | null) {
         if (!node) return;
         // Select
-        this.tree.animateSelectNode(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateSelectNode(this.animator, node);
+        this.animator.makeStep();
         // Left
-        this.createInOrderAnimation(scheduler, node.left);
+        this.createInOrderAnimation(node.left);
         // Explore
-        this.tree.animateExploreNode(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateExploreNode(this.animator, node);
+        this.animator.makeStep();
         // Right
-        this.createInOrderAnimation(scheduler, node.right);
+        this.createInOrderAnimation(node.right);
         // Quit
-        this.tree.animateExitParentEdge(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateExitParentEdge(this.animator, node);
+        this.animator.makeStep();
     }
 
-    createPreOrderAnimation(scheduler: AnimationScheduler, node: BTreeNode | null) {
+    createPreOrderAnimation(node: BTreeNode | null) {
         if (!node) return;
         // Select
-        this.tree.animateSelectNode(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateSelectNode(this.animator, node);
+        this.animator.makeStep();
         // Explore
-        this.tree.animateExploreNode(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateExploreNode(this.animator, node);
+        this.animator.makeStep();
         // Left
-        this.createPreOrderAnimation(scheduler, node.left);
+        this.createPreOrderAnimation(node.left);
         // Right
-        this.createPreOrderAnimation(scheduler, node.right);
+        this.createPreOrderAnimation(node.right);
         // Quit
-        this.tree.animateExitParentEdge(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateExitParentEdge(this.animator, node);
+        this.animator.makeStep();
     }
 
-    createPostOrderAnimation(scheduler: AnimationScheduler, node: BTreeNode | null) {
+    createPostOrderAnimation(node: BTreeNode | null) {
         if (!node) return;
         // Select
-        this.tree.animateSelectNode(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateSelectNode(this.animator, node);
+        this.animator.makeStep();
         // Left
-        this.createPostOrderAnimation(scheduler, node.left);
+        this.createPostOrderAnimation(node.left);
         // Right
-        this.createPostOrderAnimation(scheduler, node.right);
+        this.createPostOrderAnimation(node.right);
         // Explore
-        this.tree.animateExploreNode(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateExploreNode(this.animator, node);
+        this.animator.makeStep();
         // Quit
-        this.tree.animateExitParentEdge(scheduler, node);
-        scheduler.addStep();
+        this.tree.animateExitParentEdge(this.animator, node);
+        this.animator.makeStep();
     }
 
     updateCamera(): void {
@@ -372,22 +325,21 @@ if (appDiv) {
         <div>
             <h1>My first SVG</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg></svg>
-            <div>Zoom : <input type="range" id="slider-zoom" min="1" max="20" value="10"></div>
             <div>
-                <button id="reverse-button">Retour</button>
-                <button id="animate-button">Avancer</button>
-                <button id="timeline-button">Full</button>
+                <button id="reset-button">Recommencer</button>
+                <button id="prev-button">Retour</button>
+                <button id="play-button">Rejouer</button>
+                <button id="next-button">Suivant</button>
+                <button id="full-button">Tout</button>
             </div>
-        </div>
-    `;
+        </div>`;
 }
-const svgElement = appDiv?.querySelector<SVGSVGElement>('#test-svg');
-const sliderZoom = document.querySelector<HTMLInputElement>('#slider-zoom');
 
-if (svgElement && sliderZoom) {
+const svgElement = appDiv?.querySelector<SVGSVGElement>('#test-svg');
+
+if (svgElement) {
     const userTree = {
         data: 0,
-        sepScale: 3,
         left: {
             data: 1,
             left: { data: 3, right: { data: 7 } },
@@ -395,29 +347,25 @@ if (svgElement && sliderZoom) {
         },
         right: {
             data: 2,
-            sepScale: 2,
             left: { data: 5, left: { data: 9 }, right: { data: 10 } },
             right: { data: 6, left: { data: 11 } },
         },
     };
     const scene = new SceneFigure(svgElement, userTree);
-    void scene;
-    //scene.createInOrderAnimation(animScheduler, scene.tree.root);
-    //scene.createPreOrderAnimation(animScheduler, scene.tree.root);
-    //scene.createPostOrderAnimation(animScheduler, scene.tree.root);
 
-    sliderZoom?.addEventListener('input', () => {
-        camera.viewScale = sliderZoom.valueAsNumber / 10;
-        scene.updateCamera();
+    document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
+        scene.reset();
+    });
+    document.querySelector<HTMLButtonElement>('#prev-button')?.addEventListener('click', () => {
+        scene.createPrevStep();
+    });
+    document.querySelector<HTMLButtonElement>('#next-button')?.addEventListener('click', () => {
+        scene.createNextStep();
+    });
+    document.querySelector<HTMLButtonElement>('#play-button')?.addEventListener('click', () => {
+        scene.play();
+    });
+    document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
+        scene.createFullAnimation();
     });
 }
-
-document.querySelector<HTMLButtonElement>('#animate-button')?.addEventListener('click', () => {
-    animScheduler.playForward();
-});
-document.querySelector<HTMLButtonElement>('#reverse-button')?.addEventListener('click', () => {
-    animScheduler.playBackward();
-});
-document.querySelector<HTMLButtonElement>('#timeline-button')?.addEventListener('click', () => {
-    animScheduler.playFullTimeline();
-});

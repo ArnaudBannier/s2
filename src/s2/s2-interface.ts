@@ -37,10 +37,10 @@ export interface S2HasStrokeWidth {
 }
 
 export interface S2HasPartialRendering {
-    reduceTo(t: number): this;
-    reduceFrom(t: number): this;
-    makePartial(from: number, to: number): this;
-    getPartialFrom(): number;
-    getPartialTo(): number;
-    getPartialRange(): [number, number];
+    setPathTo(t: number): this;
+    setPathFrom(t: number): this;
+    setPathRange(from: number, to: number): this;
+    getPathFrom(): number;
+    getPathTo(): number;
+    getPathRange(): [number, number];
 }

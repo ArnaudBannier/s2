@@ -4,6 +4,7 @@ import { S2Node } from './s2-node';
 import { S2Path } from './s2-path';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length, S2Position } from '../math/s2-space';
+import type { S2Animatable, S2Attributes } from '../s2-attributes';
 
 // S2NodeArcManhattan
 
@@ -28,6 +29,27 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape<SVGPathEle
         this.start = start;
         this.end = end;
         this.options = options;
+    }
+
+    setAttributes(attributes: S2Attributes): this {
+        this.path.setAttributes(attributes);
+        return this;
+    }
+
+    getAttributes(): S2Attributes {
+        return this.path.getAttributes();
+    }
+
+    setAnimatableAttributes(attributes: S2Animatable): this {
+        // super.setAnimatableAttributes(attributes);
+        this.path.setAnimatableAttributes(attributes);
+        return this;
+    }
+
+    getAnimatableAttributes(): S2Animatable {
+        // const attributes = super.getAnimatableAttributes();
+        const attributes = this.path.getAnimatableAttributes();
+        return attributes;
     }
 
     protected getPointCenter(nodeOrPos: S2Node | S2Position, space: S2Space) {
@@ -63,6 +85,37 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape<SVGPathEle
         const start = this.getPointCenter(this.start, space);
         const end = this.getPointCenter(this.end, space);
         return end.subV(start);
+    }
+
+    getPath(): S2Path {
+        return this.path;
+    }
+
+    setPathTo(t: number): this {
+        this.path.setPathTo(t);
+        return this;
+    }
+
+    setPathFrom(t: number): this {
+        this.path.setPathFrom(t);
+        return this;
+    }
+
+    setPathRange(from: number, to: number): this {
+        this.path.setPathRange(from, to);
+        return this;
+    }
+
+    getPathFrom(): number {
+        return this.path.getPathFrom();
+    }
+
+    getPathTo(): number {
+        return this.path.getPathTo();
+    }
+
+    getPathRange(): [number, number] {
+        return this.path.getPathRange();
     }
 }
 

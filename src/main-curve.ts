@@ -47,7 +47,7 @@ class SceneFigure extends S2Scene {
             .smoothCubicToV(ci2, p2)
             .lineToV(Vector2.sub(p2, ci2));
         path.setSVGAttributes(pathStyle);
-        path.makePartial(0.15, 0.95);
+        path.setPathRange(0.15, 0.95);
         this.path = path;
 
         this.tangent = this.addLine().setSVGAttributes(this.tangentStyle);
@@ -60,7 +60,7 @@ class SceneFigure extends S2Scene {
         const lower = this.activeCamera.getLower().shiftX(+1);
         const upper = this.activeCamera.getUpper().shiftX(-1);
         const t = invLerp(lower.x, upper.x, worldPoint.x);
-        this.path.reduceTo(t).update();
+        this.path.setPathTo(t).update();
 
         if (0 < t && t < 1) {
             this.svg.appendChild(this.tangent);

@@ -14,9 +14,12 @@ import { S2Node } from './s2/element/s2-node.ts';
     - Layer et ID (num de création)
     - visible qui indique s'il faut l'ajouter au SVG
     - S2Container: update trie ses enfants selon le layer puis l'ID
+    - Réfléchir au fait qu'un S2Elt soit associé à un SVGElement.
     - S2Attributes potentiellement sans copie profonde
         - Contient toutes les propriétés, y compris pour les noeuds.
     - S2Animatable avec une copie profonde
+    - Erreur sur animate. Il ne faut pas sauvegarder l'état avec currStepIndex mais avec une ID.
+        - Cela pose pb si le même objet est animé plusieurs fois dans un step.
 */
 
 const viewportScale = 1.5;
@@ -37,7 +40,7 @@ class SceneFigure extends S2AnimatedScene {
         backSlct: new S2Attributes({
             fillColor: MTL_COLORS.BLUE_GREY_9,
             strokeColor: MTL_COLORS.LIGHT_BLUE_5,
-            strokeWidth: new S2Length(8, 'view'),
+            strokeWidth: new S2Length(4, 'view'),
             textFillColor: MTL_COLORS.LIGHT_BLUE_1,
         }),
         path: new S2Attributes({
@@ -57,12 +60,13 @@ class SceneFigure extends S2AnimatedScene {
         this.path = this.addPath();
         this.path.setAttributes(this.styles.path);
         this.path.setSpace('world').setStart(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
-        this.path.makePartial(0, 0);
+        this.path.setPathRange(0, 0);
 
         this.circle = this.addCircle();
         this.circle.setAttributes(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
 
-        this.node = this.addNode().setAttributes(this.styles.backSlct);
+        this.node = this.addNode();
+        this.node.setAttributes(this.styles.backBase);
         this.node.setPosition(-5, -2);
         this.node.createRectBackground();
         this.node.addLine().addContent('Coucou');
@@ -76,14 +80,16 @@ class SceneFigure extends S2AnimatedScene {
         this.animator.saveState(this.path);
         this.animator.saveState(this.node);
 
-        this.path.makePartial(0.2, 0.5);
+        this.path.setPathRange(0.2, 0.5);
         this.circle.setAttributes(this.styles.backSlct);
+        this.node.setAttributes(this.styles.backSlct);
 
         this.animator.animate(this.circle, { duration: 1000, easing: 'outCubic' }, '+=0');
+        this.animator.animate(this.node, { duration: 1000, easing: 'outCubic' }, '<<');
         this.animator.animate(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
 
-        this.path.makePartial(0.5, 1.0).setStrokeColor(MTL_COLORS.LIGHT_GREEN_5);
-        this.node.setPosition(-5, 0);
+        this.path.setPathRange(0.5, 1.0).setStrokeColor(MTL_COLORS.LIGHT_GREEN_5);
+        this.node.setPosition(-5, 0); //.setAttributes(this.styles.backBase);
 
         this.animator.makeStep();
         this.animator.animate(this.node, { duration: 1000, easing: 'outBounce' }, '+=0');

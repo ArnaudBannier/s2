@@ -36,6 +36,7 @@ export abstract class S2AnimatedScene extends S2Scene {
     }
 
     createNextStep(): void {
+        console.log('NEXT STEP');
         if (this.timeline) {
             this.timeline.pause();
             this.timeline.reset();

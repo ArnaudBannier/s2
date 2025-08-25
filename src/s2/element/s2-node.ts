@@ -9,7 +9,7 @@ import { S2Extents, S2Length, type S2Space } from '../math/s2-space';
 import { S2TextGroup, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../../math/utils';
 import { S2Line } from './s2-line';
-import { S2Attributes } from '../s2-attributes';
+import { S2Animatable, S2Attributes } from '../s2-attributes';
 import { S2Color } from '../s2-globals';
 
 export class S2Node extends S2Shape<SVGGElement> {
@@ -245,6 +245,30 @@ export class S2Node extends S2Shape<SVGGElement> {
     getTextVerticalAlign(): S2VerticalAlign {
         return this.verticalAlign;
     }
+
+    setAnimatableAttributes(attributes: S2Animatable): this {
+        super.setAnimatableAttributes(attributes);
+
+        if (this.backCircle) this.backCircle.setAnimatableAttributes(attributes);
+        else if (this.backRect) this.backRect.setAnimatableAttributes(attributes);
+
+        // const textAttributes = new S2Attributes();
+        // if (attributes.textFillColor) textAttributes.textFillColor = attributes.textFillColor;
+        // if (attributes.textFillOpacity) textAttributes.textFillOpacity = attributes.textFillOpacity;
+        // if (attributes.textStrokeColor) textAttributes.strokeColor = attributes.textStrokeColor;
+        // if (attributes.textOpacity) textAttributes.opacity = attributes.textOpacity;
+        // if (attributes.textStrokeWidth) textAttributes.strokeWidth = attributes.textStrokeWidth;
+        // for (const textGroup of this.textGroups) {
+        //     textGroup.setAnimatableAttributes(textAttributes);
+        // }
+        return this;
+    }
+
+    // getAnimatableAttributes(): S2Animatable {
+    //     const attributes = super.getAnimatableAttributes();
+    //     console.log('node get', attributes);
+    //     return attributes;
+    // }
 
     getPointInDirection(direction: Vector2, space: S2Space = this.position.space, distance: S2Length): Vector2 {
         if (this.backRect) {

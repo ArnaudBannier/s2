@@ -8,9 +8,9 @@ interface S2Curve {
     getTangentAt(t: number): Vector2;
     getStartTangent(): Vector2;
     getEndTangent(): Vector2;
-    reduceTo(t: number): S2Curve;
-    reduceFrom(t: number): S2Curve;
-    makePartial(from: number, to: number): S2Curve;
+    createPartialCurveTo(t: number): S2Curve;
+    createPartialCurveFrom(t: number): S2Curve;
+    createPartialCurveRange(from: number, to: number): S2Curve;
     getLength(): number;
     clone(): S2Curve;
 }
@@ -124,23 +124,23 @@ export class S2PolyCurve implements S2Curve {
         return this.curves[curveParam.index].getTangentAt(curveParam.t);
     }
 
-    reduceTo(t: number): S2PolyCurve {
+    createPartialCurveTo(t: number): S2PolyCurve {
         const partial = new S2PolyCurve();
         if (this.curves.length === 0) return partial;
         const curveParam = this.getCurveParam(t);
         for (let i = 0; i < curveParam.index; i++) {
             partial.curves.push(this.curves[i].clone());
         }
-        partial.curves.push(this.curves[curveParam.index].reduceTo(curveParam.t));
+        partial.curves.push(this.curves[curveParam.index].createPartialCurveTo(curveParam.t));
         partial.updateLength();
         return partial;
     }
 
-    reduceFrom(t: number): S2PolyCurve {
+    createPartialCurveFrom(t: number): S2PolyCurve {
         const partial = new S2PolyCurve();
         if (this.curves.length === 0) return partial;
         const curveParam = this.getCurveParam(t);
-        partial.curves.push(this.curves[curveParam.index].reduceFrom(curveParam.t));
+        partial.curves.push(this.curves[curveParam.index].createPartialCurveFrom(curveParam.t));
         for (let i = curveParam.index + 1; i < this.curves.length; i++) {
             partial.curves.push(this.curves[i].clone());
         }
@@ -148,19 +148,19 @@ export class S2PolyCurve implements S2Curve {
         return partial;
     }
 
-    makePartial(from: number, to: number): S2PolyCurve {
+    createPartialCurveRange(from: number, to: number): S2PolyCurve {
         const partial = new S2PolyCurve();
         if (this.curves.length === 0 || from >= to) return partial;
         const curveParamF = this.getCurveParam(from);
         const curveParamT = this.getCurveParam(to);
         if (curveParamF.index == curveParamT.index) {
-            partial.curves.push(this.curves[curveParamF.index].makePartial(curveParamF.t, curveParamT.t));
+            partial.curves.push(this.curves[curveParamF.index].createPartialCurveRange(curveParamF.t, curveParamT.t));
         } else {
-            partial.curves.push(this.curves[curveParamF.index].reduceFrom(curveParamF.t));
+            partial.curves.push(this.curves[curveParamF.index].createPartialCurveFrom(curveParamF.t));
             for (let i = curveParamF.index + 1; i < curveParamT.index; i++) {
                 partial.curves.push(this.curves[i].clone());
             }
-            partial.curves.push(this.curves[curveParamT.index].reduceTo(curveParamT.t));
+            partial.curves.push(this.curves[curveParamT.index].createPartialCurveTo(curveParamT.t));
         }
         partial.updateLength();
         return partial;
@@ -215,15 +215,15 @@ export class S2LineCurve implements S2Curve {
         return Vector2.lerp(this.p0, this.p1, t);
     }
 
-    reduceTo(t: number): S2LineCurve {
+    createPartialCurveTo(t: number): S2LineCurve {
         return new S2LineCurve(this.p0, this.getPointAt(t));
     }
 
-    reduceFrom(t: number): S2LineCurve {
+    createPartialCurveFrom(t: number): S2LineCurve {
         return new S2LineCurve(this.getPointAt(t), this.p1);
     }
 
-    makePartial(from: number, to: number): S2LineCurve {
+    createPartialCurveRange(from: number, to: number): S2LineCurve {
         return new S2LineCurve(this.getPointAt(from), this.getPointAt(to));
     }
 }
@@ -358,7 +358,7 @@ export class S2QuadraticCurve extends S2BezierCurve implements S2Curve {
         return new S2QuadraticCurve(this.points[0], q0, r0);
     }
 
-    reduceTo(t: number): S2QuadraticCurve {
+    createPartialCurveTo(t: number): S2QuadraticCurve {
         return this.reduceToCasteljau(this.linearize(t));
     }
 
@@ -369,7 +369,7 @@ export class S2QuadraticCurve extends S2BezierCurve implements S2Curve {
         return new S2QuadraticCurve(r0, q1, this.points[2]);
     }
 
-    reduceFrom(t: number): S2QuadraticCurve {
+    createPartialCurveFrom(t: number): S2QuadraticCurve {
         return this.reduceFromCasteljau(this.linearize(t));
     }
 
@@ -377,7 +377,7 @@ export class S2QuadraticCurve extends S2BezierCurve implements S2Curve {
         return this.reduceToCasteljau(to).reduceFromCasteljau(from / to);
     }
 
-    makePartial(from: number, to: number): S2QuadraticCurve {
+    createPartialCurveRange(from: number, to: number): S2QuadraticCurve {
         to = this.linearize(to);
         from = this.linearize(from);
         return this.reduceToCasteljau(to).reduceFromCasteljau(from / to);
@@ -460,7 +460,7 @@ export class S2CubicCurve extends S2BezierCurve implements S2Curve {
         return new S2CubicCurve(this.points[0], q0, r0, s0);
     }
 
-    reduceTo(t: number): S2CubicCurve {
+    createPartialCurveTo(t: number): S2CubicCurve {
         return this.reduceToCasteljau(this.linearize(t));
     }
 
@@ -474,7 +474,7 @@ export class S2CubicCurve extends S2BezierCurve implements S2Curve {
         return new S2CubicCurve(s0, r1, q2, this.points[3]);
     }
 
-    reduceFrom(t: number): S2CubicCurve {
+    createPartialCurveFrom(t: number): S2CubicCurve {
         return this.reduceFromCasteljau(this.linearize(t));
     }
 
@@ -482,7 +482,7 @@ export class S2CubicCurve extends S2BezierCurve implements S2Curve {
         return this.reduceToCasteljau(to).reduceFromCasteljau(from / to);
     }
 
-    makePartial(from: number, to: number): S2CubicCurve {
+    createPartialCurveRange(from: number, to: number): S2CubicCurve {
         to = this.linearize(to);
         from = this.linearize(from);
         return this.reduceToCasteljau(to).reduceFromCasteljau(from / to);

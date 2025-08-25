@@ -12,8 +12,8 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
     protected polyCurve: S2PolyCurve;
     protected endPosition: Vector2;
     protected shouldClose: boolean[] = [];
-    protected paramFrom: number = -1;
-    protected paramTo: number = 2;
+    protected pathFrom: number = -1;
+    protected pathTo: number = 2;
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'path');
@@ -25,29 +25,29 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
 
     setAnimatableAttributes(attributes: S2Animatable): this {
         super.setAnimatableAttributes(attributes);
-        if (attributes.pathFrom !== undefined) this.paramFrom = attributes.pathFrom;
-        if (attributes.pathTo !== undefined) this.paramTo = attributes.pathTo;
+        if (attributes.pathFrom !== undefined) this.pathFrom = attributes.pathFrom;
+        if (attributes.pathTo !== undefined) this.pathTo = attributes.pathTo;
         return this;
     }
 
     getAnimatableAttributes(): S2Animatable {
         const attributes = super.getAnimatableAttributes();
-        attributes.pathFrom = this.paramFrom;
-        attributes.pathTo = this.paramTo;
+        attributes.pathFrom = this.pathFrom;
+        attributes.pathTo = this.pathTo;
         return attributes;
     }
 
     setAttributes(attributes: S2Attributes): this {
         super.setAttributes(attributes);
-        if (attributes.pathFrom !== undefined) this.paramFrom = attributes.pathFrom;
-        if (attributes.pathTo !== undefined) this.paramTo = attributes.pathTo;
+        if (attributes.pathFrom !== undefined) this.pathFrom = attributes.pathFrom;
+        if (attributes.pathTo !== undefined) this.pathTo = attributes.pathTo;
         return this;
     }
 
     getAttributes(): S2Attributes {
         const attributes = super.getAttributes();
-        attributes.pathFrom = this.paramFrom;
-        attributes.pathTo = this.paramTo;
+        attributes.pathFrom = this.pathFrom;
+        attributes.pathTo = this.pathTo;
         return attributes;
     }
 
@@ -181,39 +181,37 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
         return this;
     }
 
-    reduceTo(t: number): this {
-        this.paramFrom = -1;
-        this.paramTo = t;
+    setPathTo(t: number): this {
+        this.pathTo = t;
         return this;
     }
 
-    reduceFrom(t: number): this {
-        this.paramFrom = t;
-        this.paramTo = 2;
+    setPathFrom(t: number): this {
+        this.pathFrom = t;
         return this;
     }
 
-    makePartial(from: number, to: number): this {
-        this.paramFrom = from;
-        this.paramTo = to;
+    setPathRange(from: number, to: number): this {
+        this.pathFrom = from;
+        this.pathTo = to;
         return this;
     }
 
-    getPartialFrom(): number {
-        return this.paramFrom;
+    getPathFrom(): number {
+        return this.pathFrom;
     }
 
-    getPartialTo(): number {
-        return this.paramTo;
+    getPathTo(): number {
+        return this.pathTo;
     }
 
-    getPartialRange(): [number, number] {
-        return [this.paramFrom, this.paramTo];
+    getPathRange(): [number, number] {
+        return [this.pathFrom, this.pathTo];
     }
 
     private polyCurveToPath(polyCurve: S2PolyCurve): string {
         const curveCount = polyCurve.getCurveCount();
-        if (curveCount === 0) return '';
+        if (curveCount === 0 || this.pathFrom >= this.pathTo) return '';
         const camera = this.getActiveCamera();
         let prevEnd: Vector2 | null = null;
         let d = '';
@@ -247,12 +245,12 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
         super.update();
         this.polyCurve.updateLength();
         let polyCurve = this.polyCurve;
-        if (this.paramFrom > 0 && this.paramTo < 1) {
-            polyCurve = this.polyCurve.makePartial(this.paramFrom, this.paramTo);
-        } else if (this.paramFrom > 0) {
-            polyCurve = this.polyCurve.reduceFrom(this.paramFrom);
-        } else if (this.paramTo < 1) {
-            polyCurve = this.polyCurve.reduceTo(this.paramTo);
+        if (this.pathFrom > 0 && this.pathTo < 1) {
+            polyCurve = this.polyCurve.createPartialCurveRange(this.pathFrom, this.pathTo);
+        } else if (this.pathFrom > 0) {
+            polyCurve = this.polyCurve.createPartialCurveFrom(this.pathFrom);
+        } else if (this.pathTo < 1) {
+            polyCurve = this.polyCurve.createPartialCurveTo(this.pathTo);
         }
         const d = this.polyCurveToPath(polyCurve);
         this.element.setAttribute('d', d);

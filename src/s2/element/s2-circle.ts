@@ -3,6 +3,7 @@ import { Vector2 } from '../../math/vector2';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length } from '../math/s2-space';
+//import type { S2Animatable } from '../s2-attributes';
 
 export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
     public radius: S2Length;
@@ -12,6 +13,16 @@ export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
         super(element, scene);
         this.radius = new S2Length(1, 'world');
     }
+
+    // setAnimatableAttributes(attributes: S2Animatable): this {
+    //     super.setAnimatableAttributes(attributes);
+    //     return this;
+    // }
+
+    // getAnimatableAttributes(): S2Animatable {
+    //     const attributes = super.getAnimatableAttributes();
+    //     return attributes;
+    // }
 
     setRadius(radius: number, space?: S2Space): this {
         if (space) this.radius.space = space;
