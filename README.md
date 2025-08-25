@@ -19,6 +19,12 @@ S2 (SVG 2D) is a lightweight TypeScript library designed for creating **interact
 
 ---
 
+## Live Demo
+
+A demonstration of the generated site is available at: [https://arnaudbannier.github.io/s2/](https://arnaudbannier.github.io/s2/).
+
+---
+
 ## Installation
 
 Make sure you have Node.js installed on your system. Then, navigate to the `s2` directory and run:
