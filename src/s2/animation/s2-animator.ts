@@ -1,5 +1,5 @@
 import { Timeline } from 'animejs';
-import { type S2BaseElement } from '../element/s2-element';
+import { S2Element } from '../element/s2-element';
 import { type S2BaseScene } from '../s2-interface';
 import { type AnimationParams } from 'animejs';
 import { S2Shape } from '../element/s2-shape';
@@ -21,7 +21,7 @@ export class S2Animator {
     protected timeline: Timeline;
     protected stepTimelines: Timeline[];
     protected stepCount: number = 0;
-    public statesMap: Map<S2BaseElement, S2AnimState[]> = new Map();
+    public statesMap: Map<S2Element, S2AnimState[]> = new Map();
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
@@ -42,7 +42,7 @@ export class S2Animator {
         return this.stepCount;
     }
 
-    saveState(target: S2BaseElement): this {
+    saveState(target: S2Element): this {
         this.statesMap.set(target, [new S2AnimState(target.getAnimatableAttributes(), this.currStepIndex - 1)]);
         return this;
     }
@@ -76,7 +76,7 @@ export class S2Animator {
         return this.stepTimelines[index];
     }
 
-    animate(target: S2Shape<SVGGraphicsElement>, parameters: AnimationParams, timelinePos?: number | string): void {
+    animate(target: S2Shape, parameters: AnimationParams, timelinePos?: number | string): void {
         const states = this.statesMap.get(target);
         if (states === undefined || states.length === 0) {
             console.warn('Target not saved.');

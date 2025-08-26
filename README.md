@@ -1,6 +1,6 @@
 # S2
 
-[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)  
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 S2 (SVG 2D) is a lightweight TypeScript library designed for creating **interactive SVG figures**, primarily for teaching Mathematics and algorithmics.
 
@@ -11,7 +11,7 @@ S2 (SVG 2D) is a lightweight TypeScript library designed for creating **interact
 
 ## Features
 
-- **Lightweight**: minimal dependencies; the only external library is [anime.js](https://animejs.com/) for animations.  
+- **Lightweight**: minimal dependencies; the only external library is [anime.js](https://animejs.com/) for animations.
 - **Inspired by**: [Manim](https://www.manim.community/), TikZ, and 2D game development techniques.
 - **Direct SVG DOM API**: works directly with the browser's SVG API for full flexibility.
 - **Virtual world abstraction**: introduces a **camera** concept, allowing you to separate object positions in a virtual world from their actual positions in the generated SVG.
@@ -28,6 +28,7 @@ A demonstration of the generated site is available at: [https://arnaudbannier.gi
 ## Installation
 
 Make sure you have Node.js installed on your system. Then, navigate to the `s2` directory and run:
+
 ```bash
 npm install
 ```
@@ -35,12 +36,15 @@ npm install
 ---
 
 ## Development
+
 To develop locally, use:
+
 ```bash
 npm run dev
 ```
 
 To build the site for deployment, use:
+
 ```bash
 npm run build
 ```

@@ -13,7 +13,7 @@ import { S2Group } from './element/s2-group';
 import { S2CubicEdge, S2LineEdge, type S2CubicEdgeOptions, type S2EdgeOptions } from './element/s2-edge';
 import { S2Position } from './math/s2-space';
 import { type S2BaseContainer } from './element/s2-container';
-import { type S2BaseElement } from './element/s2-element';
+import { S2Element } from './element/s2-element';
 import { type S2BaseScene } from './s2-interface';
 
 export class S2Scene implements S2BaseScene {
@@ -71,7 +71,7 @@ export class S2Scene implements S2BaseScene {
         return child;
     }
 
-    addGroup<T extends S2BaseElement>(parent: S2BaseContainer = this.svg): S2Group<T> {
+    addGroup<T extends S2Element>(parent: S2BaseContainer = this.svg): S2Group<T> {
         const child = new S2Group<T>(this);
         parent.appendChild(child);
         return child;
