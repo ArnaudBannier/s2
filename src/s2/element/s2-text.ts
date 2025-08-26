@@ -19,7 +19,7 @@ export class S2Text extends S2Shape<SVGTextElement> {
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'text');
-        super(element, scene);
+        super(scene, element);
         this.tspans = [];
         this.viewExtents = new Vector2(0, 0);
     }
@@ -41,52 +41,56 @@ export class S2Text extends S2Shape<SVGTextElement> {
     }
 
     addContent(content: string): this {
-        this.element.appendChild(document.createTextNode(content));
+        this.oldElement?.appendChild(document.createTextNode(content));
         return this;
     }
 
     addSpan(content: string): S2Tspan {
         const tspan = new S2Tspan(this.scene);
         this.tspans.push(tspan);
-        this.element.appendChild(tspan.getElement());
+        const tspanElement = tspan.getElement();
+        if (tspanElement) this.oldElement?.appendChild(tspanElement);
         tspan.setContent(content);
         return tspan;
     }
 
     clearText(): this {
-        this.element.replaceChildren();
         this.tspans.length = 0;
+        this.oldElement?.replaceChildren();
         return this;
     }
 
     getBBox(): DOMRect {
-        return this.element.getBBox();
+        return this.oldElement?.getBBox() ?? new DOMRect();
     }
 
     getDimensions(): Vector2 {
-        const bbox = this.element.getBBox();
+        if (this.oldElement === undefined) return new Vector2(0, 0);
+        const bbox = this.oldElement.getBBox();
         return new Vector2(bbox.width, bbox.height);
     }
 
     updateDimensions(): this {
-        const bbox = this.element.getBBox();
+        if (this.oldElement === undefined) return this;
+        const bbox = this.oldElement.getBBox();
         this.viewExtents.x = bbox.width / 2;
         this.viewExtents.y = bbox.height / 2;
         return this;
     }
 
     setTextAnchor(anchor: 'start' | 'middle' | 'end'): this {
-        this.element.setAttribute('text-anchor', anchor);
+        this.oldElement?.setAttribute('text-anchor', anchor);
         return this;
     }
 
     update(): this {
         super.update();
         this.updateDimensions();
+        if (this.oldElement === undefined) return this;
 
         const position = this.getPosition('view');
-        this.element.setAttribute('x', position.x.toString());
-        this.element.setAttribute('y', position.y.toString());
+        this.oldElement.setAttribute('x', position.x.toString());
+        this.oldElement.setAttribute('y', position.y.toString());
         return this;
     }
 }
@@ -94,11 +98,11 @@ export class S2Text extends S2Shape<SVGTextElement> {
 export class S2Tspan extends S2Shape<SVGTSpanElement> {
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'tspan');
-        super(element, scene);
+        super(scene, element);
     }
 
     setContent(content: string): this {
-        this.element.textContent = content;
+        if (this.oldElement) this.oldElement.textContent = content;
         return this;
     }
 }

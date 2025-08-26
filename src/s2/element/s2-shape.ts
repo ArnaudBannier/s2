@@ -8,8 +8,8 @@ import type { S2Animatable, S2Attributes } from '../s2-attributes';
 export abstract class S2Shape<T extends SVGGraphicsElement> extends S2Graphics<T> implements S2HasPosition {
     protected position: S2Position;
 
-    constructor(element: T, scene: S2BaseScene) {
-        super(element, scene);
+    constructor(scene: S2BaseScene, element?: T) {
+        super(scene, element);
         this.position = new S2Position(0, 0, 'world');
     }
 

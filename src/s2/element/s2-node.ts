@@ -38,7 +38,7 @@ export class S2Node extends S2Shape<SVGGElement> {
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
         const element = document.createElementNS(svgNS, 'g');
-        super(element, scene);
+        super(scene, element);
 
         this.textGroups = [];
         this.textGrows = [];
@@ -47,13 +47,15 @@ export class S2Node extends S2Shape<SVGGElement> {
             textGroup.addClass('s2-node-text');
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
-            this.element.appendChild(textGroup.getElement());
+            const textElement = textGroup.getElement();
+            if (textElement) this.oldElement?.appendChild(textElement);
         }
         this.lines = [];
         for (let i = 0; i < partCount - 1; i++) {
             const line = new S2Line(this.scene);
             this.lines.push(line);
-            this.element.appendChild(line.getElement());
+            const lineElement = line.getElement();
+            if (lineElement) this.oldElement?.appendChild(lineElement);
         }
         this.anchor = 'center';
         this.nodeExtents = new S2Extents(0, 0, 'view');
@@ -80,7 +82,9 @@ export class S2Node extends S2Shape<SVGGElement> {
             this.backRect = new S2Rect(this.scene);
             this.backRect.addClass('s2-node-background').setAnchor(this.anchor);
             this.backRect.setAttributes(this.getAttributes());
-            this.element.insertBefore(this.backRect.getElement(), this.textGroups[0].getElement());
+            const backElement = this.backRect.getElement();
+            const textElement = this.textGroups[0].getElement();
+            if (this.oldElement && backElement && textElement) this.oldElement.insertBefore(backElement, textElement);
         }
         return this.backRect;
     }
@@ -90,7 +94,9 @@ export class S2Node extends S2Shape<SVGGElement> {
             this.backCircle = new S2Circle(this.scene);
             this.backCircle.addClass('s2-node-background');
             this.backCircle.setAttributes(this.getAttributes());
-            this.element.insertBefore(this.backCircle.getElement(), this.textGroups[0].getElement());
+            const backElement = this.backCircle.getElement();
+            const textElement = this.textGroups[0].getElement();
+            if (this.oldElement && backElement && textElement) this.oldElement.insertBefore(backElement, textElement);
         }
         return this.backCircle;
     }
@@ -281,9 +287,10 @@ export class S2Node extends S2Shape<SVGGElement> {
 
     update(): this {
         super.update();
-        this.element.removeAttribute('fill');
-        this.element.removeAttribute('stroke-width');
-        this.element.removeAttribute('stroke');
+        if (this.oldElement === undefined) return this;
+        this.oldElement.removeAttribute('fill');
+        this.oldElement.removeAttribute('stroke-width');
+        this.oldElement.removeAttribute('stroke');
 
         const partHeights: Array<number> = [];
         let maxPartWidth = 0;

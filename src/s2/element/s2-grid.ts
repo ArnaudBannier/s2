@@ -1,24 +1,25 @@
 import { Vector2 } from '../../math/vector2';
 import { type S2BaseScene } from '../s2-interface';
-import { S2Line } from './s2-line';
 import { S2Shape } from './s2-shape';
-import { S2Group } from './s2-group';
 import { type S2Space, S2Extents } from '../math/s2-space';
+import { S2Path } from './s2-path';
+import { S2Attributes } from '../s2-attributes';
 
 export class S2Grid extends S2Shape<SVGGElement> {
     protected extents: S2Extents;
     protected steps: S2Extents;
     protected epsilon: number = 1e-5;
-    protected lineGroup: S2Group<S2Line>;
+    protected path: S2Path;
 
     constructor(scene: S2BaseScene) {
-        const lineGroup = new S2Group<S2Line>(scene);
-        super(lineGroup.getElement(), scene);
-
-        this.lineGroup = lineGroup;
-        this.lineGroup.addClass('s2-grid');
+        super(scene);
         this.extents = new S2Extents(0, 0, 'world');
         this.steps = new S2Extents(1, 1, 'world');
+        this.path = new S2Path(scene);
+    }
+
+    getSVGElements(): SVGElement[] {
+        return this.path.getSVGElements();
     }
 
     setExtents(x: number, y: number, space?: S2Space): this {
@@ -53,38 +54,31 @@ export class S2Grid extends S2Shape<SVGGElement> {
         return this.steps.toSpace(space, this.getActiveCamera());
     }
 
-    private getLine(index: number): S2Line {
-        if (index < this.lineGroup.getChildCount()) {
-            return this.lineGroup.getChild(index);
-        }
-        const line = new S2Line(this.scene);
-        this.lineGroup.appendChild(line);
-        return line;
-    }
-
     update(): this {
         super.update();
+        this.path.clear();
+        this.path.setSpace('world');
+        this.path.setAttributes(
+            new S2Attributes({
+                strokeWidth: this.strokeWidth,
+                strokeColor: this.strokeColor,
+                fillOpacity: 0,
+            }),
+        );
         const position = this.getPosition('world');
         const extents = this.getExtents('world');
         const steps = this.getSteps('world');
-        let index = 0;
         const lowerX = position.x - extents.x;
         const upperX = position.x + extents.x;
         const lowerY = position.y - extents.y;
         const upperY = position.y + extents.y;
         for (let x = lowerX; x < upperX + this.epsilon; x += steps.x) {
-            const line = this.getLine(index);
-            line.setStart(x, lowerY, 'world').setEnd(x, upperY, 'world').update();
-            index++;
+            this.path.moveTo(x, lowerY).lineTo(x, upperY);
         }
         for (let y = lowerY; y < upperY + this.epsilon; y += steps.y) {
-            const line = this.getLine(index);
-            line.setStart(lowerX, y, 'world').setEnd(upperX, y, 'world').update();
-            index++;
+            this.path.moveTo(lowerX, y).lineTo(upperX, y);
         }
-        while (this.lineGroup.getChildCount() > index) {
-            this.lineGroup.removeLastChild();
-        }
+        this.path.update();
         return this;
     }
 }

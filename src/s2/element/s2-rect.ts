@@ -12,7 +12,7 @@ export class S2Rect extends S2Shape<SVGRectElement> implements S2HasRadius, S2Ha
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'rect');
-        super(element, scene);
+        super(scene, element);
 
         this.extents = new S2Extents(1, 1, 'world');
         this.radius = new S2Length(0, 'view');
@@ -75,14 +75,15 @@ export class S2Rect extends S2Shape<SVGRectElement> implements S2HasRadius, S2Ha
         super.update();
         const extents = this.getExtents('view');
         const northWest = this.getCenter('view').subV(extents);
-        this.element.setAttribute('x', northWest.x.toString());
-        this.element.setAttribute('y', northWest.y.toString());
-        this.element.setAttribute('width', (2 * extents.x).toString());
-        this.element.setAttribute('height', (2 * extents.y).toString());
+        if (this.oldElement === undefined) return this;
+        this.oldElement.setAttribute('x', northWest.x.toString());
+        this.oldElement.setAttribute('y', northWest.y.toString());
+        this.oldElement.setAttribute('width', (2 * extents.x).toString());
+        this.oldElement.setAttribute('height', (2 * extents.y).toString());
         if (this.radius.value > 0) {
             const radius = Math.min(this.getRadius('view'), extents.x, extents.y);
-            this.element.setAttribute('rx', radius.toString());
-            this.element.setAttribute('ry', radius.toString());
+            this.oldElement.setAttribute('rx', radius.toString());
+            this.oldElement.setAttribute('ry', radius.toString());
         }
         return this;
     }

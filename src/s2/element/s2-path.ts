@@ -17,7 +17,7 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'path');
-        super(element, scene);
+        super(scene, element);
         this.polyCurve = new S2PolyCurve();
         this.endPosition = new Vector2(0, 0);
         this.fillOpacity = 0;
@@ -253,7 +253,7 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
             polyCurve = this.polyCurve.createPartialCurveTo(this.pathTo);
         }
         const d = this.polyCurveToPath(polyCurve);
-        this.element.setAttribute('d', d);
+        this.oldElement?.setAttribute('d', d);
         return this;
     }
 }

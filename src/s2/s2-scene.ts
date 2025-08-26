@@ -23,7 +23,7 @@ export class S2Scene implements S2BaseScene {
 
     constructor(element: SVGSVGElement, camera: S2Camera) {
         this.activeCamera = camera;
-        this.svg = new S2SVG(element, this);
+        this.svg = new S2SVG(this, element);
         element.innerHTML = '';
         this.svg.update();
         this.nextId = 0;

@@ -23,7 +23,7 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape<SVGPathEle
 
     constructor(scene: S2BaseScene, start: S2Node | S2Position, end: S2Node | S2Position, options: T) {
         const path = new S2Path(scene);
-        super(path.getElement(), scene);
+        super(scene, path.getElement());
 
         this.path = path;
         this.start = start;

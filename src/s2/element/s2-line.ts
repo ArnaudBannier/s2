@@ -9,7 +9,7 @@ export class S2Line extends S2Shape<SVGLineElement> {
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'line');
-        super(element, scene);
+        super(scene, element);
         this.endPosition = new S2Position(0, 0, 'world');
     }
 
@@ -17,10 +17,11 @@ export class S2Line extends S2Shape<SVGLineElement> {
         super.update();
         const start = this.getStart('view');
         const end = this.getEnd('view');
-        this.element.setAttribute('x1', start.x.toString());
-        this.element.setAttribute('y1', start.y.toString());
-        this.element.setAttribute('x2', end.x.toString());
-        this.element.setAttribute('y2', end.y.toString());
+        if (this.oldElement === undefined) return this;
+        this.oldElement.setAttribute('x1', start.x.toString());
+        this.oldElement.setAttribute('y1', start.y.toString());
+        this.oldElement.setAttribute('x2', end.x.toString());
+        this.oldElement.setAttribute('y2', end.y.toString());
         return this;
     }
 

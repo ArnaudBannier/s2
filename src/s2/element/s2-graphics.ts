@@ -18,27 +18,27 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
     public lineCap?: S2LineCap;
     public lineJoin?: S2LineJoin;
 
-    constructor(element: T, scene: S2BaseScene) {
-        super(element, scene);
+    constructor(scene: S2BaseScene, element?: T) {
+        super(scene, element);
         this.transform = Matrix2x3.createIdentity();
         this.strokeWidth = new S2Length(0, 'view');
     }
 
     setAnimatableAttributes(attributes: S2Animatable): this {
         super.setAnimatableAttributes(attributes);
-        if (attributes.strokeWidth) this.strokeWidth.copy(attributes.strokeWidth);
-        if (attributes.fillColor) this.fillColor = attributes.fillColor.clone();
-        if (attributes.fillOpacity) this.fillOpacity = attributes.fillOpacity;
-        if (attributes.opacity) this.opacity = attributes.opacity;
-        if (attributes.strokeColor) this.strokeColor = attributes.strokeColor.clone();
+        this.setFillColor(attributes.fillColor)
+            .setFillOpacity(attributes.fillOpacity)
+            .setOpacity(attributes.opacity)
+            .setStrokeColor(attributes.strokeColor)
+            .setStrokeWidthL(attributes.strokeWidth);
         return this;
     }
 
     getAnimatableAttributes(): S2Animatable {
         const attributes = super.getAnimatableAttributes();
-        if (this.strokeColor !== undefined) attributes.strokeColor = this.strokeColor.clone();
-        if (this.strokeWidth.value > 0) attributes.strokeWidth = this.strokeWidth.clone();
-        if (this.fillColor !== undefined) attributes.fillColor = this.fillColor.clone();
+        if (this.strokeColor !== undefined) attributes.strokeColor = this.strokeColor;
+        if (this.strokeWidth.value > 0) attributes.strokeWidth = this.strokeWidth;
+        if (this.fillColor !== undefined) attributes.fillColor = this.fillColor;
         if (this.fillOpacity !== undefined) attributes.fillOpacity = this.fillOpacity;
         if (this.opacity !== undefined) attributes.opacity = this.opacity;
         return attributes;
@@ -46,26 +46,41 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
 
     setAttributes(attributes: S2Attributes): this {
         super.setAttributes(attributes);
-        if (attributes.strokeWidth) this.strokeWidth.copy(attributes.strokeWidth);
-        if (attributes.fillColor) this.fillColor = attributes.fillColor;
-        if (attributes.fillOpacity) this.fillOpacity = attributes.fillOpacity;
-        if (attributes.opacity) this.opacity = attributes.opacity;
-        if (attributes.strokeColor) this.strokeColor = attributes.strokeColor;
-        if (attributes.lineCap) this.lineCap = attributes.lineCap;
-        if (attributes.lineJoin) this.lineJoin = attributes.lineJoin;
+        this.setFillColor(attributes.fillColor)
+            .setFillOpacity(attributes.fillOpacity)
+            .setOpacity(attributes.opacity)
+            .setLineCap(attributes.lineCap)
+            .setLineJoin(attributes.lineJoin)
+            .setStrokeColor(attributes.strokeColor)
+            .setStrokeWidthL(attributes.strokeWidth);
         return this;
     }
 
     getAttributes(): S2Attributes {
         const attributes = super.getAttributes();
         if (this.strokeColor !== undefined) attributes.strokeColor = this.strokeColor;
-        if (this.strokeWidth.value > 0) attributes.strokeWidth = this.strokeWidth.clone();
+        if (this.strokeWidth.value > 0) attributes.strokeWidth = this.strokeWidth;
         if (this.fillColor !== undefined) attributes.fillColor = this.fillColor;
         if (this.fillOpacity !== undefined) attributes.fillOpacity = this.fillOpacity;
         if (this.opacity !== undefined) attributes.opacity = this.opacity;
         if (this.lineCap !== undefined) attributes.lineCap = this.lineCap;
         if (this.lineJoin !== undefined) attributes.lineJoin = this.lineJoin;
         return attributes;
+    }
+
+    setFillOpacity(fillOpacity?: number): this {
+        this.fillOpacity = fillOpacity;
+        return this;
+    }
+
+    setLineCap(lineCap?: S2LineCap): this {
+        this.lineCap = lineCap;
+        return this;
+    }
+
+    setLineJoin(lineJoin?: S2LineJoin): this {
+        this.lineJoin = lineJoin;
+        return this;
     }
 
     setFillColor(color?: S2Color): this {
@@ -78,14 +93,20 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         return this;
     }
 
-    setOpacity(opacity: number): this {
+    setOpacity(opacity?: number): this {
         this.opacity = opacity;
         return this;
     }
 
-    setStrokeWidth(strokeWidth: number, space?: S2Space): this {
+    setStrokeWidth(strokeWidth?: number, space?: S2Space): this {
         if (space) this.strokeWidth.space = space;
-        this.strokeWidth.value = strokeWidth;
+        this.strokeWidth.value = strokeWidth ?? 0;
+        return this;
+    }
+
+    setStrokeWidthL(strokeWidth?: S2Length): this {
+        if (strokeWidth) this.strokeWidth.copy(strokeWidth);
+        else this.strokeWidth.value = 0;
         return this;
     }
 
@@ -158,25 +179,29 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         return this;
     }
 
-    update(): this {
-        super.update();
-        if (!this.transform.isIdentity()) {
-            const te = this.transform.elements;
-            this.element.setAttribute(
-                'transform',
-                `matrix(${te[0]}, ${te[1]}, ${te[2]}, ${te[3]}, ${te[4]}, ${te[5]})`,
-            );
-        }
-        if (this.fillColor !== undefined) this.element.setAttribute('fill', this.fillColor.toRgb());
-        if (this.fillOpacity !== undefined) this.element.setAttribute('fill-opacity', this.fillOpacity.toString());
-        if (this.opacity !== undefined) this.element.setAttribute('opacity', this.opacity.toString());
-        if (this.strokeColor !== undefined) this.element.setAttribute('stroke', this.strokeColor.toRgb());
-        if (this.lineCap !== undefined) this.element.setAttribute('stroke-linecap', this.lineCap);
-        if (this.lineJoin !== undefined) this.element.setAttribute('stroke-linejoin', this.lineJoin);
+    protected updateSVGStyle(element: SVGElement): void {
+        if (this.fillColor !== undefined) element.setAttribute('fill', this.fillColor.toRgb());
+        if (this.fillOpacity !== undefined) element.setAttribute('fill-opacity', this.fillOpacity.toString());
+        if (this.opacity !== undefined) element.setAttribute('opacity', this.opacity.toString());
+        if (this.strokeColor !== undefined) element.setAttribute('stroke', this.strokeColor.toRgb());
+        if (this.lineCap !== undefined) element.setAttribute('stroke-linecap', this.lineCap);
+        if (this.lineJoin !== undefined) element.setAttribute('stroke-linejoin', this.lineJoin);
         if (this.strokeWidth.value > 0) {
             const strokeWidth = this.getStrokeWidth('view');
-            this.element.setAttribute('stroke-width', strokeWidth.toString());
+            element.setAttribute('stroke-width', strokeWidth.toString());
         }
+    }
+
+    protected updateSVGTransform(element: SVGElement): void {
+        if (this.transform.isIdentity()) return;
+        const te = this.transform.elements;
+        element.setAttribute('transform', `matrix(${te[0]}, ${te[1]}, ${te[2]}, ${te[3]}, ${te[4]}, ${te[5]})`);
+    }
+
+    update(): this {
+        if (this.oldElement === undefined) return this;
+        this.updateSVGTransform(this.oldElement);
+        this.updateSVGStyle(this.oldElement);
         return this;
     }
 }

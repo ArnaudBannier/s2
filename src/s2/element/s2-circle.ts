@@ -6,11 +6,13 @@ import { type S2Space, S2Length } from '../math/s2-space';
 //import type { S2Animatable } from '../s2-attributes';
 
 export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
+    protected element: SVGCircleElement;
     public radius: S2Length;
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'circle');
-        super(element, scene);
+        super(scene, element);
+        this.element = element;
         this.radius = new S2Length(1, 'world');
     }
 
@@ -50,9 +52,11 @@ export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
         super.update();
         const position = this.getPosition('view');
         const radius = this.getRadius('view');
-        this.element.setAttribute('cx', position.x.toString());
-        this.element.setAttribute('cy', position.y.toString());
-        this.element.setAttribute('r', radius.toString());
+        if (this.oldElement) {
+            this.oldElement.setAttribute('cx', position.x.toString());
+            this.oldElement.setAttribute('cy', position.y.toString());
+            this.oldElement.setAttribute('r', radius.toString());
+        }
         return this;
     }
 }

@@ -71,7 +71,18 @@ class SceneFigure extends S2AnimatedScene {
         this.node.createRectBackground();
         this.node.addLine().addContent('Coucou');
 
+        const group = this.addGroup<S2Circle>();
+
+        const circle1 = this.addCircle(group).setPosition(3, 0).setFillColor(MTL_COLORS.RED_5);
+        const circle2 = this.addCircle(group).setPosition(4, 0).setFillColor(MTL_COLORS.GREEN_5);
+        const circle3 = this.addCircle(group).setPosition(3.5, 0.5).setFillColor(MTL_COLORS.BLUE_5);
+
+        circle1.setLayer(2);
+        circle2.setLayer(1);
+        circle3.setIsVisible(true);
+
         this.update();
+
         this.createAnimation();
     }
 
@@ -116,13 +127,13 @@ if (appDiv) {
     appDiv.innerHTML = `
         <div>
             <h1>My first SVG</h1>
-            <svg xmlns="http://www.w3.org/2000/svg" id=test-svg></svg>
-            <div>
-                <button id="reset-button">Recommencer</button>
-                <button id="prev-button">Retour</button>
-                <button id="play-button">Rejouer</button>
-                <button id="next-button">Suivant</button>
-                <button id="full-button">Tout</button>
+            <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
+            <div class="figure-nav">
+                <button id="reset-button"><i class="fa-solid fa-rotate-right"></i></button>
+                <button id="prev-button"><i class="fa-solid fa-backward"></i></button>
+                <button id="play-button"><i class="fa-solid fa-arrows-rotate"></i></button>
+                <button id="next-button"><i class="fa-solid fa-forward"></i></button>
+                <button id="full-button"><i class="fa-solid fa-play"></i></button>
             </div>
         </div>`;
 }

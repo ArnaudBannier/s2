@@ -39,7 +39,7 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
 
     constructor(scene: S2BaseScene) {
         const textGroup = new S2Group<S2Text>(scene);
-        super(textGroup.getElement(), scene);
+        super(scene, textGroup.getElement());
 
         this.textGroup = textGroup;
         this.textExtents = new S2Extents(0, 0, 'view');

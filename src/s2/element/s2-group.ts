@@ -6,6 +6,6 @@ import { svgNS } from '../s2-globals';
 export class S2Group<T extends S2BaseElement> extends S2Container<SVGGElement, T> {
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'g');
-        super(element, scene);
+        super(scene, element);
     }
 }

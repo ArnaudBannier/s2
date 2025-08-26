@@ -5,7 +5,7 @@ import { S2Element } from './s2-element';
 export class S2Symbol extends S2Element<SVGSymbolElement> {
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'symbol');
-        super(element, scene);
+        super(scene, element);
     }
 
     update(): this {

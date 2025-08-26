@@ -7,7 +7,7 @@ export class S2Style extends S2Element<SVGStyleElement> {
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'style');
-        super(element, scene);
+        super(scene, element);
         this.rules = {};
     }
 
@@ -32,6 +32,7 @@ export class S2Style extends S2Element<SVGStyleElement> {
     }
 
     update(): this {
+        if (this.oldElement === undefined) return this;
         const children: Array<Text> = [];
         for (const [selector, declarations] of Object.entries(this.rules)) {
             const ruleString =
@@ -43,7 +44,7 @@ export class S2Style extends S2Element<SVGStyleElement> {
                 '; }';
             children.push(document.createTextNode(ruleString));
         }
-        this.element.replaceChildren(...children);
+        this.oldElement.replaceChildren(...children);
         return this;
     }
 }

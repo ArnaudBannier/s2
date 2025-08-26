@@ -1,14 +1,16 @@
 import { type S2BaseScene } from '../s2-interface';
-import { type S2BaseElement } from './s2-element';
+import { S2Element, type S2BaseElement } from './s2-element';
 import { S2Graphics } from './s2-graphics';
 
 export type S2BaseContainer = S2Container<SVGGraphicsElement, S2BaseElement>;
 
 export abstract class S2Container<T extends SVGGraphicsElement, U extends S2BaseElement> extends S2Graphics<T> {
+    protected element: T;
     protected children: Array<U>;
 
-    constructor(element: T, scene: S2BaseScene) {
-        super(element, scene);
+    constructor(scene: S2BaseScene, element: T) {
+        super(scene, element);
+        this.element = element;
         this.children = [];
     }
 
@@ -19,14 +21,17 @@ export abstract class S2Container<T extends SVGGraphicsElement, U extends S2Base
             prevParent.removeChild(child);
         }
         this.children.push(child);
-        this.element.appendChild(child.getElement());
         child.setParent(this);
+        S2Element.updateSVGChildren(this.element, this.children);
         return this;
     }
 
     removeChildren(): this {
+        for (const child of this.children) {
+            child.setParent(null);
+        }
         this.children.length = 0;
-        this.element.replaceChildren();
+        S2Element.updateSVGChildren(this.element, this.children);
         return this;
     }
 
@@ -34,18 +39,16 @@ export abstract class S2Container<T extends SVGGraphicsElement, U extends S2Base
         const index = this.children.indexOf(child);
         if (index !== -1) {
             this.children.splice(index, 1);
-            this.element.removeChild(child.getElement());
             child.setParent(null);
         }
+        S2Element.updateSVGChildren(this.element, this.children);
         return this;
     }
 
     removeLastChild(): this {
         const last = this.children.pop();
-        if (last) {
-            this.element.removeChild(last.getElement());
-            last.setParent(null);
-        }
+        if (last) last.setParent(null);
+        S2Element.updateSVGChildren(this.element, this.children);
         return this;
     }
 
@@ -57,7 +60,14 @@ export abstract class S2Container<T extends SVGGraphicsElement, U extends S2Base
         return this.children[index];
     }
 
+    getSVGElements(): SVGElement[] {
+        return [this.element];
+    }
+
     update(): this {
+        this.updateSVGTransform(this.element);
+        this.updateSVGStyle(this.element);
+        S2Element.updateSVGChildren(this.element, this.children);
         for (const child of this.children) {
             child.update();
         }
