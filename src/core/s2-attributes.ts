@@ -4,12 +4,13 @@ import { S2Length } from './math/s2-space';
 import type { S2TextAlign, S2VerticalAlign } from './element/s2-text-group';
 
 export class S2Animatable {
-    position?: S2Position;
-    pathFrom?: number;
-    pathTo?: number;
+    isActive?: boolean;
     fillColor?: S2Color;
     fillOpacity?: number;
     opacity?: number;
+    pathFrom?: number;
+    pathTo?: number;
+    position?: S2Position;
     strokeColor?: S2Color;
     strokeWidth?: S2Length;
 
@@ -25,6 +26,7 @@ export class S2Animatable {
 }
 
 export class S2Attributes {
+    isActive?: boolean;
     fillColor?: S2Color;
     fillOpacity?: number;
     opacity?: number;

@@ -41,8 +41,8 @@ export abstract class S2Element {
         return this.layer;
     }
 
-    setIsActive(isVisible: boolean): this {
-        this.isActive = isVisible;
+    setIsActive(isActive: boolean = true): this {
+        this.isActive = isActive;
         return this;
     }
 
@@ -56,7 +56,7 @@ export abstract class S2Element {
      * @returns
      */
     setAnimatableAttributes(attributes: S2Animatable): this {
-        void attributes;
+        this.setIsActive(attributes.isActive);
         return this;
     }
 
@@ -65,7 +65,9 @@ export abstract class S2Element {
      * @returns
      */
     getAnimatableAttributes(): S2Animatable {
-        return new S2Animatable();
+        const attributes = new S2Animatable();
+        attributes.isActive = this.isActive;
+        return attributes;
     }
 
     /**
@@ -74,7 +76,7 @@ export abstract class S2Element {
      * @returns
      */
     setAttributes(attributes: S2Attributes): this {
-        void attributes;
+        this.setIsActive(attributes.isActive);
         return this;
     }
 
@@ -83,7 +85,9 @@ export abstract class S2Element {
      * @returns
      */
     getAttributes(): S2Attributes {
-        return new S2Attributes();
+        const attributes = new S2Attributes();
+        attributes.isActive = this.isActive;
+        return attributes;
     }
 
     setSVGAttribute(qualifiedName: string, value: string): this {
