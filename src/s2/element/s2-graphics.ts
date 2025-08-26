@@ -105,8 +105,7 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
     }
 
     setStrokeWidthL(strokeWidth?: S2Length): this {
-        if (strokeWidth) this.strokeWidth.copy(strokeWidth);
-        else this.strokeWidth.value = 0;
+        this.strokeWidth.copy(strokeWidth);
         return this;
     }
 
@@ -196,12 +195,5 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
         if (this.transform.isIdentity()) return;
         const te = this.transform.elements;
         element.setAttribute('transform', `matrix(${te[0]}, ${te[1]}, ${te[2]}, ${te[3]}, ${te[4]}, ${te[5]})`);
-    }
-
-    update(): this {
-        if (this.oldElement === undefined) return this;
-        this.updateSVGTransform(this.oldElement);
-        this.updateSVGStyle(this.oldElement);
-        return this;
     }
 }

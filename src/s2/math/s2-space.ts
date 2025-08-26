@@ -7,7 +7,7 @@ export class S2Position {
     public value: Vector2;
     public space: S2Space;
 
-    constructor(x: number, y: number, space: S2Space = 'world') {
+    constructor(x: number = 0, y: number = 0, space: S2Space = 'world') {
         this.value = new Vector2(x, y);
         this.space = space;
     }
@@ -16,9 +16,14 @@ export class S2Position {
         return new S2Position(this.value.x, this.value.y, this.space);
     }
 
-    copy(other: S2Position): this {
-        this.value.copy(other.value);
-        this.space = other.space;
+    copy(other?: S2Position): this {
+        if (other) {
+            this.value.copy(other.value);
+            this.space = other.space;
+        } else {
+            this.value.set(0, 0);
+            this.space = 'world';
+        }
         return this;
     }
 
@@ -77,7 +82,7 @@ export class S2Length {
     public value: number;
     public space: S2Space;
 
-    constructor(value: number, space: S2Space = 'world') {
+    constructor(value: number = 0, space: S2Space = 'world') {
         this.value = value;
         this.space = space;
     }
@@ -86,9 +91,9 @@ export class S2Length {
         return new S2Length(this.value, this.space);
     }
 
-    copy(other: S2Length): this {
-        this.value = other.value;
-        this.space = other.space;
+    copy(other?: S2Length): this {
+        this.value = other?.value ?? 0;
+        this.space = other?.space ?? 'world';
         return this;
     }
 
@@ -152,9 +157,14 @@ export class S2Extents {
         return new S2Extents(this.value.x, this.value.y, this.space);
     }
 
-    copy(other: S2Extents): this {
-        this.value.copy(other.value);
-        this.space = other.space;
+    copy(other?: S2Extents): this {
+        if (other) {
+            this.value.copy(other.value);
+            this.space = other.space;
+        } else {
+            this.value.set(0, 0);
+            this.space = 'world';
+        }
         return this;
     }
 

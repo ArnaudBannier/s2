@@ -4,10 +4,12 @@ import { svgNS, type S2SVGAttributes } from '../s2-globals';
 
 export class S2Style extends S2Element<SVGStyleElement> {
     protected rules: Record<string, S2SVGAttributes>;
+    protected element: SVGStyleElement;
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'style');
-        super(scene, element);
+        super(scene);
+        this.element = element;
         this.rules = {};
     }
 
@@ -32,7 +34,6 @@ export class S2Style extends S2Element<SVGStyleElement> {
     }
 
     update(): this {
-        if (this.oldElement === undefined) return this;
         const children: Array<Text> = [];
         for (const [selector, declarations] of Object.entries(this.rules)) {
             const ruleString =
@@ -44,7 +45,7 @@ export class S2Style extends S2Element<SVGStyleElement> {
                 '; }';
             children.push(document.createTextNode(ruleString));
         }
-        this.oldElement.replaceChildren(...children);
+        this.element.replaceChildren(...children);
         return this;
     }
 }

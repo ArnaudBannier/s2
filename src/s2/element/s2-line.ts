@@ -5,23 +5,28 @@ import { S2Shape } from './s2-shape';
 import { type S2Space, S2Position } from '../math/s2-space';
 
 export class S2Line extends S2Shape<SVGLineElement> {
+    protected element: SVGLineElement;
     protected endPosition: S2Position;
 
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'line');
         super(scene, element);
+        this.element = element;
         this.endPosition = new S2Position(0, 0, 'world');
+    }
+    getSVGElements(): SVGElement[] {
+        return [this.element];
     }
 
     update(): this {
-        super.update();
+        this.updateSVGTransform(this.element);
+        this.updateSVGStyle(this.element);
         const start = this.getStart('view');
         const end = this.getEnd('view');
-        if (this.oldElement === undefined) return this;
-        this.oldElement.setAttribute('x1', start.x.toString());
-        this.oldElement.setAttribute('y1', start.y.toString());
-        this.oldElement.setAttribute('x2', end.x.toString());
-        this.oldElement.setAttribute('y2', end.y.toString());
+        this.element.setAttribute('x1', start.x.toString());
+        this.element.setAttribute('y1', start.y.toString());
+        this.element.setAttribute('x2', end.x.toString());
+        this.element.setAttribute('y2', end.y.toString());
         return this;
     }
 

@@ -32,19 +32,23 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
     protected textExtents: S2Extents;
     protected textAlign: S2TextAlign = 'center';
     protected verticalAlign: S2VerticalAlign = 'middle';
-    protected textGroup: S2Group<S2Text>;
+    protected mainGroup: S2Group<S2Text>;
     protected lines: Array<S2LineInfo>;
     protected lineHeight: number = 24;
     protected ascenderHeight: number = 18;
 
     constructor(scene: S2BaseScene) {
         const textGroup = new S2Group<S2Text>(scene);
-        super(scene, textGroup.getElement());
+        super(scene);
 
-        this.textGroup = textGroup;
+        this.mainGroup = textGroup;
         this.textExtents = new S2Extents(0, 0, 'view');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.lines = [];
+    }
+
+    getSVGElements(): SVGElement[] {
+        return this.mainGroup.getSVGElements();
     }
 
     setAttributes(attributes: S2Attributes): this {
@@ -60,7 +64,7 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
     addLine(options?: { align?: S2TextAlign; skip?: number }): S2Text {
         const text = new S2Text(this.scene);
         text.setSVGAttribute('text-anchor', 'start');
-        this.textGroup.appendChild(text);
+        this.mainGroup.appendChild(text);
 
         const info: S2LineInfo = {
             text,
@@ -117,7 +121,7 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
     }
 
     getTextGroup(): S2Group<S2Text> {
-        return this.textGroup;
+        return this.mainGroup;
     }
 
     getLineHeight(): number {
@@ -145,7 +149,11 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
     }
 
     update(): this {
-        super.update();
+        const elements = this.mainGroup.getSVGElements();
+        for (const element of elements) {
+            this.updateSVGTransform(element);
+            this.updateSVGStyle(element);
+        }
         this.updateTextExtents();
         const textExtents = this.getTextExtents('view');
         const groupExtents = this.getMinExtents('view').maxV(textExtents);

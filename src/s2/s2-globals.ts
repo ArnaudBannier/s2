@@ -30,7 +30,8 @@ export class S2Color {
         return new S2Color(this.r, this.g, this.b);
     }
 
-    copy(color: S2Color): this {
+    copy(color?: S2Color): this {
+        if (!color) return this;
         this.r = color.r;
         this.g = color.g;
         this.b = color.b;

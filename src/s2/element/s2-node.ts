@@ -1,6 +1,6 @@
 import { Vector2 } from '../../math/vector2';
 import { type S2BaseScene } from '../s2-interface';
-import { svgNS, type S2Anchor, S2AnchorUtils, type S2SVGAttributes, FlexUtils } from '../s2-globals';
+import { type S2Anchor, S2AnchorUtils, type S2SVGAttributes, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
 import { S2Shape } from './s2-shape';
@@ -11,6 +11,8 @@ import { clamp } from '../../math/utils';
 import { S2Line } from './s2-line';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 import { S2Color } from '../s2-globals';
+import type { S2BaseElement } from './s2-element';
+import { S2Group } from './s2-group';
 
 export class S2Node extends S2Shape<SVGGElement> {
     protected anchor: S2Anchor;
@@ -18,51 +20,94 @@ export class S2Node extends S2Shape<SVGGElement> {
     protected minExtents: S2Extents;
     protected padding: S2Extents;
     protected partSep: S2Length;
+    protected radius: S2Length;
 
     protected textAlign: S2TextAlign = 'center';
     protected verticalAlign: S2VerticalAlign = 'middle';
     protected lineHeight: number = 24;
     protected ascenderHeight: number = 18;
 
-    protected textGroups: Array<S2TextGroup>;
-    protected textGrows: Array<number>;
-    protected lines: Array<S2Line>;
+    protected mainGroup: S2Group<S2BaseElement>;
+    protected textGroups: S2TextGroup[];
+    protected textGrows: number[];
+    protected sepLines: S2Line[];
 
     protected backRect: S2Rect | null = null;
     protected backCircle: S2Circle | null = null;
 
-    public textFillColor?: S2Color;
-    public textFillOpacity?: number;
-    public textOpacity?: number;
-    public textStrokeColor?: S2Color;
-
     constructor(scene: S2BaseScene, partCount: number = 1) {
-        const element = document.createElementNS(svgNS, 'g');
-        super(scene, element);
+        const mainGroup = new S2Group<S2BaseElement>(scene);
+        super(scene);
+        this.mainGroup = mainGroup;
 
         this.textGroups = [];
         this.textGrows = [];
         for (let i = 0; i < partCount; i++) {
             const textGroup = new S2TextGroup(this.scene);
-            textGroup.addClass('s2-node-text');
+            textGroup.addClass('s2-node-text').setLayer(2);
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
-            const textElement = textGroup.getElement();
-            if (textElement) this.oldElement?.appendChild(textElement);
+            this.mainGroup.appendChild(textGroup);
         }
-        this.lines = [];
+        this.sepLines = [];
         for (let i = 0; i < partCount - 1; i++) {
-            const line = new S2Line(this.scene);
-            this.lines.push(line);
-            const lineElement = line.getElement();
-            if (lineElement) this.oldElement?.appendChild(lineElement);
+            const line = new S2Line(this.scene).setLayer(1);
+            this.sepLines.push(line);
+            this.mainGroup.appendChild(line);
         }
         this.anchor = 'center';
         this.nodeExtents = new S2Extents(0, 0, 'view');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.padding = new S2Extents(10, 5, 'view');
         this.partSep = new S2Length(5, 'view');
+        this.radius = new S2Length(0, 'view');
         this.addClass('s2-node');
+    }
+
+    setTextFillColor(color?: S2Color): this {
+        for (const textGroup of this.textGroups) {
+            textGroup.setFillColor(color);
+        }
+        return this;
+    }
+
+    setTextFillOpacity(fillOpacity?: number): this {
+        for (const textGroup of this.textGroups) {
+            textGroup.setFillOpacity(fillOpacity);
+        }
+        return this;
+    }
+
+    setTextStrokeColor(color?: S2Color): this {
+        for (const textGroup of this.textGroups) {
+            textGroup.setStrokeColor(color);
+        }
+        return this;
+    }
+
+    setTextOpacity(opacity?: number): this {
+        for (const textGroup of this.textGroups) {
+            textGroup.setOpacity(opacity);
+        }
+        return this;
+    }
+
+    setTextStrokeWidth(strokeWidth?: number, space?: S2Space): this {
+        for (const textGroup of this.textGroups) {
+            textGroup.setStrokeWidth(strokeWidth, space);
+        }
+        return this;
+    }
+
+    setTextStrokeWidthL(strokeWidth?: S2Length): this {
+        for (const textGroup of this.textGroups) {
+            textGroup.setStrokeWidthL(strokeWidth);
+        }
+        return this;
+    }
+
+    getSVGElements(): SVGElement[] {
+        return this.mainGroup.getSVGElements();
     }
 
     addLine(options?: { partIndex?: number; align?: S2TextAlign; skip?: number }): S2Text {
@@ -79,24 +124,20 @@ export class S2Node extends S2Shape<SVGGElement> {
 
     createRectBackground(): S2Rect {
         if (this.backRect === null) {
-            this.backRect = new S2Rect(this.scene);
+            this.backRect = new S2Rect(this.scene).setLayer(0);
             this.backRect.addClass('s2-node-background').setAnchor(this.anchor);
             this.backRect.setAttributes(this.getAttributes());
-            const backElement = this.backRect.getElement();
-            const textElement = this.textGroups[0].getElement();
-            if (this.oldElement && backElement && textElement) this.oldElement.insertBefore(backElement, textElement);
+            this.mainGroup.appendChild(this.backRect);
         }
         return this.backRect;
     }
 
     createCircleBackground(): S2Circle {
         if (this.backCircle === null) {
-            this.backCircle = new S2Circle(this.scene);
+            this.backCircle = new S2Circle(this.scene).setLayer(0);
             this.backCircle.addClass('s2-node-background');
             this.backCircle.setAttributes(this.getAttributes());
-            const backElement = this.backCircle.getElement();
-            const textElement = this.textGroups[0].getElement();
-            if (this.oldElement && backElement && textElement) this.oldElement.insertBefore(backElement, textElement);
+            this.mainGroup.appendChild(this.backCircle);
         }
         return this.backCircle;
     }
@@ -172,15 +213,11 @@ export class S2Node extends S2Shape<SVGGElement> {
         if (this.backCircle) this.backCircle.setAttributes(attributes);
         else if (this.backRect) this.backRect.setAttributes(attributes);
 
-        const textAttributes = new S2Attributes();
-        if (attributes.textFillColor) textAttributes.textFillColor = attributes.textFillColor;
-        if (attributes.textFillOpacity) textAttributes.textFillOpacity = attributes.textFillOpacity;
-        if (attributes.textStrokeColor) textAttributes.strokeColor = attributes.textStrokeColor;
-        if (attributes.textOpacity) textAttributes.opacity = attributes.textOpacity;
-        if (attributes.textStrokeWidth) textAttributes.strokeWidth = attributes.textStrokeWidth;
-        for (const textGroup of this.textGroups) {
-            textGroup.setAttributes(textAttributes);
-        }
+        this.setTextFillColor(attributes.textFillColor)
+            .setTextFillOpacity(attributes.textFillOpacity)
+            .setTextOpacity(attributes.textOpacity)
+            .setTextStrokeColor(attributes.textStrokeColor)
+            .setTextStrokeWidthL(attributes.textStrokeWidth);
         return this;
     }
 
@@ -198,7 +235,7 @@ export class S2Node extends S2Shape<SVGGElement> {
     }
 
     setSeparatorStyle(style: S2SVGAttributes): this {
-        for (const line of this.lines) {
+        for (const line of this.sepLines) {
             line.setSVGAttributes(style);
         }
         return this;
@@ -258,15 +295,11 @@ export class S2Node extends S2Shape<SVGGElement> {
         if (this.backCircle) this.backCircle.setAnimatableAttributes(attributes);
         else if (this.backRect) this.backRect.setAnimatableAttributes(attributes);
 
-        // const textAttributes = new S2Attributes();
-        // if (attributes.textFillColor) textAttributes.textFillColor = attributes.textFillColor;
-        // if (attributes.textFillOpacity) textAttributes.textFillOpacity = attributes.textFillOpacity;
-        // if (attributes.textStrokeColor) textAttributes.strokeColor = attributes.textStrokeColor;
-        // if (attributes.textOpacity) textAttributes.opacity = attributes.textOpacity;
-        // if (attributes.textStrokeWidth) textAttributes.strokeWidth = attributes.textStrokeWidth;
-        // for (const textGroup of this.textGroups) {
-        //     textGroup.setAnimatableAttributes(textAttributes);
-        // }
+        // this.setTextFillColor(attributes.textFillColor)
+        //     .setTextFillOpacity(attributes.textFillOpacity)
+        //     .setTextOpacity(attributes.textOpacity)
+        //     .setTextStrokeColor(attributes.textStrokeColor)
+        //     .setTextStrokeWidthL(attributes.textStrokeWidth);
         return this;
     }
 
@@ -286,18 +319,23 @@ export class S2Node extends S2Shape<SVGGElement> {
     }
 
     update(): this {
-        super.update();
-        if (this.oldElement === undefined) return this;
-        this.oldElement.removeAttribute('fill');
-        this.oldElement.removeAttribute('stroke-width');
-        this.oldElement.removeAttribute('stroke');
+        const background = this.backCircle ? this.backCircle : this.backRect;
+        if (background) {
+            background
+                .setStrokeColor(this.strokeColor)
+                .setStrokeWidthL(this.strokeWidth)
+                .setFillColor(this.fillColor)
+                .setFillOpacity(this.fillOpacity)
+                .setRadiusL(this.radius);
+        }
 
         const partHeights: Array<number> = [];
         let maxPartWidth = 0;
 
         for (let i = 0; i < this.textGroups.length; i++) {
-            this.textGroups[i].updateTextExtents();
-            const extents = this.textGroups[i].getTextExtents('view');
+            const textGroup = this.textGroups[i];
+            textGroup.updateTextExtents();
+            const extents = textGroup.getTextExtents('view');
             maxPartWidth = Math.max(maxPartWidth, 2 * extents.x);
             partHeights.push(2 * extents.y);
         }
@@ -322,8 +360,7 @@ export class S2Node extends S2Shape<SVGGElement> {
             this.textGroups[i]
                 .setPositionV(textPosition, 'view')
                 .setMinExtents(nodeExtents.x - padding.x, partHeights[i] / 2, 'view')
-                .setAnchor('north west')
-                .update();
+                .setAnchor('north west');
             textPosition.y += partHeights[i] + 2 * partSep;
         }
 
@@ -331,14 +368,12 @@ export class S2Node extends S2Shape<SVGGElement> {
             this.backRect.setPositionV(nodeCenter, 'view');
             this.backRect.setExtentsV(nodeExtents, 'view');
             this.backRect.setAnchor('center');
-            this.backRect.update();
 
             let y = nodeCenter.y - nodeExtents.y + padding.y + partHeights[0] + partSep;
             for (let i = 0; i < this.textGroups.length - 1; i++) {
-                this.lines[i]
+                this.sepLines[i]
                     .setStart(nodeCenter.x - nodeExtents.x, y, 'view')
-                    .setEnd(nodeCenter.x + nodeExtents.x, y, 'view')
-                    .update();
+                    .setEnd(nodeCenter.x + nodeExtents.x, y, 'view');
                 y += partHeights[i + 1] + 2 * partSep;
             }
         }
@@ -346,18 +381,15 @@ export class S2Node extends S2Shape<SVGGElement> {
             const radius = Math.max(nodeExtents.x, nodeExtents.y);
             this.backCircle.setPositionV(nodeCenter, 'view');
             this.backCircle.setRadius(radius, 'view');
-            this.backCircle.update();
 
             let y = nodeCenter.y - nodeExtents.y + padding.y + partHeights[0] + partSep;
             for (let i = 0; i < this.textGroups.length - 1; i++) {
                 const x = Math.sqrt(radius * radius - (y - nodeCenter.y) * (y - nodeCenter.y));
-                this.lines[i]
-                    .setStart(nodeCenter.x - x, y, 'view')
-                    .setEnd(nodeCenter.x + x, y, 'view')
-                    .update();
+                this.sepLines[i].setStart(nodeCenter.x - x, y, 'view').setEnd(nodeCenter.x + x, y, 'view');
                 y += partHeights[i + 1] + 2 * partSep;
             }
         }
+        this.mainGroup.update();
         return this;
     }
 }

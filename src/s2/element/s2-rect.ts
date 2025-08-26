@@ -6,6 +6,7 @@ import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length, S2Extents } from '../math/s2-space';
 
 export class S2Rect extends S2Shape<SVGRectElement> implements S2HasRadius, S2HasExtents {
+    protected element: SVGRectElement;
     public radius: S2Length;
     public extents: S2Extents;
     protected anchor: S2Anchor = 'north';
@@ -13,9 +14,13 @@ export class S2Rect extends S2Shape<SVGRectElement> implements S2HasRadius, S2Ha
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'rect');
         super(scene, element);
-
+        this.element = element;
         this.extents = new S2Extents(1, 1, 'world');
         this.radius = new S2Length(0, 'view');
+    }
+
+    getSVGElements(): SVGElement[] {
+        return [this.element];
     }
 
     setAnchor(anchor: S2Anchor): this {
@@ -35,9 +40,14 @@ export class S2Rect extends S2Shape<SVGRectElement> implements S2HasRadius, S2Ha
         return this;
     }
 
-    setRadius(radius: number, space?: S2Space): this {
+    setRadius(radius?: number, space?: S2Space): this {
         if (space) this.radius.space = space;
-        this.radius.value = radius;
+        this.radius.value = radius ?? 0;
+        return this;
+    }
+
+    setRadiusL(radius?: S2Length): this {
+        this.radius.copy(radius);
         return this;
     }
 
@@ -72,18 +82,18 @@ export class S2Rect extends S2Shape<SVGRectElement> implements S2HasRadius, S2Ha
     }
 
     update(): this {
-        super.update();
+        this.updateSVGTransform(this.element);
+        this.updateSVGStyle(this.element);
         const extents = this.getExtents('view');
         const northWest = this.getCenter('view').subV(extents);
-        if (this.oldElement === undefined) return this;
-        this.oldElement.setAttribute('x', northWest.x.toString());
-        this.oldElement.setAttribute('y', northWest.y.toString());
-        this.oldElement.setAttribute('width', (2 * extents.x).toString());
-        this.oldElement.setAttribute('height', (2 * extents.y).toString());
+        this.element.setAttribute('x', northWest.x.toString());
+        this.element.setAttribute('y', northWest.y.toString());
+        this.element.setAttribute('width', (2 * extents.x).toString());
+        this.element.setAttribute('height', (2 * extents.y).toString());
         if (this.radius.value > 0) {
             const radius = Math.min(this.getRadius('view'), extents.x, extents.y);
-            this.oldElement.setAttribute('rx', radius.toString());
-            this.oldElement.setAttribute('ry', radius.toString());
+            this.element.setAttribute('rx', radius.toString());
+            this.element.setAttribute('ry', radius.toString());
         }
         return this;
     }

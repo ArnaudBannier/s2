@@ -36,7 +36,7 @@ export abstract class S2Element<T extends SVGElement> {
     }
 
     getSVGElements(): SVGElement[] {
-        return this.oldElement ? [this.oldElement] : [];
+        return [];
     }
 
     setLayer(layer: number = 0): this {

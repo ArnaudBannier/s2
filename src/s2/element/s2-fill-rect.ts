@@ -7,7 +7,7 @@ import { S2Attributes } from '../s2-attributes';
 export class S2FillRect extends S2Element<SVGRectElement> {
     protected element: SVGRectElement;
     public fillColor: S2Color = new S2Color(255, 255, 255);
-    public fillOpacity: number = 1;
+    public fillOpacity?: number;
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'rect');
         super(scene, element);
@@ -40,13 +40,12 @@ export class S2FillRect extends S2Element<SVGRectElement> {
 
     update(): this {
         const camera = this.getActiveCamera();
-        if (this.oldElement === undefined) return this;
-        this.oldElement.setAttribute('x', '0');
-        this.oldElement.setAttribute('y', '0');
-        this.oldElement.setAttribute('width', camera.viewport.x.toString());
-        this.oldElement.setAttribute('height', camera.viewport.y.toString());
-        if (this.fillColor !== undefined) this.oldElement.setAttribute('fill', this.fillColor.toRgb());
-        if (this.fillOpacity !== undefined) this.oldElement.setAttribute('fill-opacity', this.fillOpacity.toString());
+        this.element.setAttribute('x', '0');
+        this.element.setAttribute('y', '0');
+        this.element.setAttribute('width', camera.viewport.x.toString());
+        this.element.setAttribute('height', camera.viewport.y.toString());
+        this.element.setAttribute('fill', this.fillColor.toRgb());
+        if (this.fillOpacity !== undefined) this.element.setAttribute('fill-opacity', this.fillOpacity.toString());
         return this;
     }
 }

@@ -26,9 +26,18 @@ export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
     //     return attributes;
     // }
 
-    setRadius(radius: number, space?: S2Space): this {
+    getSVGElements(): SVGElement[] {
+        return [this.element];
+    }
+
+    setRadius(radius?: number, space?: S2Space): this {
         if (space) this.radius.space = space;
-        this.radius.value = radius;
+        this.radius.value = radius ?? 0;
+        return this;
+    }
+
+    setRadiusL(radius?: S2Length): this {
+        this.radius.copy(radius);
         return this;
     }
 
@@ -49,14 +58,13 @@ export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
     }
 
     update(): this {
-        super.update();
+        this.updateSVGTransform(this.element);
+        this.updateSVGStyle(this.element);
         const position = this.getPosition('view');
         const radius = this.getRadius('view');
-        if (this.oldElement) {
-            this.oldElement.setAttribute('cx', position.x.toString());
-            this.oldElement.setAttribute('cy', position.y.toString());
-            this.oldElement.setAttribute('r', radius.toString());
-        }
+        this.element.setAttribute('cx', position.x.toString());
+        this.element.setAttribute('cy', position.y.toString());
+        this.element.setAttribute('r', radius.toString());
         return this;
     }
 }

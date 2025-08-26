@@ -55,7 +55,6 @@ export class S2Grid extends S2Shape<SVGGElement> {
     }
 
     update(): this {
-        super.update();
         this.path.clear();
         this.path.setSpace('world');
         this.path.setAttributes(

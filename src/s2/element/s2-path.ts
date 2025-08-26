@@ -7,6 +7,7 @@ import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import type { S2Animatable, S2Attributes } from '../s2-attributes';
 
 export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRendering {
+    protected element: SVGPathElement;
     protected space: S2Space = 'world';
     protected sampleCount: number = 0;
     protected polyCurve: S2PolyCurve;
@@ -18,9 +19,14 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'path');
         super(scene, element);
+        this.element = element;
         this.polyCurve = new S2PolyCurve();
         this.endPosition = new Vector2(0, 0);
         this.fillOpacity = 0;
+    }
+
+    getSVGElements(): SVGElement[] {
+        return [this.element];
     }
 
     setAnimatableAttributes(attributes: S2Animatable): this {
@@ -242,7 +248,8 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
     }
 
     update(): this {
-        super.update();
+        this.updateSVGTransform(this.element);
+        this.updateSVGStyle(this.element);
         this.polyCurve.updateLength();
         let polyCurve = this.polyCurve;
         if (this.pathFrom > 0 && this.pathTo < 1) {
@@ -253,7 +260,7 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
             polyCurve = this.polyCurve.createPartialCurveTo(this.pathTo);
         }
         const d = this.polyCurveToPath(polyCurve);
-        this.oldElement?.setAttribute('d', d);
+        this.element.setAttribute('d', d);
         return this;
     }
 }
