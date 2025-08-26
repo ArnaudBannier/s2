@@ -1,4 +1,4 @@
-export class Matrix2 {
+export class S2Mat2 {
     // Row-major order of the elements.
     elements: Array<number> = [0, 0, 0, 0];
 
@@ -25,7 +25,7 @@ export class Matrix2 {
         return this.set(1, 0, 0, 1);
     }
 
-    multiplyMatrices(a: Matrix2, b: Matrix2): this {
+    multiplyMatrices(a: S2Mat2, b: S2Mat2): this {
         const ae = a.elements;
         const be = b.elements;
         const te = this.elements;
@@ -49,15 +49,15 @@ export class Matrix2 {
         return this;
     }
 
-    multiply(m: Matrix2): this {
+    multiply(m: S2Mat2): this {
         return this.multiplyMatrices(this, m);
     }
 
-    premultiply(m: Matrix2): this {
+    premultiply(m: S2Mat2): this {
         return this.multiplyMatrices(m, this);
     }
 
-    copyFrom(m: Matrix2): this {
+    copyFrom(m: S2Mat2): this {
         for (let i = 0; i < 4; i++) {
             this.elements[i] = m.elements[i];
         }

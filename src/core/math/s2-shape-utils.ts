@@ -1,6 +1,6 @@
-import { Vector2 } from './vector2';
+import { S2Vec2 } from './s2-vec2';
 
-export class ShapeUtils {
+export class S2ShapeUtils {
     /**
      * Renvoie les points d'intersection entre un rayon et un cercle.
      * @param rayOrigin - Le point de départ du rayon.
@@ -9,7 +9,7 @@ export class ShapeUtils {
      * @param radius - Le rayon du cercle.
      * @returns Tableau des points d'intersection (de taille 0, 1 ou 2).
      */
-    intersectRayCircle(rayOrigin: Vector2, rayDir: Vector2, center: Vector2, radius: number): Vector2[] {
+    intersectRayCircle(rayOrigin: S2Vec2, rayDir: S2Vec2, center: S2Vec2, radius: number): S2Vec2[] {
         const m = rayOrigin.clone().subV(center);
         const a = rayDir.dot(rayDir);
         const b = 2 * rayDir.dot(m);
@@ -24,7 +24,7 @@ export class ShapeUtils {
         const t1 = (-b - sqrtDisc) / (2 * a);
         const t2 = (-b + sqrtDisc) / (2 * a);
 
-        const points: Vector2[] = [];
+        const points: S2Vec2[] = [];
         if (t1 >= 0) {
             points.push(rayDir.clone().scale(t1).addV(rayOrigin));
         }
@@ -43,7 +43,7 @@ export class ShapeUtils {
      * @returns Le facteur à appliquer au vecteur direction pour obtenir le point d'intersection le plus éloigné,
      * ou -1 s'il n'y a pas d'intersection.
      */
-    static intersectDirectionCircle(direction: Vector2, center: Vector2, radius: number): number {
+    static intersectDirectionCircle(direction: S2Vec2, center: S2Vec2, radius: number): number {
         const a = direction.dot(direction);
         const b = -2 * direction.dot(center);
         const c = center.dot(center) - radius * radius;
@@ -67,7 +67,7 @@ export class ShapeUtils {
      * @param radius - Le rayon du rectangle.
      * @returns Le point d'intersection.
      */
-    static intersectDirectionRoundedRectangle(direction: Vector2, rectExtents: Vector2, radius: number): Vector2 {
+    static intersectDirectionRoundedRectangle(direction: S2Vec2, rectExtents: S2Vec2, radius: number): S2Vec2 {
         const sideBoundX = rectExtents.x - radius + 1e-5;
         const sideBoundY = rectExtents.y - radius + 1e-5;
         if (direction.x > 0) {
@@ -89,7 +89,7 @@ export class ShapeUtils {
 
         const centerX = rectExtents.x - radius;
         const centerY = rectExtents.y - radius;
-        const center = new Vector2();
+        const center = new S2Vec2();
         if (direction.x > 0 && direction.y > 0) {
             center.set(+centerX, +centerY);
             const t = this.intersectDirectionCircle(direction, center, radius);
@@ -110,10 +110,10 @@ export class ShapeUtils {
             const t = this.intersectDirectionCircle(direction, center, radius);
             if (t >= 0) return direction.clone().scale(t);
         }
-        return new Vector2(0, 0);
+        return new S2Vec2(0, 0);
     }
 
-    static circleVsCircle(x1: number, y1: number, r1: number, x2: number, y2: number, r2: number): Vector2[] {
+    static circleVsCircle(x1: number, y1: number, r1: number, x2: number, y2: number, r2: number): S2Vec2[] {
         const dx = x2 - x1;
         const dy = y2 - y1;
         const d = Math.hypot(dx, dy);
@@ -131,10 +131,10 @@ export class ShapeUtils {
         const rx = -dy * (h / d);
         const ry = +dx * (h / d);
 
-        return [new Vector2(xm + rx, ym + ry), new Vector2(xm - rx, ym - ry)];
+        return [new S2Vec2(xm + rx, ym + ry), new S2Vec2(xm - rx, ym - ry)];
     }
 
-    static getArcCenter(point1: Vector2, point2: Vector2, radius: number, flip: boolean = false): Vector2 {
+    static getArcCenter(point1: S2Vec2, point2: S2Vec2, radius: number, flip: boolean = false): S2Vec2 {
         const v = point2.clone().subV(point1);
         const lengthSq = v.lengthSq();
         const h = Math.sqrt(radius * radius - lengthSq / 4.0);
@@ -145,8 +145,8 @@ export class ShapeUtils {
         return point1.clone().addV(v.scale(0.5)).addV(perp);
     }
 
-    static getClosestPoint(reference: Vector2, points: Vector2[]): Vector2 {
-        if (points.length <= 0) return new Vector2(0, 0);
+    static getClosestPoint(reference: S2Vec2, points: S2Vec2[]): S2Vec2 {
+        if (points.length <= 0) return new S2Vec2(0, 0);
 
         let closestIndex = 0;
         let minDistSq = reference.distanceSq(points[0]);

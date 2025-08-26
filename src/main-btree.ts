@@ -1,19 +1,19 @@
 import './style.css';
-import { Vector2 } from './math/vector2.ts';
-import { S2Camera } from './s2/math/s2-camera.ts';
+import { S2Vec2 } from './core/math/s2-vec2.ts';
+import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL, MTL_COLORS } from './utils/mtl-colors.ts';
-import { S2Scene } from './s2/s2-scene.ts';
-import { type S2SVGAttributes } from './s2/s2-globals.ts';
-import { S2Node } from './s2/element/s2-node.ts';
-import { S2LineEdge, type S2EdgeOptions } from './s2/element/s2-edge.ts';
-import { S2Group } from './s2/element/s2-group.ts';
-import { S2Length } from './s2/math/s2-space.ts';
-import { S2Attributes } from './s2/s2-attributes.ts';
-import { S2AnimatedScene } from './s2/s2-animated-scene.ts';
-import type { S2Animator } from './s2/animation/s2-animator.ts';
+import { S2Scene } from './core/s2-scene.ts';
+import { type S2SVGAttributes } from './core/s2-globals.ts';
+import { S2Node } from './core/element/s2-node.ts';
+import { S2LineEdge, type S2EdgeOptions } from './core/element/s2-edge.ts';
+import { S2Group } from './core/element/s2-group.ts';
+import { S2Length } from './core/math/s2-space.ts';
+import { S2Attributes } from './core/s2-attributes.ts';
+import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
+import type { S2Animator } from './animation/s2-animator.ts';
 
-const viewport = new Vector2(640.0, 360.0);
-const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);
+const viewport = new S2Vec2(640.0, 360.0);
+const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
 class BTreeStyle {
     // Background
@@ -83,8 +83,8 @@ class BTree {
     nodeRadius: number = 0.5;
     height: number;
 
-    protected center: Vector2;
-    protected extents: Vector2;
+    protected center: S2Vec2;
+    protected extents: S2Vec2;
 
     constructor(scene: S2Scene, style: BTreeStyle, userTree: UserTreeNode<number>) {
         this.scene = scene;
@@ -99,8 +99,8 @@ class BTree {
         this.root = this.createNodes(userTree);
         this.createNodeLines(this.root, null);
 
-        this.center = new Vector2();
-        this.extents = new Vector2();
+        this.center = new S2Vec2();
+        this.extents = new S2Vec2();
     }
 
     private createNodes(userTree: UserTreeNode<number>, depth: number = 0): BTreeNode {
@@ -137,7 +137,7 @@ class BTree {
         this.createNodeLines(node.right, node);
     }
 
-    computeLayout(center: Vector2) {
+    computeLayout(center: S2Vec2) {
         this.center.copy(center);
         this.extents.x = (this.nodeGroup.getChildCount() - 1) * this.baseSep;
         this.extents.y = this.height * this.levelDistance;
@@ -242,7 +242,7 @@ class SceneFigure extends S2AnimatedScene {
         // Tree
         const treeStyle = new BTreeStyle();
         this.tree = new BTree(this, treeStyle, userTree);
-        this.tree.computeLayout(new Vector2(0, 0));
+        this.tree.computeLayout(new S2Vec2(0, 0));
         this.tree.update();
 
         this.update();

@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { S2Group } from './s2-group';
@@ -81,7 +81,7 @@ export class S2TextGroup extends S2Shape {
         return this;
     }
 
-    setMinExtentsV(minExtents: Vector2, space?: S2Space): this {
+    setMinExtentsV(minExtents: S2Vec2, space?: S2Space): this {
         if (space) this.minExtents.space = space;
         this.minExtents.value.copy(minExtents);
         return this;
@@ -108,15 +108,15 @@ export class S2TextGroup extends S2Shape {
         return this;
     }
 
-    getTextExtents(space: S2Space = this.textExtents.space): Vector2 {
+    getTextExtents(space: S2Space = this.textExtents.space): S2Vec2 {
         return this.textExtents.toSpace(space, this.getActiveCamera());
     }
 
-    getMinExtents(space: S2Space = this.minExtents.space): Vector2 {
+    getMinExtents(space: S2Space = this.minExtents.space): S2Vec2 {
         return this.minExtents.toSpace(space, this.getActiveCamera());
     }
 
-    getCenter(space: S2Space = this.position.space): Vector2 {
+    getCenter(space: S2Space = this.position.space): S2Vec2 {
         return S2AnchorUtils.getCenter(this.anchor, space, this.getActiveCamera(), this.position, this.minExtents);
     }
 
@@ -144,7 +144,7 @@ export class S2TextGroup extends S2Shape {
             maxWidth = bbox.width > maxWidth ? bbox.width : maxWidth;
             totalSkip += line.skip;
         }
-        const extents = new Vector2(maxWidth, this.lines.length * this.lineHeight + totalSkip).scale(0.5);
+        const extents = new S2Vec2(maxWidth, this.lines.length * this.lineHeight + totalSkip).scale(0.5);
         this.textExtents.setValueFromSpace('view', this.getActiveCamera(), extents.x, extents.y);
     }
 

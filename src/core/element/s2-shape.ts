@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Graphics } from './s2-graphics';
 import { type S2Space, S2Position } from '../math/s2-space';
@@ -43,13 +43,13 @@ export abstract class S2Shape extends S2Graphics implements S2HasPosition {
         return this;
     }
 
-    setPositionV(position: Vector2, space?: S2Space): this {
+    setPositionV(position: S2Vec2, space?: S2Space): this {
         if (space) this.position.space = space;
         this.position.value.copy(position);
         return this;
     }
 
-    getPosition(space: S2Space = this.position.space): Vector2 {
+    getPosition(space: S2Space = this.position.space): S2Vec2 {
         return this.position.toSpace(space, this.getActiveCamera());
     }
 

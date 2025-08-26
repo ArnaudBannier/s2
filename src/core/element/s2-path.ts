@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2HasPartialRendering, type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
@@ -11,7 +11,7 @@ export class S2Path extends S2Shape implements S2HasPartialRendering {
     protected space: S2Space = 'world';
     protected sampleCount: number = 0;
     protected polyCurve: S2PolyCurve;
-    protected endPosition: Vector2;
+    protected endPosition: S2Vec2;
     protected shouldClose: boolean[] = [];
     protected pathFrom: number = -1;
     protected pathTo: number = 2;
@@ -20,7 +20,7 @@ export class S2Path extends S2Shape implements S2HasPartialRendering {
         super(scene);
         this.element = document.createElementNS(svgNS, 'path');
         this.polyCurve = new S2PolyCurve();
-        this.endPosition = new Vector2(0, 0);
+        this.endPosition = new S2Vec2(0, 0);
         this.fillOpacity = 0;
     }
 
@@ -67,10 +67,10 @@ export class S2Path extends S2Shape implements S2HasPartialRendering {
     }
 
     setStart(x: number, y: number): this {
-        return this.setStartV(new Vector2(x, y));
+        return this.setStartV(new S2Vec2(x, y));
     }
 
-    setStartV(start: Vector2): this {
+    setStartV(start: S2Vec2): this {
         this.position.space = this.space;
         this.position.value.copy(start);
         this.moveToV(start);
@@ -81,27 +81,27 @@ export class S2Path extends S2Shape implements S2HasPartialRendering {
         return this.sampleCount;
     }
 
-    getStart(space: S2Space = this.space): Vector2 {
+    getStart(space: S2Space = this.space): S2Vec2 {
         return this.position.toSpace(space, this.getActiveCamera());
     }
 
-    getEnd(space: S2Space = this.space): Vector2 {
+    getEnd(space: S2Space = this.space): S2Vec2 {
         return S2Position.toSpace(this.endPosition, this.space, space, this.getActiveCamera());
     }
 
-    getPointAt(t: number, space: S2Space = this.space): Vector2 {
+    getPointAt(t: number, space: S2Space = this.space): S2Vec2 {
         return S2Position.toSpace(this.polyCurve.getPointAt(t), this.space, space, this.getActiveCamera());
     }
 
-    getTangentAt(t: number, space: S2Space = this.space): Vector2 {
+    getTangentAt(t: number, space: S2Space = this.space): S2Vec2 {
         return S2Position.toSpace(this.polyCurve.getTangentAt(t), this.space, space, this.getActiveCamera());
     }
 
-    getStartTangent(space: S2Space = this.space): Vector2 {
+    getStartTangent(space: S2Space = this.space): S2Vec2 {
         return S2Position.toSpace(this.polyCurve.getStartTangent(), this.space, space, this.getActiveCamera());
     }
 
-    getEndTangent(space: S2Space = this.space): Vector2 {
+    getEndTangent(space: S2Space = this.space): S2Vec2 {
         return S2Position.toSpace(this.polyCurve.getEndTangent(), this.space, space, this.getActiveCamera());
     }
 
@@ -117,19 +117,19 @@ export class S2Path extends S2Shape implements S2HasPartialRendering {
     }
 
     moveTo(x: number, y: number): this {
-        return this.moveToV(new Vector2(x, y));
+        return this.moveToV(new S2Vec2(x, y));
     }
 
-    moveToV(v: Vector2): this {
+    moveToV(v: S2Vec2): this {
         this.endPosition.copy(v);
         return this;
     }
 
     lineTo(x: number, y: number): this {
-        return this.lineToV(new Vector2(x, y));
+        return this.lineToV(new S2Vec2(x, y));
     }
 
-    lineToV(v: Vector2): this {
+    lineToV(v: S2Vec2): this {
         this.polyCurve.addLine(this.endPosition, v);
         this.endPosition.copy(v);
         this.shouldClose.push(false);
@@ -145,14 +145,14 @@ export class S2Path extends S2Shape implements S2HasPartialRendering {
         y: number,
         sampleCount: number = this.sampleCount,
     ): this {
-        return this.cubicToV(new Vector2(dx1, dy1), new Vector2(dx2, dy2), new Vector2(x, y), sampleCount);
+        return this.cubicToV(new S2Vec2(dx1, dy1), new S2Vec2(dx2, dy2), new S2Vec2(x, y), sampleCount);
     }
 
-    cubicToV(dv1: Vector2, dv2: Vector2, v: Vector2, sampleCount: number = this.sampleCount): this {
+    cubicToV(dv1: S2Vec2, dv2: S2Vec2, v: S2Vec2, sampleCount: number = this.sampleCount): this {
         this.polyCurve.addCubic(
             this.endPosition,
-            Vector2.add(this.endPosition, dv1),
-            Vector2.add(v, dv2),
+            S2Vec2.add(this.endPosition, dv1),
+            S2Vec2.add(v, dv2),
             v,
             sampleCount,
         );
@@ -162,17 +162,17 @@ export class S2Path extends S2Shape implements S2HasPartialRendering {
     }
 
     smoothCubicTo(dx: number, dy: number, x: number, y: number, sampleCount: number = this.sampleCount): this {
-        return this.smoothCubicToV(new Vector2(dx, dy), new Vector2(x, y), sampleCount);
+        return this.smoothCubicToV(new S2Vec2(dx, dy), new S2Vec2(x, y), sampleCount);
     }
 
-    smoothCubicToV(dv: Vector2, v: Vector2, sampleCount: number = this.sampleCount): this {
+    smoothCubicToV(dv: S2Vec2, v: S2Vec2, sampleCount: number = this.sampleCount): this {
         if (this.polyCurve.getCurveCount() <= 0) return this;
         const lastCurve = this.polyCurve.getLastCurve();
         if (lastCurve instanceof S2CubicCurve === false) return this;
         this.polyCurve.addCubic(
             this.endPosition,
-            Vector2.sub(Vector2.scale(this.endPosition, 2), lastCurve.getBezierPoint(2)),
-            Vector2.add(v, dv),
+            S2Vec2.sub(S2Vec2.scale(this.endPosition, 2), lastCurve.getBezierPoint(2)),
+            S2Vec2.add(v, dv),
             v,
             sampleCount,
         );
@@ -218,12 +218,12 @@ export class S2Path extends S2Shape implements S2HasPartialRendering {
         const curveCount = polyCurve.getCurveCount();
         if (curveCount === 0 || this.pathFrom >= this.pathTo) return '';
         const camera = this.getActiveCamera();
-        let prevEnd: Vector2 | null = null;
+        let prevEnd: S2Vec2 | null = null;
         let d = '';
         for (let i = 0; i < curveCount; i++) {
             const curve = polyCurve.getCurve(i);
             const start = curve.getStart();
-            if (prevEnd === null || !Vector2.eq(start, prevEnd)) {
+            if (prevEnd === null || !S2Vec2.eq(start, prevEnd)) {
                 const point = S2Position.toSpace(start, this.space, 'view', camera);
                 d += ` M ${point.x} ${point.y}`;
             }

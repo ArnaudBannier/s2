@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
@@ -14,7 +14,7 @@ import { S2Shape } from './s2-shape';
 
 export class S2Text extends S2Shape {
     protected element: SVGTextElement;
-    protected viewExtents: Vector2;
+    protected viewExtents: S2Vec2;
     protected tspans: Array<S2Tspan>;
 
     constructor(scene: S2BaseScene) {
@@ -22,7 +22,7 @@ export class S2Text extends S2Shape {
         super(scene);
         this.element = element;
         this.tspans = [];
-        this.viewExtents = new Vector2(0, 0);
+        this.viewExtents = new S2Vec2(0, 0);
     }
 
     getSVGElement(): SVGTextElement {
@@ -52,9 +52,9 @@ export class S2Text extends S2Shape {
         return this.element.getBBox() ?? new DOMRect();
     }
 
-    getDimensions(): Vector2 {
+    getDimensions(): S2Vec2 {
         const bbox = this.element.getBBox();
-        return new Vector2(bbox.width, bbox.height);
+        return new S2Vec2(bbox.width, bbox.height);
     }
 
     updateDimensions(): this {

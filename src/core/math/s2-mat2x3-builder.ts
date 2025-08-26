@@ -1,16 +1,16 @@
-import { Matrix2x3 } from './matrix2x3';
-import { Vector2 } from './vector2';
+import { S2Mat2x3 } from './s2-mat2x3';
+import { S2Vec2 } from './s2-vec2';
 
-export class MatrixBuilder2x3 {
-    protected matrix: Matrix2x3;
-    protected tmp: Matrix2x3;
+export class S2Mat2x3Builder {
+    protected matrix: S2Mat2x3;
+    protected tmp: S2Mat2x3;
 
     constructor() {
-        this.tmp = new Matrix2x3();
+        this.tmp = new S2Mat2x3();
         this.matrix = this.tmp;
     }
 
-    setTarget(matrix: Matrix2x3, makeIdentity: boolean = true): this {
+    setTarget(matrix: S2Mat2x3, makeIdentity: boolean = true): this {
         this.matrix = matrix;
         if (makeIdentity) this.matrix.identity();
         return this;
@@ -39,7 +39,7 @@ export class MatrixBuilder2x3 {
         return this;
     }
 
-    translateV(t: Vector2): this {
+    translateV(t: S2Vec2): this {
         this.tmp.makeTranslation(t.x, t.y);
         this.matrix.premultiply(this.tmp);
         return this;
@@ -57,7 +57,7 @@ export class MatrixBuilder2x3 {
         return this;
     }
 
-    scaleFromV(scaleX: number, scaleY: number, center: Vector2): this {
+    scaleFromV(scaleX: number, scaleY: number, center: S2Vec2): this {
         return this.scaleFrom(scaleX, scaleY, center.x, center.y);
     }
 
@@ -71,7 +71,7 @@ export class MatrixBuilder2x3 {
         return this.scaleFrom(value, value, centerX, centerY);
     }
 
-    scaleUniformFromV(value: number, center: Vector2): this {
+    scaleUniformFromV(value: number, center: S2Vec2): this {
         return this.scaleFrom(value, value, center.x, center.y);
     }
 
@@ -81,7 +81,7 @@ export class MatrixBuilder2x3 {
         return this;
     }
 
-    rotateFromRadV(angle: number, center: Vector2): this {
+    rotateFromRadV(angle: number, center: S2Vec2): this {
         return this.rotateFromRad(angle, center.x, center.y);
     }
 
@@ -91,7 +91,7 @@ export class MatrixBuilder2x3 {
         return this;
     }
 
-    rotateFromDegV(angle: number, center: Vector2): this {
+    rotateFromDegV(angle: number, center: S2Vec2): this {
         return this.rotateFromDeg(angle, center.x, center.y);
     }
 }

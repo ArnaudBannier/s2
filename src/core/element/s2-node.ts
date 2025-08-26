@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, type S2SVGAttributes, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
@@ -7,7 +7,7 @@ import { S2Shape } from './s2-shape';
 import { S2Text } from './s2-text';
 import { S2Extents, S2Length, type S2Space } from '../math/s2-space';
 import { S2TextGroup, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
-import { clamp } from '../../math/utils';
+import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 import { S2Color } from '../s2-globals';
@@ -147,7 +147,7 @@ export class S2Node extends S2Shape {
         return this;
     }
 
-    setMinExtentsV(minExtents: Vector2, space?: S2Space): this {
+    setMinExtentsV(minExtents: S2Vec2, space?: S2Space): this {
         if (space) this.minExtents.space = space;
         this.minExtents.value.copy(minExtents);
         return this;
@@ -159,7 +159,7 @@ export class S2Node extends S2Shape {
         return this;
     }
 
-    setPaddingV(padding: Vector2, space?: S2Space): this {
+    setPaddingV(padding: S2Vec2, space?: S2Space): this {
         if (space) this.padding.space = space;
         this.padding.value.copy(padding);
         return this;
@@ -256,19 +256,19 @@ export class S2Node extends S2Shape {
         return this.textGroups.length;
     }
 
-    getMinExtents(space: S2Space = this.minExtents.space): Vector2 {
+    getMinExtents(space: S2Space = this.minExtents.space): S2Vec2 {
         return this.minExtents.toSpace(space, this.getActiveCamera());
     }
 
-    getNodeExtents(space: S2Space = this.nodeExtents.space): Vector2 {
+    getNodeExtents(space: S2Space = this.nodeExtents.space): S2Vec2 {
         return this.nodeExtents.toSpace(space, this.getActiveCamera());
     }
 
-    getPadding(space: S2Space = this.padding.space): Vector2 {
+    getPadding(space: S2Space = this.padding.space): S2Vec2 {
         return this.padding.toSpace(space, this.getActiveCamera());
     }
 
-    getCenter(space: S2Space = this.position.space): Vector2 {
+    getCenter(space: S2Space = this.position.space): S2Vec2 {
         return S2AnchorUtils.getCenter(this.anchor, space, this.getActiveCamera(), this.position, this.nodeExtents);
     }
 
@@ -308,7 +308,7 @@ export class S2Node extends S2Shape {
     //     return attributes;
     // }
 
-    getPointInDirection(direction: Vector2, space: S2Space = this.position.space, distance: S2Length): Vector2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space = this.position.space, distance: S2Length): S2Vec2 {
         if (this.backRect) {
             return this.backRect.getPointInDirection(direction, space, distance);
         } else if (this.backCircle) {
@@ -350,7 +350,7 @@ export class S2Node extends S2Shape {
             2 * partSep,
         );
 
-        const nodeExtents = new Vector2(Math.max(maxPartWidth / 2 + padding.x, nodeMinExtents.x), height / 2);
+        const nodeExtents = new S2Vec2(Math.max(maxPartWidth / 2 + padding.x, nodeMinExtents.x), height / 2);
         this.nodeExtents.setValueFromSpace('view', this.getActiveCamera(), nodeExtents.x, nodeExtents.y);
 
         const nodeCenter = this.getCenter('view');

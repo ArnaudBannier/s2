@@ -1,16 +1,16 @@
 import './style.css';
-import { Vector2 } from './math/vector2.ts';
-import { S2Camera } from './s2/math/s2-camera.ts';
+import { S2Vec2 } from './core/math/s2-vec2.ts';
+import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL } from './utils/mtl-colors.ts';
-import { S2Node } from './s2/element/s2-node.ts';
-import { lerp } from './math/utils.ts';
-import { S2LineEdge } from './s2/element/s2-edge.ts';
-import { S2Length } from './s2/math/s2-space.ts';
-import type { S2SVGAttributes } from './s2/s2-globals.ts';
-import { S2Scene } from './s2/s2-scene.ts';
+import { S2Node } from './core/element/s2-node.ts';
+import { lerp } from './core/math/s2-utils.ts';
+import { S2LineEdge } from './core/element/s2-edge.ts';
+import { S2Length } from './core/math/s2-space.ts';
+import type { S2SVGAttributes } from './core/s2-globals.ts';
+import { S2Scene } from './core/s2-scene.ts';
 
-const viewport = new Vector2(2 * 640.0, 2 * 360.0);
-const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);
+const viewport = new S2Vec2(2 * 640.0, 2 * 360.0);
+const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
 class SceneFigure extends S2Scene {
     protected arc: S2LineEdge;

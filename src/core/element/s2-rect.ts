@@ -1,6 +1,6 @@
-import { ShapeUtils } from '../../math/shape-utils';
+import { S2ShapeUtils } from '../math/s2-shape-utils';
 import { type S2BaseScene, type S2HasExtents, type S2HasRadius } from '../s2-interface';
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length, S2Extents } from '../math/s2-space';
@@ -33,7 +33,7 @@ export class S2Rect extends S2Shape implements S2HasRadius, S2HasExtents {
         return this;
     }
 
-    setExtentsV(extents: Vector2, space?: S2Space): this {
+    setExtentsV(extents: S2Vec2, space?: S2Space): this {
         if (space) this.extents.space = space;
         this.extents.value.copy(extents);
         return this;
@@ -50,7 +50,7 @@ export class S2Rect extends S2Shape implements S2HasRadius, S2HasExtents {
         return this;
     }
 
-    getExtents(space: S2Space = this.extents.space): Vector2 {
+    getExtents(space: S2Space = this.extents.space): S2Vec2 {
         return this.extents.toSpace(space, this.getActiveCamera());
     }
 
@@ -58,16 +58,16 @@ export class S2Rect extends S2Shape implements S2HasRadius, S2HasExtents {
         return this.radius.toSpace(space, this.getActiveCamera());
     }
 
-    getCenter(space: S2Space = this.position.space): Vector2 {
+    getCenter(space: S2Space = this.position.space): S2Vec2 {
         return S2AnchorUtils.getCenter(this.anchor, space, this.getActiveCamera(), this.position, this.extents);
     }
 
-    getPointInDirection(direction: Vector2, space: S2Space = this.position.space, distance: S2Length): Vector2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space = this.position.space, distance: S2Length): S2Vec2 {
         const d = distance.toSpace(space, this.getActiveCamera());
         const extents = this.getExtents(space).add(d, d).max(0, 0);
         const radius = Math.min(Math.max(this.getRadius(space) + d, 0), extents.x, extents.y);
 
-        return ShapeUtils.intersectDirectionRoundedRectangle(direction, extents, radius).addV(this.getCenter(space));
+        return S2ShapeUtils.intersectDirectionRoundedRectangle(direction, extents, radius).addV(this.getCenter(space));
     }
 
     changeExtentsSpace(space: S2Space): this {

@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Extents } from '../math/s2-space';
@@ -28,7 +28,7 @@ export class S2Grid extends S2Shape {
         return this;
     }
 
-    setExtentsV(extents: Vector2, space?: S2Space): this {
+    setExtentsV(extents: S2Vec2, space?: S2Space): this {
         if (space) this.extents.space = space;
         this.extents.value.copy(extents);
         return this;
@@ -40,17 +40,17 @@ export class S2Grid extends S2Shape {
         return this;
     }
 
-    setStepsV(steps: Vector2, space?: S2Space): this {
+    setStepsV(steps: S2Vec2, space?: S2Space): this {
         if (space) this.steps.space = space;
         this.steps.value.copy(steps);
         return this;
     }
 
-    getExtents(space: S2Space = this.extents.space): Vector2 {
+    getExtents(space: S2Space = this.extents.space): S2Vec2 {
         return this.extents.toSpace(space, this.getActiveCamera());
     }
 
-    getSteps(space: S2Space = this.steps.space): Vector2 {
+    getSteps(space: S2Space = this.steps.space): S2Vec2 {
         return this.steps.toSpace(space, this.getActiveCamera());
     }
 

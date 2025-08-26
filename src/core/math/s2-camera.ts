@@ -1,12 +1,12 @@
-import { Vector2 } from '../../math/vector2.ts';
+import { S2Vec2 } from './s2-vec2.ts';
 
 export class S2Camera {
-    position: Vector2;
-    viewExtents: Vector2;
+    position: S2Vec2;
+    viewExtents: S2Vec2;
     viewScale: number;
-    viewport: Vector2;
+    viewport: S2Vec2;
 
-    constructor(position: Vector2, extents: Vector2, viewport: Vector2, viewScale: number = 1.0) {
+    constructor(position: S2Vec2, extents: S2Vec2, viewport: S2Vec2, viewScale: number = 1.0) {
         this.position = position;
         this.viewExtents = extents;
         this.viewport = viewport;
@@ -25,11 +25,11 @@ export class S2Camera {
         return this.position.y - this.viewExtents.y * this.viewScale + ratio * worldH;
     }
 
-    viewToWorld(x: number, y: number): Vector2 {
-        return new Vector2(this.viewToWorldX(x), this.viewToWorldY(y));
+    viewToWorld(x: number, y: number): S2Vec2 {
+        return new S2Vec2(this.viewToWorldX(x), this.viewToWorldY(y));
     }
 
-    viewToWorldV(v: Vector2): Vector2 {
+    viewToWorldV(v: S2Vec2): S2Vec2 {
         return this.viewToWorld(v.x, v.y);
     }
 
@@ -63,11 +63,11 @@ export class S2Camera {
         return (this.position.y + this.viewExtents.y * this.viewScale - y) * scale;
     }
 
-    worldToView(x: number, y: number): Vector2 {
-        return new Vector2(this.worldToViewX(x), this.worldToViewY(y));
+    worldToView(x: number, y: number): S2Vec2 {
+        return new S2Vec2(this.worldToViewX(x), this.worldToViewY(y));
     }
 
-    worldToViewV(v: Vector2): Vector2 {
+    worldToViewV(v: S2Vec2): S2Vec2 {
         return this.worldToView(v.x, v.y);
     }
 
@@ -75,11 +75,11 @@ export class S2Camera {
         return length * this.getWorldToViewScaleX();
     }
 
-    getLower(): Vector2 {
-        return Vector2.sub(this.position, Vector2.scale(this.viewExtents, this.viewScale));
+    getLower(): S2Vec2 {
+        return S2Vec2.sub(this.position, S2Vec2.scale(this.viewExtents, this.viewScale));
     }
 
-    getUpper(): Vector2 {
-        return Vector2.add(this.position, Vector2.scale(this.viewExtents, this.viewScale));
+    getUpper(): S2Vec2 {
+        return S2Vec2.add(this.position, S2Vec2.scale(this.viewExtents, this.viewScale));
     }
 }

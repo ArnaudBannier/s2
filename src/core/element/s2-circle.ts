@@ -1,5 +1,5 @@
 import { type S2HasRadius, type S2BaseScene } from '../s2-interface';
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length } from '../math/s2-space';
@@ -44,7 +44,7 @@ export class S2Circle extends S2Shape implements S2HasRadius {
         return this.radius.toSpace(space, this.getActiveCamera());
     }
 
-    getPointInDirection(direction: Vector2, space: S2Space = this.position.space, distance: S2Length): Vector2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space = this.position.space, distance: S2Length): S2Vec2 {
         const d = distance.toSpace(space, this.getActiveCamera());
         const radius = Math.max(this.getRadius(space) + d, 0);
         const point = direction.clone().normalize().scale(radius);

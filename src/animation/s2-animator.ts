@@ -1,10 +1,10 @@
 import { Timeline } from 'animejs';
-import { S2Element } from '../element/s2-element';
-import { type S2BaseScene } from '../s2-interface';
+import { S2Element } from '../core/element/s2-element';
+import { type S2BaseScene } from '../core/s2-interface';
 import { type AnimationParams } from 'animejs';
-import { S2Shape } from '../element/s2-shape';
+import { S2Shape } from '../core/element/s2-shape';
 import { S2ElementAnim } from './s2-animation';
-import { S2Animatable } from '../s2-attributes';
+import { S2Animatable } from '../core/s2-attributes';
 
 class S2AnimState {
     attributes: S2Animatable;

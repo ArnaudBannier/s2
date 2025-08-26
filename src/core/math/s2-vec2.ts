@@ -1,7 +1,7 @@
-import { Matrix2 } from './matrix2';
-import { Matrix2x3 } from './matrix2x3';
+import { S2Mat2 } from './s2-mat2';
+import { S2Mat2x3 } from './s2-mat2x3';
 
-export class Vector2 {
+export class S2Vec2 {
     public x: number;
     public y: number;
 
@@ -10,37 +10,37 @@ export class Vector2 {
         this.y = y;
     }
 
-    static fromPolarRad(theta: number, r: number = 1.0): Vector2 {
-        return new Vector2(r * Math.cos(theta), r * Math.sin(theta));
+    static fromPolarRad(theta: number, r: number = 1.0): S2Vec2 {
+        return new S2Vec2(r * Math.cos(theta), r * Math.sin(theta));
     }
 
-    static fromPolarDeg(theta: number, r: number = 1.0): Vector2 {
+    static fromPolarDeg(theta: number, r: number = 1.0): S2Vec2 {
         theta *= Math.PI / 180.0;
-        return new Vector2(r * Math.cos(theta), r * Math.sin(theta));
+        return new S2Vec2(r * Math.cos(theta), r * Math.sin(theta));
     }
 
-    static add(v1: Vector2, v2: Vector2): Vector2 {
-        return new Vector2(v1.x + v2.x, v1.y + v2.y);
+    static add(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+        return new S2Vec2(v1.x + v2.x, v1.y + v2.y);
     }
 
-    static sub(v1: Vector2, v2: Vector2): Vector2 {
-        return new Vector2(v1.x - v2.x, v1.y - v2.y);
+    static sub(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+        return new S2Vec2(v1.x - v2.x, v1.y - v2.y);
     }
 
-    static mul(v1: Vector2, v2: Vector2): Vector2 {
-        return new Vector2(v1.x * v2.x, v1.y * v2.y);
+    static mul(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+        return new S2Vec2(v1.x * v2.x, v1.y * v2.y);
     }
 
-    static scale(v: Vector2, s: number): Vector2 {
-        return new Vector2(v.x * s, v.y * s);
+    static scale(v: S2Vec2, s: number): S2Vec2 {
+        return new S2Vec2(v.x * s, v.y * s);
     }
 
-    static lerp(v1: Vector2, v2: Vector2, t: number): Vector2 {
+    static lerp(v1: S2Vec2, v2: S2Vec2, t: number): S2Vec2 {
         const s = 1 - t;
-        return new Vector2(s * v1.x + t * v2.x, s * v1.y + t * v2.y);
+        return new S2Vec2(s * v1.x + t * v2.x, s * v1.y + t * v2.y);
     }
 
-    static eq(v1: Vector2, v2: Vector2, epsilon: number = 1e-4): boolean {
+    static eq(v1: S2Vec2, v2: S2Vec2, epsilon: number = 1e-4): boolean {
         return Math.abs(v1.x - v2.x) < epsilon && Math.abs(v1.y - v2.y) < epsilon;
     }
 
@@ -76,11 +76,11 @@ export class Vector2 {
         return this;
     }
 
-    setFromPolarRad(theta: number, r: number = 1.0): Vector2 {
+    setFromPolarRad(theta: number, r: number = 1.0): S2Vec2 {
         return this.set(r * Math.cos(theta), r * Math.sin(theta));
     }
 
-    setFromPolarDeg(theta: number, r: number = 1.0): Vector2 {
+    setFromPolarDeg(theta: number, r: number = 1.0): S2Vec2 {
         theta *= Math.PI / 180.0;
         return this.set(r * Math.cos(theta), r * Math.sin(theta));
     }
@@ -120,11 +120,11 @@ export class Vector2 {
         }
     }
 
-    clone(): Vector2 {
-        return new Vector2(this.x, this.y);
+    clone(): S2Vec2 {
+        return new S2Vec2(this.x, this.y);
     }
 
-    copy(v: Vector2): this {
+    copy(v: S2Vec2): this {
         this.x = v.x;
         this.y = v.y;
         return this;
@@ -136,7 +136,7 @@ export class Vector2 {
         return this;
     }
 
-    addV(v: Vector2): this {
+    addV(v: S2Vec2): this {
         this.x += v.x;
         this.y += v.y;
         return this;
@@ -148,7 +148,7 @@ export class Vector2 {
         return this;
     }
 
-    subV(v: Vector2): this {
+    subV(v: S2Vec2): this {
         this.x -= v.x;
         this.y -= v.y;
         return this;
@@ -160,7 +160,7 @@ export class Vector2 {
         return this;
     }
 
-    mulV(v: Vector2): this {
+    mulV(v: S2Vec2): this {
         this.x *= v.x;
         this.y *= v.y;
         return this;
@@ -184,7 +184,7 @@ export class Vector2 {
         return this;
     }
 
-    minV(v: Vector2): this {
+    minV(v: S2Vec2): this {
         this.x = Math.min(this.x, v.x);
         this.y = Math.min(this.y, v.y);
         return this;
@@ -196,13 +196,13 @@ export class Vector2 {
         return this;
     }
 
-    maxV(v: Vector2): this {
+    maxV(v: S2Vec2): this {
         this.x = Math.max(this.x, v.x);
         this.y = Math.max(this.y, v.y);
         return this;
     }
 
-    apply2x2(matrix: Matrix2): this {
+    apply2x2(matrix: S2Mat2): this {
         const me = matrix.elements;
         const x = this.x,
             y = this.y;
@@ -211,7 +211,7 @@ export class Vector2 {
         return this;
     }
 
-    apply2x3(matrix: Matrix2x3): this {
+    apply2x3(matrix: S2Mat2x3): this {
         const me = matrix.elements;
         const x = this.x,
             y = this.y;
@@ -220,11 +220,11 @@ export class Vector2 {
         return this;
     }
 
-    dot(v: Vector2): number {
+    dot(v: S2Vec2): number {
         return this.x * v.x + this.y * v.y;
     }
 
-    det(v: Vector2): number {
+    det(v: S2Vec2): number {
         return this.x * v.y - this.y * v.x;
     }
 
@@ -236,13 +236,13 @@ export class Vector2 {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
-    distanceSq(v: Vector2): number {
+    distanceSq(v: S2Vec2): number {
         const dx = v.x - this.x;
         const dy = v.y - this.y;
         return dx * dx + dy * dy;
     }
 
-    distance(v: Vector2): number {
+    distance(v: S2Vec2): number {
         return Math.sqrt(this.distanceSq(v));
     }
 
@@ -270,7 +270,7 @@ export class Vector2 {
         return Math.atan2(-this.y, this.x);
     }
 
-    angleTo(v: Vector2): number {
+    angleTo(v: S2Vec2): number {
         const s = this.det(v);
         const c = this.dot(v);
         return Math.atan2(s, c);

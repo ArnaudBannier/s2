@@ -1,7 +1,7 @@
 import type { S2Camera } from './math/s2-camera';
-import { Vector2 } from '../math/vector2';
+import { S2Vec2 } from './math/s2-vec2';
 import { type S2Space, S2Position, S2Extents } from './math/s2-space';
-import { lerp } from '../math/utils';
+import { lerp } from './math/s2-utils';
 
 export const svgNS = 'http://www.w3.org/2000/svg';
 export type S2SVGAttributes = Record<string, string>;
@@ -75,7 +75,7 @@ export class S2AnchorUtils {
         camera: S2Camera,
         position: S2Position,
         extents: S2Extents,
-    ): Vector2 {
+    ): S2Vec2 {
         const sign = space === 'world' ? +1 : -1;
         const center = position.toSpace(space, camera);
         const ext = extents.toSpace(space, camera);
@@ -110,7 +110,7 @@ export class S2AnchorUtils {
         return center;
     }
 
-    static getNorthWest(anchor: S2Anchor, space: S2Space, position: Vector2, extents: Vector2): Vector2 {
+    static getNorthWest(anchor: S2Anchor, space: S2Space, position: S2Vec2, extents: S2Vec2): S2Vec2 {
         const sign = space === 'world' ? +1 : -1;
         const nw = position.clone();
         switch (anchor) {

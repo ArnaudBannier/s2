@@ -1,13 +1,13 @@
-import { Vector2 } from '../../math/vector2';
-import { invLerp, lerp, remap } from '../../math/utils';
+import { S2Vec2 } from './s2-vec2';
+import { invLerp, lerp, remap } from './s2-utils';
 
 interface S2Curve {
-    getStart(): Vector2;
-    getEnd(): Vector2;
-    getPointAt(t: number): Vector2;
-    getTangentAt(t: number): Vector2;
-    getStartTangent(): Vector2;
-    getEndTangent(): Vector2;
+    getStart(): S2Vec2;
+    getEnd(): S2Vec2;
+    getPointAt(t: number): S2Vec2;
+    getTangentAt(t: number): S2Vec2;
+    getStartTangent(): S2Vec2;
+    getEndTangent(): S2Vec2;
     createPartialCurveTo(t: number): S2Curve;
     createPartialCurveFrom(t: number): S2Curve;
     createPartialCurveRange(from: number, to: number): S2Curve;
@@ -63,19 +63,19 @@ export class S2PolyCurve implements S2Curve {
         return { index: this.curves.length - 1, t: 1.0 };
     }
 
-    getStart(): Vector2 {
+    getStart(): S2Vec2 {
         return this.curves[0].getStart();
     }
 
-    getEnd(): Vector2 {
+    getEnd(): S2Vec2 {
         return this.curves[this.curves.length].getEnd();
     }
 
-    getStartTangent(): Vector2 {
+    getStartTangent(): S2Vec2 {
         return this.curves[0].getStartTangent();
     }
 
-    getEndTangent(): Vector2 {
+    getEndTangent(): S2Vec2 {
         return this.curves[this.curves.length - 1].getEndTangent();
     }
 
@@ -89,14 +89,14 @@ export class S2PolyCurve implements S2Curve {
         return this;
     }
 
-    addLine(p0: Vector2, p1: Vector2): S2LineCurve {
+    addLine(p0: S2Vec2, p1: S2Vec2): S2LineCurve {
         const curve = new S2LineCurve(p0, p1);
         this.length += curve.getLength();
         this.curves.push(curve);
         return curve;
     }
 
-    addQuadratic(p0: Vector2, p1: Vector2, p2: Vector2, sampleCount: number = 0): S2QuadraticCurve {
+    addQuadratic(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2, sampleCount: number = 0): S2QuadraticCurve {
         const curve = new S2QuadraticCurve(p0, p1, p2).computeLinearLUT(sampleCount);
         if (sampleCount > 0) curve.computeLinearLUT(sampleCount);
         this.length += curve.getLength();
@@ -104,7 +104,7 @@ export class S2PolyCurve implements S2Curve {
         return curve;
     }
 
-    addCubic(p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2, sampleCount: number = 0): S2CubicCurve {
+    addCubic(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2, p3: S2Vec2, sampleCount: number = 0): S2CubicCurve {
         const curve = new S2CubicCurve(p0, p1, p2, p3);
         if (sampleCount > 0) curve.computeLinearLUT(sampleCount);
         this.length += curve.getLength();
@@ -112,14 +112,14 @@ export class S2PolyCurve implements S2Curve {
         return curve;
     }
 
-    getPointAt(t: number): Vector2 {
-        if (this.curves.length === 0) return new Vector2(0, 0);
+    getPointAt(t: number): S2Vec2 {
+        if (this.curves.length === 0) return new S2Vec2(0, 0);
         const curveParam = this.getCurveParam(t);
         return this.curves[curveParam.index].getPointAt(curveParam.t);
     }
 
-    getTangentAt(t: number): Vector2 {
-        if (this.curves.length === 0) return new Vector2(0, 0);
+    getTangentAt(t: number): S2Vec2 {
+        if (this.curves.length === 0) return new S2Vec2(0, 0);
         const curveParam = this.getCurveParam(t);
         return this.curves[curveParam.index].getTangentAt(curveParam.t);
     }
@@ -172,27 +172,27 @@ export class S2PolyCurve implements S2Curve {
 }
 
 export class S2LineCurve implements S2Curve {
-    public p0: Vector2;
-    public p1: Vector2;
+    public p0: S2Vec2;
+    public p1: S2Vec2;
     protected length: number;
 
-    constructor(p0: Vector2, p1: Vector2) {
+    constructor(p0: S2Vec2, p1: S2Vec2) {
         this.p0 = p0.clone();
         this.p1 = p1.clone();
         this.length = this.p0.distance(this.p1);
     }
 
-    getTangentAt(t: number): Vector2 {
+    getTangentAt(t: number): S2Vec2 {
         void t;
-        return Vector2.sub(this.p1, this.p0);
+        return S2Vec2.sub(this.p1, this.p0);
     }
 
-    getStartTangent(): Vector2 {
-        return Vector2.sub(this.p1, this.p0);
+    getStartTangent(): S2Vec2 {
+        return S2Vec2.sub(this.p1, this.p0);
     }
 
-    getEndTangent(): Vector2 {
-        return Vector2.sub(this.p1, this.p0);
+    getEndTangent(): S2Vec2 {
+        return S2Vec2.sub(this.p1, this.p0);
     }
 
     clone(): S2Curve {
@@ -203,16 +203,16 @@ export class S2LineCurve implements S2Curve {
         return this.length;
     }
 
-    getStart(): Vector2 {
+    getStart(): S2Vec2 {
         return this.p0.clone();
     }
 
-    getEnd(): Vector2 {
+    getEnd(): S2Vec2 {
         return this.p1.clone();
     }
 
-    getPointAt(t: number): Vector2 {
-        return Vector2.lerp(this.p0, this.p1, t);
+    getPointAt(t: number): S2Vec2 {
+        return S2Vec2.lerp(this.p0, this.p1, t);
     }
 
     createPartialCurveTo(t: number): S2LineCurve {
@@ -229,7 +229,7 @@ export class S2LineCurve implements S2Curve {
 }
 
 abstract class S2BezierCurve {
-    protected points: Vector2[] = [];
+    protected points: S2Vec2[] = [];
     protected linearLUT: number[] | null = null;
     protected sampleCount: number = 0;
     protected length: number = 0;
@@ -275,27 +275,27 @@ abstract class S2BezierCurve {
         return this;
     }
 
-    getPointAt(t: number): Vector2 {
+    getPointAt(t: number): S2Vec2 {
         return this.getPointAtCasteljau(this.linearize(t));
     }
 
-    getBezierPoint(index: number): Vector2 {
+    getBezierPoint(index: number): S2Vec2 {
         return this.points[index];
     }
 
-    getBezierPoints(): Vector2[] {
+    getBezierPoints(): S2Vec2[] {
         return this.points.map((value) => value.clone());
     }
 
-    abstract getPointAtCasteljau(t: number): Vector2;
-    abstract getTangentAtCasteljau(t: number): Vector2;
+    abstract getPointAtCasteljau(t: number): S2Vec2;
+    abstract getTangentAtCasteljau(t: number): S2Vec2;
     abstract reduceToCasteljau(t: number): S2BezierCurve;
     abstract reduceFromCasteljau(t: number): S2BezierCurve;
     abstract makePartialCasteljau(from: number, to: number): S2BezierCurve;
 }
 
 export class S2QuadraticCurve extends S2BezierCurve implements S2Curve {
-    constructor(p0: Vector2, p1: Vector2, p2: Vector2) {
+    constructor(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2) {
         super();
         this.points.push(p0.clone());
         this.points.push(p1.clone());
@@ -314,47 +314,47 @@ export class S2QuadraticCurve extends S2BezierCurve implements S2Curve {
         return curve;
     }
 
-    getStart(): Vector2 {
+    getStart(): S2Vec2 {
         return this.points[0].clone();
     }
 
-    getEnd(): Vector2 {
+    getEnd(): S2Vec2 {
         return this.points[2].clone();
     }
 
-    getPointAtCasteljau(t: number): Vector2 {
+    getPointAtCasteljau(t: number): S2Vec2 {
         const p = this.points;
         const s = 1 - t;
         const c0 = s * s;
         const c1 = s * t * 2;
         const c2 = t * t;
-        return new Vector2(c0 * p[0].x + c1 * p[1].x + c2 * p[2].x, c0 * p[0].y + c1 * p[1].y + c2 * p[2].y);
+        return new S2Vec2(c0 * p[0].x + c1 * p[1].x + c2 * p[2].x, c0 * p[0].y + c1 * p[1].y + c2 * p[2].y);
     }
 
-    getTangentAtCasteljau(t: number): Vector2 {
+    getTangentAtCasteljau(t: number): S2Vec2 {
         const p = this.points;
-        return new Vector2(
+        return new S2Vec2(
             (1 - t) * (p[1].x - p[0].x) + t * (p[2].x - p[1].x),
             (1 - t) * (p[1].y - p[0].y) + t * (p[2].y - p[1].y),
         );
     }
 
-    getTangentAt(t: number): Vector2 {
+    getTangentAt(t: number): S2Vec2 {
         return this.getTangentAtCasteljau(this.linearize(t));
     }
 
-    getStartTangent(): Vector2 {
-        return Vector2.sub(this.points[1], this.points[0]);
+    getStartTangent(): S2Vec2 {
+        return S2Vec2.sub(this.points[1], this.points[0]);
     }
 
-    getEndTangent(): Vector2 {
-        return Vector2.sub(this.points[2], this.points[1]);
+    getEndTangent(): S2Vec2 {
+        return S2Vec2.sub(this.points[2], this.points[1]);
     }
 
     reduceToCasteljau(t: number): S2QuadraticCurve {
-        const q0 = Vector2.lerp(this.points[0], this.points[1], t);
-        const q1 = Vector2.lerp(this.points[1], this.points[2], t);
-        const r0 = Vector2.lerp(q0, q1, t);
+        const q0 = S2Vec2.lerp(this.points[0], this.points[1], t);
+        const q1 = S2Vec2.lerp(this.points[1], this.points[2], t);
+        const r0 = S2Vec2.lerp(q0, q1, t);
         return new S2QuadraticCurve(this.points[0], q0, r0);
     }
 
@@ -363,9 +363,9 @@ export class S2QuadraticCurve extends S2BezierCurve implements S2Curve {
     }
 
     reduceFromCasteljau(t: number): S2QuadraticCurve {
-        const q0 = Vector2.lerp(this.points[0], this.points[1], t);
-        const q1 = Vector2.lerp(this.points[1], this.points[2], t);
-        const r0 = Vector2.lerp(q0, q1, t);
+        const q0 = S2Vec2.lerp(this.points[0], this.points[1], t);
+        const q1 = S2Vec2.lerp(this.points[1], this.points[2], t);
+        const r0 = S2Vec2.lerp(q0, q1, t);
         return new S2QuadraticCurve(r0, q1, this.points[2]);
     }
 
@@ -385,7 +385,7 @@ export class S2QuadraticCurve extends S2BezierCurve implements S2Curve {
 }
 
 export class S2CubicCurve extends S2BezierCurve implements S2Curve {
-    constructor(p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2) {
+    constructor(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2, p3: S2Vec2) {
         super();
         this.points.push(p0.clone());
         this.points.push(p1.clone());
@@ -405,58 +405,58 @@ export class S2CubicCurve extends S2BezierCurve implements S2Curve {
         return cubicCurve;
     }
 
-    getStart(): Vector2 {
+    getStart(): S2Vec2 {
         return this.points[0].clone();
     }
 
-    getEnd(): Vector2 {
+    getEnd(): S2Vec2 {
         return this.points[3].clone();
     }
 
-    getPointAtCasteljau(t: number): Vector2 {
+    getPointAtCasteljau(t: number): S2Vec2 {
         const p = this.points;
         const s = 1 - t;
         const c0 = s * s * s;
         const c1 = s * s * t * 3;
         const c2 = s * t * t * 3;
         const c3 = t * t * t;
-        return new Vector2(
+        return new S2Vec2(
             c0 * p[0].x + c1 * p[1].x + c2 * p[2].x + c3 * p[3].x,
             c0 * p[0].y + c1 * p[1].y + c2 * p[2].y + c3 * p[3].y,
         );
     }
 
-    getTangentAtCasteljau(t: number): Vector2 {
+    getTangentAtCasteljau(t: number): S2Vec2 {
         const p = this.points;
         const s = 1 - t;
         const c0 = s * s;
         const c1 = s * t * 2;
         const c2 = t * t;
-        return new Vector2(
+        return new S2Vec2(
             c0 * (p[1].x - p[0].x) + c1 * (p[2].x - p[1].x) + c2 * (p[3].x - p[2].x),
             c0 * (p[1].y - p[0].y) + c1 * (p[2].y - p[1].y) + c2 * (p[3].y - p[2].y),
         );
     }
 
-    getTangentAt(t: number): Vector2 {
+    getTangentAt(t: number): S2Vec2 {
         return this.getTangentAtCasteljau(this.linearize(t));
     }
 
-    getStartTangent(): Vector2 {
-        return Vector2.sub(this.points[1], this.points[0]);
+    getStartTangent(): S2Vec2 {
+        return S2Vec2.sub(this.points[1], this.points[0]);
     }
 
-    getEndTangent(): Vector2 {
-        return Vector2.sub(this.points[3], this.points[2]);
+    getEndTangent(): S2Vec2 {
+        return S2Vec2.sub(this.points[3], this.points[2]);
     }
 
     reduceToCasteljau(t: number): S2CubicCurve {
-        const q0 = Vector2.lerp(this.points[0], this.points[1], t);
-        const q1 = Vector2.lerp(this.points[1], this.points[2], t);
-        const q2 = Vector2.lerp(this.points[2], this.points[3], t);
-        const r0 = Vector2.lerp(q0, q1, t);
-        const r1 = Vector2.lerp(q1, q2, t);
-        const s0 = Vector2.lerp(r0, r1, t);
+        const q0 = S2Vec2.lerp(this.points[0], this.points[1], t);
+        const q1 = S2Vec2.lerp(this.points[1], this.points[2], t);
+        const q2 = S2Vec2.lerp(this.points[2], this.points[3], t);
+        const r0 = S2Vec2.lerp(q0, q1, t);
+        const r1 = S2Vec2.lerp(q1, q2, t);
+        const s0 = S2Vec2.lerp(r0, r1, t);
         return new S2CubicCurve(this.points[0], q0, r0, s0);
     }
 
@@ -465,12 +465,12 @@ export class S2CubicCurve extends S2BezierCurve implements S2Curve {
     }
 
     reduceFromCasteljau(t: number): S2CubicCurve {
-        const q0 = Vector2.lerp(this.points[0], this.points[1], t);
-        const q1 = Vector2.lerp(this.points[1], this.points[2], t);
-        const q2 = Vector2.lerp(this.points[2], this.points[3], t);
-        const r0 = Vector2.lerp(q0, q1, t);
-        const r1 = Vector2.lerp(q1, q2, t);
-        const s0 = Vector2.lerp(r0, r1, t);
+        const q0 = S2Vec2.lerp(this.points[0], this.points[1], t);
+        const q1 = S2Vec2.lerp(this.points[1], this.points[2], t);
+        const q2 = S2Vec2.lerp(this.points[2], this.points[3], t);
+        const r0 = S2Vec2.lerp(q0, q1, t);
+        const r1 = S2Vec2.lerp(q1, q2, t);
+        const s0 = S2Vec2.lerp(r0, r1, t);
         return new S2CubicCurve(s0, r1, q2, this.points[3]);
     }
 

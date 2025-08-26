@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
@@ -34,7 +34,7 @@ export class S2Line extends S2Shape {
         return this.setPosition(x, y, space);
     }
 
-    setStartV(position: Vector2, space?: S2Space): this {
+    setStartV(position: S2Vec2, space?: S2Space): this {
         return this.setPositionV(position, space);
     }
 
@@ -44,17 +44,17 @@ export class S2Line extends S2Shape {
         return this;
     }
 
-    setEndV(end: Vector2, space?: S2Space): this {
+    setEndV(end: S2Vec2, space?: S2Space): this {
         if (space) this.endPosition.space = space;
         this.endPosition.value.copy(end);
         return this;
     }
 
-    getStart(space: S2Space = this.position.space): Vector2 {
+    getStart(space: S2Space = this.position.space): S2Vec2 {
         return this.position.toSpace(space, this.getActiveCamera());
     }
 
-    getEnd(space: S2Space = this.position.space): Vector2 {
+    getEnd(space: S2Space = this.position.space): S2Vec2 {
         return this.endPosition.toSpace(space, this.getActiveCamera());
     }
 

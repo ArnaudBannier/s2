@@ -1,14 +1,14 @@
 import { type S2BaseScene, type S2HasStrokeWidth } from '../s2-interface';
-import { Vector2 } from '../../math/vector2';
-import { Matrix2x3 } from '../../math/matrix2x3';
-import { MatrixBuilder2x3 } from '../../math/matrix-builder-2x3';
+import { S2Vec2 } from '../math/s2-vec2';
+import { S2Mat2x3 } from '../math/s2-mat2x3';
+import { S2Mat2x3Builder } from '../math/s2-mat2x3-builder';
 import { type S2Space, S2Length } from '../math/s2-space';
 import { S2Element } from './s2-element';
 import { S2Color, type S2LineCap, type S2LineJoin } from '../s2-globals';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 
 export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
-    public transform: Matrix2x3;
+    public transform: S2Mat2x3;
     protected strokeWidth: S2Length;
 
     public fillColor?: S2Color;
@@ -20,7 +20,7 @@ export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
 
     constructor(scene: S2BaseScene) {
         super(scene);
-        this.transform = Matrix2x3.createIdentity();
+        this.transform = S2Mat2x3.createIdentity();
         this.strokeWidth = new S2Length(0, 'view');
     }
 
@@ -118,8 +118,8 @@ export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
         return this;
     }
 
-    buildTransform(builder?: MatrixBuilder2x3, makeIdentity: boolean = true): MatrixBuilder2x3 {
-        builder = builder ?? new MatrixBuilder2x3();
+    buildTransform(builder?: S2Mat2x3Builder, makeIdentity: boolean = true): S2Mat2x3Builder {
+        builder = builder ?? new S2Mat2x3Builder();
         return builder.setTarget(this.transform, makeIdentity);
     }
 
@@ -128,7 +128,7 @@ export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
         return this;
     }
 
-    setTranslationV(t: Vector2): this {
+    setTranslationV(t: S2Vec2): this {
         this.transform.makeTranslation(t.x, t.y);
         return this;
     }
@@ -143,7 +143,7 @@ export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
         return this;
     }
 
-    setScaleFromV(scaleX: number, scaleY: number, center: Vector2): this {
+    setScaleFromV(scaleX: number, scaleY: number, center: S2Vec2): this {
         this.transform.makeScaleFrom(scaleX, scaleY, center.x, center.y);
         return this;
     }
@@ -163,7 +163,7 @@ export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
         return this;
     }
 
-    setRotationFromRadV(angle: number, center: Vector2): this {
+    setRotationFromRadV(angle: number, center: S2Vec2): this {
         this.transform.makeRotationFromRad(angle, center.x, center.y);
         return this;
     }
@@ -173,7 +173,7 @@ export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
         return this;
     }
 
-    setRotationFromDegV(angle: number, center: Vector2): this {
+    setRotationFromDegV(angle: number, center: S2Vec2): this {
         this.transform.makeRotationFromDeg(angle, center.x, center.y);
         return this;
     }

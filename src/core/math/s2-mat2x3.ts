@@ -1,4 +1,4 @@
-export class Matrix2x3 {
+export class S2Mat2x3 {
     // Row-major order of the elements.
     elements: Array<number> = [0, 0, 0, 0, 0, 0];
 
@@ -6,8 +6,8 @@ export class Matrix2x3 {
         this.set(a00, a01, a02, a10, a11, a12);
     }
 
-    static createIdentity(): Matrix2x3 {
-        return new Matrix2x3(1, 0, 0, 0, 1, 0);
+    static createIdentity(): S2Mat2x3 {
+        return new S2Mat2x3(1, 0, 0, 0, 1, 0);
     }
 
     set(a00 = 0, a01 = 0, a02 = 0, a10 = 0, a11 = 0, a12 = 0): this {
@@ -39,7 +39,7 @@ export class Matrix2x3 {
         return this.set(1, 0, 0, 0, 1, 0);
     }
 
-    multiplyMatrices(a: Matrix2x3, b: Matrix2x3): this {
+    multiplyMatrices(a: S2Mat2x3, b: S2Mat2x3): this {
         const ae = a.elements;
         const be = b.elements;
         const te = this.elements;
@@ -68,23 +68,23 @@ export class Matrix2x3 {
         return this;
     }
 
-    multiply(m: Matrix2x3): this {
+    multiply(m: S2Mat2x3): this {
         return this.multiplyMatrices(this, m);
     }
 
-    premultiply(m: Matrix2x3): this {
+    premultiply(m: S2Mat2x3): this {
         return this.multiplyMatrices(m, this);
     }
 
-    copy(m: Matrix2x3): this {
+    copy(m: S2Mat2x3): this {
         for (let i = 0; i < 6; i++) {
             this.elements[i] = m.elements[i];
         }
         return this;
     }
 
-    clone(): Matrix2x3 {
-        return new Matrix2x3().copy(this);
+    clone(): S2Mat2x3 {
+        return new S2Mat2x3().copy(this);
     }
 
     makeTranslation(x: number, y: number): this {

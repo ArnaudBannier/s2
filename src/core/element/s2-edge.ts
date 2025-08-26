@@ -1,4 +1,4 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Node } from './s2-node';
 import { S2Path } from './s2-path';
@@ -64,8 +64,8 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape {
         nodeOrPos: S2Node | S2Position,
         space: S2Space,
         distance?: S2Length,
-        direction?: Vector2,
-    ): Vector2 {
+        direction?: S2Vec2,
+    ): S2Vec2 {
         if (nodeOrPos instanceof S2Node) {
             if (distance !== undefined && direction !== undefined) {
                 return nodeOrPos.getPointInDirection(direction, space, distance);
@@ -81,7 +81,7 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape {
         }
     }
 
-    protected getStartToEnd(space: S2Space): Vector2 {
+    protected getStartToEnd(space: S2Space): S2Vec2 {
         const start = this.getPointCenter(this.start, space);
         const end = this.getPointCenter(this.end, space);
         return end.subV(start);

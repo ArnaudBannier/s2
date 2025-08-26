@@ -1,14 +1,14 @@
-import { Vector2 } from '../../math/vector2';
+import { S2Vec2 } from './s2-vec2';
 import { S2Camera } from './s2-camera';
 
 export type S2Space = 'world' | 'view';
 
 export class S2Position {
-    public value: Vector2;
+    public value: S2Vec2;
     public space: S2Space;
 
     constructor(x: number = 0, y: number = 0, space: S2Space = 'world') {
-        this.value = new Vector2(x, y);
+        this.value = new S2Vec2(x, y);
         this.space = space;
     }
 
@@ -60,11 +60,11 @@ export class S2Position {
         return this;
     }
 
-    toSpace(space: S2Space, camera: S2Camera): Vector2 {
+    toSpace(space: S2Space, camera: S2Camera): S2Vec2 {
         return S2Position.toSpace(this.value, this.space, space, camera);
     }
 
-    static toSpace(position: Vector2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): Vector2 {
+    static toSpace(position: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
         if (currSpace === nextSpace) {
             // this = other
             return position.clone();
@@ -145,11 +145,11 @@ export class S2Length {
 }
 
 export class S2Extents {
-    public value: Vector2;
+    public value: S2Vec2;
     public space: S2Space;
 
     constructor(x: number, y: number, space: S2Space = 'world') {
-        this.value = new Vector2(x, y);
+        this.value = new S2Vec2(x, y);
         this.space = space;
     }
 
@@ -201,20 +201,20 @@ export class S2Extents {
         return this;
     }
 
-    toSpace(space: S2Space, camera: S2Camera): Vector2 {
+    toSpace(space: S2Space, camera: S2Camera): S2Vec2 {
         return S2Extents.toSpace(this.value, this.space, space, camera);
     }
 
-    static toSpace(extents: Vector2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): Vector2 {
+    static toSpace(extents: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
         if (currSpace === nextSpace) {
             // this = other
             return extents.clone();
         } else if (currSpace === 'world') {
             // this: world, other: view
-            return new Vector2(camera.worldToViewLength(extents.x), camera.worldToViewLength(extents.y));
+            return new S2Vec2(camera.worldToViewLength(extents.x), camera.worldToViewLength(extents.y));
         } else {
             // this: view, other: world
-            return new Vector2(camera.viewToWorldLength(extents.x), camera.viewToWorldLength(extents.y));
+            return new S2Vec2(camera.viewToWorldLength(extents.x), camera.viewToWorldLength(extents.y));
         }
     }
 }

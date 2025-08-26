@@ -1,7 +1,7 @@
 import { S2Camera } from './math/s2-camera';
 import { S2SVG } from './element/s2-svg';
 import { type S2Space, S2Position } from './math/s2-space';
-import { Vector2 } from '../math/vector2';
+import { S2Vec2 } from './math/s2-vec2';
 
 export interface S2BaseScene {
     readonly svg: S2SVG;
@@ -11,8 +11,8 @@ export interface S2BaseScene {
 
 export interface S2HasExtents {
     setExtents(x: number, y: number, space?: S2Space): this;
-    setExtentsV(extents: Vector2, space?: S2Space): this;
-    getExtents(space?: S2Space): Vector2;
+    setExtentsV(extents: S2Vec2, space?: S2Space): this;
+    getExtents(space?: S2Space): S2Vec2;
     changeExtentsSpace(space: S2Space): this;
 }
 
@@ -24,8 +24,8 @@ export interface S2HasRadius {
 
 export interface S2HasPosition {
     setPosition(x: number, y: number, space?: S2Space): this;
-    setPositionV(position: Vector2, space?: S2Space): this;
-    getPosition(space?: S2Space): Vector2;
+    setPositionV(position: S2Vec2, space?: S2Space): this;
+    getPosition(space?: S2Space): S2Vec2;
     getS2Position(): S2Position;
     changePositionSpace(space: S2Space): this;
 }

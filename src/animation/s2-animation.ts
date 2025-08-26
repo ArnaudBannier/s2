@@ -1,9 +1,9 @@
-import { S2Element } from '../element/s2-element';
-import { type S2BaseScene } from '../s2-interface';
-import { lerp } from '../../math/utils';
-import { S2Position, S2Length } from '../math/s2-space';
-import { S2Color } from '../s2-globals';
-import { S2Animatable } from '../s2-attributes';
+import { S2Element } from '../core/element/s2-element';
+import { type S2BaseScene } from '../core/s2-interface';
+import { lerp } from '../core/math/s2-utils';
+import { S2Position, S2Length } from '../core/math/s2-space';
+import { S2Color } from '../core/s2-globals';
+import { S2Animatable } from '../core/s2-attributes';
 
 export abstract class S2Animation {
     protected scene: S2BaseScene;

@@ -1,15 +1,15 @@
 import './style.css';
-import { Vector2 } from './math/vector2.ts';
-import { S2Camera } from './s2/math/s2-camera.ts';
+import { S2Vec2 } from './core/math/s2-vec2.ts';
+import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL } from './utils/mtl-colors.ts';
-import { type S2SVGAttributes } from './s2/s2-globals.ts';
-import { S2Scene } from './s2/s2-scene.ts';
-import { invLerp } from './math/utils.ts';
-import type { S2Path } from './s2/element/s2-path.ts';
-import type { S2Line } from './s2/element/s2-line.ts';
+import { type S2SVGAttributes } from './core/s2-globals.ts';
+import { S2Scene } from './core/s2-scene.ts';
+import { invLerp } from './core/math/s2-utils.ts';
+import type { S2Path } from './core/element/s2-path.ts';
+import type { S2Line } from './core/element/s2-line.ts';
 
-const viewport = new Vector2(1.5 * 640.0, 1.5 * 360.0);
-const camera = new S2Camera(new Vector2(0.0, 0.0), new Vector2(8.0, 4.5), viewport, 1.0);
+const viewport = new S2Vec2(1.5 * 640.0, 1.5 * 360.0);
+const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
 class SceneFigure extends S2Scene {
     protected path: S2Path;
@@ -32,12 +32,12 @@ class SceneFigure extends S2Scene {
 
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setSVGAttribute('stroke', MTL.GREY);
 
-        const p0 = new Vector2(-3, -2);
-        const co0 = new Vector2(4, 8);
-        const ci1 = new Vector2(-3, -6);
-        const p1 = new Vector2(4, -2);
-        const ci2 = new Vector2(-1, 2);
-        const p2 = new Vector2(2, 0);
+        const p0 = new S2Vec2(-3, -2);
+        const co0 = new S2Vec2(4, 8);
+        const ci1 = new S2Vec2(-3, -6);
+        const p1 = new S2Vec2(4, -2);
+        const ci2 = new S2Vec2(-1, 2);
+        const p2 = new S2Vec2(2, 0);
 
         const path = this.addPath();
         path.setSpace('world')
@@ -45,7 +45,7 @@ class SceneFigure extends S2Scene {
             .setStartV(p0)
             .cubicToV(co0, ci1, p1)
             .smoothCubicToV(ci2, p2)
-            .lineToV(Vector2.sub(p2, ci2));
+            .lineToV(S2Vec2.sub(p2, ci2));
         path.setSVGAttributes(pathStyle);
         path.setPathRange(0.15, 0.95);
         this.path = path;
@@ -65,7 +65,7 @@ class SceneFigure extends S2Scene {
         if (0 < t && t < 1) {
             this.svg.appendChild(this.tangent);
             this.tangent.setStartV(this.path.getPointAt(t));
-            this.tangent.setEndV(Vector2.add(this.path.getPointAt(t), this.path.getTangentAt(t).normalize()));
+            this.tangent.setEndV(S2Vec2.add(this.path.getPointAt(t), this.path.getTangentAt(t).normalize()));
             this.tangent.update();
         } else {
             this.svg.removeChild(this.tangent);
