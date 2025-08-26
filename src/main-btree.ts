@@ -340,10 +340,10 @@ if (appDiv) {
                     <option value="in-order">Infixe</option>
                     <option value="post-order">Suffixe</option>
                 </select>
-                <button id="reset-button"><i class="fa-solid fa-rotate-right"></i></button>
-                <button id="prev-button"><i class="fa-solid fa-backward"></i></button>
-                <button id="play-button"><i class="fa-solid fa-arrows-rotate"></i></button>
-                <button id="next-button"><i class="fa-solid fa-forward"></i></button>
+                <button id="reset-button"><i class="fa-solid fa-backward-fast"></i></button>
+                <button id="prev-button"><i class="fa-solid fa-step-backward"></i></button>
+                <button id="play-button"><i class="fa-solid fa-redo"></i></button>
+                <button id="next-button"><i class="fa-solid fa-step-forward"></i></button>
                 <button id="full-button"><i class="fa-solid fa-play"></i></button>
             </div>
         </div>`;
