@@ -14,8 +14,9 @@ export class S2Line extends S2Shape<SVGLineElement> {
         this.element = element;
         this.endPosition = new S2Position(0, 0, 'world');
     }
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+
+    getSVGElement(): SVGLineElement {
+        return this.element;
     }
 
     update(): this {

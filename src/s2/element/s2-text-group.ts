@@ -47,8 +47,8 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
         this.lines = [];
     }
 
-    getSVGElements(): SVGElement[] {
-        return this.mainGroup.getSVGElements();
+    getSVGElement(): SVGGElement {
+        return this.mainGroup.getSVGElement();
     }
 
     setAttributes(attributes: S2Attributes): this {
@@ -149,11 +149,9 @@ export class S2TextGroup extends S2Shape<SVGGElement> {
     }
 
     update(): this {
-        const elements = this.mainGroup.getSVGElements();
-        for (const element of elements) {
-            this.updateSVGTransform(element);
-            this.updateSVGStyle(element);
-        }
+        const element = this.mainGroup.getSVGElement();
+        this.updateSVGTransform(element);
+        this.updateSVGStyle(element);
         this.updateTextExtents();
         const textExtents = this.getTextExtents('view');
         const groupExtents = this.getMinExtents('view').maxV(textExtents);

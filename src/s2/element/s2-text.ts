@@ -25,8 +25,8 @@ export class S2Text extends S2Shape<SVGTextElement> {
         this.viewExtents = new Vector2(0, 0);
     }
 
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+    getSVGElement(): SVGTextElement {
+        return this.element;
     }
 
     addContent(content: string): this {
@@ -37,7 +37,7 @@ export class S2Text extends S2Shape<SVGTextElement> {
     addSpan(content: string): S2Tspan {
         const tspan = new S2Tspan(this.scene);
         this.tspans.push(tspan);
-        for (const tspanElement of tspan.getSVGElements()) this.element.appendChild(tspanElement);
+        this.element.appendChild(tspan.getSVGElement());
         tspan.setContent(content);
         return tspan;
     }
@@ -89,8 +89,8 @@ export class S2Tspan extends S2Shape<SVGTSpanElement> {
         this.element = element;
     }
 
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+    getSVGElement(): SVGTSpanElement {
+        return this.element;
     }
 
     setContent(content: string): this {

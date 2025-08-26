@@ -64,6 +64,10 @@ export class S2Node extends S2Shape<SVGGElement> {
         this.addClass('s2-node');
     }
 
+    getSVGElement(): SVGGElement {
+        return this.mainGroup.getSVGElement();
+    }
+
     setTextFillColor(color?: S2Color): this {
         for (const textGroup of this.textGroups) {
             textGroup.setFillColor(color);
@@ -104,10 +108,6 @@ export class S2Node extends S2Shape<SVGGElement> {
             textGroup.setStrokeWidthL(strokeWidth);
         }
         return this;
-    }
-
-    getSVGElements(): SVGElement[] {
-        return this.mainGroup.getSVGElements();
     }
 
     addLine(options?: { partIndex?: number; align?: S2TextAlign; skip?: number }): S2Text {

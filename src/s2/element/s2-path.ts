@@ -25,8 +25,8 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
         this.fillOpacity = 0;
     }
 
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+    getSVGElement(): SVGPathElement {
+        return this.element;
     }
 
     setAnimatableAttributes(attributes: S2Animatable): this {

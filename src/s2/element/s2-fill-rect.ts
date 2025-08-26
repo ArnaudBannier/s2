@@ -15,8 +15,8 @@ export class S2FillRect extends S2Element<SVGRectElement> {
         this.addClass('s2-fill-rect');
     }
 
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+    getSVGElement(): SVGRectElement {
+        return this.element;
     }
 
     setAttributes(attributes: S2Attributes): this {

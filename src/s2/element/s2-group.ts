@@ -8,4 +8,8 @@ export class S2Group<T extends S2BaseElement> extends S2Container<SVGGElement, T
         const element = document.createElementNS(svgNS, 'g');
         super(scene, element);
     }
+
+    getSVGElement(): SVGGElement {
+        return this.element;
+    }
 }

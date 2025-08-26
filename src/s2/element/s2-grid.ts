@@ -18,8 +18,8 @@ export class S2Grid extends S2Shape<SVGGElement> {
         this.path = new S2Path(scene);
     }
 
-    getSVGElements(): SVGElement[] {
-        return this.path.getSVGElements();
+    getSVGElement(): SVGPathElement {
+        return this.path.getSVGElement();
     }
 
     setExtents(x: number, y: number, space?: S2Space): this {

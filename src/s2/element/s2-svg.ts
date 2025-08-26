@@ -10,8 +10,8 @@ export class S2SVG extends S2Container<SVGSVGElement, S2BaseElement> {
         this.update();
     }
 
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+    getSVGElement(): SVGSVGElement {
+        return this.element;
     }
 
     update(): this {

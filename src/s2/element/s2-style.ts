@@ -13,6 +13,10 @@ export class S2Style extends S2Element<SVGStyleElement> {
         this.rules = {};
     }
 
+    getSVGElement(): SVGStyleElement {
+        return this.element;
+    }
+
     addRule(selector: string, declarations: S2SVGAttributes): this {
         this.rules[selector] = declarations;
         return this;

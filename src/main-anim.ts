@@ -79,7 +79,7 @@ class SceneFigure extends S2AnimatedScene {
 
         circle1.setLayer(2);
         circle2.setLayer(1);
-        circle3.setIsVisible(true);
+        circle3.setIsActive(true);
 
         this.update();
 

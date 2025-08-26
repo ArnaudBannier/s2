@@ -26,8 +26,8 @@ export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
     //     return attributes;
     // }
 
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+    getSVGElement(): SVGCircleElement {
+        return this.element;
     }
 
     setRadius(radius?: number, space?: S2Space): this {

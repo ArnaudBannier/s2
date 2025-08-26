@@ -11,7 +11,7 @@ export abstract class S2Element<T extends SVGElement> {
     protected styleDecl: S2SVGAttributes = {};
     protected id: number;
     protected layer: number = 0;
-    protected isVisible: boolean = true;
+    protected isActive: boolean = true;
 
     constructor(scene: S2BaseScene, element?: T) {
         this.oldElement = element;
@@ -28,15 +28,11 @@ export abstract class S2Element<T extends SVGElement> {
         children.sort(S2Element.compareLayers);
         const elements: SVGElement[] = [];
         for (const child of children) {
-            if (child.getIsVisible()) {
-                elements.push(...child.getSVGElements());
+            if (child.getIsActive()) {
+                elements.push(child.getSVGElement());
             }
         }
         parent.replaceChildren(...elements);
-    }
-
-    getSVGElements(): SVGElement[] {
-        return [];
     }
 
     setLayer(layer: number = 0): this {
@@ -48,13 +44,13 @@ export abstract class S2Element<T extends SVGElement> {
         return this.layer;
     }
 
-    setIsVisible(isVisible: boolean): this {
-        this.isVisible = isVisible;
+    setIsActive(isVisible: boolean): this {
+        this.isActive = isVisible;
         return this;
     }
 
-    getIsVisible(): boolean {
-        return this.isVisible;
+    getIsActive(): boolean {
+        return this.isActive;
     }
 
     /**
@@ -129,9 +125,7 @@ export abstract class S2Element<T extends SVGElement> {
         return this.parent;
     }
 
-    getElement(): T | undefined {
-        return this.oldElement;
-    }
+    abstract getSVGElement(): SVGElement;
 
     getActiveCamera(): S2Camera {
         return this.scene.activeCamera;

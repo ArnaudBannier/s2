@@ -23,7 +23,7 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape<SVGPathEle
 
     constructor(scene: S2BaseScene, start: S2Node | S2Position, end: S2Node | S2Position, options: T) {
         const path = new S2Path(scene);
-        super(scene, path.getElement());
+        super(scene);
 
         this.path = path;
         this.start = start;
@@ -117,6 +117,10 @@ export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape<SVGPathEle
     getPathRange(): [number, number] {
         return this.path.getPathRange();
     }
+
+    getSVGElement(): SVGPathElement {
+        return this.path.getSVGElement();
+    }
 }
 
 export class S2LineEdge extends S2Edge<S2EdgeOptions> {
@@ -126,7 +130,6 @@ export class S2LineEdge extends S2Edge<S2EdgeOptions> {
     }
 
     update(): this {
-        super.update();
         const direction = this.getStartToEnd('world').normalize();
         const startDirection = direction.clone();
         if (this.options.startAngle !== undefined) {
@@ -160,7 +163,6 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeOptions> {
     }
 
     update(): this {
-        super.update();
         const space: S2Space = 'view';
         const sign = -1;
         const startToEnd = this.getStartToEnd(space);

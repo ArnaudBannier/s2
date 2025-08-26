@@ -60,8 +60,8 @@ export abstract class S2Container<T extends SVGGraphicsElement, U extends S2Base
         return this.children[index];
     }
 
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+    getSVGElement(): SVGGElement {
+        return this.element;
     }
 
     update(): this {

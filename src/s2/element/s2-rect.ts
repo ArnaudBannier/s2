@@ -19,8 +19,8 @@ export class S2Rect extends S2Shape<SVGRectElement> implements S2HasRadius, S2Ha
         this.radius = new S2Length(0, 'view');
     }
 
-    getSVGElements(): SVGElement[] {
-        return [this.element];
+    getSVGElement(): SVGRectElement {
+        return this.element;
     }
 
     setAnchor(anchor: S2Anchor): this {
