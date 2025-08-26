@@ -12,7 +12,7 @@ import { S2Shape } from './s2-shape';
 // "font-variant"
 // "font-weight"
 
-export class S2Text extends S2Shape<SVGTextElement> {
+export class S2Text extends S2Shape {
     protected element: SVGTextElement;
     protected viewExtents: Vector2;
     protected tspans: Array<S2Tspan>;
@@ -81,7 +81,7 @@ export class S2Text extends S2Shape<SVGTextElement> {
     }
 }
 
-export class S2Tspan extends S2Shape<SVGTSpanElement> {
+export class S2Tspan extends S2Shape {
     protected element: SVGTSpanElement;
     constructor(scene: S2BaseScene) {
         const element = document.createElementNS(svgNS, 'tspan');

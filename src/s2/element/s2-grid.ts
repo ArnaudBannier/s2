@@ -5,7 +5,7 @@ import { type S2Space, S2Extents } from '../math/s2-space';
 import { S2Path } from './s2-path';
 import { S2Attributes } from '../s2-attributes';
 
-export class S2Grid extends S2Shape<SVGGElement> {
+export class S2Grid extends S2Shape {
     protected extents: S2Extents;
     protected steps: S2Extents;
     protected epsilon: number = 1e-5;

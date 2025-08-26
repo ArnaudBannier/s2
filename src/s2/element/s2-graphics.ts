@@ -7,7 +7,7 @@ import { S2Element } from './s2-element';
 import { S2Color, type S2LineCap, type S2LineJoin } from '../s2-globals';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 
-export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element<T> implements S2HasStrokeWidth {
+export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
     public transform: Matrix2x3;
     protected strokeWidth: S2Length;
 
@@ -18,8 +18,8 @@ export abstract class S2Graphics<T extends SVGGraphicsElement> extends S2Element
     public lineCap?: S2LineCap;
     public lineJoin?: S2LineJoin;
 
-    constructor(scene: S2BaseScene, element?: T) {
-        super(scene, element);
+    constructor(scene: S2BaseScene) {
+        super(scene);
         this.transform = Matrix2x3.createIdentity();
         this.strokeWidth = new S2Length(0, 'view');
     }

@@ -1,15 +1,15 @@
 import { type S2BaseScene } from '../s2-interface';
-import { S2Element, type S2BaseElement } from './s2-element';
+import { S2Element } from './s2-element';
 import { S2Graphics } from './s2-graphics';
 
-export type S2BaseContainer = S2Container<SVGGraphicsElement, S2BaseElement>;
+export type S2BaseContainer = S2Container<SVGElement, S2Element>;
 
-export abstract class S2Container<T extends SVGGraphicsElement, U extends S2BaseElement> extends S2Graphics<T> {
+export abstract class S2Container<T extends SVGElement, U extends S2Element> extends S2Graphics {
     protected element: T;
     protected children: Array<U>;
 
     constructor(scene: S2BaseScene, element: T) {
-        super(scene, element);
+        super(scene);
         this.element = element;
         this.children = [];
     }
@@ -58,10 +58,6 @@ export abstract class S2Container<T extends SVGGraphicsElement, U extends S2Base
 
     getChild(index: number): U {
         return this.children[index];
-    }
-
-    getSVGElement(): SVGGElement {
-        return this.element;
     }
 
     update(): this {

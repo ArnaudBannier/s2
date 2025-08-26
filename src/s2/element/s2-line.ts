@@ -4,14 +4,13 @@ import { svgNS } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Position } from '../math/s2-space';
 
-export class S2Line extends S2Shape<SVGLineElement> {
+export class S2Line extends S2Shape {
     protected element: SVGLineElement;
     protected endPosition: S2Position;
 
     constructor(scene: S2BaseScene) {
-        const element = document.createElementNS(svgNS, 'line');
-        super(scene, element);
-        this.element = element;
+        super(scene);
+        this.element = document.createElementNS(svgNS, 'line');
         this.endPosition = new S2Position(0, 0, 'world');
     }
 

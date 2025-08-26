@@ -15,7 +15,7 @@ export interface S2EdgeOptions {
     endAngle?: number;
 }
 
-export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape<SVGPathElement> {
+export abstract class S2Edge<T extends S2EdgeOptions> extends S2Shape {
     protected start: S2Node | S2Position;
     protected end: S2Node | S2Position;
     protected path: S2Path;

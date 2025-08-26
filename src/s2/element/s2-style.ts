@@ -2,7 +2,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { S2Element } from './s2-element';
 import { svgNS, type S2SVGAttributes } from '../s2-globals';
 
-export class S2Style extends S2Element<SVGStyleElement> {
+export class S2Style extends S2Element {
     protected rules: Record<string, S2SVGAttributes>;
     protected element: SVGStyleElement;
 

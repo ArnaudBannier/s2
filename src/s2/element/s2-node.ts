@@ -11,10 +11,10 @@ import { clamp } from '../../math/utils';
 import { S2Line } from './s2-line';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 import { S2Color } from '../s2-globals';
-import type { S2BaseElement } from './s2-element';
+import { S2Element } from './s2-element';
 import { S2Group } from './s2-group';
 
-export class S2Node extends S2Shape<SVGGElement> {
+export class S2Node extends S2Shape {
     protected anchor: S2Anchor;
     protected nodeExtents: S2Extents;
     protected minExtents: S2Extents;
@@ -27,7 +27,7 @@ export class S2Node extends S2Shape<SVGGElement> {
     protected lineHeight: number = 24;
     protected ascenderHeight: number = 18;
 
-    protected mainGroup: S2Group<S2BaseElement>;
+    protected mainGroup: S2Group<S2Element>;
     protected textGroups: S2TextGroup[];
     protected textGrows: number[];
     protected sepLines: S2Line[];
@@ -36,9 +36,8 @@ export class S2Node extends S2Shape<SVGGElement> {
     protected backCircle: S2Circle | null = null;
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
-        const mainGroup = new S2Group<S2BaseElement>(scene);
         super(scene);
-        this.mainGroup = mainGroup;
+        this.mainGroup = new S2Group<S2Element>(scene);
 
         this.textGroups = [];
         this.textGrows = [];

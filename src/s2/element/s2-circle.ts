@@ -5,14 +5,13 @@ import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length } from '../math/s2-space';
 //import type { S2Animatable } from '../s2-attributes';
 
-export class S2Circle extends S2Shape<SVGCircleElement> implements S2HasRadius {
+export class S2Circle extends S2Shape implements S2HasRadius {
     protected element: SVGCircleElement;
     public radius: S2Length;
 
     constructor(scene: S2BaseScene) {
-        const element = document.createElementNS(svgNS, 'circle');
-        super(scene, element);
-        this.element = element;
+        super(scene);
+        this.element = document.createElementNS(svgNS, 'circle');
         this.radius = new S2Length(1, 'world');
     }
 

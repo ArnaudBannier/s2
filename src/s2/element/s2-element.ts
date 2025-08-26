@@ -2,29 +2,26 @@ import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2SVGAttributes } from '../s2-globals';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
-export type S2BaseElement = S2Element<SVGElement>;
 
-export abstract class S2Element<T extends SVGElement> {
-    protected oldElement?: T;
+export abstract class S2Element {
     protected scene: S2BaseScene;
-    protected parent: S2Element<SVGElement> | null = null;
+    protected parent: S2Element | null = null;
     protected styleDecl: S2SVGAttributes = {};
     protected id: number;
     protected layer: number = 0;
     protected isActive: boolean = true;
 
-    constructor(scene: S2BaseScene, element?: T) {
-        this.oldElement = element;
+    constructor(scene: S2BaseScene) {
         this.scene = scene;
         this.id = scene.nextId++;
     }
 
-    protected static compareLayers(a: S2BaseElement, b: S2BaseElement): number {
+    protected static compareLayers(a: S2Element, b: S2Element): number {
         if (a.layer !== b.layer) return a.layer - b.layer;
         return a.id - b.id;
     }
 
-    protected static updateSVGChildren(parent: SVGElement, children: S2BaseElement[]): void {
+    protected static updateSVGChildren(parent: SVGElement, children: S2Element[]): void {
         children.sort(S2Element.compareLayers);
         const elements: SVGElement[] = [];
         for (const child of children) {
@@ -90,24 +87,28 @@ export abstract class S2Element<T extends SVGElement> {
     }
 
     setSVGAttribute(qualifiedName: string, value: string): this {
-        this.oldElement?.setAttribute(qualifiedName, value);
+        const element = this.getSVGElement();
+        element.setAttribute(qualifiedName, value);
         return this;
     }
 
     setId(id: string): this {
-        if (this.oldElement) this.oldElement.id = id;
+        const element = this.getSVGElement();
+        element.id = id;
         return this;
     }
 
     addClass(className: string): this {
-        this.oldElement?.classList.add(className);
+        const element = this.getSVGElement();
+        element.classList.add(className);
         return this;
     }
 
     setSVGAttributes(style: S2SVGAttributes): this {
         this.styleDecl = { ...this.styleDecl, ...style };
+        const element = this.getSVGElement();
         for (const [key, value] of Object.entries(style)) {
-            this.oldElement?.setAttribute(key, value);
+            element.setAttribute(key, value);
         }
         return this;
     }
@@ -116,12 +117,12 @@ export abstract class S2Element<T extends SVGElement> {
         return { ...this.styleDecl };
     }
 
-    setParent(parent: S2Element<SVGElement> | null): this {
+    setParent(parent: S2Element | null): this {
         this.parent = parent;
         return this;
     }
 
-    getParent(): S2Element<SVGElement> | null {
+    getParent(): S2Element | null {
         return this.parent;
     }
 

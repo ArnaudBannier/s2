@@ -26,7 +26,7 @@ type S2LineInfo = {
     align?: S2TextAlign;
 };
 
-export class S2TextGroup extends S2Shape<SVGGElement> {
+export class S2TextGroup extends S2Shape {
     protected anchor: S2Anchor = 'center';
     protected minExtents: S2Extents;
     protected textExtents: S2Extents;

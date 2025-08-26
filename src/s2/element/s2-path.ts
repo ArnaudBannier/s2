@@ -6,7 +6,7 @@ import { S2Length, S2Position, type S2Space } from '../math/s2-space';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import type { S2Animatable, S2Attributes } from '../s2-attributes';
 
-export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRendering {
+export class S2Path extends S2Shape implements S2HasPartialRendering {
     protected element: SVGPathElement;
     protected space: S2Space = 'world';
     protected sampleCount: number = 0;
@@ -17,9 +17,8 @@ export class S2Path extends S2Shape<SVGPathElement> implements S2HasPartialRende
     protected pathTo: number = 2;
 
     constructor(scene: S2BaseScene) {
-        const element = document.createElementNS(svgNS, 'path');
-        super(scene, element);
-        this.element = element;
+        super(scene);
+        this.element = document.createElementNS(svgNS, 'path');
         this.polyCurve = new S2PolyCurve();
         this.endPosition = new Vector2(0, 0);
         this.fillOpacity = 0;

@@ -5,11 +5,11 @@ import { type S2Space, S2Position } from '../math/s2-space';
 import { type S2HasPosition } from '../s2-interface';
 import type { S2Animatable, S2Attributes } from '../s2-attributes';
 
-export abstract class S2Shape<T extends SVGGraphicsElement> extends S2Graphics<T> implements S2HasPosition {
+export abstract class S2Shape extends S2Graphics implements S2HasPosition {
     protected position: S2Position;
 
-    constructor(scene: S2BaseScene, element?: T) {
-        super(scene, element);
+    constructor(scene: S2BaseScene) {
+        super(scene);
         this.position = new S2Position(0, 0, 'world');
     }
 

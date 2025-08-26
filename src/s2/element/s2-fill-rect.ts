@@ -4,14 +4,13 @@ import { S2Element } from './s2-element';
 import { S2Color } from '../s2-globals';
 import { S2Attributes } from '../s2-attributes';
 
-export class S2FillRect extends S2Element<SVGRectElement> {
+export class S2FillRect extends S2Element {
     protected element: SVGRectElement;
     public fillColor: S2Color = new S2Color(255, 255, 255);
     public fillOpacity?: number;
     constructor(scene: S2BaseScene) {
-        const element = document.createElementNS(svgNS, 'rect');
-        super(scene, element);
-        this.element = element;
+        super(scene);
+        this.element = document.createElementNS(svgNS, 'rect');
         this.addClass('s2-fill-rect');
     }
 
