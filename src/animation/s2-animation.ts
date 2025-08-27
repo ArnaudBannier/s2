@@ -5,12 +5,60 @@ import { S2Position, S2Length } from '../core/math/s2-space';
 import { S2Color } from '../core/s2-globals';
 import { S2Animatable } from '../core/s2-attributes';
 
+// enum class AnimFlag : uint32_t
+// {
+//     NONE = 0,
+//     /// @brief Met l'animation en pause.
+//     PAUSED = 1 << 0,
+//     /// @brief Joue l'animation dans le sens inverse.
+//     REVERSED = 1 << 1,
+//     /// @brief Joue l'animation en avant puis en arrière.
+//     ALTERNATE = 1 << 2,
+//     /// @brief Arrête automatiquement l'animation à la fin.
+//     STOP_AT_END = 1 << 3,
+//     STOPPED = 1 << 4
+// };
+
+// /// @brief Les flags de l'animation.
+// AnimFlag flags;
+
+// /// @brief Accumulateur.
+// float accu;
+
+// /// @brief Indice du cycle courant.
+// int cycleIdx;
+
+// float cycleTime;
+
+// /// @brief Nombre de cycles de l'animation.
+// /// L'animation tourne en boucle si ce membre vaut -1.
+// int cycleCount;
+
 export abstract class S2Animation {
     protected scene: S2BaseScene;
     constructor(scene: S2BaseScene) {
         this.scene = scene;
     }
     abstract update(t: number): void;
+}
+
+class S2TimelinePart {
+    public animation: S2Animation;
+    public range: [number, number];
+
+    constructor(animation: S2Animation, t0: number, t1: number) {
+        this.animation = animation;
+        this.range = [t0, t1];
+    }
+}
+export class S2TimelineAnim extends S2Animation {
+    protected animations: S2TimelinePart[] = [];
+
+    constructor(scene: S2BaseScene) {
+        super(scene);
+    }
+
+    update(t: number): void {}
 }
 
 export class S2ElementAnim extends S2Animation {

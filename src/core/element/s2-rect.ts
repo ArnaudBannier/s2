@@ -4,6 +4,7 @@ import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { S2Shape } from './s2-shape';
 import { type S2Space, S2Length, S2Extents } from '../math/s2-space';
+import type { S2Animatable, S2Attributes } from '../s2-attributes';
 
 export class S2Rect extends S2Shape implements S2HasRadius, S2HasExtents {
     protected element: SVGRectElement;
@@ -16,6 +17,34 @@ export class S2Rect extends S2Shape implements S2HasRadius, S2HasExtents {
         this.element = document.createElementNS(svgNS, 'rect');
         this.extents = new S2Extents(1, 1, 'world');
         this.radius = new S2Length(0, 'view');
+    }
+
+    setAnimatableAttributes(attributes: S2Animatable): this {
+        super.setAnimatableAttributes(attributes);
+        if (attributes.extents) this.extents.copy(attributes.extents);
+        if (attributes.radius) this.radius.copy(attributes.radius);
+        return this;
+    }
+
+    getAnimatableAttributes(): S2Animatable {
+        const attributes = super.getAnimatableAttributes();
+        attributes.extents = this.extents.clone();
+        attributes.radius = this.radius.clone();
+        return attributes;
+    }
+
+    setAttributes(attributes: S2Attributes): this {
+        super.setAttributes(attributes);
+        if (attributes.extents) this.extents.copy(attributes.extents);
+        if (attributes.radius) this.radius.copy(attributes.radius);
+        return this;
+    }
+
+    getAttributes(): S2Attributes {
+        const attributes = super.getAttributes();
+        attributes.extents = this.extents.clone();
+        attributes.radius = this.radius.clone();
+        return attributes;
     }
 
     getSVGElement(): SVGRectElement {

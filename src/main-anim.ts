@@ -18,9 +18,10 @@ import { S2Node } from './core/element/s2-node.ts';
     - Ajouter des descriptions/titres sur les éléments
     - Ajouter un système d'event au S2Element
     - Coder une interaction avec la souris dans le monde
-    - Interpolation de Matrix2x3
+    - Interpolation de Mat2x3
     - Définir un marker perso qui vient s'ajouter et s'adapter à un S2Edge
         - Il n'est pas défini en global mais créé pour chaque path
+    - Définir un système de listener pour les update
     - S2SVG contient des fonctionnalités supplémentaires, comme ajouter des styles
     - S2Attributes potentiellement sans copie profonde
         - Contient toutes les propriétés, y compris pour les noeuds
@@ -28,6 +29,7 @@ import { S2Node } from './core/element/s2-node.ts';
     - Erreur sur animate
         - Il ne faut pas sauvegarder l'état avec currStepIndex mais avec une ID
         - Cela pose pb si le même objet est animé plusieurs fois dans un step
+    - Creer ma propre lib d'animation, Regarder singleton pour le moteur
 */
 
 const viewportScale = 1.5;

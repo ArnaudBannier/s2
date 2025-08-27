@@ -91,7 +91,7 @@ if (appDiv) {
     appDiv.innerHTML = `
         <div>
         <h1>My first SVG</h1>
-        <svg xmlns="http://www.w3.org/2000/svg" id=test-svg></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
         <div>
             <label for="slide-angle">Angle :</label>
             <input type="range" id="slider-angle" min="0" max="360" value="0">

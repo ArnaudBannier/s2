@@ -8,7 +8,7 @@ import { invLerp } from './core/math/s2-utils.ts';
 import type { S2Path } from './core/element/s2-path.ts';
 import type { S2Line } from './core/element/s2-line.ts';
 
-const viewport = new S2Vec2(1.5 * 640.0, 1.5 * 360.0);
+const viewport = new S2Vec2(640.0, 360.0);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
 class SceneFigure extends S2Scene {
@@ -47,7 +47,7 @@ class SceneFigure extends S2Scene {
             .smoothCubicToV(ci2, p2)
             .lineToV(S2Vec2.sub(p2, ci2));
         path.setSVGAttributes(pathStyle);
-        path.setPathRange(0.15, 0.95);
+        //path.setPathRange(0.15, 0.95);
         this.path = path;
 
         this.tangent = this.addLine().setSVGAttributes(this.tangentStyle);
@@ -82,7 +82,7 @@ if (appDiv) {
     appDiv.innerHTML = `
         <div>
         <h1>My first SVG</h1>
-        <svg xmlns="http://www.w3.org/2000/svg" id=test-svg></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
         <div>Zoom : <input type="range" id="slider-zoom" min="1" max="20" value="10"></div>
         </div>
     `;

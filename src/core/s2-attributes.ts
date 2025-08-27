@@ -4,6 +4,8 @@ import { S2Length } from './math/s2-space';
 import type { S2TextAlign, S2VerticalAlign } from './element/s2-text-group';
 
 export class S2Animatable {
+    // Basic animatable
+    extents?: S2Extents; // todo
     isActive?: boolean;
     fillColor?: S2Color;
     fillOpacity?: number;
@@ -11,21 +13,42 @@ export class S2Animatable {
     pathFrom?: number;
     pathTo?: number;
     position?: S2Position;
+    radius?: S2Length; // todo
     strokeColor?: S2Color;
     strokeWidth?: S2Length;
+
+    // S2Nodes
+    minExtents?: S2Extents; // todo
+    textFillColor?: S2Color; // todo
+    textFillOpacity?: number; // todo
+    textOpacity?: number; // todo
+    textStrokeColor?: S2Color; // todo
+    textStrokeWidth?: S2Length; // todo
+
+    constructor(init?: Partial<S2Animatable>) {
+        Object.assign(this, init);
+    }
 
     clone(): S2Animatable {
         const obj = new S2Animatable();
         Object.assign(obj, this);
-        if (this.position) obj.position = this.position.clone();
+        if (this.extents) obj.extents = this.extents.clone();
         if (this.fillColor) obj.fillColor = this.fillColor.clone();
+        if (this.minExtents) obj.minExtents = this.minExtents.clone();
+        if (this.position) obj.position = this.position.clone();
+        if (this.radius) obj.radius = this.radius.clone();
         if (this.strokeColor) obj.strokeColor = this.strokeColor.clone();
         if (this.strokeWidth) obj.strokeWidth = this.strokeWidth.clone();
+        if (this.textFillColor) obj.textFillColor = this.textFillColor.clone();
+        if (this.textStrokeColor) obj.textStrokeColor = this.textStrokeColor.clone();
+        if (this.textStrokeWidth) obj.textStrokeWidth = this.textStrokeWidth.clone();
         return obj;
     }
 }
 
 export class S2Attributes {
+    // Basic animatable
+    extents?: S2Extents; // todo
     isActive?: boolean;
     fillColor?: S2Color;
     fillOpacity?: number;
@@ -33,142 +56,28 @@ export class S2Attributes {
     position?: S2Position;
     pathFrom?: number;
     pathTo?: number;
+    radius?: S2Length; // todo
     strokeColor?: S2Color;
     strokeWidth?: S2Length;
 
-    textFillColor?: S2Color;
-    textFillOpacity?: number;
-    textOpacity?: number;
-    textStrokeColor?: S2Color;
-    textStrokeWidth?: S2Length;
-
-    minExtents?: S2Extents;
-    padding?: S2Extents;
-    partSep?: S2Length;
-
+    // Basic non animatable
     lineCap?: S2LineCap;
     lineJoin?: S2LineJoin;
     anchor?: S2Anchor;
     textAlign?: S2TextAlign;
     verticalAlign?: S2VerticalAlign;
 
+    // S2Nodes
+    minExtents?: S2Extents; // todo
+    padding?: S2Extents;
+    partSep?: S2Length;
+    textFillColor?: S2Color;
+    textFillOpacity?: number;
+    textOpacity?: number;
+    textStrokeColor?: S2Color;
+    textStrokeWidth?: S2Length;
+
     constructor(init?: Partial<S2Attributes>) {
         Object.assign(this, init);
     }
 }
-
-//     private static animatable = [
-//         'position',
-//         'pathFrom',
-//         'pathTo',
-//         'fillColor',
-//         'fillOpacity',
-//         'opacity',
-//         'strokeColor',
-//         'strokeWidth',
-//     ] as const;
-//     private static attrPosition = ['position'] as const;
-//     private static attrLength = ['strokeWidth', 'partSep'] as const;
-//     private static attrColor = ['fillColor', 'strokeColor'] as const;
-//     private static attrExtents = ['minExtents', 'padding'] as const;
-
-//     constructor(init?: Partial<S2Attributes>) {
-//         Object.assign(this, init);
-//         for (const key of S2Attributes.attrPosition) {
-//             const value = this[key];
-//             if (value !== undefined) {
-//                 this[key] = value.clone();
-//             }
-//         }
-//         for (const key of S2Attributes.attrLength) {
-//             const value = this[key];
-//             if (value !== undefined) {
-//                 this[key] = value.clone();
-//             }
-//         }
-//         for (const key of S2Attributes.attrColor) {
-//             const value = this[key];
-//             if (value !== undefined) {
-//                 this[key] = value.clone();
-//             }
-//         }
-//         for (const key of S2Attributes.attrExtents) {
-//             const value = this[key];
-//             if (value !== undefined) {
-//                 this[key] = value.clone();
-//             }
-//         }
-//     }
-
-//     onlyAnimatable(): S2Attributes {
-//         const filtered = new S2Attributes();
-//         for (const key of S2Attributes.animatable) {
-//             const value = this[key];
-//             if (value !== undefined) {
-//                 S2Attributes.setAttr(filtered, key, value);
-//             }
-//         }
-//         return filtered;
-//     }
-
-//     private static setAttr<K extends keyof S2Attributes>(obj: S2Attributes, key: K, value: S2Attributes[K]) {
-//         obj[key] = value;
-//     }
-
-//     clone(): S2Attributes {
-//         return new S2Attributes(this);
-//     }
-
-//     copy(other: S2Attributes): this {
-//         Object.assign(this, other);
-//         for (const key of S2Attributes.attrPosition) {
-//             const otherValue = other[key];
-//             if (otherValue !== undefined) {
-//                 if (this[key] !== undefined) {
-//                     this[key].copy(otherValue);
-//                 } else {
-//                     this[key] = otherValue.clone();
-//                 }
-//             } else {
-//                 this[key] = otherValue;
-//             }
-//         }
-//         for (const key of S2Attributes.attrLength) {
-//             const otherValue = other[key];
-//             if (otherValue !== undefined) {
-//                 if (this[key] !== undefined) {
-//                     this[key].copy(otherValue);
-//                 } else {
-//                     this[key] = otherValue.clone();
-//                 }
-//             } else {
-//                 this[key] = otherValue;
-//             }
-//         }
-//         for (const key of S2Attributes.attrColor) {
-//             const otherValue = other[key];
-//             if (otherValue !== undefined) {
-//                 if (this[key] !== undefined) {
-//                     this[key].copy(otherValue);
-//                 } else {
-//                     this[key] = otherValue.clone();
-//                 }
-//             } else {
-//                 this[key] = otherValue;
-//             }
-//         }
-//         for (const key of S2Attributes.attrExtents) {
-//             const otherValue = other[key];
-//             if (otherValue !== undefined) {
-//                 if (this[key] !== undefined) {
-//                     this[key].copy(otherValue);
-//                 } else {
-//                     this[key] = otherValue.clone();
-//                 }
-//             } else {
-//                 this[key] = otherValue;
-//             }
-//         }
-//         return this;
-//     }
-// }
