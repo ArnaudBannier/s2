@@ -1,38 +1,30 @@
-// float EasingFct_Linear(float x)
-// {
-//     return x;
-// }
+export type S2Easing = (t: number) => number;
 
-// float EasingFct_In(float x)
-// {
-//     return x * x;
-// }
+export function easeLinear(t: number): number {
+    return t;
+}
 
-// float EasingFct_Out(float x)
-// {
-//     float t = 1 - x;
-//     return 1.f - t * t;
-// }
+export function easeIn(t: number): number {
+    return t * t;
+}
 
-// float EasingFct_InOut(float x)
-// {
-//     if (x < 0.5f)
-//     {
-//         return 2.f * x * x;
-//     }
-//     else
-//     {
-//         float t = 1 - x;
-//         return 1.f - 2.f * t * t;
-//     }
-// }
+export function easeOut(t: number): number {
+    const s = 1 - t;
+    return 1 - s * s;
+}
 
-// float EasingFct_Cos(float x)
-// {
-//     return 0.5f * (1.f - cosf(B2_PI * x));
-// }
+export function easeInOut(t: number): number {
+    if (t < 0.5) {
+        return 2 * t * t;
+    } else {
+        const s = 1 - t;
+        return 1 - 2 * s * s;
+    }
+}
 
-// /** @typedef {PowerEasing|BackEasing|ElasticEasing} EasesFactory */
+export function easeCos(t: number): number {
+    return 0.5 * (1 - Math.cos(Math.PI * t));
+}
 
 // const halfPI = PI / 2;
 // const doublePI = PI * 2;

@@ -4,6 +4,7 @@ import { lerp } from '../core/math/s2-utils';
 import { S2Position, S2Length } from '../core/math/s2-space';
 import { S2Color } from '../core/s2-globals';
 import { S2Animatable } from '../core/s2-attributes';
+import { easeLinear, type S2Easing } from './s2-easing';
 
 // enum class AnimFlag : uint32_t
 // {
@@ -22,17 +23,104 @@ import { S2Animatable } from '../core/s2-attributes';
 // /// @brief Les flags de l'animation.
 // AnimFlag flags;
 
-// /// @brief Accumulateur.
-// float accu;
+export abstract class S2AnimationNEW {
+    protected scene: S2BaseScene;
+    protected loopAccu: number = 0;
+    protected loopIndex: number = 0;
+    protected loopCount: number = 1;
+    protected loopDuration: number = 1000;
+    protected ease: S2Easing = easeLinear;
+    protected speed: number = 1;
 
-// /// @brief Indice du cycle courant.
-// int cycleIdx;
+    protected reversed: boolean = false;
+    protected alternate: boolean = false;
+    protected paused: boolean = false;
+    protected delay: number = 0;
 
-// float cycleTime;
+    constructor(scene: S2BaseScene) {
+        this.scene = scene;
+    }
+    begin(): void {
+        this.loopAccu = 0;
+        this.loopIndex = 0;
+        this.onBegin();
+    }
 
-// /// @brief Nombre de cycles de l'animation.
-// /// L'animation tourne en boucle si ce membre vaut -1.
-// int cycleCount;
+    complete(): void {
+        this.loopAccu = this.loopDuration;
+        this.loopIndex = this.loopCount;
+        this.onComplete();
+    }
+
+    update(dt: number): void {
+        if (this.paused) return;
+        const nextAccu = this.loopAccu + this.speed * dt;
+        if (this.loopAccu <= 0 && nextAccu > 0) {
+            this.loopAccu = 0;
+            this.onBegin();
+        }
+        this.loopAccu = nextAccu;
+
+        while (this.loopAccu >= this.loopDuration) {
+            this.onLoop();
+            this.loopAccu -= this.loopDuration;
+            this.loopIndex++;
+            if (this.loopCount > 0 && this.loopIndex >= this.loopCount) {
+                this.paused = true;
+                this.loopAccu = this.loopDuration;
+                this.onComplete();
+                break;
+            }
+        }
+        this.onUpdate();
+    }
+
+    pause(): void {
+        this.paused = true;
+        this.onPause();
+    }
+
+    play(): void {
+        this.loopAccu = -this.delay;
+        this.loopIndex = 0;
+        this.paused = false;
+    }
+
+    resume(): void {
+        this.paused = false;
+    }
+
+    private onBegin(): void {}
+    private onComplete(): void {}
+    private onLoop(): void {}
+    private onUpdate(): void {}
+    private onPause(): void {}
+
+    setLoopCount(loopCount: number): this {
+        this.loopCount = loopCount;
+        return this;
+    }
+
+    setLoopDuration(loopDuration: number): this {
+        this.loopDuration = loopDuration;
+        return this;
+    }
+
+    getRawProgression(): number {
+        let t = this.loopAccu / this.loopDuration;
+        if (this.alternate) t = t < 0.5 ? 2 * t : 2 - 2 * t;
+        if (this.reversed) t = 1 - t;
+        return t;
+    }
+
+    //     onBegin?: (tickable: Tickable) => void;
+    //     onBeforeUpdate?: (tickable: Tickable) => void;
+    //     onUpdate?: (tickable: Tickable) => void;
+    //     onLoop?: (tickable: Tickable) => void;
+    //     onPause?: (tickable: Tickable) => void;
+    //     onComplete?: (tickable: Tickable) => void;
+    //     onRender?: (renderable: Renderable) => void;
+}
 
 export abstract class S2Animation {
     protected scene: S2BaseScene;

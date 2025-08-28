@@ -4,10 +4,8 @@ import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
 import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
-import { S2Path } from './core/element/s2-path.ts';
-import { S2Length } from './core/math/s2-space.ts';
+import { S2Length, S2Position } from './core/math/s2-space.ts';
 import { S2Animatable, S2Attributes } from './core/s2-attributes.ts';
-import { S2Node } from './core/element/s2-node.ts';
 import { S2ElementAnim, type S2Animation } from './animation/s2-animation.ts';
 
 /*
@@ -62,7 +60,13 @@ class SceneFigure extends S2AnimatedScene {
         this.circle = this.addCircle();
         this.circle.setAnimatableAttributes(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
 
-        this.anim = new S2ElementAnim(this, this.circle, this.styles.backBase, this.styles.backSlct);
+        const state0 = this.styles.backBase.clone();
+        const state1 = this.styles.backSlct.clone();
+
+        state0.position = new S2Position(-3, 0);
+        state1.position = new S2Position(+3, 0);
+
+        this.anim = new S2ElementAnim(this, this.circle, state0, state1);
         this.update();
     }
 
@@ -75,7 +79,7 @@ const appDiv = document.querySelector<HTMLDivElement>('#app');
 if (appDiv) {
     appDiv.innerHTML = `
         <div>
-            <h1>My first SVG</h1>
+            <h1>Test</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
                 <div>Animation : <input type="range" id="slider" min="0" max="100" value="0" style="width:50%"></div>
