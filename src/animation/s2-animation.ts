@@ -6,22 +6,8 @@ import { S2Color } from '../core/s2-globals';
 import { S2Animatable } from '../core/s2-attributes';
 import { easeLinear, type S2Easing } from './s2-easing';
 
-// enum class AnimFlag : uint32_t
-// {
-//     NONE = 0,
-//     /// @brief Met l'animation en pause.
-//     PAUSED = 1 << 0,
-//     /// @brief Joue l'animation dans le sens inverse.
-//     REVERSED = 1 << 1,
-//     /// @brief Joue l'animation en avant puis en arrière.
-//     ALTERNATE = 1 << 2,
-//     /// @brief Arrête automatiquement l'animation à la fin.
-//     STOP_AT_END = 1 << 3,
-//     STOPPED = 1 << 4
-// };
-
-// /// @brief Les flags de l'animation.
-// AnimFlag flags;
+// Créer deux catégories -> timeAnim eventAnim ?
+// Comment gérer les smoothDamped ?
 
 export abstract class S2AnimationNEW {
     protected scene: S2BaseScene;
@@ -29,8 +15,8 @@ export abstract class S2AnimationNEW {
     protected loopIndex: number = 0;
     protected loopCount: number = 1;
     protected loopDuration: number = 1000;
-    protected ease: S2Easing = easeLinear;
     protected speed: number = 1;
+    protected ease: S2Easing = easeLinear;
 
     protected reversed: boolean = false;
     protected alternate: boolean = false;
@@ -40,6 +26,7 @@ export abstract class S2AnimationNEW {
     constructor(scene: S2BaseScene) {
         this.scene = scene;
     }
+
     begin(): void {
         this.loopAccu = 0;
         this.loopIndex = 0;
@@ -106,6 +93,11 @@ export abstract class S2AnimationNEW {
         return this;
     }
 
+    setLoopProgression(t: number, loopIndex?: number): void {
+        this.loopAccu = t * this.loopDuration;
+        if (loopIndex !== undefined) this.loopIndex = loopIndex;
+    }
+
     getRawProgression(): number {
         let t = this.loopAccu / this.loopDuration;
         if (this.alternate) t = t < 0.5 ? 2 * t : 2 - 2 * t;
@@ -113,22 +105,33 @@ export abstract class S2AnimationNEW {
         return t;
     }
 
-    //     onBegin?: (tickable: Tickable) => void;
-    //     onBeforeUpdate?: (tickable: Tickable) => void;
-    //     onUpdate?: (tickable: Tickable) => void;
-    //     onLoop?: (tickable: Tickable) => void;
-    //     onPause?: (tickable: Tickable) => void;
-    //     onComplete?: (tickable: Tickable) => void;
-    //     onRender?: (renderable: Renderable) => void;
-}
-
-export abstract class S2Animation {
-    protected scene: S2BaseScene;
-    constructor(scene: S2BaseScene) {
-        this.scene = scene;
+    getLoopDuration(): number {
+        return this.loopDuration;
     }
-    abstract update(t: number): void;
+
+    getLoopIndex(): number {
+        return this.loopIndex;
+    }
+
+    getLoopCount(): number {
+        return this.loopCount;
+    }
+
+    getTotalDuration(): number {
+        if (this.loopCount < 0) return -1;
+        return (this.loopCount * this.loopDuration + this.delay) / this.speed;
+    }
 }
+//             |     |
+// A - < # > . . < > . < # > . .
+// B - . . < # # > . . < > . . .
+// C - . < > . . . < # # > . . .
+// D - . . . . . < # # # # # # >
+// Commencer par tous les starts des animation suivantes dans l'ordre de beginTime décroissant
+// Continuer par tous les complete des animation précédentes dans l'ordre de endTime croissant
+// Finir par les animations en cours
+
+// Faut-il sauvegarder les cibles des animations ?
 
 class S2TimelinePart {
     public animation: S2Animation;
@@ -139,14 +142,32 @@ class S2TimelinePart {
         this.range = [t0, t1];
     }
 }
-export class S2TimelineAnim extends S2Animation {
-    protected animations: S2TimelinePart[] = [];
+export class S2TimelineAnim extends S2AnimationNEW {
+    protected parts: S2TimelinePart[] = [];
+    protected animations: S2AnimationNEW[] = [];
+    // beginToAnim
+    // EndToAnim
+    // Eventuellement des tableaux de parts
 
     constructor(scene: S2BaseScene) {
         super(scene);
     }
 
-    update(t: number): void {}
+    update(dt: number): void {
+        super.update(dt);
+
+        //  for beginToAnim
+        //      if (this.accu < currBeginTime) break;
+        //      if (this.accu > currEndTime) -> anim active
+    }
+}
+
+export abstract class S2Animation {
+    protected scene: S2BaseScene;
+    constructor(scene: S2BaseScene) {
+        this.scene = scene;
+    }
+    abstract update(t: number): void;
 }
 
 export class S2ElementAnim extends S2Animation {

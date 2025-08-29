@@ -12,7 +12,7 @@ S2 (SVG 2D) is a lightweight TypeScript library designed for creating **interact
 ## Features
 
 - **Lightweight**: minimal dependencies; the only external library is [anime.js](https://animejs.com/) for animations.
-- **Inspired by**: [Manim](https://www.manim.community/), TikZ, and 2D game development techniques.
+- **Inspired by**: [Manim](https://www.manim.community/), [TikZ](https://tikz.dev/), and 2D game development techniques.
 - **Direct SVG DOM API**: works directly with the browser's SVG API for full flexibility.
 - **Virtual world abstraction**: introduces a **camera** concept, allowing you to separate object positions in a virtual world from their actual positions in the generated SVG.
 - **Animations**: implemented as an overlay using anime.js.
