@@ -29,6 +29,8 @@ import { S2Node } from './core/element/s2-node.ts';
         - Il ne faut pas sauvegarder l'état avec currStepIndex mais avec une ID
         - Cela pose pb si le même objet est animé plusieurs fois dans un step
 */
+// Slides.com
+// Reveal.js
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -71,7 +73,7 @@ class SceneFigure extends S2AnimatedScene {
         this.path.setPathRange(0, 0);
 
         this.circle = this.addCircle();
-        this.circle.setAttributes(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
+        this.circle.setAttributes(this.styles.backBase).setPosition(0, 0, 'world').setRadius(20, 'view');
 
         this.node = this.addNode();
         this.node.setAttributes(this.styles.backBase);
