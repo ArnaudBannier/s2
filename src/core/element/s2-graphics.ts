@@ -9,7 +9,7 @@ import { S2Animatable, S2Attributes } from '../s2-attributes';
 
 export abstract class S2Graphics extends S2Element implements S2HasStrokeWidth {
     public transform: S2Mat2x3;
-    protected strokeWidth: S2Length;
+    public strokeWidth: S2Length;
 
     public fillColor?: S2Color;
     public fillOpacity?: number;

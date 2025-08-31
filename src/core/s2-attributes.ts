@@ -3,6 +3,144 @@ import { S2Color, type S2Anchor, type S2LineCap, type S2LineJoin } from './s2-gl
 import { S2Length } from './math/s2-space';
 import type { S2TextAlign, S2VerticalAlign } from './element/s2-text-group';
 
+/*
+    Pour une animation :
+    - copie de la valeur initiale
+    - copie de la valeur finale
+    [ ] référence vers la variable à modifier
+    [ ] référence vers une fonction "type MyFn = (x: number) => void;" Oui mas il faut faire un fléché...
+
+    Comment créer facilement une animation ?
+    -> Il faut sauvegarder les paramètres quelque part...
+        [ ] Dans l'objet directement ?
+        [x] Dans une animation en construction ?
+*/
+
+// Interface clonable
+interface Clonable<T> {
+    clone(): T;
+}
+
+export class S2StrokeAttributes implements Clonable<S2StrokeAttributes> {
+    public color: S2Color;
+    public width: S2Length;
+    public opacity: number;
+
+    constructor() {
+        this.color = new S2Color();
+        this.width = new S2Length(0, 'view');
+        this.opacity = 1;
+    }
+
+    clone(): S2StrokeAttributes {
+        const attributes = new S2StrokeAttributes();
+        attributes.color = this.color.clone();
+        attributes.width = this.width.clone();
+        attributes.opacity = this.opacity;
+        return attributes;
+    }
+
+    copy(other: S2StrokeAttributes): void {
+        this.color.copy(other.color);
+        this.width.copy(other.width);
+        this.opacity = other.opacity;
+    }
+}
+
+export class S2FillAttributes implements Clonable<S2FillAttributes> {
+    public color: S2Color;
+    public opacity: number;
+
+    constructor() {
+        this.color = new S2Color(0xff, 0xff, 0xff);
+        this.opacity = 1;
+    }
+
+    clone(): S2FillAttributes {
+        const attributes = new S2StrokeAttributes();
+        attributes.color = this.color.clone();
+        attributes.opacity = this.opacity;
+        return attributes;
+    }
+
+    copy(other: S2FillAttributes): void {
+        this.color.copy(this.color);
+        this.opacity = other.opacity;
+    }
+}
+
+export class S2TextAttributes implements Clonable<S2TextAttributes> {
+    public fill: S2FillAttributes;
+    public stroke: S2StrokeAttributes;
+    public opacity: number;
+
+    constructor() {
+        this.fill = new S2FillAttributes();
+        this.stroke = new S2StrokeAttributes();
+        this.opacity = 1;
+    }
+
+    clone(): S2TextAttributes {
+        const attributes = new S2TextAttributes();
+        attributes.fill.copy(this.fill);
+        attributes.stroke.copy(this.stroke);
+        attributes.opacity = this.opacity;
+        return attributes;
+    }
+
+    copy(other: S2TextAttributes): void {
+        this.fill.copy(other.fill);
+        this.stroke.copy(other.stroke);
+        this.opacity = other.opacity;
+    }
+}
+
+class S2NodeAttributes implements Clonable<S2NodeAttributes> {
+    readonly minExtents?: S2Extents;
+    readonly padding?: S2Extents;
+    readonly partSep?: S2Length;
+    readonly textFillColor?: S2Color;
+    readonly textFillOpacity?: number;
+    readonly textOpacity?: number;
+    readonly textStrokeColor?: S2Color;
+    readonly textStrokeWidth?: S2Length;
+
+    constructor(init: Partial<S2NodeAttributes> = {}) {
+        Object.assign(this, init);
+    }
+
+    clone(): S2NodeAttributes {
+        return new S2NodeAttributes(this);
+    }
+}
+
+// --- Classe principale en arbre ---
+class S2AttributesNew implements Clonable<S2AttributesNew> {
+    public stroke?: S2StrokeAttributes;
+    public fill?: S2FillAttributes;
+    public node?: S2NodeAttributes;
+
+    constructor(init: Partial<S2AttributesNew> = {}) {
+        Object.assign(this, init);
+    }
+
+    clone(): S2AttributesNew {
+        return new S2AttributesNew(this);
+    }
+}
+
+// --- Exemple d'utilisation ---
+// const rectAttrs = new S2AttributesNew({
+//     stroke: new S2StrokeAttributes({ strokeColor: { r: 255, g: 0, b: 0 }, strokeWidth: { value: 2, unit: 'px' } }),
+//     fill: new S2FillAttributes({ fillOpacity: 0.5 }),
+//     node: new S2NodeAttributes({ padding: { top: 2, right: 2, bottom: 2, left: 2 } }),
+// });
+
+// Clonage immuable
+//const nextFrameAttrs = rectAttrs.clone();//
+
+//////////////////////////////////////////////////////////////////////////////
+
 export class S2Animatable {
     // Basic animatable
     extents?: S2Extents; // todo
