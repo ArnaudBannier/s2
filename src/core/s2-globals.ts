@@ -77,8 +77,8 @@ export class S2AnchorUtils {
         extents: S2Extents,
     ): S2Vec2 {
         const sign = space === 'world' ? +1 : -1;
-        const center = position.toSpace(space, camera);
         const ext = extents.toSpace(space, camera);
+        const center = position.toSpace(space, camera);
         switch (anchor) {
             case 'north west':
                 center.shiftY(-sign * ext.y).shiftX(+ext.x);
@@ -110,35 +110,42 @@ export class S2AnchorUtils {
         return center;
     }
 
-    static getNorthWest(anchor: S2Anchor, space: S2Space, position: S2Vec2, extents: S2Vec2): S2Vec2 {
+    static getNorthWest(
+        anchor: S2Anchor,
+        space: S2Space,
+        camera: S2Camera,
+        position: S2Position,
+        extents: S2Extents,
+    ): S2Vec2 {
         const sign = space === 'world' ? +1 : -1;
-        const nw = position.clone();
+        const ext = extents.toSpace(space, camera);
+        const nw = position.toSpace(space, camera);
         switch (anchor) {
             case 'north west':
                 break;
             case 'north':
-                nw.shiftX(-extents.x);
+                nw.shiftX(-ext.x);
                 break;
             case 'north east':
-                nw.shiftX(-2 * extents.x);
+                nw.shiftX(-2 * ext.x);
                 break;
             case 'west':
-                nw.shiftY(sign * extents.y);
+                nw.shiftY(sign * ext.y);
                 break;
             case 'center':
-                nw.shiftY(sign * extents.y).shiftX(-extents.x);
+                nw.shiftY(sign * ext.y).shiftX(-ext.x);
                 break;
             case 'east':
-                nw.shiftY(sign * extents.y).shiftX(-2 * extents.x);
+                nw.shiftY(sign * ext.y).shiftX(-2 * ext.x);
                 break;
             case 'south west':
-                nw.shiftY(2 * sign * extents.y);
+                nw.shiftY(2 * sign * ext.y);
                 break;
             case 'south':
-                nw.shiftY(2 * sign * extents.y).shiftX(-extents.x);
+                nw.shiftY(2 * sign * ext.y).shiftX(-ext.x);
                 break;
             case 'south east':
-                nw.shiftY(2 * sign * extents.y).shiftX(-2 * extents.x);
+                nw.shiftY(2 * sign * ext.y).shiftX(-2 * ext.x);
                 break;
         }
         return nw;

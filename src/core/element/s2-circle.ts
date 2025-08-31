@@ -1,10 +1,10 @@
 import { type S2HasRadius, type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../s2-globals';
-import { NewS2SimpleShape, S2Shape, S2SimpleShapeData } from './s2-shape';
+import { NewS2SimpleShape, S2Shape, S2SMonoGraphicData } from './s2-shape';
 import { type S2Space, S2Length, S2Position } from '../math/s2-space';
 
-export class S2CircleData extends S2SimpleShapeData {
+export class S2CircleData extends S2SMonoGraphicData {
     public position: S2Position;
     public radius: S2Length;
 

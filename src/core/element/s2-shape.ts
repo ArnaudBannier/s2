@@ -6,7 +6,7 @@ import { type S2HasPosition } from '../s2-interface';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 import { NewS2Element, S2FillData, S2LayerData, S2StrokeData, S2TransformData } from './s2-element';
 
-export class S2SimpleShapeData extends S2LayerData {
+export class S2SMonoGraphicData extends S2LayerData {
     public transform: S2TransformData;
     public stroke: S2StrokeData;
     public fill: S2FillData;
@@ -20,7 +20,7 @@ export class S2SimpleShapeData extends S2LayerData {
         this.opacity = 1;
     }
 
-    copy(other: S2SimpleShapeData): void {
+    copy(other: S2SMonoGraphicData): void {
         super.copy(other);
         this.transform.copy(other.transform);
         this.stroke.copy(other.stroke);
@@ -37,7 +37,7 @@ export class S2SimpleShapeData extends S2LayerData {
     }
 }
 
-export abstract class NewS2SimpleShape<D extends S2SimpleShapeData> extends NewS2Element<D> {
+export abstract class NewS2SimpleShape<D extends S2SMonoGraphicData> extends NewS2Element<D> {
     constructor(scene: S2BaseScene, data: D) {
         super(scene, data);
     }

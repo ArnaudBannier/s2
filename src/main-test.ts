@@ -2,11 +2,11 @@ import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
-import { S2Circle } from './core/element/s2-circle.ts';
+import { NewS2Circle, S2Circle } from './core/element/s2-circle.ts';
 import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
 import { S2Length, S2Position } from './core/math/s2-space.ts';
-import { S2Animatable, S2Attributes } from './core/s2-attributes.ts';
-import { S2ElementAnim, type S2Animation } from './animation/s2-animation.ts';
+import { S2Animatable } from './core/s2-attributes.ts';
+import { S2AnimationManager, S2ElementAnim, S2LerpAnim, type S2Animation } from './animation/s2-animation.ts';
 
 /*
     TODO:
@@ -48,30 +48,36 @@ class SceneFigure extends S2AnimatedScene {
             strokeWidth: new S2Length(4, 'view'),
         }),
     };
-    protected circle: S2Circle;
-    protected anim: S2Animation;
+    protected circle: NewS2Circle;
+    //protected anim: S2Animation;
+    protected animManager: S2AnimationManager = S2AnimationManager.getInstance();
+    protected anim: S2LerpAnim;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
         this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
+        this.anim = new S2LerpAnim(this);
 
-        this.circle = this.addCircle();
-        this.circle.setAnimatableAttributes(this.styles.backBase).setPosition(0, 0, 'world').setRadius(2, 'world');
+        this.circle = new NewS2Circle(this);
+        this.circle.data.fill.color.copy(MTL_COLORS.GREY_6);
+        this.circle.data.stroke.color.copy(MTL_COLORS.GREY_4);
+        this.circle.data.stroke.width.value = 4;
+        this.circle.data.radius.value = 1;
+        this.circle.data.radius.space = 'world';
+        this.circle.update();
 
-        const state0 = this.styles.backBase.clone();
-        const state1 = this.styles.backSlct.clone();
+        this.anim.color0 = MTL_COLORS.BLUE_5.clone();
+        this.anim.color1 = MTL_COLORS.GREEN_5.clone();
+        this.anim.target = this.circle;
+        this.anim.member = this.circle.data.fill.color;
+        this.anim.setLoopCount(-1).play();
 
-        state0.position = new S2Position(-3, 0);
-        state1.position = new S2Position(+3, 0);
+        this.animManager.addAnimation(this.anim);
 
-        this.anim = new S2ElementAnim(this, this.circle, state0, state1);
         this.update();
-    }
-
-    setAnimationValue(t: number): void {
-        this.anim.update(t);
+        svgElement.appendChild(this.circle.getSVGElement());
     }
 }
 
@@ -94,7 +100,7 @@ if (svgElement && slider) {
     const scene = new SceneFigure(svgElement);
     void scene;
 
-    slider.addEventListener('input', () => {
-        scene.setAnimationValue(slider.valueAsNumber / 100);
-    });
+    // slider.addEventListener('input', () => {
+    //     scene.setAnimationValue(slider.valueAsNumber / 100);
+    // });
 }

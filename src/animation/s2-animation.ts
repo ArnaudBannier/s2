@@ -1,13 +1,110 @@
-import { S2Element } from '../core/element/s2-element';
+import { NewS2Element, S2Element, S2LayerData } from '../core/element/s2-element';
 import { type S2BaseScene } from '../core/s2-interface';
 import { lerp } from '../core/math/s2-utils';
 import { S2Position, S2Length } from '../core/math/s2-space';
 import { S2Color } from '../core/s2-globals';
 import { S2Animatable } from '../core/s2-attributes';
-import { easeLinear, type S2Easing } from './s2-easing';
+import { easeIn, easeLinear, easeOut, type S2Easing } from './s2-easing';
 
 // Créer deux catégories -> timeAnim eventAnim ?
 // Comment gérer les smoothDamped ?
+
+export class S2Timer {
+    protected currentTime: number = 0;
+    protected delta: number = 0;
+    protected unscaledDelta: number = 0;
+    protected scale: number = 1;
+    protected maxDelta: number = 200;
+    protected elapsed: number = 0;
+    protected unscaledElapsed: number = 0;
+
+    start(timestamp: number): this {
+        this.currentTime = timestamp;
+        this.delta = 0;
+        return this;
+    }
+
+    update(timestamp: number): this {
+        const delta = timestamp - this.currentTime;
+        this.unscaledDelta = Math.min(delta, this.maxDelta);
+        this.delta = this.unscaledDelta * this.scale;
+        this.currentTime = timestamp;
+        this.unscaledElapsed += this.unscaledDelta;
+        this.elapsed += this.delta;
+        return this;
+    }
+
+    setMaximumDeltaTime(maxDelta: number): this {
+        this.maxDelta = maxDelta;
+        return this;
+    }
+
+    setTimeScale(scale: number): this {
+        this.scale = scale;
+        return this;
+    }
+
+    getTimeScale(): number {
+        return this.scale;
+    }
+
+    getDelta(): number {
+        return this.delta;
+    }
+
+    getUnscaledDelta(): number {
+        return this.unscaledDelta;
+    }
+
+    getElapsed(): number {
+        return this.elapsed;
+    }
+
+    getUnscaledElapsed(): number {
+        return this.unscaledElapsed;
+    }
+}
+
+export class S2AnimationManager {
+    protected static _instance: S2AnimationManager | null = null;
+    protected timer: S2Timer;
+    protected animations: S2AnimationNEW[];
+
+    private constructor() {
+        this.timer = new S2Timer();
+        this.animations = [];
+    }
+
+    private firstFrame(timestamp: number): void {
+        this.timer.start(timestamp);
+    }
+
+    static getInstance(): S2AnimationManager {
+        if (!S2AnimationManager._instance) {
+            const animManager = new S2AnimationManager();
+            console.log(animManager.timer);
+            requestAnimationFrame(animManager.firstFrame.bind(animManager));
+            requestAnimationFrame(animManager.update.bind(animManager));
+            S2AnimationManager._instance = animManager;
+        }
+
+        return S2AnimationManager._instance;
+    }
+
+    protected update(timestamp: number): void {
+        this.timer.update(timestamp);
+        const delta = this.timer.getDelta();
+        for (const anim of this.animations) {
+            anim.update(delta);
+        }
+        requestAnimationFrame(this.update.bind(this));
+    }
+
+    addAnimation(animation: S2AnimationNEW): this {
+        this.animations.push(animation);
+        return this;
+    }
+}
 
 export abstract class S2AnimationNEW {
     protected scene: S2BaseScene;
@@ -77,11 +174,13 @@ export abstract class S2AnimationNEW {
         this.paused = false;
     }
 
-    private onBegin(): void {}
-    private onComplete(): void {}
-    private onLoop(): void {}
-    private onUpdate(): void {}
-    private onPause(): void {}
+    protected onBegin(): void {}
+    protected onComplete(): void {}
+    protected onLoop(): void {
+        console.log('loop');
+    }
+    protected onUpdate(): void {}
+    protected onPause(): void {}
 
     setLoopCount(loopCount: number): this {
         this.loopCount = loopCount;
@@ -98,11 +197,11 @@ export abstract class S2AnimationNEW {
         if (loopIndex !== undefined) this.loopIndex = loopIndex;
     }
 
-    getRawProgression(): number {
+    getLoopProgression(): number {
         let t = this.loopAccu / this.loopDuration;
         if (this.alternate) t = t < 0.5 ? 2 * t : 2 - 2 * t;
         if (this.reversed) t = 1 - t;
-        return t;
+        return this.ease(t);
     }
 
     getLoopDuration(): number {
@@ -120,6 +219,32 @@ export abstract class S2AnimationNEW {
     getTotalDuration(): number {
         if (this.loopCount < 0) return -1;
         return (this.loopCount * this.loopDuration + this.delay) / this.speed;
+    }
+}
+
+export class S2LerpAnim extends S2AnimationNEW {
+    public color0: S2Color;
+    public color1: S2Color;
+    public target: NewS2Element<S2LayerData> | null = null;
+    public member: S2Color | null = null;
+
+    constructor(scene: S2BaseScene) {
+        super(scene);
+        this.color0 = new S2Color();
+        this.color1 = new S2Color();
+        //this.alternate = true;
+        //this.reversed = true;
+        //this.ease = easeOut;
+    }
+
+    protected onUpdate(): void {
+        super.onUpdate();
+        if (this.member !== null) {
+            this.member.copy(S2Color.lerp(this.color0, this.color1, this.getLoopProgression()));
+        }
+        if (this.target !== null) {
+            this.target.update();
+        }
     }
 }
 //             |     |
