@@ -1,7 +1,146 @@
 import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
-import { type S2SVGAttributes } from '../s2-globals';
+import { S2Color, type S2LineCap, type S2LineJoin, type S2SVGAttributes } from '../s2-globals';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
+import { S2Length } from '../math/s2-space';
+import { S2Mat2x3 } from '../math/s2-mat2x3';
+
+export class S2LayerData {
+    public layer: number;
+    public isActive: boolean;
+
+    constructor() {
+        this.layer = 0;
+        this.isActive = true;
+    }
+
+    copy(other: S2LayerData) {
+        this.layer = other.layer;
+        this.isActive = other.isActive;
+    }
+
+    applyToElement(element: SVGElement, scene: S2BaseScene): void {
+        void element;
+        void scene;
+    }
+}
+
+export class S2StrokeData {
+    public color: S2Color;
+    public width: S2Length;
+    public opacity: number;
+    public lineCap?: S2LineCap;
+    public lineJoin?: S2LineJoin;
+
+    constructor() {
+        this.color = new S2Color();
+        this.width = new S2Length(0, 'view');
+        this.opacity = 1;
+    }
+
+    copy(other: S2StrokeData): void {
+        this.color.copy(other.color);
+        this.width.copy(other.width);
+        this.opacity = other.opacity;
+    }
+
+    applyToElement(element: SVGElement, scene: S2BaseScene): void {
+        if (this.width.value <= 0) return;
+        const width = this.width.toSpace('view', scene.activeCamera);
+        element.setAttribute('stroke', this.color.toRgb());
+        element.setAttribute('stroke-width', width.toString());
+        if (this.lineCap !== undefined) element.setAttribute('stroke-linecap', this.lineCap);
+        if (this.lineJoin !== undefined) element.setAttribute('stroke-linejoin', this.lineJoin);
+    }
+}
+
+export class S2FillData {
+    public color: S2Color;
+    public opacity: number;
+
+    constructor() {
+        this.color = new S2Color();
+        this.opacity = 1;
+    }
+
+    copy(other: S2FillData): void {
+        this.color.copy(other.color);
+        this.opacity = other.opacity;
+    }
+
+    applyToElement(element: SVGElement, scene: S2BaseScene): void {
+        void scene;
+        if (this.opacity <= 0) return;
+        element.setAttribute('fill', this.color.toRgb());
+        if (this.opacity < 1) element.setAttribute('fill-opacity', this.opacity.toString());
+    }
+}
+
+export class S2TransformData {
+    public matrix: S2Mat2x3;
+
+    constructor() {
+        this.matrix = S2Mat2x3.createIdentity();
+    }
+
+    copy(other: S2TransformData): void {
+        this.matrix.copy(other.matrix);
+    }
+
+    applyToElement(element: SVGElement, scene: S2BaseScene): void {
+        void scene;
+        if (this.matrix.isIdentity()) return;
+        const m = this.matrix.elements;
+        element.setAttribute('transform', `matrix(${m[0]}, ${m[1]}, ${m[2]}, ${m[3]}, ${m[4]}, ${m[5]})`);
+    }
+}
+
+export abstract class NewS2Element<D extends S2LayerData> {
+    protected scene: S2BaseScene;
+    protected parent: S2Element | null = null;
+    public readonly id: number;
+
+    public data: D;
+
+    constructor(scene: S2BaseScene, data: D) {
+        this.data = data;
+        this.scene = scene;
+        this.id = scene.nextId++;
+    }
+
+    protected static compareLayers(a: NewS2Element<S2LayerData>, b: NewS2Element<S2LayerData>): number {
+        if (a.data.layer !== b.data.layer) return a.data.layer - b.data.layer;
+        return a.id - b.id;
+    }
+
+    protected static updateSVGChildren(parent: SVGElement, children: NewS2Element<S2LayerData>[]): void {
+        children.sort(NewS2Element.compareLayers);
+        const elements: SVGElement[] = [];
+        for (const child of children) {
+            if (child.data.isActive) {
+                elements.push(child.getSVGElement());
+            }
+        }
+        parent.replaceChildren(...elements);
+    }
+
+    setParent(parent: S2Element | null): this {
+        this.parent = parent;
+        return this;
+    }
+
+    getParent(): S2Element | null {
+        return this.parent;
+    }
+
+    abstract getSVGElement(): SVGElement;
+
+    getActiveCamera(): S2Camera {
+        return this.scene.activeCamera;
+    }
+
+    abstract update(): this;
+}
 
 export abstract class S2Element {
     protected scene: S2BaseScene;
@@ -90,12 +229,6 @@ export abstract class S2Element {
         return attributes;
     }
 
-    setSVGAttribute(qualifiedName: string, value: string): this {
-        const element = this.getSVGElement();
-        element.setAttribute(qualifiedName, value);
-        return this;
-    }
-
     setId(id: string): this {
         const element = this.getSVGElement();
         element.id = id;
@@ -105,6 +238,12 @@ export abstract class S2Element {
     addClass(className: string): this {
         const element = this.getSVGElement();
         element.classList.add(className);
+        return this;
+    }
+
+    setSVGAttribute(qualifiedName: string, value: string): this {
+        const element = this.getSVGElement();
+        element.setAttribute(qualifiedName, value);
         return this;
     }
 
