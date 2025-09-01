@@ -9,103 +9,6 @@ import { easeIn, easeLinear, easeOut, type S2Easing } from './s2-easing';
 // Créer deux catégories -> timeAnim eventAnim ?
 // Comment gérer les smoothDamped ?
 
-export class S2Timer {
-    protected currentTime: number = 0;
-    protected delta: number = 0;
-    protected unscaledDelta: number = 0;
-    protected scale: number = 1;
-    protected maxDelta: number = 200;
-    protected elapsed: number = 0;
-    protected unscaledElapsed: number = 0;
-
-    start(timestamp: number): this {
-        this.currentTime = timestamp;
-        this.delta = 0;
-        return this;
-    }
-
-    update(timestamp: number): this {
-        const delta = timestamp - this.currentTime;
-        this.unscaledDelta = Math.min(delta, this.maxDelta);
-        this.delta = this.unscaledDelta * this.scale;
-        this.currentTime = timestamp;
-        this.unscaledElapsed += this.unscaledDelta;
-        this.elapsed += this.delta;
-        return this;
-    }
-
-    setMaximumDeltaTime(maxDelta: number): this {
-        this.maxDelta = maxDelta;
-        return this;
-    }
-
-    setTimeScale(scale: number): this {
-        this.scale = scale;
-        return this;
-    }
-
-    getTimeScale(): number {
-        return this.scale;
-    }
-
-    getDelta(): number {
-        return this.delta;
-    }
-
-    getUnscaledDelta(): number {
-        return this.unscaledDelta;
-    }
-
-    getElapsed(): number {
-        return this.elapsed;
-    }
-
-    getUnscaledElapsed(): number {
-        return this.unscaledElapsed;
-    }
-}
-
-export class S2AnimationManager {
-    protected static _instance: S2AnimationManager | null = null;
-    protected timer: S2Timer;
-    protected animations: S2AnimationNEW[];
-
-    private constructor() {
-        this.timer = new S2Timer();
-        this.animations = [];
-    }
-
-    private firstFrame(timestamp: number): void {
-        this.timer.start(timestamp);
-    }
-
-    static getInstance(): S2AnimationManager {
-        if (!S2AnimationManager._instance) {
-            const animManager = new S2AnimationManager();
-            console.log(animManager.timer);
-            requestAnimationFrame(animManager.firstFrame.bind(animManager));
-            requestAnimationFrame(animManager.update.bind(animManager));
-            S2AnimationManager._instance = animManager;
-        }
-
-        return S2AnimationManager._instance;
-    }
-
-    protected update(timestamp: number): void {
-        this.timer.update(timestamp);
-        const delta = this.timer.getDelta();
-        for (const anim of this.animations) {
-            anim.update(delta);
-        }
-        requestAnimationFrame(this.update.bind(this));
-    }
-
-    addAnimation(animation: S2AnimationNEW): this {
-        this.animations.push(animation);
-        return this;
-    }
-}
-
 export abstract class S2AnimationNEW {
     protected scene: S2BaseScene;
     protected loopAccu: number = 0;
@@ -176,9 +79,7 @@ export abstract class S2AnimationNEW {
 
     protected onBegin(): void {}
     protected onComplete(): void {}
-    protected onLoop(): void {
-        console.log('loop');
-    }
+    protected onLoop(): void {}
     protected onUpdate(): void {}
     protected onPause(): void {}
 
@@ -192,9 +93,25 @@ export abstract class S2AnimationNEW {
         return this;
     }
 
-    setLoopProgression(t: number, loopIndex?: number): void {
+    setLoopProgression(t: number, loopIndex?: number): this {
         this.loopAccu = t * this.loopDuration;
         if (loopIndex !== undefined) this.loopIndex = loopIndex;
+        return this;
+    }
+
+    setEasing(ease: S2Easing): this {
+        this.ease = ease;
+        return this;
+    }
+
+    setReversed(reversed: boolean = true): this {
+        this.reversed = reversed;
+        return this;
+    }
+
+    setAlternate(alternate: boolean = true): this {
+        this.alternate = alternate;
+        return this;
     }
 
     getLoopProgression(): number {
@@ -227,24 +144,45 @@ export class S2LerpAnim extends S2AnimationNEW {
     public color1: S2Color;
     public target: NewS2Element<S2LayerData> | null = null;
     public member: S2Color | null = null;
+    protected memberMap: Map<S2Color, [S2Color, S2Color]>;
+    protected targets: Set<NewS2Element<S2LayerData>>;
 
     constructor(scene: S2BaseScene) {
         super(scene);
         this.color0 = new S2Color();
         this.color1 = new S2Color();
-        //this.alternate = true;
-        //this.reversed = true;
-        //this.ease = easeOut;
+        this.memberMap = new Map<S2Color, [S2Color, S2Color]>();
+        this.targets = new Set<NewS2Element<S2LayerData>>();
+    }
+
+    saveColor(member: S2Color, target?: NewS2Element<S2LayerData>): this {
+        this.memberMap.set(member, [member.clone(), member.clone()]);
+        if (target !== undefined) this.targets.add(target);
+        return this;
+    }
+
+    finalize(): this {
+        for (const [member, values] of this.memberMap) {
+            values[1].copy(member);
+        }
+        return this;
     }
 
     protected onUpdate(): void {
         super.onUpdate();
-        if (this.member !== null) {
-            this.member.copy(S2Color.lerp(this.color0, this.color1, this.getLoopProgression()));
+
+        for (const [member, values] of this.memberMap) {
+            member.copy(S2Color.lerp(values[0], values[1], this.getLoopProgression()));
         }
-        if (this.target !== null) {
-            this.target.update();
+        for (const target of this.targets) {
+            target.update();
         }
+        // if (this.member !== null) {
+        //     this.member.copy(S2Color.lerp(this.color0, this.color1, this.getLoopProgression()));
+        // }
+        // if (this.target !== null) {
+        //     this.target.update();
+        // }
     }
 }
 //             |     |
