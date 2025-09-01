@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Graphics } from './s2-graphics';
-import { type S2Space, S2Number, S2Position } from '../../s2-types';
+import { type S2Space, S2Number, S2Position } from '../s2-types';
 import { type S2HasPosition } from '../s2-interface';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 import { NewS2Element, S2FillData, S2LayerData, S2StrokeData, S2TransformData } from './s2-element';

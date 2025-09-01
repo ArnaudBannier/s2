@@ -4,7 +4,7 @@ import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { NewS2Circle, S2Circle } from './core/element/s2-circle.ts';
 import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
-import { S2Length, S2Position } from './s2-types.ts';
+import { S2Length, S2Position } from './core/s2-types.ts';
 import { S2Animatable } from './core/s2-attributes.ts';
 import { S2ElementAnim, S2LerpAnim, type S2Animation } from './animation/s2-animation.ts';
 import { S2AnimationManager } from './animation/s2-animation-manager.ts';
@@ -72,8 +72,8 @@ class SceneFigure extends S2AnimatedScene {
 
         this.anim
             .addTarget(this.circle)
-            .saveColor(this.circle.data.fill.color)
-            .saveColor(this.circle.data.stroke.color)
+            .saveMember(this.circle.data.fill.color)
+            .saveMember(this.circle.data.stroke.color)
             .setLoopDuration(4000)
             .setAlternate()
             .setEasing(easeCos);

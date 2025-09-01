@@ -1,5 +1,5 @@
 import { S2Color, type S2Anchor, type S2LineCap, type S2LineJoin } from './core/s2-globals';
-import { S2Extents, S2Length, S2Position } from './s2-types';
+import { S2Extents, S2Length, S2Position } from './core/s2-types';
 import { S2Mat2x3 } from './core/math/s2-mat2x3';
 import type { S2Node } from './core/element/s2-node';
 import type { S2TextAlign, S2VerticalAlign } from './core/element/s2-text-group';

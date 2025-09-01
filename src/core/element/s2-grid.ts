@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Shape } from './s2-shape';
-import { type S2Space, S2Extents } from '../../s2-types';
+import { type S2Space, S2Extents } from '../s2-types';
 import { S2Path } from './s2-path';
 import { S2Attributes } from '../s2-attributes';
 

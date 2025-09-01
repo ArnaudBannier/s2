@@ -1,4 +1,4 @@
-import { S2Color } from '../core/s2-globals';
+import { S2Color } from '../core/s2-types';
 export const MTL_COLORS: Record<string, S2Color> = {
     // RED: new S2Color(0xf4, 0x43, 0x36),
     // PINK: new S2Color(0xe9, 0x1e, 0x63),

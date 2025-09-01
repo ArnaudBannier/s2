@@ -1,9 +1,10 @@
 import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
-import { S2Color, type S2LineCap, type S2LineJoin, type S2SVGAttributes } from '../s2-globals';
+import { type S2LineCap, type S2LineJoin, type S2SVGAttributes } from '../s2-globals';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
-import { S2Length } from '../../s2-types';
+import { S2Length } from '../s2-types';
 import { S2Mat2x3 } from '../math/s2-mat2x3';
+import { S2Color } from '../s2-types';
 
 export class S2LayerData {
     public layer: number;

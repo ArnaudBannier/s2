@@ -5,12 +5,12 @@ import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
 import { S2Shape } from './s2-shape';
 import { S2Text } from './s2-text';
-import { S2Extents, S2Length, type S2Space } from '../../s2-types';
+import { S2Extents, S2Length, type S2Space } from '../s2-types';
 import { S2TextGroup, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
-import { S2Color } from '../s2-globals';
+import { S2Color } from '../s2-types';
 import { S2Element } from './s2-element';
 import { S2Group } from './s2-group';
 

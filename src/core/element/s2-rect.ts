@@ -3,7 +3,7 @@ import { type S2BaseScene, type S2HasExtents, type S2HasRadius } from '../s2-int
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { NewS2SimpleShape, S2Shape, S2SMonoGraphicData } from './s2-shape';
-import { type S2Space, S2Length, S2Extents, S2Position } from '../../s2-types';
+import { type S2Space, S2Length, S2Extents, S2Position } from '../s2-types';
 import type { S2Animatable, S2Attributes } from '../s2-attributes';
 
 export class S2RectData extends S2SMonoGraphicData {

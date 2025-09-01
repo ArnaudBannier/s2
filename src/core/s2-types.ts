@@ -1,6 +1,6 @@
-import { S2Vec2 } from './core/math/s2-vec2';
-import { S2Camera } from './core/math/s2-camera';
-import { S2MathUtils } from './core/math/s2-utils';
+import { S2Vec2 } from './math/s2-vec2';
+import { S2Camera } from './math/s2-camera';
+import { S2MathUtils } from './math/s2-utils';
 
 export type S2Space = 'world' | 'view';
 
@@ -36,6 +36,60 @@ export class S2Number extends S2BaseType<S2Number> {
 
     static lerp(state0: S2Number, state1: S2Number, t: number): S2Number {
         return new S2Number(0).lerp(state0, state1, t);
+    }
+}
+
+export class S2Color extends S2BaseType<S2Color> {
+    readonly kind = 'color' as const;
+    public r: number;
+    public g: number;
+    public b: number;
+
+    static fromHex(hex: string): S2Color {
+        const color = new S2Color();
+        const num = parseInt(hex.substring(1), 16);
+        color.r = (num >> 16) & 0xff;
+        color.g = (num >> 8) & 0xff;
+        color.b = num & 0xff;
+        return color;
+    }
+
+    constructor(r: number = 0, g: number = 0, b: number = 0) {
+        super();
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+
+    clone(): S2Color {
+        return new S2Color(this.r, this.g, this.b);
+    }
+
+    copy(color?: S2Color): this {
+        if (!color) return this;
+        this.r = color.r;
+        this.g = color.g;
+        this.b = color.b;
+        return this;
+    }
+
+    lerp(state0: S2Color, state1: S2Color, t: number): this {
+        this.r = S2MathUtils.lerp(state0.r, state1.r, t);
+        this.g = S2MathUtils.lerp(state0.g, state1.g, t);
+        this.b = S2MathUtils.lerp(state0.b, state1.b, t);
+        return this;
+    }
+
+    static lerp(color0: S2Color, color1: S2Color, t: number): S2Color {
+        return new S2Color().lerp(color0, color1, t);
+    }
+
+    toHex(): string {
+        return '#' + [this.r, this.g, this.b].map((c) => c.toString(16).padStart(2, '0')).join('');
+    }
+
+    toRgb(): string {
+        return `rgb(${Math.floor(this.r)}, ${Math.floor(this.g)}, ${Math.floor(this.b)})`;
     }
 }
 
