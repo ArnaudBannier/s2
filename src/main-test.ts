@@ -4,7 +4,7 @@ import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { NewS2Circle, S2Circle } from './core/element/s2-circle.ts';
 import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
-import { S2Length, S2Position } from './core/s2-types.ts';
+import { S2Length, S2Number, S2Position } from './core/s2-types.ts';
 import { S2Animatable } from './core/s2-attributes.ts';
 import { S2ElementAnim, S2LerpAnim, type S2Animation } from './animation/s2-animation.ts';
 import { S2AnimationManager } from './animation/s2-animation-manager.ts';
@@ -65,24 +65,23 @@ class SceneFigure extends S2AnimatedScene {
         this.circle = new NewS2Circle(this);
         this.circle.data.fill.color.copy(MTL_COLORS.GREY_6);
         this.circle.data.stroke.color.copy(MTL_COLORS.GREY_4);
-        this.circle.data.stroke.width.value = 4;
-        this.circle.data.radius.value = 1;
-        this.circle.data.radius.space = 'world';
-        this.circle.data.fill.opacity.value = 1.0;
+        this.circle.data.stroke.width.set(4);
+        this.circle.data.radius.set(1, 'world');
+        this.circle.fillOpacity.set(1.0);
         this.circle.update();
 
         this.anim
             .addTarget(this.circle)
-            .saveMember(this.circle.data.fill.color)
-            .saveMember(this.circle.data.stroke.color)
-            .saveMember(this.circle.data.fill.opacity)
+            .saveMember(this.circle.fillColor)
+            .saveMember(this.circle.strokeColor)
+            .saveMember(this.circle.fillOpacity)
             .setLoopDuration(4000)
             .setAlternate()
             .setEasing(easeCos);
 
-        this.circle.data.fill.color.copy(MTL_COLORS.BLUE_GREY_9);
-        this.circle.data.stroke.color.copy(MTL_COLORS.LIGHT_BLUE_5);
-        this.circle.data.fill.opacity.value = 0.5;
+        this.circle.fillColor.copy(MTL_COLORS.BLUE_GREY_9);
+        this.circle.strokeColor.copy(MTL_COLORS.LIGHT_BLUE_5);
+        this.circle.fillOpacity.set(0.5);
 
         this.anim.finalize();
 

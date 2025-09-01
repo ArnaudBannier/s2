@@ -38,6 +38,11 @@ export class S2Number extends S2BaseType<S2Number> {
         return new S2Number(0).lerp(state0, state1, t);
     }
 
+    set(value: number): this {
+        this.value = value;
+        return this;
+    }
+
     toString(precision: number = 2): string {
         return this.value.toFixed(precision);
     }
@@ -88,6 +93,13 @@ export class S2Color extends S2BaseType<S2Color> {
         return new S2Color().lerp(color0, color1, t);
     }
 
+    set(r: number, g: number, b: number): this {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        return this;
+    }
+
     toHex(): string {
         return '#' + [this.r, this.g, this.b].map((c) => c.toString(16).padStart(2, '0')).join('');
     }
@@ -130,6 +142,12 @@ export class S2Position extends S2BaseType<S2Position> {
 
     static lerp(state0: S2Position, state1: S2Position, t: number): S2Position {
         return new S2Position().lerp(state0, state1, t);
+    }
+
+    set(x: number = 0, y: number = 0, space?: S2Space): this {
+        this.value.set(x, y);
+        if (space) this.space = space;
+        return this;
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {
@@ -213,6 +231,12 @@ export class S2Length extends S2BaseType<S2Length> {
         return new S2Length().lerp(state0, state1, t);
     }
 
+    set(value: number, space?: S2Space): this {
+        this.value = value;
+        if (space) this.space = space;
+        return this;
+    }
+
     setValueFromSpace(space: S2Space, camera: S2Camera, value: number): this {
         if (this.space === space) {
             // this = other
@@ -293,6 +317,12 @@ export class S2Extents extends S2BaseType<S2Extents> {
 
     static lerp(state0: S2Extents, state1: S2Extents, t: number): S2Extents {
         return new S2Extents().lerp(state0, state1, t);
+    }
+
+    set(x: number, y: number, space?: S2Space): this {
+        this.value.set(x, y);
+        if (space) this.space = space;
+        return this;
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {

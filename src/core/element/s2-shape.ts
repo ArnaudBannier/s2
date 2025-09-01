@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Graphics } from './s2-graphics';
-import { type S2Space, S2Number, S2Position } from '../s2-types';
+import { type S2Space, S2Color, S2Length, S2Number, S2Position } from '../s2-types';
 import { type S2HasPosition } from '../s2-interface';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 import { NewS2Element, S2FillData, S2LayerData, S2StrokeData, S2TransformData } from './s2-element';
@@ -40,6 +40,26 @@ export class S2SMonoGraphicData extends S2LayerData {
 export abstract class NewS2SimpleShape<D extends S2SMonoGraphicData> extends NewS2Element<D> {
     constructor(scene: S2BaseScene, data: D) {
         super(scene, data);
+    }
+
+    get fillColor(): S2Color {
+        return this.data.fill.color;
+    }
+
+    get fillOpacity(): S2Number {
+        return this.data.fill.opacity;
+    }
+
+    get strokeColor(): S2Color {
+        return this.data.stroke.color;
+    }
+
+    get strokeWidth(): S2Length {
+        return this.data.stroke.width;
+    }
+
+    get strokeOpacity(): S2Number {
+        return this.data.stroke.opacity;
     }
 }
 
