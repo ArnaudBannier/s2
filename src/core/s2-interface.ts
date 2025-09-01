@@ -1,6 +1,6 @@
 import { S2Camera } from './math/s2-camera';
 import { S2SVG } from './element/s2-svg';
-import { type S2Space, S2Position } from './math/s2-space';
+import { type S2Space, S2Position } from '../s2-types';
 import { S2Vec2 } from './math/s2-vec2';
 
 export interface S2BaseScene {

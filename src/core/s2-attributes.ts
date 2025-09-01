@@ -1,6 +1,6 @@
-import { S2Extents, S2Position } from './math/s2-space';
+import { S2Extents, S2Position } from '../s2-types';
 import { S2Color, type S2Anchor, type S2LineCap, type S2LineJoin } from './s2-globals';
-import { S2Length } from './math/s2-space';
+import { S2Length } from '../s2-types';
 import type { S2TextAlign, S2VerticalAlign } from './element/s2-text-group';
 
 /*

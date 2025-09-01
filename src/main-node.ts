@@ -5,7 +5,7 @@ import { MTL } from './utils/mtl-colors.ts';
 import { S2Node } from './core/element/s2-node.ts';
 import { lerp } from './core/math/s2-utils.ts';
 import { S2LineEdge } from './core/element/s2-edge.ts';
-import { S2Length } from './core/math/s2-space.ts';
+import { S2Length } from './s2-types.ts';
 import type { S2SVGAttributes } from './core/s2-globals.ts';
 import { S2Scene } from './core/s2-scene.ts';
 

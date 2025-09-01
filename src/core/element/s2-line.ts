@@ -2,7 +2,7 @@ import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { NewS2SimpleShape, S2Shape, S2SMonoGraphicData } from './s2-shape';
-import { type S2Space, S2Position } from '../math/s2-space';
+import { type S2Space, S2Position } from '../../s2-types';
 
 export class S2LineData extends S2SMonoGraphicData {
     public startPosition: S2Position;

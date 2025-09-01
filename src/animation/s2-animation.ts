@@ -1,9 +1,9 @@
 import { NewS2Element, S2Element, S2LayerData } from '../core/element/s2-element';
 import { type S2BaseScene } from '../core/s2-interface';
 import { lerp } from '../core/math/s2-utils';
-import { S2Position, S2Length, S2Extents, S2Number } from '../core/math/s2-space';
+import { S2Position, S2Length, S2Extents, S2Number, S2BaseType } from '../s2-types';
 import { S2Color } from '../core/s2-globals';
-import { S2Animatable } from '../core/s2-attributes';
+import { S2Animatable, S2Attributes } from '../core/s2-attributes';
 import { easeIn, easeLinear, easeOut, type S2Easing } from './s2-easing';
 
 // Créer deux catégories -> timeAnim eventAnim ?
@@ -165,12 +165,24 @@ export class S2LerpAnim extends S2AnimationNEW {
         return this;
     }
 
-    // saveMember(member: S2Color, to?: S2Color): this;
-    // saveMember(member: S2Position, to?: S2Position): this;
+    saveMember(member: S2Number, to?: S2Number): this;
+    saveMember(member: S2Position, to?: S2Position): this;
     // saveMember(member: S2Length, to?: S2Length): this;
     // saveMember(member: S2Extents, to?: S2Extents): this;
-    // saveMember(member: number, to?: number): this;
-
+    // saveMember(member: S2Number, to?: S2Number): this;
+    saveMember(member: S2Number | S2Position, to?: S2Number | S2Position): this {
+        switch (member.kind) {
+            case 'number':
+                this.numberMap.set(member, [member.clone(), to instanceof S2Number ? to.clone() : member.clone()]);
+                break;
+            case 'position':
+                this.positionMap.set(member, [member.clone(), to instanceof S2Position ? to.clone() : member.clone()]);
+                break;
+            default:
+                throw new Error('Unsupported member type');
+        }
+        return this;
+    }
     saveColor(member: S2Color, to?: S2Color): this {
         this.colorMap.set(member, [member.clone(), to?.clone() ?? member.clone()]);
         return this;

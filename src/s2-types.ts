@@ -1,6 +1,6 @@
-import { S2Vec2 } from './s2-vec2';
-import { S2Camera } from './s2-camera';
-import { S2MathUtils } from './s2-utils';
+import { S2Vec2 } from './core/math/s2-vec2';
+import { S2Camera } from './core/math/s2-camera';
+import { S2MathUtils } from './core/math/s2-utils';
 
 export type S2Space = 'world' | 'view';
 

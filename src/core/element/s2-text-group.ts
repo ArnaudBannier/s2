@@ -4,7 +4,7 @@ import { type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { S2Group } from './s2-group';
 import { S2Shape } from './s2-shape';
 import { S2Text } from './s2-text';
-import { S2Extents, type S2Space } from '../math/s2-space';
+import { S2Extents, type S2Space } from '../../s2-types';
 import { S2Attributes } from '../s2-attributes';
 
 // "text-anchor": "start | middle | end"

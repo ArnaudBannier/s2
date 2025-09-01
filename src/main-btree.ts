@@ -7,7 +7,7 @@ import { type S2SVGAttributes } from './core/s2-globals.ts';
 import { S2Node } from './core/element/s2-node.ts';
 import { S2LineEdge, type S2EdgeOptions } from './core/element/s2-edge.ts';
 import { S2Group } from './core/element/s2-group.ts';
-import { S2Length } from './core/math/s2-space.ts';
+import { S2Length } from './s2-types.ts';
 import { S2Attributes } from './core/s2-attributes.ts';
 import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
 import type { S2Animator } from './animation/s2-animator.ts';

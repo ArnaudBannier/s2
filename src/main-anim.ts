@@ -5,7 +5,7 @@ import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
 import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
 import { S2Path } from './core/element/s2-path.ts';
-import { S2Length } from './core/math/s2-space.ts';
+import { S2Length } from './s2-types.ts';
 import { S2Attributes } from './core/s2-attributes.ts';
 import { S2Node } from './core/element/s2-node.ts';
 
