@@ -68,18 +68,21 @@ class SceneFigure extends S2AnimatedScene {
         this.circle.data.stroke.width.value = 4;
         this.circle.data.radius.value = 1;
         this.circle.data.radius.space = 'world';
+        this.circle.data.fill.opacity.value = 1.0;
         this.circle.update();
 
         this.anim
             .addTarget(this.circle)
             .saveMember(this.circle.data.fill.color)
             .saveMember(this.circle.data.stroke.color)
+            .saveMember(this.circle.data.fill.opacity)
             .setLoopDuration(4000)
             .setAlternate()
             .setEasing(easeCos);
 
         this.circle.data.fill.color.copy(MTL_COLORS.BLUE_GREY_9);
         this.circle.data.stroke.color.copy(MTL_COLORS.LIGHT_BLUE_5);
+        this.circle.data.fill.opacity.value = 0.5;
 
         this.anim.finalize();
 

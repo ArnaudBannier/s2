@@ -37,6 +37,10 @@ export class S2Number extends S2BaseType<S2Number> {
     static lerp(state0: S2Number, state1: S2Number, t: number): S2Number {
         return new S2Number(0).lerp(state0, state1, t);
     }
+
+    toString(precision: number = 2): string {
+        return this.value.toFixed(precision);
+    }
 }
 
 export class S2Color extends S2BaseType<S2Color> {
@@ -179,11 +183,13 @@ export class S2Position extends S2BaseType<S2Position> {
     }
 }
 
-export class S2Length {
+export class S2Length extends S2BaseType<S2Length> {
+    readonly kind = 'length' as const;
     public value: number;
     public space: S2Space;
 
     constructor(value: number = 0, space: S2Space = 'world') {
+        super();
         this.value = value;
         this.space = space;
     }
@@ -196,6 +202,15 @@ export class S2Length {
         this.value = other?.value ?? 0;
         this.space = other?.space ?? 'world';
         return this;
+    }
+
+    lerp(state0: S2Length, state1: S2Length, t: number): this {
+        this.value = S2MathUtils.lerp(state0.value, state1.value, t);
+        return this;
+    }
+
+    static lerp(state0: S2Length, state1: S2Length, t: number): S2Length {
+        return new S2Length().lerp(state0, state1, t);
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, value: number): this {
@@ -245,11 +260,13 @@ export class S2Length {
     }
 }
 
-export class S2Extents {
+export class S2Extents extends S2BaseType<S2Extents> {
+    readonly kind = 'extents' as const;
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(x: number, y: number, space: S2Space = 'world') {
+    constructor(x: number = 0, y: number = 0, space: S2Space = 'world') {
+        super();
         this.value = new S2Vec2(x, y);
         this.space = space;
     }
@@ -267,6 +284,15 @@ export class S2Extents {
             this.space = 'world';
         }
         return this;
+    }
+
+    lerp(state0: S2Extents, state1: S2Extents, t: number): this {
+        this.value = S2Vec2.lerp(state0.value, state1.value, t);
+        return this;
+    }
+
+    static lerp(state0: S2Extents, state1: S2Extents, t: number): S2Extents {
+        return new S2Extents().lerp(state0, state1, t);
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {

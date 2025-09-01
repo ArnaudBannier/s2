@@ -33,7 +33,7 @@ export class S2SMonoGraphicData extends S2LayerData {
         this.transform.applyToElement(element, scene);
         this.stroke.applyToElement(element, scene);
         this.fill.applyToElement(element, scene);
-        if (this.opacity.value < 1) element.setAttribute('opacity', this.opacity.value.toString());
+        if (this.opacity.value < 1) element.setAttribute('opacity', this.opacity.toString());
     }
 }
 

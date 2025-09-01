@@ -1,7 +1,7 @@
-import { NewS2Element, S2Element, S2LayerData } from '../core/element/s2-element';
+import { NewS2Element, S2Element, S2LayerData, type S2BaseElement } from '../core/element/s2-element';
 import { type S2BaseScene } from '../core/s2-interface';
 import { lerp } from '../core/math/s2-utils';
-import { S2Position, S2Length, S2Extents, S2Number, S2BaseType } from '../core/s2-types';
+import { S2Position, S2Length, S2Extents, S2Number } from '../core/s2-types';
 import { S2Animatable, S2Attributes } from '../core/s2-attributes';
 import { easeIn, easeLinear, easeOut, type S2Easing } from './s2-easing';
 
@@ -24,8 +24,16 @@ export abstract class S2AnimationNEW {
     protected paused: boolean = false;
     protected delay: number = 0;
 
+    protected targets: Set<S2BaseElement>;
+
+    addTarget(target: S2BaseElement): this {
+        this.targets.add(target);
+        return this;
+    }
+
     constructor(scene: S2BaseScene) {
         this.scene = scene;
+        this.targets = new Set();
     }
 
     begin(): void {
@@ -61,6 +69,9 @@ export abstract class S2AnimationNEW {
             }
         }
         this.onUpdate();
+        for (const target of this.targets) {
+            target.update();
+        }
     }
 
     pause(): void {
@@ -141,15 +152,12 @@ export abstract class S2AnimationNEW {
 }
 
 type S2MemberMap<T> = Map<T, [T, T]>;
-//type S2AnimatableType = S2Position | S2Length | S2Extents | S2Color | number;
-
 export class S2LerpAnim extends S2AnimationNEW {
     protected positionMap: S2MemberMap<S2Position>;
     protected lengthMap: S2MemberMap<S2Length>;
     protected extentsMap: S2MemberMap<S2Extents>;
     protected colorMap: S2MemberMap<S2Color>;
     protected numberMap: S2MemberMap<S2Number>;
-    protected targets: Set<NewS2Element<S2LayerData>>;
 
     constructor(scene: S2BaseScene) {
         super(scene);
@@ -158,21 +166,17 @@ export class S2LerpAnim extends S2AnimationNEW {
         this.numberMap = new Map();
         this.lengthMap = new Map();
         this.extentsMap = new Map();
-        this.targets = new Set<NewS2Element<S2LayerData>>();
-    }
-
-    addTarget(target: NewS2Element<S2LayerData>): this {
-        this.targets.add(target);
-        return this;
     }
 
     saveMember(member: S2Number, to?: S2Number): this;
     saveMember(member: S2Position, to?: S2Position): this;
     saveMember(member: S2Color, to?: S2Color): this;
-    // saveMember(member: S2Length, to?: S2Length): this;
-    // saveMember(member: S2Extents, to?: S2Extents): this;
-    // saveMember(member: S2Number, to?: S2Number): this;
-    saveMember(member: S2Number | S2Position | S2Color, to?: S2Number | S2Position | S2Color): this {
+    saveMember(member: S2Length, to?: S2Length): this;
+    saveMember(member: S2Extents, to?: S2Extents): this;
+    saveMember(
+        member: S2Number | S2Position | S2Color | S2Length | S2Extents,
+        to?: S2Number | S2Position | S2Color | S2Length | S2Extents,
+    ): this {
         switch (member.kind) {
             case 'number':
                 this.numberMap.set(member, [member.clone(), to instanceof S2Number ? to.clone() : member.clone()]);
@@ -182,6 +186,12 @@ export class S2LerpAnim extends S2AnimationNEW {
                 break;
             case 'color':
                 this.colorMap.set(member, [member.clone(), to instanceof S2Color ? to.clone() : member.clone()]);
+                break;
+            case 'length':
+                this.lengthMap.set(member, [member.clone(), to instanceof S2Length ? to.clone() : member.clone()]);
+                break;
+            case 'extents':
+                this.extentsMap.set(member, [member.clone(), to instanceof S2Extents ? to.clone() : member.clone()]);
                 break;
             default:
                 throw new Error('Unsupported member type');
@@ -211,7 +221,19 @@ export class S2LerpAnim extends S2AnimationNEW {
     }
 
     finalize(): this {
+        for (const [member, values] of this.numberMap) {
+            values[1].copy(member);
+        }
         for (const [member, values] of this.colorMap) {
+            values[1].copy(member);
+        }
+        for (const [member, values] of this.positionMap) {
+            values[1].copy(member);
+        }
+        for (const [member, values] of this.lengthMap) {
+            values[1].copy(member);
+        }
+        for (const [member, values] of this.extentsMap) {
             values[1].copy(member);
         }
         return this;
@@ -219,12 +241,20 @@ export class S2LerpAnim extends S2AnimationNEW {
 
     protected onUpdate(): void {
         super.onUpdate();
-
-        for (const [member, values] of this.colorMap) {
-            member.copy(S2Color.lerp(values[0], values[1], this.getLoopProgression()));
+        for (const [member, values] of this.numberMap) {
+            member.lerp(values[0], values[1], this.getLoopProgression());
         }
-        for (const target of this.targets) {
-            target.update();
+        for (const [member, values] of this.colorMap) {
+            member.lerp(values[0], values[1], this.getLoopProgression());
+        }
+        for (const [member, values] of this.positionMap) {
+            member.lerp(values[0], values[1], this.getLoopProgression());
+        }
+        for (const [member, values] of this.lengthMap) {
+            member.lerp(values[0], values[1], this.getLoopProgression());
+        }
+        for (const [member, values] of this.extentsMap) {
+            member.lerp(values[0], values[1], this.getLoopProgression());
         }
     }
 }

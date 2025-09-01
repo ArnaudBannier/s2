@@ -2,9 +2,11 @@ import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2LineCap, type S2LineJoin, type S2SVGAttributes } from '../s2-globals';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
-import { S2Length } from '../s2-types';
+import { S2Length, S2Number } from '../s2-types';
 import { S2Mat2x3 } from '../math/s2-mat2x3';
 import { S2Color } from '../s2-types';
+
+export type S2BaseElement = NewS2Element<S2LayerData>;
 
 export class S2LayerData {
     public layer: number;
@@ -29,51 +31,52 @@ export class S2LayerData {
 export class S2StrokeData {
     public color: S2Color;
     public width: S2Length;
-    public opacity: number;
+    public opacity: S2Number;
     public lineCap?: S2LineCap;
     public lineJoin?: S2LineJoin;
 
     constructor() {
         this.color = new S2Color();
         this.width = new S2Length(0, 'view');
-        this.opacity = 1;
+        this.opacity = new S2Number(1);
     }
 
     copy(other: S2StrokeData): void {
         this.color.copy(other.color);
         this.width.copy(other.width);
-        this.opacity = other.opacity;
+        this.opacity.copy(other.opacity);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        if (this.width.value <= 0) return;
+        if (this.opacity.value <= 0 || this.width.value <= 0) return;
         const width = this.width.toSpace('view', scene.activeCamera);
         element.setAttribute('stroke', this.color.toRgb());
         element.setAttribute('stroke-width', width.toString());
         if (this.lineCap !== undefined) element.setAttribute('stroke-linecap', this.lineCap);
         if (this.lineJoin !== undefined) element.setAttribute('stroke-linejoin', this.lineJoin);
+        if (this.opacity.value < 1) element.setAttribute('stroke-opacity', this.opacity.toString());
     }
 }
 
 export class S2FillData {
     public color: S2Color;
-    public opacity: number;
+    public opacity: S2Number;
 
     constructor() {
         this.color = new S2Color();
-        this.opacity = 1;
+        this.opacity = new S2Number(1);
     }
 
     copy(other: S2FillData): void {
         this.color.copy(other.color);
-        this.opacity = other.opacity;
+        this.opacity.copy(other.opacity);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         void scene;
-        if (this.opacity <= 0) return;
+        if (this.opacity.value <= 0) return;
         element.setAttribute('fill', this.color.toRgb());
-        if (this.opacity < 1) element.setAttribute('fill-opacity', this.opacity.toString());
+        if (this.opacity.value < 1) element.setAttribute('fill-opacity', this.opacity.toString());
     }
 }
 
