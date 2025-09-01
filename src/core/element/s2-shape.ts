@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Graphics } from './s2-graphics';
-import { type S2Space, S2Position } from '../math/s2-space';
+import { type S2Space, S2Number, S2Position } from '../math/s2-space';
 import { type S2HasPosition } from '../s2-interface';
 import { S2Animatable, S2Attributes } from '../s2-attributes';
 import { NewS2Element, S2FillData, S2LayerData, S2StrokeData, S2TransformData } from './s2-element';
@@ -10,14 +10,14 @@ export class S2SMonoGraphicData extends S2LayerData {
     public transform: S2TransformData;
     public stroke: S2StrokeData;
     public fill: S2FillData;
-    public opacity: number;
+    public opacity: S2Number;
 
     constructor() {
         super();
         this.transform = new S2TransformData();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = 1;
+        this.opacity = new S2Number(1);
     }
 
     copy(other: S2SMonoGraphicData): void {
@@ -25,7 +25,7 @@ export class S2SMonoGraphicData extends S2LayerData {
         this.transform.copy(other.transform);
         this.stroke.copy(other.stroke);
         this.fill.copy(other.fill);
-        this.opacity = other.opacity;
+        this.opacity.copy(other.opacity);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -33,7 +33,7 @@ export class S2SMonoGraphicData extends S2LayerData {
         this.transform.applyToElement(element, scene);
         this.stroke.applyToElement(element, scene);
         this.fill.applyToElement(element, scene);
-        if (this.opacity < 1) element.setAttribute('opacity', this.opacity.toString());
+        if (this.opacity.value < 1) element.setAttribute('opacity', this.opacity.value.toString());
     }
 }
 

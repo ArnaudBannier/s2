@@ -9,7 +9,7 @@ export class S2ShapeUtils {
      * @param radius - Le rayon du cercle.
      * @returns Tableau des points d'intersection (de taille 0, 1 ou 2).
      */
-    intersectRayCircle(rayOrigin: S2Vec2, rayDir: S2Vec2, center: S2Vec2, radius: number): S2Vec2[] {
+    static intersectRayCircle(rayOrigin: S2Vec2, rayDir: S2Vec2, center: S2Vec2, radius: number): S2Vec2[] {
         const m = rayOrigin.clone().subV(center);
         const a = rayDir.dot(rayDir);
         const b = 2 * rayDir.dot(m);

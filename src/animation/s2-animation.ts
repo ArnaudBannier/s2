@@ -1,7 +1,7 @@
 import { NewS2Element, S2Element, S2LayerData } from '../core/element/s2-element';
 import { type S2BaseScene } from '../core/s2-interface';
 import { lerp } from '../core/math/s2-utils';
-import { S2Position, S2Length } from '../core/math/s2-space';
+import { S2Position, S2Length, S2Extents, S2Number } from '../core/math/s2-space';
 import { S2Color } from '../core/s2-globals';
 import { S2Animatable } from '../core/s2-attributes';
 import { easeIn, easeLinear, easeOut, type S2Easing } from './s2-easing';
@@ -139,30 +139,71 @@ export abstract class S2AnimationNEW {
     }
 }
 
+type S2MemberMap<T> = Map<T, [T, T]>;
+//type S2AnimatableType = S2Position | S2Length | S2Extents | S2Color | number;
+
 export class S2LerpAnim extends S2AnimationNEW {
-    public color0: S2Color;
-    public color1: S2Color;
-    public target: NewS2Element<S2LayerData> | null = null;
-    public member: S2Color | null = null;
-    protected memberMap: Map<S2Color, [S2Color, S2Color]>;
+    protected positionMap: S2MemberMap<S2Position>;
+    protected lengthMap: S2MemberMap<S2Length>;
+    protected extentsMap: S2MemberMap<S2Extents>;
+    protected colorMap: S2MemberMap<S2Color>;
+    protected numberMap: S2MemberMap<S2Number>;
     protected targets: Set<NewS2Element<S2LayerData>>;
 
     constructor(scene: S2BaseScene) {
         super(scene);
-        this.color0 = new S2Color();
-        this.color1 = new S2Color();
-        this.memberMap = new Map<S2Color, [S2Color, S2Color]>();
+        this.colorMap = new Map();
+        this.positionMap = new Map();
+        this.numberMap = new Map();
+        this.lengthMap = new Map();
+        this.extentsMap = new Map();
         this.targets = new Set<NewS2Element<S2LayerData>>();
     }
 
-    saveColor(member: S2Color, target?: NewS2Element<S2LayerData>): this {
-        this.memberMap.set(member, [member.clone(), member.clone()]);
-        if (target !== undefined) this.targets.add(target);
+    addTarget(target: NewS2Element<S2LayerData>): this {
+        this.targets.add(target);
+        return this;
+    }
+
+    // saveMember(member: S2Color, to?: S2Color): this;
+    // saveMember(member: S2Position, to?: S2Position): this;
+    // saveMember(member: S2Length, to?: S2Length): this;
+    // saveMember(member: S2Extents, to?: S2Extents): this;
+    // saveMember(member: number, to?: number): this;
+
+    saveColor(member: S2Color, to?: S2Color): this {
+        this.colorMap.set(member, [member.clone(), to?.clone() ?? member.clone()]);
+        return this;
+    }
+
+    savePosition(member: S2Position, to?: S2Position): this {
+        this.positionMap.set(member, [member.clone(), to?.clone() ?? member.clone()]);
+        return this;
+    }
+    saveLength(member: S2Length, to?: S2Length): this {
+        this.lengthMap.set(member, [member.clone(), to?.clone() ?? member.clone()]);
+        return this;
+    }
+    saveExtents(member: S2Extents, to?: S2Extents): this {
+        this.extentsMap.set(member, [member.clone(), to?.clone() ?? member.clone()]);
+        return this;
+    }
+    // saveNumber(member: number, to?: number): this {
+    //     this.extentsMap.set(member, [member.clone(), to?.clone() ?? member.clone()]);
+    //     return this;
+    // }
+    // saveNumber<O extends object, K extends keyof O>(object: O, key: K & O[K] extends number): this {
+    //     // ici object[key] est garanti number
+    //     const value: number = object[key]; // type-safe
+    //     return this;
+    // }
+    saveNumber(member: S2Number, to?: S2Number): this {
+        this.numberMap.set(member, [member.clone(), to?.clone() ?? member.clone()]);
         return this;
     }
 
     finalize(): this {
-        for (const [member, values] of this.memberMap) {
+        for (const [member, values] of this.colorMap) {
             values[1].copy(member);
         }
         return this;
@@ -171,20 +212,15 @@ export class S2LerpAnim extends S2AnimationNEW {
     protected onUpdate(): void {
         super.onUpdate();
 
-        for (const [member, values] of this.memberMap) {
+        for (const [member, values] of this.colorMap) {
             member.copy(S2Color.lerp(values[0], values[1], this.getLoopProgression()));
         }
         for (const target of this.targets) {
             target.update();
         }
-        // if (this.member !== null) {
-        //     this.member.copy(S2Color.lerp(this.color0, this.color1, this.getLoopProgression()));
-        // }
-        // if (this.target !== null) {
-        //     this.target.update();
-        // }
     }
 }
+
 //             |     |
 // A - < # > . . < > . < # > . .
 // B - . . < # # > . . < > . . .

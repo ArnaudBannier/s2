@@ -1,13 +1,51 @@
 import { S2Vec2 } from './s2-vec2';
 import { S2Camera } from './s2-camera';
+import { S2MathUtils } from './s2-utils';
 
 export type S2Space = 'world' | 'view';
 
-export class S2Position {
+export abstract class S2BaseType<T> {
+    abstract readonly kind: string;
+    abstract clone(): T;
+    abstract copy(other: T): this;
+    abstract lerp(state0: T, state1: T, t: number): this;
+}
+
+export class S2Number extends S2BaseType<S2Number> {
+    readonly kind = 'number' as const;
+    public value: number;
+
+    constructor(value: number) {
+        super();
+        this.value = value;
+    }
+
+    clone(): S2Number {
+        return new S2Number(this.value);
+    }
+
+    copy(other: S2Number): this {
+        this.value = other.value;
+        return this;
+    }
+
+    lerp(state0: S2Number, state1: S2Number, t: number): this {
+        this.value = S2MathUtils.lerp(state0.value, state1.value, t);
+        return this;
+    }
+
+    static lerp(state0: S2Number, state1: S2Number, t: number): S2Number {
+        return new S2Number(0).lerp(state0, state1, t);
+    }
+}
+
+export class S2Position extends S2BaseType<S2Position> {
+    readonly kind = 'position' as const;
     public value: S2Vec2;
     public space: S2Space;
 
     constructor(x: number = 0, y: number = 0, space: S2Space = 'world') {
+        super();
         this.value = new S2Vec2(x, y);
         this.space = space;
     }
@@ -25,6 +63,15 @@ export class S2Position {
             this.space = 'world';
         }
         return this;
+    }
+
+    lerp(state0: S2Position, state1: S2Position, t: number): this {
+        this.value = S2Vec2.lerp(state0.value, state1.value, t);
+        return this;
+    }
+
+    static lerp(state0: S2Position, state1: S2Position, t: number): S2Position {
+        return new S2Position().lerp(state0, state1, t);
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {

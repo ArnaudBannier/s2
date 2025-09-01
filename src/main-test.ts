@@ -8,6 +8,7 @@ import { S2Length, S2Position } from './core/math/s2-space.ts';
 import { S2Animatable } from './core/s2-attributes.ts';
 import { S2ElementAnim, S2LerpAnim, type S2Animation } from './animation/s2-animation.ts';
 import { S2AnimationManager } from './animation/s2-animation-manager.ts';
+import { easeCos } from './animation/s2-easing.ts';
 
 /*
     TODO:
@@ -69,8 +70,13 @@ class SceneFigure extends S2AnimatedScene {
         this.circle.data.radius.space = 'world';
         this.circle.update();
 
-        this.anim.saveColor(this.circle.data.fill.color, this.circle);
-        this.anim.saveColor(this.circle.data.stroke.color, this.circle);
+        this.anim
+            .addTarget(this.circle)
+            .saveColor(this.circle.data.fill.color)
+            .saveColor(this.circle.data.stroke.color)
+            .setLoopDuration(4000)
+            .setAlternate()
+            .setEasing(easeCos);
 
         this.circle.data.fill.color.copy(MTL_COLORS.BLUE_GREY_9);
         this.circle.data.stroke.color.copy(MTL_COLORS.LIGHT_BLUE_5);
