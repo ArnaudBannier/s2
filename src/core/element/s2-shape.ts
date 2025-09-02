@@ -50,16 +50,24 @@ export abstract class NewS2SimpleShape<D extends S2SMonoGraphicData> extends New
         return this.data.fill.opacity;
     }
 
+    get opacity(): S2Number {
+        return this.data.opacity;
+    }
+
     get strokeColor(): S2Color {
         return this.data.stroke.color;
+    }
+
+    get strokeOpacity(): S2Number {
+        return this.data.stroke.opacity;
     }
 
     get strokeWidth(): S2Length {
         return this.data.stroke.width;
     }
 
-    get strokeOpacity(): S2Number {
-        return this.data.stroke.opacity;
+    get transform(): S2TransformData {
+        return this.data.transform;
     }
 }
 

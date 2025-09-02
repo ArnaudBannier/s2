@@ -39,6 +39,14 @@ export class NewS2Circle extends NewS2SimpleShape<S2CircleData> {
         this.element = document.createElementNS(svgNS, 'circle');
     }
 
+    get position(): S2Position {
+        return this.data.position;
+    }
+
+    get radius(): S2Length {
+        return this.data.radius;
+    }
+
     getSVGElement(): SVGElement {
         return this.element;
     }

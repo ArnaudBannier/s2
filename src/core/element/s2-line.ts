@@ -40,6 +40,14 @@ export class NewS2Line extends NewS2SimpleShape<S2LineData> {
         this.element = document.createElementNS(svgNS, 'line');
     }
 
+    get startPosition(): S2Position {
+        return this.data.startPosition;
+    }
+
+    get endPosition(): S2Position {
+        return this.data.endPosition;
+    }
+
     getSVGElement(): SVGElement {
         return this.element;
     }

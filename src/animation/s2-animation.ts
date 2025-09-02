@@ -10,6 +10,9 @@ import { S2Color } from '../core/s2-types';
 // Créer deux catégories -> timeAnim eventAnim ?
 // Comment gérer les smoothDamped ?
 
+// Créer une S2ActionAnim qui effectue des changement immédiats
+// => Les callbacks onStart peuvent faire la même chose. beforeStart, afterComplete ?
+
 export abstract class S2AnimationNEW {
     protected scene: S2BaseScene;
     protected loopAccu: number = 0;
@@ -146,8 +149,8 @@ export abstract class S2AnimationNEW {
     }
 
     getTotalDuration(): number {
-        if (this.loopCount < 0) return -1;
-        return (this.loopCount * this.loopDuration + this.delay) / this.speed;
+        const loopCount = this.loopCount < 0 ? 1 : this.loopCount;
+        return (loopCount * this.loopDuration + this.delay) / this.speed;
     }
 }
 
@@ -163,24 +166,64 @@ export abstract class S2AnimationNEW {
 // Faut-il sauvegarder les cibles des animations ?
 
 class S2TimelinePart {
-    public animation: S2Animation;
-    public range: [number, number];
+    public animation: S2AnimationNEW;
+    public offset: number;
 
-    constructor(animation: S2Animation, t0: number, t1: number) {
+    constructor(animation: S2AnimationNEW, offset: number = 0) {
         this.animation = animation;
-        this.range = [t0, t1];
+        this.offset = offset;
     }
 }
-export class S2TimelineAnim extends S2AnimationNEW {
+
+type S2TimelinePositionTypes = 'absolute' | 'previous-start' | 'previous-end';
+export class S2Timeline extends S2AnimationNEW {
     protected parts: S2TimelinePart[] = [];
     protected animations: S2AnimationNEW[] = [];
-    // beginToAnim
-    // EndToAnim
-    // Eventuellement des tableaux de parts
+    protected sortedStart: Array<{ start: number; animation: S2AnimationNEW }> = [];
+    protected sortedEnd: Array<{ end: number; animation: S2AnimationNEW }> = [];
 
     constructor(scene: S2BaseScene) {
         super(scene);
     }
+
+    createRanges(): void {
+        this.sortedStart.length = 0;
+        this.sortedEnd.length = 0;
+        for (const part of this.parts) {
+            const anim = part.animation;
+            this.sortedStart.push({ start: part.offset, animation: anim });
+            this.sortedEnd.push({ end: part.offset + anim.getTotalDuration(), animation: anim });
+        }
+        this.sortedStart.sort((a, b) => a.start - b.start);
+        this.sortedEnd.sort((a, b) => a.end - b.end);
+    }
+
+    addAnimation(
+        animation: S2AnimationNEW,
+        position: S2TimelinePositionTypes = 'previous-end',
+        offset: number = 0,
+    ): this {
+        const previousPart = this.parts.length > 0 ? this.parts[this.parts.length - 1] : null;
+        switch (position) {
+            case 'absolute':
+                break;
+            case 'previous-start':
+                if (previousPart) {
+                    offset += previousPart.offset;
+                }
+                break;
+            case 'previous-end':
+                if (previousPart) {
+                    offset += previousPart.offset + previousPart.animation.getTotalDuration();
+                }
+                break;
+        }
+        this.loopDuration += animation.getTotalDuration();
+        this.parts.push(new S2TimelinePart(animation, offset));
+        return this;
+    }
+
+    // Penser à setLoopDuration !
 
     update(dt: number): void {
         super.update(dt);

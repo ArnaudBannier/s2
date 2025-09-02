@@ -59,6 +59,18 @@ export class NewS2Rect extends NewS2SimpleShape<S2RectData> {
         this.element = document.createElementNS(svgNS, 'rect');
     }
 
+    get extents(): S2Extents {
+        return this.data.extents;
+    }
+
+    get position(): S2Position {
+        return this.data.position;
+    }
+
+    get radius(): S2Length {
+        return this.data.radius;
+    }
+
     getSVGElement(): SVGElement {
         return this.element;
     }
