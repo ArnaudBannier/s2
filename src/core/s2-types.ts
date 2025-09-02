@@ -4,7 +4,7 @@ import { S2MathUtils } from './math/s2-utils';
 
 export type S2Space = 'world' | 'view';
 
-export abstract class S2BaseType<T> {
+export abstract class S2BaseType<T extends S2BaseType<T>> {
     abstract readonly kind: string;
     abstract clone(): T;
     abstract copy(other: T): this;

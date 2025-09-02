@@ -71,10 +71,10 @@ class SceneFigure extends S2AnimatedScene {
         this.circle.update();
 
         this.anim
-            .addTarget(this.circle)
-            .saveMember(this.circle.fillColor)
-            .saveMember(this.circle.strokeColor)
-            .saveMember(this.circle.fillOpacity)
+            .addUpdateTarget(this.circle)
+            .bind(this.circle.fillColor)
+            .bind(this.circle.strokeColor)
+            .bind(this.circle.fillOpacity)
             .setLoopDuration(4000)
             .setAlternate()
             .setEasing(easeCos);
@@ -83,7 +83,7 @@ class SceneFigure extends S2AnimatedScene {
         this.circle.strokeColor.copy(MTL_COLORS.LIGHT_BLUE_5);
         this.circle.fillOpacity.set(0.5);
 
-        this.anim.finalize();
+        this.anim.commitFinalStates();
 
         this.anim.setLoopCount(-1).play();
 
