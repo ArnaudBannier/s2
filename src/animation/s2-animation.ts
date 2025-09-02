@@ -24,16 +24,16 @@ export abstract class S2AnimationNEW {
     protected paused: boolean = false;
     protected delay: number = 0;
 
-    protected targets: Set<S2BaseElement>;
+    protected updateTargets: Set<S2BaseElement>;
 
     addUpdateTarget(target: S2BaseElement): this {
-        this.targets.add(target);
+        this.updateTargets.add(target);
         return this;
     }
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
-        this.targets = new Set();
+        this.updateTargets = new Set();
     }
 
     begin(): void {
@@ -69,7 +69,7 @@ export abstract class S2AnimationNEW {
             }
         }
         this.onUpdate();
-        for (const target of this.targets) {
+        for (const target of this.updateTargets) {
             target.update();
         }
     }
@@ -151,20 +151,20 @@ export abstract class S2AnimationNEW {
     }
 }
 
-type S2LerpableMember<T> = { object: T; state0: T; state1: T };
-type S2LerpableMemberMap<T> = Map<T, S2LerpableMember<T>>;
+type S2LerpableProperty<T> = { object: T; state0: T; state1: T };
+type S2LerpablePropertyMap<T> = Map<T, S2LerpableProperty<T>>;
 export class S2LerpAnim extends S2AnimationNEW {
-    protected map: {
-        number: S2LerpableMemberMap<S2Number>;
-        position: S2LerpableMemberMap<S2Position>;
-        color: S2LerpableMemberMap<S2Color>;
-        length: S2LerpableMemberMap<S2Length>;
-        extents: S2LerpableMemberMap<S2Extents>;
+    protected maps: {
+        number: S2LerpablePropertyMap<S2Number>;
+        position: S2LerpablePropertyMap<S2Position>;
+        color: S2LerpablePropertyMap<S2Color>;
+        length: S2LerpablePropertyMap<S2Length>;
+        extents: S2LerpablePropertyMap<S2Extents>;
     };
 
     constructor(scene: S2BaseScene) {
         super(scene);
-        this.map = {
+        this.maps = {
             number: new Map(),
             position: new Map(),
             color: new Map(),
@@ -173,93 +173,93 @@ export class S2LerpAnim extends S2AnimationNEW {
         };
     }
 
-    bind(member: S2Number, to?: S2Number): this;
-    bind(member: S2Position, to?: S2Position): this;
-    bind(member: S2Color, to?: S2Color): this;
-    bind(member: S2Length, to?: S2Length): this;
-    bind(member: S2Extents, to?: S2Extents): this;
+    bind(property: S2Number, to?: S2Number): this;
+    bind(property: S2Position, to?: S2Position): this;
+    bind(property: S2Color, to?: S2Color): this;
+    bind(property: S2Length, to?: S2Length): this;
+    bind(property: S2Extents, to?: S2Extents): this;
     bind(
-        member: S2Number | S2Position | S2Color | S2Length | S2Extents,
+        property: S2Number | S2Position | S2Color | S2Length | S2Extents,
         to?: S2Number | S2Position | S2Color | S2Length | S2Extents,
     ): this {
-        switch (member.kind) {
+        switch (property.kind) {
             case 'number':
                 if (to instanceof S2Number) {
-                    this.map.number.set(member, {
-                        object: member,
-                        state0: member.clone(),
+                    this.maps.number.set(property, {
+                        object: property,
+                        state0: property.clone(),
                         state1: to.clone(),
                     });
-                    member.copy(to);
+                    property.copy(to);
                 } else {
-                    this.map.number.set(member, {
-                        object: member,
-                        state0: member.clone(),
-                        state1: member.clone(),
+                    this.maps.number.set(property, {
+                        object: property,
+                        state0: property.clone(),
+                        state1: property.clone(),
                     });
                 }
                 break;
             case 'position':
                 if (to instanceof S2Position) {
-                    this.map.position.set(member, {
-                        object: member,
-                        state0: member.clone(),
+                    this.maps.position.set(property, {
+                        object: property,
+                        state0: property.clone(),
                         state1: to.clone(),
                     });
-                    member.copy(to);
+                    property.copy(to);
                 } else {
-                    this.map.position.set(member, {
-                        object: member,
-                        state0: member.clone(),
-                        state1: member.clone(),
+                    this.maps.position.set(property, {
+                        object: property,
+                        state0: property.clone(),
+                        state1: property.clone(),
                     });
                 }
                 break;
             case 'color':
                 if (to instanceof S2Color) {
-                    this.map.color.set(member, {
-                        object: member,
-                        state0: member.clone(),
+                    this.maps.color.set(property, {
+                        object: property,
+                        state0: property.clone(),
                         state1: to.clone(),
                     });
-                    member.copy(to);
+                    property.copy(to);
                 } else {
-                    this.map.color.set(member, {
-                        object: member,
-                        state0: member.clone(),
-                        state1: member.clone(),
+                    this.maps.color.set(property, {
+                        object: property,
+                        state0: property.clone(),
+                        state1: property.clone(),
                     });
                 }
                 break;
             case 'length':
                 if (to instanceof S2Length) {
-                    this.map.length.set(member, {
-                        object: member,
-                        state0: member.clone(),
+                    this.maps.length.set(property, {
+                        object: property,
+                        state0: property.clone(),
                         state1: to.clone(),
                     });
-                    member.copy(to);
+                    property.copy(to);
                 } else {
-                    this.map.length.set(member, {
-                        object: member,
-                        state0: member.clone(),
-                        state1: member.clone(),
+                    this.maps.length.set(property, {
+                        object: property,
+                        state0: property.clone(),
+                        state1: property.clone(),
                     });
                 }
                 break;
             case 'extents':
                 if (to instanceof S2Extents) {
-                    this.map.extents.set(member, {
-                        object: member,
-                        state0: member.clone(),
+                    this.maps.extents.set(property, {
+                        object: property,
+                        state0: property.clone(),
                         state1: to.clone(),
                     });
-                    member.copy(to);
+                    property.copy(to);
                 } else {
-                    this.map.extents.set(member, {
-                        object: member,
-                        state0: member.clone(),
-                        state1: member.clone(),
+                    this.maps.extents.set(property, {
+                        object: property,
+                        state0: property.clone(),
+                        state1: property.clone(),
                     });
                 }
                 break;
@@ -270,19 +270,19 @@ export class S2LerpAnim extends S2AnimationNEW {
     }
 
     commitFinalStates(): this {
-        for (const values of this.map.number.values()) {
+        for (const values of this.maps.number.values()) {
             values.state1.copy(values.object);
         }
-        for (const values of this.map.position.values()) {
+        for (const values of this.maps.position.values()) {
             values.state1.copy(values.object);
         }
-        for (const values of this.map.color.values()) {
+        for (const values of this.maps.color.values()) {
             values.state1.copy(values.object);
         }
-        for (const values of this.map.length.values()) {
+        for (const values of this.maps.length.values()) {
             values.state1.copy(values.object);
         }
-        for (const values of this.map.extents.values()) {
+        for (const values of this.maps.extents.values()) {
             values.state1.copy(values.object);
         }
         return this;
@@ -292,19 +292,19 @@ export class S2LerpAnim extends S2AnimationNEW {
         super.onUpdate();
 
         const t = this.getLoopProgression();
-        for (const values of this.map.number.values()) {
+        for (const values of this.maps.number.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
-        for (const values of this.map.position.values()) {
+        for (const values of this.maps.position.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
-        for (const values of this.map.color.values()) {
+        for (const values of this.maps.color.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
-        for (const values of this.map.length.values()) {
+        for (const values of this.maps.length.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
-        for (const values of this.map.extents.values()) {
+        for (const values of this.maps.extents.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
     }
