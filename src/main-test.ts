@@ -3,13 +3,13 @@ import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { NewS2Circle, S2Circle } from './core/element/s2-circle.ts';
-import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
 import { S2Length, S2Number, S2Position } from './core/s2-types.ts';
 import { S2Animatable } from './core/s2-attributes.ts';
-import { S2ElementAnim, type S2Animation } from './animation/s2-animation.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { S2AnimationManager } from './animation/s2-animation-manager.ts';
 import { easeCos } from './animation/s2-easing.ts';
+import { S2Scene } from './core/s2-scene.ts';
+import { S2Timeline } from './animation/s2-timeline.ts';
 
 /*
     TODO:
@@ -38,7 +38,7 @@ const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
-class SceneFigure extends S2AnimatedScene {
+class SceneFigure extends S2Scene {
     protected styles = {
         backBase: new S2Animatable({
             fillColor: MTL_COLORS.GREY_6,
@@ -53,14 +53,14 @@ class SceneFigure extends S2AnimatedScene {
     };
     protected circle: NewS2Circle;
     protected animManager: S2AnimationManager = S2AnimationManager.getInstance();
-    protected anim: S2LerpAnim;
+    protected anim: S2Timeline;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
         this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
         this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
-        this.anim = new S2LerpAnim(this);
+        this.anim = new S2Timeline(this);
 
         this.circle = new NewS2Circle(this);
         this.circle.data.fill.color.copy(MTL_COLORS.GREY_6);
@@ -70,24 +70,39 @@ class SceneFigure extends S2AnimatedScene {
         this.circle.fillOpacity.set(1.0);
         this.circle.update();
 
-        this.anim
+        const lerpAnim1 = new S2LerpAnim(this)
             .addUpdateTarget(this.circle)
             .bind(this.circle.fillColor)
             .bind(this.circle.strokeColor)
             .bind(this.circle.fillOpacity)
-            .setLoopDuration(4000)
-            .setAlternate()
+            .setLoopDuration(1000)
             .setEasing(easeCos);
 
         this.circle.fillColor.copy(MTL_COLORS.BLUE_GREY_9);
         this.circle.strokeColor.copy(MTL_COLORS.LIGHT_BLUE_5);
         this.circle.fillOpacity.set(0.5);
 
-        this.anim.commitFinalStates();
+        lerpAnim1.commitFinalStates();
 
-        this.anim.setLoopCount(-1).play();
+        const lerpAnim2 = new S2LerpAnim(this)
+            .addUpdateTarget(this.circle)
+            .bind(this.circle.fillColor)
+            .bind(this.circle.strokeColor)
+            .setLoopDuration(1000)
+            .setEasing(easeCos);
+
+        this.circle.fillColor.copy(MTL_COLORS.RED_8);
+        this.circle.strokeColor.copy(MTL_COLORS.RED_1);
+        lerpAnim2.commitFinalStates();
+
+        //lerpAnim1.setLoopCount(-1).play();
+        console.log(-4.53 % 4.45);
+
+        this.anim.addAnimation(lerpAnim1);
+        this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
 
         this.animManager.addAnimation(this.anim);
+        this.anim.setLoopCount(-1).play();
 
         this.update();
         svgElement.appendChild(this.circle.getSVGElement());
