@@ -27,7 +27,6 @@ class S2TimelinePart {
 type S2TimelinePositionTypes = 'absolute' | 'previous-start' | 'previous-end';
 export class S2Timeline extends S2AnimationNEW {
     protected parts: S2TimelinePart[] = [];
-    protected animations: S2AnimationNEW[] = [];
     protected sortedStart: S2TimelinePart[] = [];
     protected sortedEnd: S2TimelinePart[] = [];
 
@@ -68,37 +67,66 @@ export class S2Timeline extends S2AnimationNEW {
         return this;
     }
 
-    protected onBegin(): void {
-        for (let i = this.sortedEnd.length - 1; i >= 0; i--) {
-            this.sortedEnd[i].animation.begin();
-        }
-    }
+    // protected onBegin(): void {
+    //     for (let i = this.sortedEnd.length - 1; i >= 0; i--) {
+    //         this.sortedEnd[i].animation.begin();
+    //     }
+    // }
 
-    protected onLoop(): void {
-        for (let i = this.sortedEnd.length - 1; i >= 0; i--) {
-            this.sortedEnd[i].animation.begin();
-        }
-        for (const part of this.parts) {
-            part.animation.play();
-        }
-    }
+    // protected onLoop(): void {
+    //     for (let i = this.sortedEnd.length - 1; i >= 0; i--) {
+    //         this.sortedEnd[i].animation.begin();
+    //     }
+    //     for (const part of this.parts) {
+    //         part.animation.play();
+    //     }
+    // }
 
     play(): void {
-        super.play();
-        for (const part of this.parts) {
-            part.animation.play();
+        // super.play();
+        // for (const part of this.parts) {
+        //     part.animation.play();
+        // }
+    }
+    setRawElapsed(elapsed: number, updateId?: number): this {
+        super.setRawElapsed(elapsed, updateId);
+        //const isLoopReversed = this.alternate && this.loopIndex % 2 === 1;
+        for (let i = this.sortedStart.length - 1; i >= 0; i--) {
+            const part = this.sortedStart[i];
+            if (part.start < this.currWrapedLoopElapsed) break;
+            part.animation.applyInitialState();
         }
+        for (let i = 0; i < this.sortedEnd.length; i++) {
+            const part = this.sortedEnd[i];
+            if (part.end > this.currWrapedLoopElapsed) break;
+            part.animation.applyFinalState();
+        }
+
+        for (const part of this.parts) {
+            console.log('New part =========================================');
+            const localElapsed = this.currWrapedLoopElapsed - part.start;
+            console.log('Local in timeline:', localElapsed);
+            if (localElapsed >= 0 && localElapsed <= part.animation.getTotalDuration()) {
+                console.log('Calling setRawElapsed on part: ----------------------------------');
+                part.animation.setRawElapsed(localElapsed, updateId);
+            } else {
+                part.animation.updateTargets(updateId);
+            }
+        }
+
+        return this;
     }
 
     // Penser à setLoopDuration !
 
     update(dt: number): void {
-        super.update(dt);
-        for (let i = 0; i < this.sortedStart.length; i++) {
-            const part = this.sortedStart[i];
-            if (this.loopAccu >= part.start) {
-                part.animation.update(dt);
-            }
-        }
+        // super.update(dt);
+        // for (let i = 0; i < this.sortedStart.length; i++) {
+        //     const part = this.sortedStart[i];
+        //     const localElapsed = this.currWrapedLoopElapsed - part.start;
+        //     if (this.currWrapedLoopElapsed > 0 && localElapsed < part.animation.getTotalDuration()) {
+        //         part.animation.setRawElapsed(localElapsed);
+        //     }
+        // }
     }
 }

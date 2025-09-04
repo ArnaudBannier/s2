@@ -38,7 +38,7 @@ export class S2StrokeData {
     constructor() {
         this.color = new S2Color();
         this.width = new S2Length(0, 'view');
-        this.opacity = new S2Number(1);
+        this.opacity = new S2Number(2);
     }
 
     copy(other: S2StrokeData): void {
@@ -53,8 +53,11 @@ export class S2StrokeData {
         element.setAttribute('stroke', this.color.toRgb());
         element.setAttribute('stroke-width', width.toString());
         if (this.lineCap !== undefined) element.setAttribute('stroke-linecap', this.lineCap);
+        else element.removeAttribute('stroke-linecap');
         if (this.lineJoin !== undefined) element.setAttribute('stroke-linejoin', this.lineJoin);
-        if (this.opacity.value < 1) element.setAttribute('stroke-opacity', this.opacity.toString());
+        else element.removeAttribute('stroke-linejoin');
+        if (this.opacity.value <= 1) element.setAttribute('stroke-opacity', this.opacity.toString());
+        else element.removeAttribute('stroke-opacity');
     }
 }
 
@@ -64,7 +67,7 @@ export class S2FillData {
 
     constructor() {
         this.color = new S2Color();
-        this.opacity = new S2Number(1);
+        this.opacity = new S2Number(2);
     }
 
     copy(other: S2FillData): void {
@@ -74,9 +77,14 @@ export class S2FillData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         void scene;
-        if (this.opacity.value <= 0) return;
+        if (this.opacity.value <= 0) {
+            element.removeAttribute('fill');
+            element.removeAttribute('fill-opacity');
+            return;
+        }
         element.setAttribute('fill', this.color.toRgb());
-        if (this.opacity.value < 1) element.setAttribute('fill-opacity', this.opacity.toString());
+        if (this.opacity.value <= 1) element.setAttribute('fill-opacity', this.opacity.toString());
+        else element.removeAttribute('fill-opacity');
     }
 }
 
@@ -93,7 +101,10 @@ export class S2TransformData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         void scene;
-        if (this.matrix.isIdentity()) return;
+        if (this.matrix.isIdentity()) {
+            element.removeAttribute('transform');
+            return;
+        }
         const m = this.matrix.elements;
         element.setAttribute('transform', `matrix(${m[0]}, ${m[1]}, ${m[2]}, ${m[3]}, ${m[4]}, ${m[5]})`);
     }
@@ -103,6 +114,7 @@ export abstract class NewS2Element<D extends S2LayerData> {
     protected scene: S2BaseScene;
     protected parent: S2Element | null = null;
     public readonly id: number;
+    protected prevUpdateId: number = -1;
 
     public data: D;
 
@@ -143,7 +155,19 @@ export abstract class NewS2Element<D extends S2LayerData> {
         return this.scene.activeCamera;
     }
 
-    abstract update(): this;
+    // TODO : Ajouter un updateID pour ne pas faire plusieurs fois le même update dans une frame
+    abstract update(updateId?: number): this;
+
+    protected shouldSkipUpdate(updateId?: number): boolean {
+        if (updateId === undefined) {
+            this.prevUpdateId = this.scene.getNextUpdateId();
+            return false;
+        } else if (this.prevUpdateId !== updateId) {
+            this.prevUpdateId = updateId;
+            return false;
+        }
+        return true;
+    }
 }
 
 export abstract class S2Element {

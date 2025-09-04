@@ -41,6 +41,11 @@ export class S2LerpAnim extends S2AnimationNEW {
         }
         return this;
     }
+    setRawElapsed(elapsed: number): this {
+        console.log('elapsed in lerp:', elapsed);
+        super.setRawElapsed(elapsed);
+        return this;
+    }
 
     bind(property: S2Number, to?: S2Number): this;
     bind(property: S2Position, to?: S2Position): this;
@@ -160,7 +165,8 @@ export class S2LerpAnim extends S2AnimationNEW {
     protected onUpdate(): void {
         super.onUpdate();
 
-        const t = this.getLoopProgression();
+        const t = this.wrapedLoopAlpha;
+        console.log('Lerp t:', t);
         for (const values of this.maps.number.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
@@ -175,6 +181,46 @@ export class S2LerpAnim extends S2AnimationNEW {
         }
         for (const values of this.maps.extents.values()) {
             values.object.lerp(values.state0, values.state1, t);
+        }
+    }
+
+    applyInitialState(): void {
+        console.log('Applying initial state');
+        for (const values of this.maps.number.values()) {
+            values.object.copy(values.state0);
+            console.log('number = ', values.object.value);
+        }
+        for (const values of this.maps.position.values()) {
+            values.object.copy(values.state0);
+        }
+        for (const values of this.maps.color.values()) {
+            values.object.copy(values.state0);
+        }
+        for (const values of this.maps.length.values()) {
+            values.object.copy(values.state0);
+        }
+        for (const values of this.maps.extents.values()) {
+            values.object.copy(values.state0);
+        }
+    }
+
+    applyFinalState(): void {
+        console.log('Applying final state');
+        for (const values of this.maps.number.values()) {
+            values.object.copy(values.state1);
+            console.log('number = ', values.object.value);
+        }
+        for (const values of this.maps.position.values()) {
+            values.object.copy(values.state1);
+        }
+        for (const values of this.maps.color.values()) {
+            values.object.copy(values.state1);
+        }
+        for (const values of this.maps.length.values()) {
+            values.object.copy(values.state1);
+        }
+        for (const values of this.maps.extents.values()) {
+            values.object.copy(values.state1);
         }
     }
 }

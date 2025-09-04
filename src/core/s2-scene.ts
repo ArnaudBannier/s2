@@ -20,6 +20,15 @@ export class S2Scene implements S2BaseScene {
     readonly svg: S2SVG;
     activeCamera: S2Camera;
     nextId: number;
+    private nextUpdateId: number = 0;
+
+    getNextElementId(): number {
+        return this.nextId++;
+    }
+
+    getNextUpdateId(): number {
+        return this.nextUpdateId++;
+    }
 
     constructor(element: SVGSVGElement, camera: S2Camera) {
         this.activeCamera = camera;

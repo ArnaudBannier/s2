@@ -95,17 +95,24 @@ class SceneFigure extends S2Scene {
         this.circle.strokeColor.copy(MTL_COLORS.RED_1);
         lerpAnim2.commitFinalStates();
 
-        //lerpAnim1.setLoopCount(-1).play();
-        console.log(-4.53 % 4.45);
-
         this.anim.addAnimation(lerpAnim1);
         this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
 
-        this.animManager.addAnimation(this.anim);
-        this.anim.setLoopCount(-1).play();
+        //this.animManager.addAnimation(this.anim);
+        this.anim.setLoopCount(2).setReversed(false).setAlternate(true);
+        this.anim.setRawElapsed(0);
 
         this.update();
         svgElement.appendChild(this.circle.getSVGElement());
+    }
+
+    setAnimationValue(t: number): void {
+        console.log('\n');
+        console.log('Setting animation to', t);
+        this.anim.setRawElapsed(t * 5000);
+        console.log(this.anim);
+        //this.circle.update();
+        //this.update();
     }
 }
 
@@ -116,7 +123,7 @@ if (appDiv) {
             <h1>Test</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
-                <div>Animation : <input type="range" id="slider" min="0" max="100" value="0" style="width:50%"></div>
+                <div>Animation : <input type="range" id="slider" min="0" max="100" step="2" value="0" style="width:50%"></div>
             </div>
         </div>`;
 }
@@ -126,9 +133,8 @@ const slider = document.querySelector<HTMLInputElement>('#slider');
 
 if (svgElement && slider) {
     const scene = new SceneFigure(svgElement);
-    void scene;
 
-    // slider.addEventListener('input', () => {
-    //     scene.setAnimationValue(slider.valueAsNumber / 100);
-    // });
+    slider.addEventListener('input', () => {
+        scene.setAnimationValue(slider.valueAsNumber / 100);
+    });
 }

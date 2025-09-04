@@ -7,6 +7,8 @@ export interface S2BaseScene {
     readonly svg: S2SVG;
     activeCamera: S2Camera;
     nextId: number;
+    getNextElementId(): number;
+    getNextUpdateId(): number;
 }
 
 export interface S2HasExtents {

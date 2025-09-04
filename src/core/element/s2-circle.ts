@@ -59,7 +59,8 @@ export class NewS2Circle extends NewS2SimpleShape<S2CircleData> {
         return point.addV(this.data.position.toSpace(space, camera));
     }
 
-    update(): this {
+    update(updateId?: number): this {
+        if (this.shouldSkipUpdate(updateId)) return this;
         this.data.applyToElement(this.element, this.scene);
         return this;
     }

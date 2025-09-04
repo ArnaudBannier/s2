@@ -35,7 +35,8 @@ export class NewS2FillRect extends NewS2Element<S2FillRectData> {
         return this.element;
     }
 
-    update(): this {
+    update(updateId?: number): this {
+        if (this.shouldSkipUpdate(updateId)) return this;
         const data = this.data;
         const camera = this.getActiveCamera();
         this.element.setAttribute('x', '0');

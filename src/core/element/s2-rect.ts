@@ -92,7 +92,8 @@ export class NewS2Rect extends NewS2SimpleShape<S2RectData> {
         return S2ShapeUtils.intersectDirectionRoundedRectangle(direction, extents, radius).addV(center);
     }
 
-    update(): this {
+    update(updateId?: number): this {
+        if (this.shouldSkipUpdate(updateId)) return this;
         this.data.applyToElement(this.element, this.scene);
         return this;
     }
