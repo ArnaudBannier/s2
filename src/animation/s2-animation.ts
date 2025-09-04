@@ -106,6 +106,10 @@ export abstract class S2AnimationNEW {
         return this;
     }
 
+    getRawElapsed(): number {
+        return this.currRawElapsed;
+    }
+
     update(dt: number): void {
         // if (this.paused) return;
         // const nextAccu = this.loopAccu + this.speed * dt;

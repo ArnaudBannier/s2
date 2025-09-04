@@ -110,13 +110,44 @@ export class S2TransformData {
     }
 }
 
+type S2Listener = (source: S2BaseElement, updateId?: number) => void;
+
 export abstract class NewS2Element<D extends S2LayerData> {
+    public data: D;
+    public readonly id: number;
+
     protected scene: S2BaseScene;
     protected parent: S2Element | null = null;
-    public readonly id: number;
     protected prevUpdateId: number = -1;
 
-    public data: D;
+    private listeners: Set<S2Listener> = new Set();
+    private dependencies: Set<S2BaseElement> = new Set();
+
+    addListener(listener: S2Listener): void {
+        this.listeners.add(listener);
+    }
+    removeListener(listener: S2Listener): void {
+        this.listeners.delete(listener);
+    }
+    addDependency(dep: S2BaseElement): void {
+        this.dependencies.add(dep);
+        dep.addListener(this.onDependencyUpdate.bind(this));
+    }
+    protected onDependencyUpdate(dep: S2BaseElement, updateId?: number): void {
+        // logique par défaut : redemander un update
+        this.updateFromDependency(dep, updateId);
+        this.emitUpdate(updateId);
+    }
+    protected updateFromDependency(dep: S2BaseElement, updateId?: number): void {
+        void dep;
+        void updateId;
+        // par défaut, rien
+    }
+    protected emitUpdate(updateId?: number): void {
+        for (const listener of this.listeners) {
+            listener(this, updateId);
+        }
+    }
 
     constructor(scene: S2BaseScene, data: D) {
         this.data = data;

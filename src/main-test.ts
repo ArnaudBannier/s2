@@ -6,7 +6,7 @@ import { NewS2Circle, S2Circle } from './core/element/s2-circle.ts';
 import { S2Length, S2Number, S2Position } from './core/s2-types.ts';
 import { S2Animatable } from './core/s2-attributes.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
-import { S2AnimationManager } from './animation/s2-animation-manager.ts';
+//import { S2AnimationManager } from './animation/s2-animation-manager.ts';
 import { easeCos } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2Timeline } from './animation/s2-timeline.ts';
@@ -52,7 +52,7 @@ class SceneFigure extends S2Scene {
         }),
     };
     protected circle: NewS2Circle;
-    protected animManager: S2AnimationManager = S2AnimationManager.getInstance();
+    //protected animManager: S2AnimationManager = S2AnimationManager.getInstance();
     protected anim: S2Timeline;
 
     constructor(svgElement: SVGSVGElement) {
