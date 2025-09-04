@@ -1,10 +1,10 @@
 import { type S2BaseScene } from '../core/s2-interface';
 import { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../core/s2-types';
-import { S2AnimationNEW } from './s2-animation';
+import { S2Animation } from './s2-animation';
 
 type S2LerpableProperty<T> = { object: T; state0: T; state1: T };
 type S2LerpablePropertyMap<T> = Map<T, S2LerpableProperty<T>>;
-export class S2LerpAnim extends S2AnimationNEW {
+export class S2LerpAnim extends S2Animation {
     protected maps: {
         number: S2LerpablePropertyMap<S2Number>;
         position: S2LerpablePropertyMap<S2Position>;
@@ -25,25 +25,47 @@ export class S2LerpAnim extends S2AnimationNEW {
     }
 
     bindNumber(property: S2Number, to?: S2Number): this {
-        if (to instanceof S2Number) {
-            this.maps.number.set(property, {
-                object: property,
-                state0: property.clone(),
-                state1: to.clone(),
-            });
-            property.copy(to);
-        } else {
-            this.maps.number.set(property, {
-                object: property,
-                state0: property.clone(),
-                state1: property.clone(),
-            });
-        }
+        this.maps.number.set(property, {
+            object: property,
+            state0: property.clone(),
+            state1: to !== undefined ? to.clone() : property.clone(),
+        });
         return this;
     }
-    setRawElapsed(elapsed: number): this {
-        console.log('elapsed in lerp:', elapsed);
-        super.setRawElapsed(elapsed);
+
+    bindPosition(property: S2Position, to?: S2Position): this {
+        this.maps.position.set(property, {
+            object: property,
+            state0: property.clone(),
+            state1: to !== undefined ? to.clone() : property.clone(),
+        });
+        return this;
+    }
+
+    bindColor(property: S2Color, to?: S2Color): this {
+        this.maps.color.set(property, {
+            object: property,
+            state0: property.clone(),
+            state1: to !== undefined ? to.clone() : property.clone(),
+        });
+        return this;
+    }
+
+    bindLength(property: S2Length, to?: S2Length): this {
+        this.maps.length.set(property, {
+            object: property,
+            state0: property.clone(),
+            state1: to !== undefined ? to.clone() : property.clone(),
+        });
+        return this;
+    }
+
+    bindExtents(property: S2Extents, to?: S2Extents): this {
+        this.maps.extents.set(property, {
+            object: property,
+            state0: property.clone(),
+            state1: to !== undefined ? to.clone() : property.clone(),
+        });
         return this;
     }
 
@@ -58,84 +80,19 @@ export class S2LerpAnim extends S2AnimationNEW {
     ): this {
         switch (property.kind) {
             case 'number':
-                if (to instanceof S2Number) {
-                    this.maps.number.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: to.clone(),
-                    });
-                    property.copy(to);
-                } else {
-                    this.maps.number.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: property.clone(),
-                    });
-                }
+                this.bindNumber(property, to as S2Number | undefined);
                 break;
             case 'position':
-                if (to instanceof S2Position) {
-                    this.maps.position.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: to.clone(),
-                    });
-                    property.copy(to);
-                } else {
-                    this.maps.position.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: property.clone(),
-                    });
-                }
+                this.bindPosition(property, to as S2Position | undefined);
                 break;
             case 'color':
-                if (to instanceof S2Color) {
-                    this.maps.color.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: to.clone(),
-                    });
-                    property.copy(to);
-                } else {
-                    this.maps.color.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: property.clone(),
-                    });
-                }
+                this.bindColor(property, to as S2Color | undefined);
                 break;
             case 'length':
-                if (to instanceof S2Length) {
-                    this.maps.length.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: to.clone(),
-                    });
-                    property.copy(to);
-                } else {
-                    this.maps.length.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: property.clone(),
-                    });
-                }
+                this.bindLength(property, to as S2Length | undefined);
                 break;
             case 'extents':
-                if (to instanceof S2Extents) {
-                    this.maps.extents.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: to.clone(),
-                    });
-                    property.copy(to);
-                } else {
-                    this.maps.extents.set(property, {
-                        object: property,
-                        state0: property.clone(),
-                        state1: property.clone(),
-                    });
-                }
+                this.bindExtents(property, to as S2Extents | undefined);
                 break;
             default:
                 throw new Error('Unsupported member type');
@@ -162,11 +119,9 @@ export class S2LerpAnim extends S2AnimationNEW {
         return this;
     }
 
-    protected onUpdate(): void {
-        super.onUpdate();
-
-        const t = this.wrapedLoopAlpha;
-        console.log('Lerp t:', t);
+    protected onSetElapsed(): void {
+        super.onSetElapsed();
+        const t = this.wrapedCycleAlpha;
         for (const values of this.maps.number.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
@@ -185,10 +140,8 @@ export class S2LerpAnim extends S2AnimationNEW {
     }
 
     applyInitialState(): void {
-        console.log('Applying initial state');
         for (const values of this.maps.number.values()) {
             values.object.copy(values.state0);
-            console.log('number = ', values.object.value);
         }
         for (const values of this.maps.position.values()) {
             values.object.copy(values.state0);
@@ -205,10 +158,8 @@ export class S2LerpAnim extends S2AnimationNEW {
     }
 
     applyFinalState(): void {
-        console.log('Applying final state');
         for (const values of this.maps.number.values()) {
             values.object.copy(values.state1);
-            console.log('number = ', values.object.value);
         }
         for (const values of this.maps.position.values()) {
             values.object.copy(values.state1);

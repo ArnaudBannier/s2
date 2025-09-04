@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../core/s2-interface';
-import { S2AnimationNEW } from './s2-animation';
+import { S2Animation } from './s2-animation';
 
 //             |     |
 // A - < # > . . < > . < # > . .
@@ -13,19 +13,19 @@ import { S2AnimationNEW } from './s2-animation';
 // Faut-il sauvegarder les cibles des animations ?
 
 class S2TimelinePart {
-    public animation: S2AnimationNEW;
+    public animation: S2Animation;
     public start: number;
     public end: number;
 
-    constructor(animation: S2AnimationNEW, start: number = 0) {
+    constructor(animation: S2Animation, start: number = 0) {
         this.animation = animation;
         this.start = start;
-        this.end = start + animation.getTotalDuration();
+        this.end = start + animation.getDuration();
     }
 }
 
 type S2TimelinePositionTypes = 'absolute' | 'previous-start' | 'previous-end';
-export class S2Timeline extends S2AnimationNEW {
+export class S2Timeline extends S2Animation {
     protected parts: S2TimelinePart[] = [];
     protected sortedStart: S2TimelinePart[] = [];
     protected sortedEnd: S2TimelinePart[] = [];
@@ -34,11 +34,7 @@ export class S2Timeline extends S2AnimationNEW {
         super(scene);
     }
 
-    addAnimation(
-        animation: S2AnimationNEW,
-        position: S2TimelinePositionTypes = 'previous-end',
-        offset: number = 0,
-    ): this {
+    addAnimation(animation: S2Animation, position: S2TimelinePositionTypes = 'previous-end', offset: number = 0): this {
         const previousPart = this.parts.length > 0 ? this.parts[this.parts.length - 1] : null;
         let start = offset;
         switch (position) {
@@ -51,14 +47,14 @@ export class S2Timeline extends S2AnimationNEW {
                 break;
             case 'previous-end':
                 if (previousPart) {
-                    start += previousPart.start + previousPart.animation.getTotalDuration();
+                    start += previousPart.start + previousPart.animation.getDuration();
                 }
                 break;
         }
         start = Math.max(0, start);
-        const end = start + animation.getTotalDuration();
+        const end = start + animation.getDuration();
         const part = new S2TimelinePart(animation, start);
-        this.loopDuration = Math.max(this.loopDuration, end);
+        this.cycleDuration = Math.max(this.cycleDuration, end);
         this.parts.push(part);
         this.sortedStart.push(part);
         this.sortedEnd.push(part);
@@ -67,48 +63,23 @@ export class S2Timeline extends S2AnimationNEW {
         return this;
     }
 
-    // protected onBegin(): void {
-    //     for (let i = this.sortedEnd.length - 1; i >= 0; i--) {
-    //         this.sortedEnd[i].animation.begin();
-    //     }
-    // }
-
-    // protected onLoop(): void {
-    //     for (let i = this.sortedEnd.length - 1; i >= 0; i--) {
-    //         this.sortedEnd[i].animation.begin();
-    //     }
-    //     for (const part of this.parts) {
-    //         part.animation.play();
-    //     }
-    // }
-
-    play(): void {
-        // super.play();
-        // for (const part of this.parts) {
-        //     part.animation.play();
-        // }
-    }
-    setRawElapsed(elapsed: number, updateId?: number): this {
-        super.setRawElapsed(elapsed, updateId);
-        //const isLoopReversed = this.alternate && this.loopIndex % 2 === 1;
+    setElapsed(elapsed: number, updateId?: number): this {
+        super.setElapsed(elapsed, updateId);
         for (let i = this.sortedStart.length - 1; i >= 0; i--) {
             const part = this.sortedStart[i];
-            if (part.start < this.currWrapedLoopElapsed) break;
+            if (part.start < this.wrapedCycleElapsed) break;
             part.animation.applyInitialState();
         }
         for (let i = 0; i < this.sortedEnd.length; i++) {
             const part = this.sortedEnd[i];
-            if (part.end > this.currWrapedLoopElapsed) break;
+            if (part.end > this.wrapedCycleElapsed) break;
             part.animation.applyFinalState();
         }
 
         for (const part of this.parts) {
-            console.log('New part =========================================');
-            const localElapsed = this.currWrapedLoopElapsed - part.start;
-            console.log('Local in timeline:', localElapsed);
-            if (localElapsed >= 0 && localElapsed <= part.animation.getTotalDuration()) {
-                console.log('Calling setRawElapsed on part: ----------------------------------');
-                part.animation.setRawElapsed(localElapsed, updateId);
+            const localElapsed = this.wrapedCycleElapsed - part.start;
+            if (localElapsed >= 0 && localElapsed <= part.animation.getDuration()) {
+                part.animation.setElapsed(localElapsed, updateId);
             } else {
                 part.animation.updateTargets(updateId);
             }
@@ -117,16 +88,5 @@ export class S2Timeline extends S2AnimationNEW {
         return this;
     }
 
-    // Penser à setLoopDuration !
-
-    update(dt: number): void {
-        // super.update(dt);
-        // for (let i = 0; i < this.sortedStart.length; i++) {
-        //     const part = this.sortedStart[i];
-        //     const localElapsed = this.currWrapedLoopElapsed - part.start;
-        //     if (this.currWrapedLoopElapsed > 0 && localElapsed < part.animation.getTotalDuration()) {
-        //         part.animation.setRawElapsed(localElapsed);
-        //     }
-        // }
-    }
+    // Penser à setCycleDuration !
 }

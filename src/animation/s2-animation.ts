@@ -9,28 +9,25 @@ import { easeLinear, type S2Easing } from './s2-easing';
 // Changement immédiats
 // => Les callbacks onStart peuvent faire la même chose. beforeStart, afterComplete ?
 
-export abstract class S2AnimationNEW {
+export abstract class S2Animation {
     protected scene: S2BaseScene;
-    protected loopAccu: number = 0;
-    protected loopIndex: number = 0;
-    protected loopCount: number = 1;
-    protected loopDuration: number = 1000;
-    protected speed: number = 1;
-    protected ease: S2Easing = easeLinear;
-    protected currWrapedLoopElapsed: number = 0;
-    protected prevWrapedLoopElapsed: number = 0;
-    protected currRawElapsed: number = 0;
-    protected prevRawElapsed: number = 0;
+    protected cycleIndex: number = 0;
+    protected cycleCount: number = 1;
+    protected cycleDuration: number = 1000;
+    protected rawCycleAlpha: number = 0;
+    protected rawElapsed: number = 0;
     protected rawDuration: number = 1000;
-    protected rawLoopAlpha: number = 0;
-    protected wrapedLoopAlpha: number = 0;
-
+    protected wrapedCycleAlpha: number = 0;
+    protected wrapedCycleElapsed: number = 0;
+    protected ease: S2Easing = easeLinear;
     protected reversed: boolean = false;
     protected alternate: boolean = false;
-    protected paused: boolean = false;
-    protected delay: number = 0;
-
     protected elementsToUpdate: Set<S2BaseElement>;
+
+    constructor(scene: S2BaseScene) {
+        this.scene = scene;
+        this.elementsToUpdate = new Set();
+    }
 
     addUpdateTarget(target: S2BaseElement): this {
         this.elementsToUpdate.add(target);
@@ -44,133 +41,51 @@ export abstract class S2AnimationNEW {
         return this;
     }
 
-    constructor(scene: S2BaseScene) {
-        this.scene = scene;
-        this.elementsToUpdate = new Set();
-    }
-
     applyInitialState(): void {}
     applyFinalState(): void {}
 
-    // begin(): void {
-    //     this.loopAccu = 0;
-    //     this.loopIndex = 0;
-    //     this.onBegin();
-    // }
+    setElapsed(elapsed: number, updateId?: number): this {
+        this.rawElapsed = elapsed;
+        let currCycle = Math.floor(this.rawElapsed / this.cycleDuration);
+        this.cycleIndex = S2MathUtils.clamp(currCycle, 0, this.cycleCount - 1);
 
-    // complete(): void {
-    //     this.loopAccu = this.loopDuration;
-    //     this.loopIndex = this.loopCount;
-    //     this.onComplete();
-    // }
-    protected onLoopForward(cycle: number): void {}
-    protected onLoopBackward(cycle: number): void {}
-
-    setRawElapsed(elapsed: number, updateId?: number): this {
-        this.prevRawElapsed = this.currRawElapsed;
-        this.prevWrapedLoopElapsed = this.currWrapedLoopElapsed;
-
-        this.currRawElapsed = elapsed;
-        let prevCycle = Math.floor(this.prevRawElapsed / this.loopDuration);
-        let currCycle = Math.floor(this.currRawElapsed / this.loopDuration);
-        if (currCycle > prevCycle) {
-            for (let i = prevCycle + 1; i <= currCycle; i++) {
-                this.onLoopForward(i);
-            }
-        }
-        if (currCycle < prevCycle) {
-            for (let i = prevCycle; i > currCycle; i--) {
-                this.onLoopBackward(i);
-            }
-        }
-        this.loopIndex = S2MathUtils.clamp(currCycle, 0, this.loopCount - 1);
-
-        if (elapsed >= this.loopCount * this.loopDuration) {
-            this.rawLoopAlpha = 1;
+        if (elapsed >= this.cycleCount * this.cycleDuration) {
+            this.rawCycleAlpha = 1;
         } else {
-            this.rawLoopAlpha = (this.currRawElapsed % this.loopDuration) / this.loopDuration;
+            this.rawCycleAlpha = (this.rawElapsed % this.cycleDuration) / this.cycleDuration;
         }
-        this.wrapedLoopAlpha = this.reversed ? 1 - this.rawLoopAlpha : this.rawLoopAlpha;
-        if (this.alternate && this.loopIndex % 2 === 1) this.wrapedLoopAlpha = 1 - this.wrapedLoopAlpha;
-        this.wrapedLoopAlpha = this.ease(this.wrapedLoopAlpha);
-        this.currWrapedLoopElapsed = S2MathUtils.clamp(this.wrapedLoopAlpha, 0, 1) * this.loopDuration;
+        this.wrapedCycleAlpha = this.reversed ? 1 - this.rawCycleAlpha : this.rawCycleAlpha;
+        if (this.alternate && this.cycleIndex % 2 === 1) this.wrapedCycleAlpha = 1 - this.wrapedCycleAlpha;
+        this.wrapedCycleAlpha = this.ease(this.wrapedCycleAlpha);
+        this.wrapedCycleElapsed = S2MathUtils.clamp(this.wrapedCycleAlpha, 0, 1) * this.cycleDuration;
 
-        // if (this.currRawElapsed > this.prevRawElapsed && this.currRawElapsed > this.rawDuration) {
-        //     this.onComplete();
-        // } else if (this.currRawElapsed < this.prevRawElapsed && this.currRawElapsed < 0) {
-        //     this.onBegin();
-        // }
-        this.onUpdate();
+        this.onSetElapsed();
         this.updateTargets(updateId);
 
         return this;
     }
 
-    getRawElapsed(): number {
-        return this.currRawElapsed;
+    getElapsed(): number {
+        return this.rawElapsed;
     }
 
-    update(dt: number): void {
-        // if (this.paused) return;
-        // const nextAccu = this.loopAccu + this.speed * dt;
-        // if (this.loopAccu <= 0 && nextAccu > 0) {
-        //     this.loopAccu = 0;
-        //     this.onBegin();
-        // }
-        // this.loopAccu = nextAccu;
-        // while (this.loopAccu >= this.loopDuration) {
-        //     this.onLoop();
-        //     this.loopAccu -= this.loopDuration;
-        //     this.loopIndex++;
-        //     if (this.loopCount > 0 && this.loopIndex >= this.loopCount) {
-        //         this.paused = true;
-        //         this.loopAccu = this.loopDuration;
-        //         this.onComplete();
-        //         break;
-        //     }
-        // }
-        // this.onUpdate();
-        // for (const target of this.updateTargets) {
-        //     target.update();
-        // }
+    getDuration(): number {
+        return this.rawDuration;
     }
 
-    pause(): void {
-        // this.paused = true;
-        // this.onPause();
-    }
+    protected onSetElapsed(): void {}
 
-    play(): void {
-        // this.loopAccu = -this.delay;
-        // this.loopIndex = 0;
-        // this.paused = false;
-    }
-
-    resume(): void {
-        // this.paused = false;
-    }
-
-    protected onBegin(): void {}
-    protected onComplete(): void {}
-    protected onLoop(): void {}
-    protected onUpdate(): void {}
-    protected onPause(): void {}
-
-    setLoopCount(loopCount: number): this {
-        this.loopCount = loopCount;
+    setCycleCount(cycleCount: number): this {
+        this.cycleCount = cycleCount;
+        this.rawDuration = this.cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);
         return this;
     }
 
-    setLoopDuration(loopDuration: number): this {
-        this.loopDuration = loopDuration;
+    setCycleDuration(cycleDuration: number): this {
+        this.cycleDuration = cycleDuration;
+        this.rawDuration = cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);
         return this;
     }
-
-    // setLoopProgression(t: number, loopIndex?: number): this {
-    //     this.loopAccu = t * this.loopDuration;
-    //     if (loopIndex !== undefined) this.loopIndex = loopIndex;
-    //     return this;
-    // }
 
     setEasing(ease: S2Easing): this {
         this.ease = ease;
@@ -188,32 +103,20 @@ export abstract class S2AnimationNEW {
     }
 
     getWrapedProgress(): number {
-        let t = this.currRawElapsed / this.rawDuration;
+        let t = this.rawElapsed / this.rawDuration;
         if (this.reversed) t = 1 - t;
         return this.ease(t);
     }
 
-    getLoopProgression(): number {
-        let t = this.loopAccu / this.loopDuration;
-        if (this.alternate) t = t < 0.5 ? 2 * t : 2 - 2 * t;
-        if (this.reversed) t = 1 - t;
-        return this.ease(t);
+    getCycleDuration(): number {
+        return this.cycleDuration;
     }
 
-    getLoopDuration(): number {
-        return this.loopDuration;
+    getCycleIndex(): number {
+        return this.cycleIndex;
     }
 
-    getLoopIndex(): number {
-        return this.loopIndex;
-    }
-
-    getLoopCount(): number {
-        return this.loopCount;
-    }
-
-    getTotalDuration(): number {
-        const loopCount = this.loopCount < 0 ? 1 : this.loopCount;
-        return (loopCount * this.loopDuration + this.delay) / this.speed;
+    getCycleCount(): number {
+        return this.cycleCount;
     }
 }

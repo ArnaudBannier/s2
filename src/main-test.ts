@@ -10,6 +10,7 @@ import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { easeCos } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2Timeline } from './animation/s2-timeline.ts';
+import { S2PlayableAnimation } from './animation/s2-animation-manager.ts';
 
 /*
     TODO:
@@ -52,7 +53,6 @@ class SceneFigure extends S2Scene {
         }),
     };
     protected circle: NewS2Circle;
-    //protected animManager: S2AnimationManager = S2AnimationManager.getInstance();
     protected anim: S2Timeline;
 
     constructor(svgElement: SVGSVGElement) {
@@ -75,7 +75,7 @@ class SceneFigure extends S2Scene {
             .bind(this.circle.fillColor)
             .bind(this.circle.strokeColor)
             .bind(this.circle.fillOpacity)
-            .setLoopDuration(1000)
+            .setCycleDuration(1000)
             .setEasing(easeCos);
 
         this.circle.fillColor.copy(MTL_COLORS.BLUE_GREY_9);
@@ -88,7 +88,7 @@ class SceneFigure extends S2Scene {
             .addUpdateTarget(this.circle)
             .bind(this.circle.fillColor)
             .bind(this.circle.strokeColor)
-            .setLoopDuration(1000)
+            .setCycleDuration(1000)
             .setEasing(easeCos);
 
         this.circle.fillColor.copy(MTL_COLORS.RED_8);
@@ -98,18 +98,19 @@ class SceneFigure extends S2Scene {
         this.anim.addAnimation(lerpAnim1);
         this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
 
-        //this.animManager.addAnimation(this.anim);
-        this.anim.setLoopCount(2).setReversed(false).setAlternate(true);
-        this.anim.setRawElapsed(0);
+        this.anim.setCycleCount(2).setReversed(false).setAlternate(false);
+        this.anim.setElapsed(0);
 
         this.update();
+        const playable = new S2PlayableAnimation(this.anim);
+        playable.play(false).setSpeed(1.5).setElapsed(1000);
         svgElement.appendChild(this.circle.getSVGElement());
     }
 
     setAnimationValue(t: number): void {
         console.log('\n');
         console.log('Setting animation to', t);
-        this.anim.setRawElapsed(t * 5000);
+        this.anim.setElapsed(t * 5000);
         console.log(this.anim);
         //this.circle.update();
         //this.update();

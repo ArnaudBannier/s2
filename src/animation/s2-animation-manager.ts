@@ -1,43 +1,127 @@
 import { S2Timer } from './s2-timer';
-import { S2AnimationNEW } from './s2-animation';
+import { S2Animation } from './s2-animation';
 
-// export class S2AnimationManager {
-//     protected static _instance: S2AnimationManager | null = null;
-//     protected timer: S2Timer;
-//     protected animStates: S2AnimState[] = [];
+export class S2PlayableAnimation {
+    protected manager: S2AnimationManager;
+    protected animation: S2Animation;
+    protected state: 'playing' | 'paused' | 'stopped' = 'stopped';
+    protected repeat: boolean = false;
+    protected speed: number = 1;
 
-//     private constructor() {
-//         this.timer = new S2Timer();
-//     }
+    constructor(animation: S2Animation) {
+        this.animation = animation;
+        this.manager = S2AnimationManager.getInstance();
+    }
 
-//     private firstFrame(timestamp: number): void {
-//         this.timer.start(timestamp);
-//     }
+    setSpeed(speed: number): this {
+        this.speed = speed;
+        return this;
+    }
 
-//     static getInstance(): S2AnimationManager {
-//         if (!S2AnimationManager._instance) {
-//             const animManager = new S2AnimationManager();
-//             console.log(animManager.timer);
-//             requestAnimationFrame(animManager.firstFrame.bind(animManager));
-//             requestAnimationFrame(animManager.update.bind(animManager));
-//             S2AnimationManager._instance = animManager;
-//         }
+    getSpeed(): number {
+        return this.speed;
+    }
 
-//         return S2AnimationManager._instance;
-//     }
+    setElapsed(elapsed: number, updateId?: number): this {
+        this.animation.setElapsed(elapsed, updateId);
+        return this;
+    }
 
-//     protected update(timestamp: number): void {
-//         this.timer.update(timestamp);
-//         const delta = this.timer.getDelta();
+    play(repeat: boolean = false): this {
+        this.state = 'playing';
+        this.animation.setElapsed(0);
+        this.animation.applyInitialState();
+        this.manager.addAnimation(this);
+        this.repeat = repeat;
+        return this;
+    }
 
-//         for (const anim of this.animations) {
-//             anim.update(delta);
-//         }
-//         requestAnimationFrame(this.update.bind(this));
-//     }
+    pause(): this {
+        this.state = 'paused';
+        this.manager.removeAnimation(this);
+        return this;
+    }
 
-//     addAnimation(animation: S2AnimationNEW): this {
-//         this.animStates.set(animation, new S2AnimState(animation));
-//         return this;
-//     }
-// }
+    stop(): this {
+        this.state = 'stopped';
+        this.manager.removeAnimation(this);
+        return this;
+    }
+
+    resume(): this {
+        if (this.state === 'paused') {
+            this.state = 'playing';
+            this.manager.addAnimation(this);
+        } else if (this.state === 'stopped') {
+            this.play();
+        }
+        return this;
+    }
+
+    update(delta: number): this {
+        if (this.state !== 'playing') return this;
+        const rawElapsed = this.animation.getElapsed() + delta * this.speed;
+        const rawDuration = this.animation.getDuration();
+        if (rawElapsed >= rawDuration) {
+            if (this.repeat) {
+                this.animation.setElapsed(rawElapsed % rawDuration);
+            } else {
+                this.state = 'stopped';
+                this.animation.setElapsed(rawDuration);
+                this.animation.applyFinalState();
+            }
+        } else if (rawElapsed < 0) {
+            this.state = 'stopped';
+            this.animation.setElapsed(0);
+            this.animation.applyInitialState();
+        } else {
+            this.animation.setElapsed(rawElapsed);
+        }
+        return this;
+    }
+}
+
+export class S2AnimationManager {
+    protected static _instance: S2AnimationManager | null = null;
+    protected timer: S2Timer;
+    protected activeAnimations: Set<S2PlayableAnimation> = new Set();
+
+    private constructor() {
+        this.timer = new S2Timer();
+    }
+
+    private firstFrame(timestamp: number): void {
+        this.timer.start(timestamp);
+    }
+
+    static getInstance(): S2AnimationManager {
+        if (!S2AnimationManager._instance) {
+            const animManager = new S2AnimationManager();
+            requestAnimationFrame(animManager.firstFrame.bind(animManager));
+            requestAnimationFrame(animManager.update.bind(animManager));
+            S2AnimationManager._instance = animManager;
+        }
+
+        return S2AnimationManager._instance;
+    }
+
+    protected update(timestamp: number): void {
+        this.timer.update(timestamp);
+        const delta = this.timer.getDelta();
+
+        for (const anim of this.activeAnimations) {
+            anim.update(delta);
+        }
+        requestAnimationFrame(this.update.bind(this));
+    }
+
+    addAnimation(animation: S2PlayableAnimation): this {
+        this.activeAnimations.add(animation);
+        return this;
+    }
+
+    removeAnimation(animation: S2PlayableAnimation): this {
+        this.activeAnimations.delete(animation);
+        return this;
+    }
+}
