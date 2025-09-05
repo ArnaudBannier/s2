@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { NewS2SimpleShape, S2Shape, S2SMonoGraphicData } from './s2-shape';
+import { NewS2SimpleShape, S2SMonoGraphicData } from './s2-shape';
 import { S2Position } from '../s2-types';
 
 // "text-anchor": "start | middle | end"
@@ -42,7 +42,7 @@ export class S2TextData extends S2SMonoGraphicData {
 
 export class NewS2BaseText<Data extends S2TextData> extends NewS2SimpleShape<Data> {
     protected element: SVGTextElement;
-    protected tspans: Array<S2Tspan>;
+    protected tspans: Array<NewS2TSpan>;
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
@@ -63,8 +63,8 @@ export class NewS2BaseText<Data extends S2TextData> extends NewS2SimpleShape<Dat
         return this;
     }
 
-    addSpan(content: string): S2Tspan {
-        const tspan = new S2Tspan(this.scene);
+    addSpan(content: string): NewS2TSpan {
+        const tspan = new NewS2TSpan(this.scene);
         this.tspans.push(tspan);
         this.element.appendChild(tspan.getSVGElement());
         tspan.setContent(content);
@@ -96,75 +96,6 @@ export class NewS2BaseText<Data extends S2TextData> extends NewS2SimpleShape<Dat
 export class NewS2Text extends NewS2BaseText<S2TextData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2TextData());
-    }
-}
-
-export class S2Text extends S2Shape {
-    protected element: SVGTextElement;
-    protected viewExtents: S2Vec2;
-    protected tspans: Array<S2Tspan>;
-
-    constructor(scene: S2BaseScene) {
-        const element = document.createElementNS(svgNS, 'text');
-        super(scene);
-        this.element = element;
-        this.tspans = [];
-        this.viewExtents = new S2Vec2(0, 0);
-    }
-
-    getSVGElement(): SVGTextElement {
-        return this.element;
-    }
-
-    addContent(content: string): this {
-        this.element.appendChild(document.createTextNode(content));
-        return this;
-    }
-
-    addSpan(content: string): S2Tspan {
-        const tspan = new S2Tspan(this.scene);
-        this.tspans.push(tspan);
-        this.element.appendChild(tspan.getSVGElement());
-        tspan.setContent(content);
-        return tspan;
-    }
-
-    clearText(): this {
-        this.tspans.length = 0;
-        this.element.replaceChildren();
-        return this;
-    }
-
-    getBBox(): DOMRect {
-        return this.element.getBBox() ?? new DOMRect();
-    }
-
-    getDimensions(): S2Vec2 {
-        const bbox = this.element.getBBox();
-        return new S2Vec2(bbox.width, bbox.height);
-    }
-
-    // updateDimensions(): this {
-    //     const bbox = this.element.getBBox();
-    //     this.viewExtents.x = bbox.width / 2;
-    //     this.viewExtents.y = bbox.height / 2;
-    //     return this;
-    // }
-
-    setTextAnchor(anchor: 'start' | 'middle' | 'end'): this {
-        this.element.setAttribute('text-anchor', anchor);
-        return this;
-    }
-
-    update(): this {
-        this.updateSVGTransform(this.element);
-        this.updateSVGStyle(this.element);
-        //this.updateDimensions();
-
-        const position = this.getPosition('view');
-        this.element.setAttribute('x', position.x.toString());
-        this.element.setAttribute('y', position.y.toString());
-        return this;
     }
 }
 
@@ -202,30 +133,6 @@ export class NewS2TSpan extends NewS2SimpleShape<S2TSpanData> {
     update(updateId?: number): this {
         if (this.shouldSkipUpdate(updateId)) return this;
         this.data.applyToElement(this.element, this.scene);
-        return this;
-    }
-}
-
-export class S2Tspan extends S2Shape {
-    protected element: SVGTSpanElement;
-    constructor(scene: S2BaseScene) {
-        const element = document.createElementNS(svgNS, 'tspan');
-        super(scene);
-        this.element = element;
-    }
-
-    getSVGElement(): SVGTSpanElement {
-        return this.element;
-    }
-
-    setContent(content: string): this {
-        this.element.textContent = content;
-        return this;
-    }
-
-    update(): this {
-        this.updateSVGTransform(this.element);
-        this.updateSVGStyle(this.element);
         return this;
     }
 }

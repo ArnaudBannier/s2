@@ -3,16 +3,13 @@ import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { NewS2Circle } from './core/element/s2-circle.ts';
-import { S2Length } from './core/s2-types.ts';
-import { S2Animatable } from './core/s2-attributes.ts';
+import { S2Length, S2Number } from './core/s2-types.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 //import { S2AnimationManager } from './animation/s2-animation-manager.ts';
 import { easeCos } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2Timeline } from './animation/s2-timeline.ts';
 import { S2PlayableAnimation } from './animation/s2-animation-manager.ts';
-import { NewS2Grid } from './core/element/s2-grid.ts';
-import { NewS2FillRect } from './core/element/s2-fill-rect.ts';
 
 /*
     TODO:
@@ -42,18 +39,6 @@ const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
 class SceneFigure extends S2Scene {
-    protected styles = {
-        backBase: new S2Animatable({
-            fillColor: MTL_COLORS.GREY_6,
-            strokeColor: MTL_COLORS.GREY_4,
-            strokeWidth: new S2Length(4, 'view'),
-        }),
-        backSlct: new S2Animatable({
-            fillColor: MTL_COLORS.BLUE_GREY_9,
-            strokeColor: MTL_COLORS.LIGHT_BLUE_5,
-            strokeWidth: new S2Length(4, 'view'),
-        }),
-    };
     protected circle: NewS2Circle;
     protected anim: S2Timeline;
 
@@ -118,16 +103,39 @@ class SceneFigure extends S2Scene {
         const playable = new S2PlayableAnimation(this.anim);
         playable.play(false).setSpeed(5).setElapsed(1000);
 
-        const node = this.addNode();
-        node.data.position.set(-5, 0, 'world');
-        node.data.anchor = 'center';
-        node.data.background.fill.color.copy(MTL_COLORS.GREY_6);
-        node.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
-        node.data.background.stroke.width.set(4, 'view');
-        node.createRectBackground();
-        node.addLine().addContent('Hello World');
-        node.setLayer(1);
-        node.update();
+        const node1 = this.addNode(1);
+        node1.data.position.set(-5, 0, 'world');
+        node1.data.anchor = 'center';
+        node1.data.background.fill.color.copy(MTL_COLORS.GREY_6);
+        node1.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
+        node1.data.background.stroke.width.set(4, 'view');
+        node1.createRectBackground();
+        node1.addLine().addContent('Hello World');
+        node1.addLine().addContent('potoo');
+        node1.setLayer(1);
+        node1.update();
+
+        const node2 = this.addNode();
+        node2.data.position.set(3, 1, 'world');
+        node2.data.anchor = 'center';
+        node2.data.background.fill.color.copy(MTL_COLORS.GREY_6);
+        node2.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
+        node2.data.background.stroke.width.set(4, 'view');
+        node2.createCircleBackground();
+        node2.addLine().addContent('Hello World');
+        node2.setLayer(1);
+        node2.update();
+
+        const edge = this.addCubicEdge(node1, node2);
+        edge.data.stroke.color.copy(MTL_COLORS.RED_5);
+        edge.data.stroke.width.set(2, 'view');
+        edge.data.startDistance = new S2Length(10, 'view');
+        edge.data.endDistance = new S2Length(10, 'view');
+        edge.data.curveAngle = new S2Number(20);
+        edge.setLayer(0);
+        edge.update();
+
+        console.log(edge);
 
         this.update();
     }

@@ -1,6 +1,6 @@
 import { type S2BaseScene } from '../s2-interface';
-import { NewS2Container, S2Container } from './s2-container';
-import { S2Element, type S2BaseElement } from './s2-element';
+import { NewS2Container } from './s2-container';
+import { type S2BaseElement } from './s2-element';
 import { S2SMonoGraphicData } from './s2-shape';
 
 export class NewS2SVG extends NewS2Container<SVGElement, S2BaseElement, S2SMonoGraphicData> {
@@ -12,26 +12,6 @@ export class NewS2SVG extends NewS2Container<SVGElement, S2BaseElement, S2SMonoG
         if (this.shouldSkipUpdate(updateId)) return this;
         super.update(updateId);
         this.data.applyToElement(this.element, this.scene);
-        const camera = this.getActiveCamera();
-        this.element.setAttribute('viewBox', `0 0 ${camera.viewport.width} ${camera.viewport.height}`);
-        return this;
-    }
-}
-
-export class S2SVG extends S2Container<SVGSVGElement, S2Element> {
-    protected element: SVGSVGElement;
-    constructor(scene: S2BaseScene, element: SVGSVGElement) {
-        super(scene, element);
-        this.element = element;
-        this.update();
-    }
-
-    getSVGElement(): SVGSVGElement {
-        return this.element;
-    }
-
-    update(): this {
-        super.update();
         const camera = this.getActiveCamera();
         this.element.setAttribute('viewBox', `0 0 ${camera.viewport.width} ${camera.viewport.height}`);
         return this;

@@ -4,7 +4,7 @@ import { NewS2Circle } from './element/s2-circle';
 import { NewS2Rect } from './element/s2-rect';
 import { NewS2Grid } from './element/s2-grid';
 import { NewS2Text } from './element/s2-text';
-import { NewS2Node, S2Node } from './element/s2-node';
+import { NewS2Node } from './element/s2-node';
 import { NewS2Path } from './element/s2-path';
 import { NewS2FillRect } from './element/s2-fill-rect';
 import { NewS2Group } from './element/s2-group';
@@ -92,8 +92,8 @@ export class S2Scene implements S2BaseScene {
     }
 
     addLineEdge(
-        start: S2Node | S2Position,
-        end: S2Node | S2Position,
+        start: NewS2Node | S2Position,
+        end: NewS2Node | S2Position,
         parent: NewS2BaseContainer = this.svg,
     ): NewS2LineEdge {
         const child = new NewS2LineEdge(this);
@@ -104,8 +104,8 @@ export class S2Scene implements S2BaseScene {
     }
 
     addCubicEdge(
-        start: S2Node | S2Position,
-        end: S2Node | S2Position,
+        start: NewS2Node | S2Position,
+        end: NewS2Node | S2Position,
         parent: NewS2BaseContainer = this.svg,
     ): NewS2CubicEdge {
         const child = new NewS2CubicEdge(this);
