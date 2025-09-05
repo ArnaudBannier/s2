@@ -5,7 +5,6 @@ import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { NewS2Circle } from './core/element/s2-circle.ts';
 import { S2Length, S2Number } from './core/s2-types.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
-//import { S2AnimationManager } from './animation/s2-animation-manager.ts';
 import { easeCos } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2Timeline } from './animation/s2-timeline.ts';
@@ -135,8 +134,6 @@ class SceneFigure extends S2Scene {
         edge.setLayer(0);
         edge.update();
 
-        console.log(edge);
-
         this.update();
     }
 
@@ -144,9 +141,6 @@ class SceneFigure extends S2Scene {
         console.log('\n');
         console.log('Setting animation to', t);
         this.anim.setElapsed(t * 5000);
-        console.log(this.anim);
-        //this.circle.update();
-        //this.update();
     }
 }
 
