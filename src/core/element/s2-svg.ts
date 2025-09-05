@@ -1,6 +1,22 @@
 import { type S2BaseScene } from '../s2-interface';
-import { S2Container } from './s2-container';
-import { S2Element } from './s2-element';
+import { NewS2Container, S2Container } from './s2-container';
+import { S2Element, type S2BaseElement } from './s2-element';
+import { S2SMonoGraphicData } from './s2-shape';
+
+export class NewS2SVG extends NewS2Container<SVGElement, S2BaseElement, S2SMonoGraphicData> {
+    constructor(scene: S2BaseScene, element: SVGSVGElement) {
+        const data = new S2SMonoGraphicData();
+        super(scene, data, element);
+    }
+
+    update(updateId?: number): this {
+        if (this.shouldSkipUpdate(updateId)) return this;
+        this.data.applyToElement(this.element, this.scene);
+        const camera = this.getActiveCamera();
+        this.element.setAttribute('viewBox', `0 0 ${camera.viewport.width} ${camera.viewport.height}`);
+        return this;
+    }
+}
 
 export class S2SVG extends S2Container<SVGSVGElement, S2Element> {
     protected element: SVGSVGElement;

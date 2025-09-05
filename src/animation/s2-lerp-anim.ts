@@ -119,8 +119,8 @@ export class S2LerpAnim extends S2Animation {
         return this;
     }
 
-    protected onSetElapsed(): void {
-        super.onSetElapsed();
+    protected setElapsedImpl(updateId?: number): void {
+        void updateId;
         const t = this.wrapedCycleAlpha;
         for (const values of this.maps.number.values()) {
             values.object.lerp(values.state0, values.state1, t);
@@ -139,7 +139,7 @@ export class S2LerpAnim extends S2Animation {
         }
     }
 
-    applyInitialState(): void {
+    protected applyInitialStateImpl(): void {
         for (const values of this.maps.number.values()) {
             values.object.copy(values.state0);
         }
@@ -157,7 +157,7 @@ export class S2LerpAnim extends S2Animation {
         }
     }
 
-    applyFinalState(): void {
+    protected applyFinalStateImpl(): void {
         for (const values of this.maps.number.values()) {
             values.object.copy(values.state1);
         }

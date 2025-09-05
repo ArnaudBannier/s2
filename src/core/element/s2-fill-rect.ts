@@ -1,7 +1,7 @@
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { NewS2Element, S2Element, S2FillData, S2LayerData } from './s2-element';
-import { S2Color } from '../s2-types';
+import { S2Color, S2Number } from '../s2-types';
 import { S2Attributes } from '../s2-attributes';
 
 export class S2FillRectData extends S2LayerData {
@@ -29,6 +29,14 @@ export class NewS2FillRect extends NewS2Element<S2FillRectData> {
         const data = new S2FillRectData();
         super(scene, data);
         this.element = document.createElementNS(svgNS, 'rect');
+    }
+
+    get color(): S2Color {
+        return this.data.fill.color;
+    }
+
+    get opacity(): S2Number {
+        return this.data.fill.opacity;
     }
 
     getSVGElement(): SVGElement {

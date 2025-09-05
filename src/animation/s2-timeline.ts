@@ -63,8 +63,7 @@ export class S2Timeline extends S2Animation {
         return this;
     }
 
-    setElapsed(elapsed: number, updateId?: number): this {
-        super.setElapsed(elapsed, updateId);
+    protected setElapsedImpl(updateId?: number): void {
         for (let i = this.sortedStart.length - 1; i >= 0; i--) {
             const part = this.sortedStart[i];
             if (part.start < this.wrapedCycleElapsed) break;
@@ -84,8 +83,6 @@ export class S2Timeline extends S2Animation {
                 part.animation.updateTargets(updateId);
             }
         }
-
-        return this;
     }
 
     // Penser à setCycleDuration !

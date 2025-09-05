@@ -17,7 +17,7 @@ export class S2LayerData {
         this.isActive = true;
     }
 
-    copy(other: S2LayerData) {
+    copy(other: S2LayerData): void {
         this.layer = other.layer;
         this.isActive = other.isActive;
     }
@@ -110,58 +110,60 @@ export class S2TransformData {
     }
 }
 
-type S2Listener = (source: S2BaseElement, updateId?: number) => void;
+type S2ElementListener = (source: S2BaseElement, updateId?: number) => void;
 
-export abstract class NewS2Element<D extends S2LayerData> {
-    public data: D;
+export abstract class NewS2Element<Data extends S2LayerData> {
+    public data: Data;
     public readonly id: number;
 
     protected scene: S2BaseScene;
-    protected parent: S2Element | null = null;
+    protected parent: S2BaseElement | null = null;
     protected prevUpdateId: number = -1;
 
-    private listeners: Set<S2Listener> = new Set();
+    private listeners: Set<S2ElementListener> = new Set();
     private dependencies: Set<S2BaseElement> = new Set();
 
-    addListener(listener: S2Listener): void {
+    addListener(listener: S2ElementListener): void {
         this.listeners.add(listener);
     }
-    removeListener(listener: S2Listener): void {
+
+    removeListener(listener: S2ElementListener): void {
         this.listeners.delete(listener);
     }
+
     addDependency(dep: S2BaseElement): void {
         this.dependencies.add(dep);
         dep.addListener(this.onDependencyUpdate.bind(this));
     }
+
     protected onDependencyUpdate(dep: S2BaseElement, updateId?: number): void {
-        // logique par défaut : redemander un update
+        if (this.shouldSkipUpdate(updateId)) return;
         this.updateFromDependency(dep, updateId);
         this.emitUpdate(updateId);
     }
+
     protected updateFromDependency(dep: S2BaseElement, updateId?: number): void {
         void dep;
         void updateId;
-        // par défaut, rien
     }
+
     protected emitUpdate(updateId?: number): void {
         for (const listener of this.listeners) {
             listener(this, updateId);
         }
     }
 
-    constructor(scene: S2BaseScene, data: D) {
+    constructor(scene: S2BaseScene, data: Data) {
         this.data = data;
         this.scene = scene;
         this.id = scene.nextId++;
     }
 
-    protected static compareLayers(a: NewS2Element<S2LayerData>, b: NewS2Element<S2LayerData>): number {
-        if (a.data.layer !== b.data.layer) return a.data.layer - b.data.layer;
-        return a.id - b.id;
-    }
-
-    protected static updateSVGChildren(parent: SVGElement, children: NewS2Element<S2LayerData>[]): void {
-        children.sort(NewS2Element.compareLayers);
+    protected static updateSVGChildren(parent: SVGElement, children: S2BaseElement[]): void {
+        children.sort((a: S2BaseElement, b: S2BaseElement): number => {
+            if (a.data.layer !== b.data.layer) return a.data.layer - b.data.layer;
+            return a.id - b.id;
+        });
         const elements: SVGElement[] = [];
         for (const child of children) {
             if (child.data.isActive) {
@@ -171,12 +173,12 @@ export abstract class NewS2Element<D extends S2LayerData> {
         parent.replaceChildren(...elements);
     }
 
-    setParent(parent: S2Element | null): this {
+    setParent(parent: S2BaseElement | null): this {
         this.parent = parent;
         return this;
     }
 
-    getParent(): S2Element | null {
+    getParent(): S2BaseElement | null {
         return this.parent;
     }
 

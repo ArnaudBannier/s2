@@ -31,6 +31,13 @@ export class S2PolyCurve implements S2Curve {
         return polyCurve;
     }
 
+    copy(other: S2PolyCurve): this {
+        this.curves = other.curves.map((curve) => curve.clone());
+        this.length = other.length;
+        this.cumulativeLengths = other.cumulativeLengths.slice();
+        return this;
+    }
+
     clear(): this {
         this.curves.length = 0;
         this.length = 0;
@@ -182,6 +189,13 @@ export class S2LineCurve implements S2Curve {
         this.length = this.p0.distance(this.p1);
     }
 
+    copy(other: S2LineCurve): this {
+        this.p0.copy(other.p0);
+        this.p1.copy(other.p1);
+        this.length = other.length;
+        return this;
+    }
+
     getTangentAt(t: number): S2Vec2 {
         void t;
         return S2Vec2.sub(this.p1, this.p0);
@@ -233,6 +247,16 @@ abstract class S2BezierCurve {
     protected linearLUT: number[] | null = null;
     protected sampleCount: number = 0;
     protected length: number = 0;
+
+    copy(other: S2BezierCurve): this {
+        this.points = other.points.map((value) => value.clone());
+        if (other.linearLUT) {
+            this.linearLUT = other.linearLUT.slice();
+            this.length = other.length;
+            this.sampleCount = other.sampleCount;
+        }
+        return this;
+    }
 
     getLength(): number {
         return this.length;

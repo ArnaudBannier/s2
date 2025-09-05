@@ -1,10 +1,93 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2HasPartialRendering, type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { S2Shape } from './s2-shape';
-import { S2Length, S2Position, type S2Space } from '../s2-types';
+import { S2Shape, S2SMonoGraphicData } from './s2-shape';
+import { S2Length, S2Number, S2Position, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import type { S2Animatable, S2Attributes } from '../s2-attributes';
+import type { S2Camera } from '../math/s2-camera';
+
+export class S2PathData extends S2SMonoGraphicData {
+    public polyCurve: S2PolyCurve;
+    public polyCurveSpace: S2Space = 'world';
+    public pathFrom: S2Number;
+    public pathTo: S2Number;
+
+    constructor() {
+        super();
+        this.polyCurve = new S2PolyCurve();
+        this.pathFrom = new S2Number(-1);
+        this.pathTo = new S2Number(2);
+    }
+
+    copy(other: S2PathData): void {
+        super.copy(other);
+        this.pathFrom.copy(other.pathFrom);
+        this.pathTo.copy(other.pathTo);
+        this.polyCurve.copy(other.polyCurve);
+        this.polyCurveSpace = other.polyCurveSpace;
+    }
+
+    applyToElement(element: SVGElement, scene: S2BaseScene): void {
+        super.applyToElement(element, scene);
+        this.polyCurve.updateLength();
+        const d = S2PathUtils.polyCurveToSVGPath(
+            this.polyCurve,
+            this.pathFrom.value,
+            this.pathTo.value,
+            scene.activeCamera,
+            this.polyCurveSpace,
+        );
+        element.setAttribute('d', d);
+    }
+}
+
+export class S2PathUtils {
+    static polyCurveToSVGPath(
+        polyCurve: S2PolyCurve,
+        pathFrom: number,
+        pathTo: number,
+        camera: S2Camera,
+        space: S2Space,
+    ): string {
+        const curveCount = polyCurve.getCurveCount();
+        if (curveCount === 0 || pathFrom >= pathTo) return '';
+        if (pathFrom > 0 && pathTo < 1) {
+            polyCurve = polyCurve.createPartialCurveRange(pathFrom, pathTo);
+        } else if (pathFrom > 0) {
+            polyCurve = polyCurve.createPartialCurveFrom(pathFrom);
+        } else if (pathTo < 1) {
+            polyCurve = polyCurve.createPartialCurveTo(pathTo);
+        }
+
+        let prevEnd: S2Vec2 | null = null;
+        let svgPath = '';
+        for (let i = 0; i < curveCount; i++) {
+            const curve = polyCurve.getCurve(i);
+            const start = curve.getStart();
+            if (prevEnd === null || !S2Vec2.eq(start, prevEnd)) {
+                const point = S2Position.toSpace(start, space, 'view', camera);
+                svgPath += ` M ${point.x} ${point.y}`;
+            } else if (S2Vec2.eq(start, prevEnd)) {
+                svgPath += ' Z';
+            }
+
+            if (curve instanceof S2LineCurve) {
+                const point = S2Position.toSpace(curve.getEnd(), space, 'view', camera);
+                svgPath += ` L ${point.x} ${point.y}`;
+            } else if (curve instanceof S2CubicCurve) {
+                const bezierPoints = curve.getBezierPoints();
+                svgPath += ' C';
+                for (let j = 1; j < bezierPoints.length; j++) {
+                    const point = S2Position.toSpace(bezierPoints[j], space, 'view', camera);
+                    svgPath += ` ${point.x} ${point.y}`;
+                }
+            }
+            prevEnd = curve.getEnd();
+        }
+        return svgPath;
+    }
+}
 
 export class S2Path extends S2Shape implements S2HasPartialRendering {
     protected element: SVGPathElement;

@@ -9,6 +9,12 @@ import { easeLinear, type S2Easing } from './s2-easing';
 // Changement immédiats
 // => Les callbacks onStart peuvent faire la même chose. beforeStart, afterComplete ?
 
+interface S2AnimationCallbacks {
+    onSetElapsed?: (source: S2Animation, updateId?: number) => void;
+    onApplyInitial?: (source: S2Animation) => void;
+    onApplyFinal?: (source: S2Animation) => void;
+}
+
 export abstract class S2Animation {
     protected scene: S2BaseScene;
     protected cycleIndex: number = 0;
@@ -23,10 +29,26 @@ export abstract class S2Animation {
     protected reversed: boolean = false;
     protected alternate: boolean = false;
     protected elementsToUpdate: Set<S2BaseElement>;
+    protected callbacks: S2AnimationCallbacks = {};
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
         this.elementsToUpdate = new Set();
+    }
+
+    onSetElapsed(cb: (source: S2Animation, updateId?: number) => void): this {
+        this.callbacks.onSetElapsed = cb;
+        return this;
+    }
+
+    onApplyInitial(cb: (source: S2Animation) => void): this {
+        this.callbacks.onApplyInitial = cb;
+        return this;
+    }
+
+    onApplyFinal(cb: (source: S2Animation) => void): this {
+        this.callbacks.onApplyFinal = cb;
+        return this;
     }
 
     addUpdateTarget(target: S2BaseElement): this {
@@ -41,8 +63,19 @@ export abstract class S2Animation {
         return this;
     }
 
-    applyInitialState(): void {}
-    applyFinalState(): void {}
+    applyInitialState(): void {
+        this.applyInitialStateImpl();
+        if (this.callbacks.onApplyInitial) {
+            this.callbacks.onApplyInitial(this);
+        }
+    }
+
+    applyFinalState(): void {
+        this.applyFinalStateImpl();
+        if (this.callbacks.onApplyFinal) {
+            this.callbacks.onApplyFinal(this);
+        }
+    }
 
     setElapsed(elapsed: number, updateId?: number): this {
         this.rawElapsed = elapsed;
@@ -59,7 +92,10 @@ export abstract class S2Animation {
         this.wrapedCycleAlpha = this.ease(this.wrapedCycleAlpha);
         this.wrapedCycleElapsed = S2MathUtils.clamp(this.wrapedCycleAlpha, 0, 1) * this.cycleDuration;
 
-        this.onSetElapsed();
+        this.setElapsedImpl(updateId);
+        if (this.callbacks.onSetElapsed) {
+            this.callbacks.onSetElapsed(this, updateId);
+        }
         this.updateTargets(updateId);
 
         return this;
@@ -72,8 +108,6 @@ export abstract class S2Animation {
     getDuration(): number {
         return this.rawDuration;
     }
-
-    protected onSetElapsed(): void {}
 
     setCycleCount(cycleCount: number): this {
         this.cycleCount = cycleCount;
@@ -118,5 +152,11 @@ export abstract class S2Animation {
 
     getCycleCount(): number {
         return this.cycleCount;
+    }
+
+    protected applyInitialStateImpl(): void {}
+    protected applyFinalStateImpl(): void {}
+    protected setElapsedImpl(updateId?: number): void {
+        void updateId;
     }
 }

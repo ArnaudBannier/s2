@@ -2,8 +2,8 @@ import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
-import { NewS2Circle, S2Circle } from './core/element/s2-circle.ts';
-import { S2Length, S2Number, S2Position } from './core/s2-types.ts';
+import { NewS2Circle } from './core/element/s2-circle.ts';
+import { S2Length } from './core/s2-types.ts';
 import { S2Animatable } from './core/s2-attributes.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 //import { S2AnimationManager } from './animation/s2-animation-manager.ts';
@@ -11,6 +11,8 @@ import { easeCos } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2Timeline } from './animation/s2-timeline.ts';
 import { S2PlayableAnimation } from './animation/s2-animation-manager.ts';
+import { NewS2Grid } from './core/element/s2-grid.ts';
+import { NewS2FillRect } from './core/element/s2-fill-rect.ts';
 
 /*
     TODO:
@@ -58,8 +60,8 @@ class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
-        this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
-        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
+        //this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
+        //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
         this.anim = new S2Timeline(this);
 
         this.circle = new NewS2Circle(this);
@@ -98,12 +100,29 @@ class SceneFigure extends S2Scene {
         this.anim.addAnimation(lerpAnim1);
         this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
 
-        this.anim.setCycleCount(2).setReversed(false).setAlternate(false);
+        this.anim.setCycleCount(2).setReversed(false).setAlternate(true);
         this.anim.setElapsed(0);
 
         this.update();
         const playable = new S2PlayableAnimation(this.anim);
-        playable.play(false).setSpeed(1.5).setElapsed(1000);
+        playable.play(false).setSpeed(5).setElapsed(1000);
+
+        const fillRect = new NewS2FillRect(this);
+        fillRect.color.copy(MTL_COLORS.GREY_8);
+        fillRect.opacity.set(1.0);
+        fillRect.update();
+        svgElement.appendChild(fillRect.getSVGElement());
+
+        const grid = new NewS2Grid(this);
+        grid.strokeWidth.set(2, 'view');
+        grid.strokeColor.copy(MTL_COLORS.GREY_5);
+        grid.lowerBound.set(10, 10, 'view');
+        grid.upperBound.set(viewport.x - 10, viewport.y - 10, 'view');
+        grid.anchor.set(0, 0, 'world');
+        grid.steps.set(1, 1, 'world');
+        grid.update();
+        svgElement.appendChild(grid.getSVGElement());
+
         svgElement.appendChild(this.circle.getSVGElement());
     }
 
