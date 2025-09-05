@@ -37,8 +37,8 @@ export class S2SMonoGraphicData extends S2LayerData {
     }
 }
 
-export abstract class NewS2SimpleShape<D extends S2SMonoGraphicData> extends NewS2Element<D> {
-    constructor(scene: S2BaseScene, data: D) {
+export abstract class NewS2SimpleShape<Data extends S2SMonoGraphicData> extends NewS2Element<Data> {
+    constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
     }
 

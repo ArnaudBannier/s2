@@ -73,6 +73,9 @@ export class NewS2Container<
     update(updateId?: number): this {
         if (this.shouldSkipUpdate(updateId)) return this;
         this.data.applyToElement(this.element, this.scene);
+        for (const child of this.children) {
+            child.update(updateId);
+        }
         return this;
     }
 }

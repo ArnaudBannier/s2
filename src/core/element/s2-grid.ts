@@ -72,8 +72,7 @@ export class NewS2Grid extends NewS2SimpleShape<S2GridData> {
     protected element: SVGPathElement;
 
     constructor(scene: S2BaseScene) {
-        const data = new S2GridData();
-        super(scene, data);
+        super(scene, new S2GridData());
         this.element = document.createElementNS(svgNS, 'path');
     }
 

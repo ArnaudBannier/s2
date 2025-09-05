@@ -26,8 +26,7 @@ export class NewS2FillRect extends NewS2Element<S2FillRectData> {
     protected element: SVGRectElement;
 
     constructor(scene: S2BaseScene) {
-        const data = new S2FillRectData();
-        super(scene, data);
+        super(scene, new S2FillRectData());
         this.element = document.createElementNS(svgNS, 'rect');
     }
 

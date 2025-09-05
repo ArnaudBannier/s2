@@ -9,11 +9,11 @@ import { S2Color } from '../s2-types';
 export type S2BaseElement = NewS2Element<S2LayerData>;
 
 export class S2LayerData {
-    public layer: number;
+    public layer: S2Number;
     public isActive: boolean;
 
     constructor() {
-        this.layer = 0;
+        this.layer = new S2Number(0);
         this.isActive = true;
     }
 
@@ -123,6 +123,19 @@ export abstract class NewS2Element<Data extends S2LayerData> {
     private listeners: Set<S2ElementListener> = new Set();
     private dependencies: Set<S2BaseElement> = new Set();
 
+    get layer(): number {
+        return this.data.layer.value;
+    }
+
+    set layer(layer: number) {
+        this.data.layer.value = layer;
+    }
+
+    setLayer(layer: number = 0): this {
+        this.data.layer.value = layer;
+        return this;
+    }
+
     addListener(listener: S2ElementListener): void {
         this.listeners.add(listener);
     }
@@ -161,7 +174,7 @@ export abstract class NewS2Element<Data extends S2LayerData> {
 
     protected static updateSVGChildren(parent: SVGElement, children: S2BaseElement[]): void {
         children.sort((a: S2BaseElement, b: S2BaseElement): number => {
-            if (a.data.layer !== b.data.layer) return a.data.layer - b.data.layer;
+            if (a.data.layer.value !== b.data.layer.value) return a.data.layer.value - b.data.layer.value;
             return a.id - b.id;
         });
         const elements: SVGElement[] = [];

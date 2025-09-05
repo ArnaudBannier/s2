@@ -1,23 +1,22 @@
 import { S2Camera } from './math/s2-camera';
-import { S2SVG } from './element/s2-svg';
-import { S2Circle } from './element/s2-circle';
-import { S2Rect } from './element/s2-rect';
-import { S2Grid } from './element/s2-grid';
-import { S2Text } from './element/s2-text';
-import { S2Node } from './element/s2-node';
-import { S2Style } from './element/s2-style';
-import { S2Path } from './element/s2-path';
-import { S2Line } from './element/s2-line';
-import { S2FillRect } from './element/s2-fill-rect';
-import { S2Group } from './element/s2-group';
-import { S2CubicEdge, S2LineEdge, type S2CubicEdgeOptions, type S2EdgeOptions } from './element/s2-edge';
+import { NewS2SVG } from './element/s2-svg';
+import { NewS2Circle } from './element/s2-circle';
+import { NewS2Rect } from './element/s2-rect';
+import { NewS2Grid } from './element/s2-grid';
+import { NewS2Text } from './element/s2-text';
+import { NewS2Node, S2Node } from './element/s2-node';
+import { NewS2Path } from './element/s2-path';
+import { NewS2FillRect } from './element/s2-fill-rect';
+import { NewS2Group } from './element/s2-group';
+import { NewS2CubicEdge, NewS2LineEdge } from './element/s2-edge';
 import { S2Position } from './s2-types';
-import { type S2BaseContainer } from './element/s2-container';
-import { S2Element } from './element/s2-element';
+import { type NewS2BaseContainer } from './element/s2-container';
+import { type S2BaseElement } from './element/s2-element';
 import { type S2BaseScene } from './s2-interface';
+import { NewS2Line } from './element/s2-line';
 
 export class S2Scene implements S2BaseScene {
-    readonly svg: S2SVG;
+    readonly svg: NewS2SVG;
     activeCamera: S2Camera;
     nextId: number;
     private nextUpdateId: number = 0;
@@ -32,62 +31,62 @@ export class S2Scene implements S2BaseScene {
 
     constructor(element: SVGSVGElement, camera: S2Camera) {
         this.activeCamera = camera;
-        this.svg = new S2SVG(this, element);
+        this.svg = new NewS2SVG(this, element);
         element.innerHTML = '';
         this.svg.update();
         this.nextId = 0;
     }
 
-    addCircle(parent: S2BaseContainer = this.svg): S2Circle {
-        const child = new S2Circle(this);
+    addCircle(parent: NewS2BaseContainer = this.svg): NewS2Circle {
+        const child = new NewS2Circle(this);
         parent.appendChild(child);
         return child;
     }
 
-    addRect(parent: S2BaseContainer = this.svg): S2Rect {
-        const child = new S2Rect(this);
+    addRect(parent: NewS2BaseContainer = this.svg): NewS2Rect {
+        const child = new NewS2Rect(this);
         parent.appendChild(child);
         return child;
     }
 
-    addFillRect(parent: S2BaseContainer = this.svg): S2FillRect {
-        const child = new S2FillRect(this);
+    addFillRect(parent: NewS2BaseContainer = this.svg): NewS2FillRect {
+        const child = new NewS2FillRect(this);
         parent.appendChild(child);
         return child;
     }
 
-    addGrid(parent: S2BaseContainer = this.svg): S2Grid {
-        const child = new S2Grid(this);
+    addGrid(parent: NewS2BaseContainer = this.svg): NewS2Grid {
+        const child = new NewS2Grid(this);
         parent.appendChild(child);
         return child;
     }
 
-    addText(parent: S2BaseContainer = this.svg): S2Text {
-        const child = new S2Text(this);
+    addText(parent: NewS2BaseContainer = this.svg): NewS2Text {
+        const child = new NewS2Text(this);
         parent.appendChild(child);
         return child;
     }
 
-    addNode(partCount: number = 1, parent: S2BaseContainer = this.svg): S2Node {
-        const child = new S2Node(this, partCount);
+    addNode(partCount: number = 1, parent: NewS2BaseContainer = this.svg): NewS2Node {
+        const child = new NewS2Node(this, partCount);
         parent.appendChild(child);
         return child;
     }
 
-    addPath(parent: S2BaseContainer = this.svg): S2Path {
-        const child = new S2Path(this);
+    addPath(parent: NewS2BaseContainer = this.svg): NewS2Path {
+        const child = new NewS2Path(this);
         parent.appendChild(child);
         return child;
     }
 
-    addGroup<T extends S2Element>(parent: S2BaseContainer = this.svg): S2Group<T> {
-        const child = new S2Group<T>(this);
+    addGroup<ChildType extends S2BaseElement>(parent: NewS2BaseContainer = this.svg): NewS2Group<ChildType> {
+        const child = new NewS2Group<ChildType>(this);
         parent.appendChild(child);
         return child;
     }
 
-    addLine(parent: S2BaseContainer = this.svg): S2Line {
-        const child = new S2Line(this);
+    addLine(parent: NewS2BaseContainer = this.svg): NewS2Line {
+        const child = new NewS2Line(this);
         parent.appendChild(child);
         return child;
     }
@@ -95,10 +94,11 @@ export class S2Scene implements S2BaseScene {
     addLineEdge(
         start: S2Node | S2Position,
         end: S2Node | S2Position,
-        options: S2EdgeOptions,
-        parent: S2BaseContainer = this.svg,
-    ): S2LineEdge {
-        const child = new S2LineEdge(this, start, end, options);
+        parent: NewS2BaseContainer = this.svg,
+    ): NewS2LineEdge {
+        const child = new NewS2LineEdge(this);
+        child.data.start = start;
+        child.data.end = end;
         parent.appendChild(child);
         return child;
     }
@@ -106,21 +106,16 @@ export class S2Scene implements S2BaseScene {
     addCubicEdge(
         start: S2Node | S2Position,
         end: S2Node | S2Position,
-        options: S2CubicEdgeOptions,
-        parent: S2BaseContainer = this.svg,
-    ): S2CubicEdge {
-        const child = new S2CubicEdge(this, start, end, options);
+        parent: NewS2BaseContainer = this.svg,
+    ): NewS2CubicEdge {
+        const child = new NewS2CubicEdge(this);
+        child.data.start = start;
+        child.data.end = end;
         parent.appendChild(child);
         return child;
     }
 
-    addStyle(): S2Style {
-        const child = new S2Style(this);
-        this.svg.appendChild(child);
-        return child;
-    }
-
-    getSVG(): S2SVG {
+    getSVG(): NewS2SVG {
         return this.svg;
     }
 

@@ -60,11 +60,23 @@ class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
-        //this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
-        //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
+        const fillRect = this.addFillRect().setLayer(-1);
+        fillRect.color.copy(MTL_COLORS.GREY_8);
+        fillRect.opacity.set(1.0);
+        fillRect.update();
+
+        const grid = this.addGrid().setLayer(-1);
+        grid.strokeWidth.set(2, 'view');
+        grid.strokeColor.copy(MTL_COLORS.GREY_5);
+        grid.lowerBound.set(10, 10, 'view');
+        grid.upperBound.set(viewport.x - 10, viewport.y - 10, 'view');
+        grid.anchor.set(0, 0, 'world');
+        grid.steps.set(1, 1, 'world');
+        grid.update();
+
         this.anim = new S2Timeline(this);
 
-        this.circle = new NewS2Circle(this);
+        this.circle = this.addCircle();
         this.circle.data.fill.color.copy(MTL_COLORS.GREY_6);
         this.circle.data.stroke.color.copy(MTL_COLORS.GREY_4);
         this.circle.data.stroke.width.set(4);
@@ -103,27 +115,21 @@ class SceneFigure extends S2Scene {
         this.anim.setCycleCount(2).setReversed(false).setAlternate(true);
         this.anim.setElapsed(0);
 
-        this.update();
         const playable = new S2PlayableAnimation(this.anim);
         playable.play(false).setSpeed(5).setElapsed(1000);
 
-        const fillRect = new NewS2FillRect(this);
-        fillRect.color.copy(MTL_COLORS.GREY_8);
-        fillRect.opacity.set(1.0);
-        fillRect.update();
-        svgElement.appendChild(fillRect.getSVGElement());
+        const node = this.addNode();
+        node.data.position.set(-5, 0, 'world');
+        node.data.anchor = 'center';
+        node.data.background.fill.color.copy(MTL_COLORS.GREY_6);
+        node.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
+        node.data.background.stroke.width.set(4, 'view');
+        node.createRectBackground();
+        node.addLine().addContent('Hello World');
+        node.setLayer(1);
+        node.update();
 
-        const grid = new NewS2Grid(this);
-        grid.strokeWidth.set(2, 'view');
-        grid.strokeColor.copy(MTL_COLORS.GREY_5);
-        grid.lowerBound.set(10, 10, 'view');
-        grid.upperBound.set(viewport.x - 10, viewport.y - 10, 'view');
-        grid.anchor.set(0, 0, 'world');
-        grid.steps.set(1, 1, 'world');
-        grid.update();
-        svgElement.appendChild(grid.getSVGElement());
-
-        svgElement.appendChild(this.circle.getSVGElement());
+        this.update();
     }
 
     setAnimationValue(t: number): void {

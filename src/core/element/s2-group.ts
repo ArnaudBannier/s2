@@ -10,9 +10,8 @@ export class NewS2Group<ChildType extends S2BaseElement> extends NewS2Container<
     S2SMonoGraphicData
 > {
     constructor(scene: S2BaseScene) {
-        const data = new S2SMonoGraphicData();
         const element = document.createElementNS(svgNS, 'g');
-        super(scene, data, element);
+        super(scene, new S2SMonoGraphicData(), element);
     }
 }
 

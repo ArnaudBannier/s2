@@ -46,6 +46,9 @@ export class S2RectData extends S2SMonoGraphicData {
         if (radius > 0) {
             element.setAttribute('rx', radius.toString());
             element.setAttribute('ry', radius.toString());
+        } else {
+            element.removeAttribute('rx');
+            element.removeAttribute('ry');
         }
     }
 }
@@ -54,8 +57,7 @@ export class NewS2Rect extends NewS2SimpleShape<S2RectData> {
     protected element: SVGRectElement;
 
     constructor(scene: S2BaseScene) {
-        const data = new S2RectData();
-        super(scene, data);
+        super(scene, new S2RectData());
         this.element = document.createElementNS(svgNS, 'rect');
     }
 

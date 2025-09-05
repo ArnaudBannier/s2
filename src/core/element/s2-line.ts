@@ -35,8 +35,7 @@ export class NewS2Line extends NewS2SimpleShape<S2LineData> {
     protected element: SVGLineElement;
 
     constructor(scene: S2BaseScene) {
-        const data = new S2LineData();
-        super(scene, data);
+        super(scene, new S2LineData());
         this.element = document.createElementNS(svgNS, 'line');
     }
 

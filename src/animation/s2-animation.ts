@@ -10,7 +10,7 @@ import { easeLinear, type S2Easing } from './s2-easing';
 // => Les callbacks onStart peuvent faire la même chose. beforeStart, afterComplete ?
 
 interface S2AnimationCallbacks {
-    onSetElapsed?: (source: S2Animation, updateId?: number) => void;
+    onSetElapsed?: (source: S2Animation, elapsed: number, updateId?: number) => void;
     onApplyInitial?: (source: S2Animation) => void;
     onApplyFinal?: (source: S2Animation) => void;
 }
@@ -94,7 +94,7 @@ export abstract class S2Animation {
 
         this.setElapsedImpl(updateId);
         if (this.callbacks.onSetElapsed) {
-            this.callbacks.onSetElapsed(this, updateId);
+            this.callbacks.onSetElapsed(this, elapsed, updateId);
         }
         this.updateTargets(updateId);
 

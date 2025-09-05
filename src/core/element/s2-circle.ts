@@ -34,8 +34,7 @@ export class NewS2Circle extends NewS2SimpleShape<S2CircleData> {
     protected element: SVGCircleElement;
 
     constructor(scene: S2BaseScene) {
-        const data = new S2CircleData();
-        super(scene, data);
+        super(scene, new S2CircleData());
         this.element = document.createElementNS(svgNS, 'circle');
     }
 

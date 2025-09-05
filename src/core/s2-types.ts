@@ -150,6 +150,12 @@ export class S2Position extends S2BaseType<S2Position> {
         return this;
     }
 
+    setV(position: S2Vec2, space?: S2Space): this {
+        this.value.copy(position);
+        if (space) this.space = space;
+        return this;
+    }
+
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {
         if (this.space === space) {
             // this = other
@@ -321,6 +327,12 @@ export class S2Extents extends S2BaseType<S2Extents> {
 
     set(x: number, y: number, space?: S2Space): this {
         this.value.set(x, y);
+        if (space) this.space = space;
+        return this;
+    }
+
+    setV(extents: S2Vec2, space?: S2Space): this {
+        this.value.copy(extents);
         if (space) this.space = space;
         return this;
     }
