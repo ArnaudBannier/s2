@@ -3,6 +3,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
 import { S2Position } from '../s2-types';
+import { S2FontData } from './s2-base-data';
 
 // "text-anchor": "start | middle | end"
 // "dominant-baseline": "auto | middle | hanging" + autres
@@ -17,26 +18,38 @@ export type S2TextAnchor = 'start' | 'middle' | 'end';
 
 export class S2TextData extends S2TransformGraphicData {
     public readonly position: S2Position;
-    public anchor: S2TextAnchor;
+    public readonly font: S2FontData;
+    public textAnchor: S2TextAnchor;
 
     constructor() {
         super();
         this.position = new S2Position(0, 0, 'world');
-        this.anchor = 'start';
+        this.font = new S2FontData();
+        this.textAnchor = 'start';
+    }
+
+    setInherited(): void {
+        super.setInherited();
+        this.position.setInherited();
+        this.font.setInherited();
+        this.textAnchor = 'start';
     }
 
     copy(other: S2TextData): void {
         super.copy(other);
         this.position.copy(other.position);
-        this.anchor = other.anchor;
+        this.font.copy(other.font);
+        this.textAnchor = other.textAnchor;
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
+        this.font.applyToElement(element, scene);
+
         const position = this.position.toSpace('view', scene.activeCamera);
         element.setAttribute('x', position.x.toString());
         element.setAttribute('y', position.y.toString());
-        element.setAttribute('text-anchor', this.anchor);
+        element.setAttribute('text-anchor', this.textAnchor);
     }
 }
 

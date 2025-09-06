@@ -110,7 +110,7 @@ class SceneFigure extends S2Scene {
         node1.data.background.stroke.width.set(4, 'view');
         node1.createRectBackground();
         node1.addLine().addContent('Hello World');
-        node1.addLine().addContent('potoo');
+        node1.addLine().addContent('potoo').data.font.weight.set(700);
         node1.setLayer(1);
         node1.update();
 

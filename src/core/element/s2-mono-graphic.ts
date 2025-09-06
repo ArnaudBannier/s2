@@ -35,6 +35,12 @@ export class S2MonoGraphicData extends S2LayerData {
         this.stroke.opacity.set(1, S2Inheritance.Inherited);
     }
 
+    setInherited(): void {
+        this.stroke.setInherited();
+        this.fill.setInherited();
+        this.opacity.setInherited();
+    }
+
     copy(other: S2MonoGraphicData): void {
         super.copy(other);
         this.stroke.copy(other.stroke);

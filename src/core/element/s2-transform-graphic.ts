@@ -10,6 +10,11 @@ export class S2TransformGraphicData extends S2MonoGraphicData {
         this.transform = new S2TransformData();
     }
 
+    setInherited(): void {
+        super.setInherited();
+        this.transform.setInherited();
+    }
+
     copy(other: S2TransformGraphicData): void {
         super.copy(other);
         this.transform.copy(other.transform);

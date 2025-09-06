@@ -192,7 +192,7 @@ export class S2Node extends S2Element<S2NodeData> {
 
     update(updateId?: number): this {
         if (this.shouldSkipUpdate(updateId)) return this;
-        //this.data.applyToElement(this.element, this.scene);
+
         if (this.background !== null) {
             this.background.data.stroke.copy(this.data.background.stroke);
             this.background.data.fill.copy(this.data.background.fill);
@@ -241,6 +241,7 @@ export class S2Node extends S2Element<S2NodeData> {
             textPosition.y += partHeights[i] + 2 * partSep;
         }
 
+        // Position background and separator lines
         if (this.background instanceof S2Rect) {
             this.background.position.setV(nodeCenter, 'view');
             this.background.extents.setV(nodeExtents, 'view');
