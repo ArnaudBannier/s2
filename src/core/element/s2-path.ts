@@ -35,7 +35,7 @@ export class S2PathData extends S2TransformGraphicData {
             this.polyCurve,
             this.pathFrom.value,
             this.pathTo.value,
-            scene.activeCamera,
+            scene.getActiveCamera(),
             this.space,
         );
         element.setAttribute('d', d);
@@ -122,19 +122,29 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
     }
 
     getStart(space: S2Space = this.data.space): S2Vec2 {
-        return S2Position.toSpace(this.data.polyCurve.getStart(), this.data.space, space, this.getActiveCamera());
+        return S2Position.toSpace(this.data.polyCurve.getStart(), this.data.space, space, this.scene.getActiveCamera());
     }
 
     getEnd(space: S2Space = this.data.space): S2Vec2 {
-        return S2Position.toSpace(this.data.polyCurve.getEnd(), this.data.space, space, this.getActiveCamera());
+        return S2Position.toSpace(this.data.polyCurve.getEnd(), this.data.space, space, this.scene.getActiveCamera());
     }
 
     getPointAt(t: number, space: S2Space = this.data.space): S2Vec2 {
-        return S2Position.toSpace(this.data.polyCurve.getPointAt(t), this.data.space, space, this.getActiveCamera());
+        return S2Position.toSpace(
+            this.data.polyCurve.getPointAt(t),
+            this.data.space,
+            space,
+            this.scene.getActiveCamera(),
+        );
     }
 
     getTangentAt(t: number, space: S2Space = this.data.space): S2Vec2 {
-        return S2Position.toSpace(this.data.polyCurve.getTangentAt(t), this.data.space, space, this.getActiveCamera());
+        return S2Position.toSpace(
+            this.data.polyCurve.getTangentAt(t),
+            this.data.space,
+            space,
+            this.scene.getActiveCamera(),
+        );
     }
 
     getStartTangent(space: S2Space = this.data.space): S2Vec2 {
@@ -142,16 +152,21 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
             this.data.polyCurve.getStartTangent(),
             this.data.space,
             space,
-            this.getActiveCamera(),
+            this.scene.getActiveCamera(),
         );
     }
 
     getEndTangent(space: S2Space = this.data.space): S2Vec2 {
-        return S2Position.toSpace(this.data.polyCurve.getEndTangent(), this.data.space, space, this.getActiveCamera());
+        return S2Position.toSpace(
+            this.data.polyCurve.getEndTangent(),
+            this.data.space,
+            space,
+            this.scene.getActiveCamera(),
+        );
     }
 
     getLength(space: S2Space = this.data.space): number {
-        return S2Length.toSpace(this.data.polyCurve.getLength(), this.data.space, space, this.getActiveCamera());
+        return S2Length.toSpace(this.data.polyCurve.getLength(), this.data.space, space, this.scene.getActiveCamera());
     }
 
     clear(): this {

@@ -22,8 +22,9 @@ export class S2CircleData extends S2TransformGraphicData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
-        const position = this.position.toSpace('view', scene.activeCamera);
-        const radius = this.radius.toSpace('view', scene.activeCamera);
+        const camera = scene.getActiveCamera();
+        const position = this.position.toSpace('view', camera);
+        const radius = this.radius.toSpace('view', camera);
         element.setAttribute('cx', position.x.toString());
         element.setAttribute('cy', position.y.toString());
         element.setAttribute('r', radius.toString());
@@ -51,7 +52,7 @@ export class S2Circle extends S2TransformGraphic<S2CircleData> {
     }
 
     getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
-        const camera = this.scene.activeCamera;
+        const camera = this.scene.getActiveCamera();
         const d = distance.toSpace(space, camera);
         const radius = Math.max(this.data.radius.toSpace(space, camera) + d, 0);
         const point = direction.clone().normalize().scale(radius);

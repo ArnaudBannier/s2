@@ -3,8 +3,7 @@ import { S2SVG } from './element/s2-svg';
 
 export interface S2BaseScene {
     readonly svg: S2SVG;
-    activeCamera: S2Camera;
-    nextId: number;
+    getActiveCamera(): S2Camera;
     getNextElementId(): number;
     getNextUpdateId(): number;
 }

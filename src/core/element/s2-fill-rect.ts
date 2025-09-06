@@ -45,7 +45,7 @@ export class S2FillRect extends S2Element<S2FillRectData> {
     update(updateId?: number): this {
         if (this.shouldSkipUpdate(updateId)) return this;
         const data = this.data;
-        const camera = this.getActiveCamera();
+        const camera = this.scene.getActiveCamera();
         this.element.setAttribute('x', '0');
         this.element.setAttribute('y', '0');
         this.element.setAttribute('width', camera.viewport.x.toString());

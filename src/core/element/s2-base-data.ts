@@ -58,7 +58,7 @@ export class S2StrokeData {
             return;
 
         if (this.width.inheritance === S2Inheritance.Explicit) {
-            const width = this.width.toSpace('view', scene.activeCamera);
+            const width = this.width.toSpace('view', scene.getActiveCamera());
             element.setAttribute('stroke-width', width.toString());
         } else {
             element.removeAttribute('stroke-width');
@@ -216,7 +216,7 @@ export class S2FontData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         if (this.size.inheritance === S2Inheritance.Explicit) {
-            const size = this.size.toSpace('view', scene.activeCamera);
+            const size = this.size.toSpace('view', scene.getActiveCamera());
             element.setAttribute('font-size', size.toString());
         } else {
             element.removeAttribute('font-size');

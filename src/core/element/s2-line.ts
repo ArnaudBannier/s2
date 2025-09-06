@@ -21,8 +21,9 @@ export class S2LineData extends S2TransformGraphicData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
-        const start = this.startPosition.toSpace('view', scene.activeCamera);
-        const end = this.endPosition.toSpace('view', scene.activeCamera);
+        const camera = scene.getActiveCamera();
+        const start = this.startPosition.toSpace('view', camera);
+        const end = this.endPosition.toSpace('view', camera);
         element.setAttribute('x1', start.x.toString());
         element.setAttribute('y1', start.y.toString());
         element.setAttribute('x2', end.x.toString());

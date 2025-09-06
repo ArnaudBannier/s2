@@ -71,7 +71,7 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2MonoGraphic<Data
         if (nodeOrPos instanceof S2Node) {
             return nodeOrPos.getCenter(space);
         } else {
-            return nodeOrPos.toSpace(space, this.getActiveCamera());
+            return nodeOrPos.toSpace(space, this.scene.getActiveCamera());
         }
     }
 
@@ -87,9 +87,10 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2MonoGraphic<Data
             }
             return nodeOrPos.getCenter(space);
         } else {
-            const point = nodeOrPos.toSpace(space, this.getActiveCamera());
+            const camera = this.scene.getActiveCamera();
+            const point = nodeOrPos.toSpace(space, camera);
             if (distance && direction) {
-                const d = distance.toSpace(space, this.getActiveCamera());
+                const d = distance.toSpace(space, camera);
                 point.addV(direction.clone().normalize().scale(d));
             }
             return point;

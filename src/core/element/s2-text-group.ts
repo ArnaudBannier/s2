@@ -115,50 +115,52 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
     }
 
     getTextExtents(space: S2Space = this.textExtents.space): S2Vec2 {
-        return this.textExtents.toSpace(space, this.getActiveCamera());
+        return this.textExtents.toSpace(space, this.scene.getActiveCamera());
     }
 
     getExtents(space: S2Space = this.extents.space): S2Vec2 {
-        return this.extents.toSpace(space, this.getActiveCamera());
+        return this.extents.toSpace(space, this.scene.getActiveCamera());
     }
 
     getCenter(space: S2Space = this.data.position.space): S2Vec2 {
         return S2AnchorUtils.getCenter(
             this.data.anchor,
             space,
-            this.getActiveCamera(),
+            this.scene.getActiveCamera(),
             this.data.position,
             this.data.minExtents,
         );
     }
 
     updateExtents(): void {
+        const camera = this.scene.getActiveCamera();
         let maxWidth = 0;
         let totalHeight = 0;
         for (const line of this.children) {
             const bbox = line.getBBox();
-            const lineHeight = line.data.font.getInheritedLineHeight(this.getActiveCamera());
+            const lineHeight = line.data.font.getInheritedLineHeight(camera);
             console.log('lineHeight', lineHeight);
             maxWidth = bbox.width > maxWidth ? bbox.width : maxWidth;
             totalHeight += line.data.skip.value + lineHeight;
         }
         const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
-        const minExtents = this.data.minExtents.toSpace('view', this.getActiveCamera());
+        const minExtents = this.data.minExtents.toSpace('view', camera);
         const extents = minExtents.maxV(textExtents);
-        this.textExtents.setValueFromSpace('view', this.getActiveCamera(), textExtents.x, textExtents.y);
-        this.extents.setValueFromSpace('view', this.getActiveCamera(), extents.x, extents.y);
+        this.textExtents.setValueFromSpace('view', camera, textExtents.x, textExtents.y);
+        this.extents.setValueFromSpace('view', camera, extents.x, extents.y);
     }
 
     update(updateId?: number): this {
         if (this.shouldSkipUpdate(updateId)) return this;
         if (this.children.length === 0) return this;
+        const camera = this.scene.getActiveCamera();
         this.data.applyToElement(this.element, this.scene);
         this.updateExtents();
 
-        const textExtents = this.textExtents.toSpace('view', this.scene.activeCamera);
-        const groupExtents = this.extents.toSpace('view', this.scene.activeCamera);
+        const textExtents = this.textExtents.toSpace('view', camera);
+        const groupExtents = this.extents.toSpace('view', camera);
         const groupNW = this.getCenter('view').subV(groupExtents); // TODO
-        const ascenderHeight = this.children[0].data.font.getInheritedAscenderHeight(this.getActiveCamera());
+        const ascenderHeight = this.children[0].data.font.getInheritedAscenderHeight(camera);
 
         let lineX = 0;
         let lineY = groupNW.y + ascenderHeight;
@@ -174,7 +176,7 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         }
 
         for (const line of this.children) {
-            const lineHeight = line.data.font.getInheritedLineHeight(this.getActiveCamera());
+            const lineHeight = line.data.font.getInheritedLineHeight(camera);
             switch (line.data.align ?? this.data.textAlign) {
                 case 'left':
                     lineX = groupNW.x;

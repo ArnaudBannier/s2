@@ -25,10 +25,11 @@ export class S2GridGeometryData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         const epsilon = 1e-5;
-        const lowerBound = this.lowerBound.toSpace('view', scene.activeCamera);
-        const upperBound = this.upperBound.toSpace('view', scene.activeCamera);
-        const steps = this.steps.toSpace('view', scene.activeCamera);
-        const anchor = this.anchor.toSpace('view', scene.activeCamera);
+        const camera = scene.getActiveCamera();
+        const lowerBound = this.lowerBound.toSpace('view', camera);
+        const upperBound = this.upperBound.toSpace('view', camera);
+        const steps = this.steps.toSpace('view', camera);
+        const anchor = this.anchor.toSpace('view', camera);
         const lowerX = Math.min(lowerBound.x, upperBound.x);
         const upperX = Math.max(lowerBound.x, upperBound.x);
         const lowerY = Math.min(lowerBound.y, upperBound.y);

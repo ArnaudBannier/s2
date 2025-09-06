@@ -73,7 +73,7 @@ class SceneFigure extends S2Scene {
             .bind(this.circle.fillColor)
             .bind(this.circle.strokeColor)
             .bind(this.circle.fillOpacity)
-            .setCycleDuration(1000)
+            .setCycleDuration(500)
             .setEasing(easeCos);
 
         this.circle.fillColor.copy(MTL_COLORS.BLUE_GREY_9);
@@ -86,7 +86,7 @@ class SceneFigure extends S2Scene {
             .addUpdateTarget(this.circle)
             .bind(this.circle.fillColor)
             .bind(this.circle.strokeColor)
-            .setCycleDuration(1000)
+            .setCycleDuration(500)
             .setEasing(easeCos);
 
         this.circle.fillColor.copy(MTL_COLORS.RED_8);
@@ -108,21 +108,23 @@ class SceneFigure extends S2Scene {
         const lerpAnim3 = new S2LerpAnim(this)
             .addUpdateTarget(node1)
             .bind(node1.data.position)
-            .setCycleDuration(1000)
+            .bind(node1.getTextGroup(0).data.font.size)
+            .setCycleDuration(500)
             .setEasing(easeCos);
 
         node1.data.position.set(-5, 1, 'world');
+        node1.getTextGroup(0).data.font.size.set(25, 'view');
         lerpAnim3.commitFinalStates();
 
         this.anim.addAnimation(lerpAnim1);
         this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
-        this.anim.addAnimation(lerpAnim3, 'previous-start');
+        this.anim.addAnimation(lerpAnim3, 'previous-start', 0);
 
         this.anim.setCycleCount(2).setReversed(false).setAlternate(true);
         this.anim.setElapsed(0);
 
         const playable = new S2PlayableAnimation(this.anim);
-        playable.play(false).setSpeed(5).setElapsed(1000);
+        playable.play(false).setSpeed(1);
 
         const node2 = this.addNode();
         node2.data.position.set(3, 1, 'world');

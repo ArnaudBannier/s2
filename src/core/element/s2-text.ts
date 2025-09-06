@@ -45,8 +45,8 @@ export class S2TextData extends S2TransformGraphicData {
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         this.font.applyToElement(element, scene);
-
-        const position = this.position.toSpace('view', scene.activeCamera);
+        const camera = scene.getActiveCamera();
+        const position = this.position.toSpace('view', camera);
         element.setAttribute('x', position.x.toString());
         element.setAttribute('y', position.y.toString());
         element.setAttribute('text-anchor', this.textAnchor);

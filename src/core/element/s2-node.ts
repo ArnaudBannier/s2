@@ -27,7 +27,8 @@ export class S2NodeBackgroundData extends S2TransformGraphicData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
-        const radius = this.cornerRadius.toSpace('view', scene.activeCamera);
+        const camera = scene.getActiveCamera();
+        const radius = this.cornerRadius.toSpace('view', camera);
         if (radius > 0) {
             element.setAttribute('rx', radius.toString());
             element.setAttribute('ry', radius.toString());
@@ -169,7 +170,7 @@ export class S2Node extends S2Element<S2NodeData> {
         return S2AnchorUtils.getCenter(
             this.data.anchor,
             space,
-            this.getActiveCamera(),
+            this.scene.getActiveCamera(),
             this.data.position,
             this.nodeExtents,
         );
@@ -187,11 +188,12 @@ export class S2Node extends S2Element<S2NodeData> {
         if (this.background) {
             return this.background.getPointInDirection(direction, space, distance);
         }
-        return this.data.position.toSpace('view', this.scene.activeCamera);
+        return this.data.position.toSpace('view', this.scene.getActiveCamera());
     }
 
     update(updateId?: number): this {
         if (this.shouldSkipUpdate(updateId)) return this;
+        const camera = this.scene.getActiveCamera();
 
         if (this.background !== null) {
             this.background.data.stroke.copy(this.data.background.stroke);
@@ -211,9 +213,9 @@ export class S2Node extends S2Element<S2NodeData> {
             partHeights.push(2 * extents.y);
         }
 
-        const nodeMinExtents = this.data.minExtents.toSpace('view', this.scene.activeCamera);
-        const padding = this.data.padding.toSpace('view', this.scene.activeCamera);
-        const partSep = this.data.partSep.toSpace('view', this.scene.activeCamera);
+        const nodeMinExtents = this.data.minExtents.toSpace('view', camera);
+        const padding = this.data.padding.toSpace('view', camera);
+        const partSep = this.data.partSep.toSpace('view', camera);
 
         const height = FlexUtils.computeSizes(
             partHeights,
@@ -224,12 +226,12 @@ export class S2Node extends S2Element<S2NodeData> {
         );
 
         const nodeExtents = new S2Vec2(Math.max(maxPartWidth / 2 + padding.x, nodeMinExtents.x), height / 2);
-        this.nodeExtents.setValueFromSpace('view', this.getActiveCamera(), nodeExtents.x, nodeExtents.y);
+        this.nodeExtents.setValueFromSpace('view', camera, nodeExtents.x, nodeExtents.y);
 
         const nodeCenter = S2AnchorUtils.getCenter(
             this.data.anchor,
             'view',
-            this.getActiveCamera(),
+            camera,
             this.data.position,
             this.nodeExtents,
         );

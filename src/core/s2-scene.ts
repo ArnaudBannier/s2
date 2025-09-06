@@ -17,16 +17,20 @@ import { S2Line } from './element/s2-line';
 
 export class S2Scene implements S2BaseScene {
     readonly svg: S2SVG;
-    activeCamera: S2Camera;
-    nextId: number;
-    private nextUpdateId: number = 0;
+    protected activeCamera: S2Camera;
+    private nextElementId: number;
+    private nextUpdateId: number;
 
     getNextElementId(): number {
-        return this.nextId++;
+        return this.nextElementId++;
     }
 
     getNextUpdateId(): number {
         return this.nextUpdateId++;
+    }
+
+    getActiveCamera(): S2Camera {
+        return this.activeCamera;
     }
 
     constructor(element: SVGSVGElement, camera: S2Camera) {
@@ -34,7 +38,8 @@ export class S2Scene implements S2BaseScene {
         this.svg = new S2SVG(this, element);
         element.innerHTML = '';
         this.svg.update();
-        this.nextId = 0;
+        this.nextElementId = 0;
+        this.nextUpdateId = 0;
     }
 
     addCircle(parent: S2BaseContainer = this.svg): S2Circle {

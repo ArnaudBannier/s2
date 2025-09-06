@@ -122,7 +122,7 @@ export class S2LerpAnim extends S2Animation {
     protected setElapsedImpl(updateId?: number): void {
         void updateId;
         const t = this.wrapedCycleAlpha;
-        const camera = this.scene.activeCamera;
+        const camera = this.scene.getActiveCamera();
         for (const values of this.maps.number.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }

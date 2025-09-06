@@ -1,4 +1,3 @@
-import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
 import { S2LayerData } from './s2-base-data';
 
@@ -64,7 +63,7 @@ export abstract class S2Element<Data extends S2LayerData> {
     constructor(scene: S2BaseScene, data: Data) {
         this.data = data;
         this.scene = scene;
-        this.id = scene.nextId++;
+        this.id = scene.getNextElementId();
     }
 
     protected static updateSVGChildren(parent: SVGElement, children: S2BaseElement[]): void {
@@ -91,10 +90,6 @@ export abstract class S2Element<Data extends S2LayerData> {
     }
 
     abstract getSVGElement(): SVGElement;
-
-    getActiveCamera(): S2Camera {
-        return this.scene.activeCamera;
-    }
 
     // TODO : Ajouter un updateID pour ne pas faire plusieurs fois le même update dans une frame
     abstract update(updateId?: number): this;
