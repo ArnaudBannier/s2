@@ -243,10 +243,12 @@ export class S2Node extends S2Element<S2NodeData> {
 
         // Position background and separator lines
         if (this.background instanceof S2Rect) {
+            // Background
             this.background.position.setV(nodeCenter, 'view');
             this.background.extents.setV(nodeExtents, 'view');
             this.background.data.anchor = 'center';
 
+            // Separator lines
             let y = nodeCenter.y - nodeExtents.y + padding.y + partHeights[0] + partSep;
             for (let i = 0; i < this.textGroups.length - 1; i++) {
                 this.sepLines[i].startPosition.set(nodeCenter.x - nodeExtents.x, y, 'view');
@@ -254,10 +256,12 @@ export class S2Node extends S2Element<S2NodeData> {
                 y += partHeights[i + 1] + 2 * partSep;
             }
         } else if (this.background instanceof S2Circle) {
+            // Background
             const radius = Math.max(nodeExtents.x, nodeExtents.y);
             this.background.position.setV(nodeCenter, 'view');
             this.background.radius.set(radius, 'view');
 
+            // Separator lines
             let y = nodeCenter.y - nodeExtents.y + padding.y + partHeights[0] + partSep;
             for (let i = 0; i < this.textGroups.length - 1; i++) {
                 const x = Math.sqrt(radius * radius - (y - nodeCenter.y) * (y - nodeCenter.y));
@@ -267,6 +271,7 @@ export class S2Node extends S2Element<S2NodeData> {
             }
         }
         this.mainGroup.update();
+        this.emitUpdate(updateId);
         return this;
     }
 }

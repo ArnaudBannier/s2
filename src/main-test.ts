@@ -93,15 +93,6 @@ class SceneFigure extends S2Scene {
         this.circle.strokeColor.copy(MTL_COLORS.RED_1);
         lerpAnim2.commitFinalStates();
 
-        this.anim.addAnimation(lerpAnim1);
-        this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
-
-        this.anim.setCycleCount(2).setReversed(false).setAlternate(true);
-        this.anim.setElapsed(0);
-
-        const playable = new S2PlayableAnimation(this.anim);
-        playable.play(false).setSpeed(5).setElapsed(1000);
-
         const node1 = this.addNode(1);
         node1.data.position.set(-5, 0, 'world');
         node1.data.anchor = 'center';
@@ -113,6 +104,25 @@ class SceneFigure extends S2Scene {
         node1.addLine().addContent('potoo').data.font.weight.set(700);
         node1.setLayer(1);
         node1.update();
+
+        const lerpAnim3 = new S2LerpAnim(this)
+            .addUpdateTarget(node1)
+            .bind(node1.data.position)
+            .setCycleDuration(1000)
+            .setEasing(easeCos);
+
+        node1.data.position.set(-5, 1, 'world');
+        lerpAnim3.commitFinalStates();
+
+        this.anim.addAnimation(lerpAnim1);
+        this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
+        this.anim.addAnimation(lerpAnim3, 'previous-start');
+
+        this.anim.setCycleCount(2).setReversed(false).setAlternate(true);
+        this.anim.setElapsed(0);
+
+        const playable = new S2PlayableAnimation(this.anim);
+        playable.play(false).setSpeed(5).setElapsed(1000);
 
         const node2 = this.addNode();
         node2.data.position.set(3, 1, 'world');
@@ -135,6 +145,8 @@ class SceneFigure extends S2Scene {
         edge.setLayer(0);
         edge.update();
 
+        edge.addDependency(node1);
+
         this.update();
         console.log('edge', edge);
     }
@@ -153,7 +165,7 @@ if (appDiv) {
             <h1>Test</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
-                <div>Animation : <input type="range" id="slider" min="0" max="100" step="2" value="0" style="width:50%"></div>
+                <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
             </div>
         </div>`;
 }

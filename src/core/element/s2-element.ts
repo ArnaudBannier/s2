@@ -52,6 +52,7 @@ export abstract class S2Element<Data extends S2LayerData> {
     protected updateFromDependency(dep: S2BaseElement, updateId?: number): void {
         void dep;
         void updateId;
+        this.update(updateId);
     }
 
     protected emitUpdate(updateId?: number): void {
