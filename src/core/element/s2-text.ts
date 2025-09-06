@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
 import { S2Position } from '../s2-types';
 
 // "text-anchor": "start | middle | end"

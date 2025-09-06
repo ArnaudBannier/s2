@@ -3,13 +3,14 @@ import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
-import { S2TransformGraphicData } from './s2-shape';
+import { S2TransformGraphicData } from './s2-transform-graphic';
 import { S2Extents, S2Length, S2Position, type S2Space } from '../s2-types';
 import { S2TextGroup, S2TextLine, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
-import { S2Element, S2LayerData, type S2BaseElement } from './s2-element';
+import { S2Element, type S2BaseElement } from './s2-element';
 import { S2Group } from './s2-group';
+import { S2LayerData } from './s2-base-data';
 
 export class S2NodeBackgroundData extends S2TransformGraphicData {
     public readonly cornerRadius: S2Length;

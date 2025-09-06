@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, svgNS } from '../s2-globals';
-import { S2TransformGraphicData } from './s2-shape';
+import { S2TransformGraphicData } from './s2-transform-graphic';
 import { S2BaseText, S2TextData } from './s2-text';
 import { S2Extents, S2Number, S2Position, type S2Space } from '../s2-types';
 import { S2Container } from './s2-container';

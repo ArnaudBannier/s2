@@ -127,7 +127,8 @@ class SceneFigure extends S2Scene {
 
         const edge = this.addCubicEdge(node1, node2);
         edge.data.stroke.color.copy(MTL_COLORS.RED_5);
-        edge.data.stroke.width.set(2, 'view');
+        edge.data.stroke.width.set(8, 'view');
+        edge.data.stroke.lineCap = 'round';
         edge.data.startDistance = new S2Length(10, 'view');
         edge.data.endDistance = new S2Length(10, 'view');
         edge.data.curveAngle = new S2Number(20);
@@ -135,6 +136,7 @@ class SceneFigure extends S2Scene {
         edge.update();
 
         this.update();
+        console.log('edge', edge);
     }
 
     setAnimationValue(t: number): void {

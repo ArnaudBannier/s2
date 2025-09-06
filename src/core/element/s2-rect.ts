@@ -2,7 +2,7 @@ import { S2ShapeUtils } from '../math/s2-shape-utils';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
 import { type S2Space, S2Length, S2Extents, S2Position } from '../s2-types';
 
 export class S2RectData extends S2TransformGraphicData {

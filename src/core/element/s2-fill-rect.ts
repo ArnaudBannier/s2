@@ -1,7 +1,8 @@
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { S2Element, S2FillData, S2LayerData } from './s2-element';
+import { S2Element } from './s2-element';
 import { S2Color, S2Number } from '../s2-types';
+import { S2FillData, S2LayerData } from './s2-base-data';
 
 export class S2FillRectData extends S2LayerData {
     public readonly fill: S2FillData;

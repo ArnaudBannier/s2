@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
 import { S2Length, S2Number, S2Position, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import type { S2Camera } from '../math/s2-camera';

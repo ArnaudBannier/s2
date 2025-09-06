@@ -1,7 +1,6 @@
 import { type S2BaseScene } from '../s2-interface';
 import { S2Element, type S2BaseElement } from './s2-element';
-import { S2TransformGraphic, type S2TransformGraphicData } from './s2-shape';
-
+import { S2TransformGraphic, type S2TransformGraphicData } from './s2-transform-graphic';
 export type S2BaseContainer = S2Container<SVGElement, S2BaseElement, S2TransformGraphicData>;
 
 export class S2Container<
@@ -14,7 +13,9 @@ export class S2Container<
 
     constructor(scene: S2BaseScene, data: Data, element: SVGType) {
         super(scene, data);
-        this.data.fill.opacity.set(-1);
+        this.data.fill.opacity.setInherited();
+        this.data.stroke.opacity.setInherited();
+        this.data.opacity.setInherited();
         this.element = element;
         this.children = [];
     }

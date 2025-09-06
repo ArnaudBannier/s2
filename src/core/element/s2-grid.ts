@@ -1,5 +1,5 @@
 import { type S2BaseScene } from '../s2-interface';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
 import { S2Extents, S2Position } from '../s2-types';
 import { svgNS } from '../s2-globals';
 
