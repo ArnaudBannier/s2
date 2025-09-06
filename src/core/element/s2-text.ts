@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { NewS2SimpleShape, S2SMonoGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
 import { S2Position } from '../s2-types';
 
 // "text-anchor": "start | middle | end"
@@ -15,8 +15,8 @@ import { S2Position } from '../s2-types';
 
 export type S2TextAnchor = 'start' | 'middle' | 'end';
 
-export class S2TextData extends S2SMonoGraphicData {
-    public position: S2Position;
+export class S2TextData extends S2TransformGraphicData {
+    public readonly position: S2Position;
     public anchor: S2TextAnchor;
 
     constructor() {
@@ -40,9 +40,9 @@ export class S2TextData extends S2SMonoGraphicData {
     }
 }
 
-export class NewS2BaseText<Data extends S2TextData> extends NewS2SimpleShape<Data> {
+export class S2BaseText<Data extends S2TextData> extends S2TransformGraphic<Data> {
     protected element: SVGTextElement;
-    protected tspans: Array<NewS2TSpan>;
+    protected tspans: Array<S2TSpan>;
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
@@ -63,8 +63,8 @@ export class NewS2BaseText<Data extends S2TextData> extends NewS2SimpleShape<Dat
         return this;
     }
 
-    addSpan(content: string): NewS2TSpan {
-        const tspan = new NewS2TSpan(this.scene);
+    addSpan(content: string): S2TSpan {
+        const tspan = new S2TSpan(this.scene);
         this.tspans.push(tspan);
         this.element.appendChild(tspan.getSVGElement());
         tspan.setContent(content);
@@ -93,13 +93,13 @@ export class NewS2BaseText<Data extends S2TextData> extends NewS2SimpleShape<Dat
     }
 }
 
-export class NewS2Text extends NewS2BaseText<S2TextData> {
+export class S2Text extends S2BaseText<S2TextData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2TextData());
     }
 }
 
-export class S2TSpanData extends S2SMonoGraphicData {
+export class S2TSpanData extends S2TransformGraphicData {
     constructor() {
         super();
     }
@@ -113,7 +113,7 @@ export class S2TSpanData extends S2SMonoGraphicData {
     }
 }
 
-export class NewS2TSpan extends NewS2SimpleShape<S2TSpanData> {
+export class S2TSpan extends S2TransformGraphic<S2TSpanData> {
     protected element: SVGTSpanElement;
 
     constructor(scene: S2BaseScene) {

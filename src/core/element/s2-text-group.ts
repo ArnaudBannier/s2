@@ -1,10 +1,10 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, svgNS } from '../s2-globals';
-import { S2SMonoGraphicData } from './s2-shape';
-import { NewS2BaseText, S2TextData } from './s2-text';
+import { S2TransformGraphicData } from './s2-shape';
+import { S2BaseText, S2TextData } from './s2-text';
 import { S2Extents, S2Number, S2Position, type S2Space } from '../s2-types';
-import { NewS2Container } from './s2-container';
+import { S2Container } from './s2-container';
 
 // "text-anchor": "start | middle | end"
 // "dominant-baseline": "auto | middle | hanging" + autres
@@ -19,7 +19,7 @@ export type S2TextAlign = 'left' | 'center' | 'right';
 export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 
 export class S2TextLineData extends S2TextData {
-    public skip: S2Number;
+    public readonly skip: S2Number;
     public align?: S2TextAlign;
 
     constructor() {
@@ -34,7 +34,7 @@ export class S2TextLineData extends S2TextData {
     }
 }
 
-export class NewS2TextLine extends NewS2BaseText<S2TextLineData> {
+export class S2TextLine extends S2BaseText<S2TextLineData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2TextLineData());
     }
@@ -44,10 +44,10 @@ export class NewS2TextLine extends NewS2BaseText<S2TextLineData> {
     }
 }
 
-export class S2TextGroupData extends S2SMonoGraphicData {
-    public position: S2Position;
+export class S2TextGroupData extends S2TransformGraphicData {
+    public readonly position: S2Position;
+    public readonly minExtents: S2Extents;
     public anchor: S2Anchor;
-    public minExtents: S2Extents;
     public textAlign: S2TextAlign;
     public verticalAlign: S2VerticalAlign;
     public lineHeight: number;
@@ -80,7 +80,7 @@ export class S2TextGroupData extends S2SMonoGraphicData {
     }
 }
 
-export class NewS2TextGroup extends NewS2Container<SVGGElement, NewS2TextLine, S2TextGroupData> {
+export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGroupData> {
     protected textExtents: S2Extents;
     protected extents: S2Extents;
 
@@ -99,8 +99,8 @@ export class NewS2TextGroup extends NewS2Container<SVGGElement, NewS2TextLine, S
         return this.data.minExtents;
     }
 
-    addLine(options?: { align?: S2TextAlign; skip?: number }): NewS2TextLine {
-        const textLine = new NewS2TextLine(this.scene);
+    addLine(options?: { align?: S2TextAlign; skip?: number }): S2TextLine {
+        const textLine = new S2TextLine(this.scene);
         textLine.data.skip.value = options?.skip ?? 0;
         textLine.data.align = options?.align ?? this.data.textAlign;
         this.appendChild(textLine);

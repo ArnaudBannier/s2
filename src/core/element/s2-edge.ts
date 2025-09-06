@@ -1,21 +1,21 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
-import { NewS2Node } from './s2-node';
-import { NewS2Path } from './s2-path';
-import { NewS2SimpleShape, S2SMonoGraphicData } from './s2-shape';
+import { S2Node } from './s2-node';
+import { S2Path } from './s2-path';
+import { S2MonoGraphic, S2MonoGraphicData } from './s2-shape';
 import { type S2Space, S2Length, S2Number, S2Position } from '../s2-types';
 
 // S2NodeArcManhattan
 
-export class S2EdgeData extends S2SMonoGraphicData {
-    public pathFrom: S2Number;
-    public pathTo: S2Number;
+export class S2EdgeData extends S2MonoGraphicData {
+    public readonly pathFrom: S2Number;
+    public readonly pathTo: S2Number;
     public startDistance?: S2Length;
     public endDistance?: S2Length;
     public startAngle?: S2Number;
     public endAngle?: S2Number;
-    public start: NewS2Node | S2Position;
-    public end: NewS2Node | S2Position;
+    public start: S2Node | S2Position; // TODO Créer une classe S2EdgeEndpoint ?
+    public end: S2Node | S2Position;
 
     constructor() {
         super();
@@ -29,12 +29,12 @@ export class S2EdgeData extends S2SMonoGraphicData {
         super.copy(other);
         this.pathFrom.copy(other.pathFrom);
         this.pathTo.copy(other.pathTo);
-        if (other.start instanceof NewS2Node) {
+        if (other.start instanceof S2Node) {
             this.start = other.start;
         } else {
             this.start = other.start.clone();
         }
-        if (other.end instanceof NewS2Node) {
+        if (other.end instanceof S2Node) {
             this.end = other.end;
         } else {
             this.end = other.end.clone();
@@ -50,19 +50,19 @@ export class S2EdgeData extends S2SMonoGraphicData {
     }
 }
 
-export abstract class NewS2Edge<Data extends S2EdgeData> extends NewS2SimpleShape<Data> {
-    protected path: NewS2Path;
+export abstract class S2Edge<Data extends S2EdgeData> extends S2MonoGraphic<Data> {
+    protected path: S2Path;
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
-        this.path = new NewS2Path(scene);
+        this.path = new S2Path(scene);
     }
 
     getSVGElement(): SVGElement {
         return this.path.getSVGElement();
     }
 
-    protected getPointCenter(nodeOrPos: NewS2Node | S2Position, space: S2Space) {
-        if (nodeOrPos instanceof NewS2Node) {
+    protected getPointCenter(nodeOrPos: S2Node | S2Position, space: S2Space) {
+        if (nodeOrPos instanceof S2Node) {
             return nodeOrPos.getCenter(space);
         } else {
             return nodeOrPos.toSpace(space, this.getActiveCamera());
@@ -70,12 +70,12 @@ export abstract class NewS2Edge<Data extends S2EdgeData> extends NewS2SimpleShap
     }
 
     protected getPoint(
-        nodeOrPos: NewS2Node | S2Position,
+        nodeOrPos: S2Node | S2Position,
         space: S2Space,
         distance?: S2Length,
         direction?: S2Vec2,
     ): S2Vec2 {
-        if (nodeOrPos instanceof NewS2Node) {
+        if (nodeOrPos instanceof S2Node) {
             if (distance !== undefined && direction !== undefined) {
                 return nodeOrPos.getPointInDirection(direction, space, distance);
             }
@@ -101,12 +101,11 @@ export abstract class NewS2Edge<Data extends S2EdgeData> extends NewS2SimpleShap
         this.path.data.pathTo.copy(this.data.pathTo);
         this.path.data.fill.copy(this.data.fill);
         this.path.data.stroke.copy(this.data.stroke);
-        this.path.data.transform.copy(this.data.transform);
         this.path.data.opacity.copy(this.data.opacity);
     }
 }
 
-export class NewS2LineEdge extends NewS2Edge<S2EdgeData> {
+export class S2LineEdge extends S2Edge<S2EdgeData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2EdgeData());
     }
@@ -160,7 +159,7 @@ export class S2CubicEdgeData extends S2EdgeData {
     }
 }
 
-export class NewS2CubicEdge extends NewS2Edge<S2CubicEdgeData> {
+export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2CubicEdgeData());
         this.data.fill.opacity.set(0);

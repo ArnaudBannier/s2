@@ -1,16 +1,16 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { NewS2SimpleShape, S2SMonoGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
 import { S2Length, S2Number, S2Position, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import type { S2Camera } from '../math/s2-camera';
 
-export class S2PathData extends S2SMonoGraphicData {
-    public polyCurve: S2PolyCurve;
+export class S2PathData extends S2TransformGraphicData {
     public space: S2Space;
-    public pathFrom: S2Number;
-    public pathTo: S2Number;
+    public readonly polyCurve: S2PolyCurve;
+    public readonly pathFrom: S2Number;
+    public readonly pathTo: S2Number;
 
     constructor() {
         super();
@@ -89,7 +89,7 @@ export class S2PathUtils {
     }
 }
 
-export class NewS2Path extends NewS2SimpleShape<S2PathData> {
+export class S2Path extends S2TransformGraphic<S2PathData> {
     protected element: SVGPathElement;
     protected sampleCount: number = 0;
     protected currStart: S2Vec2;

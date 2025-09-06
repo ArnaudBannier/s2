@@ -2,13 +2,13 @@ import { S2ShapeUtils } from '../math/s2-shape-utils';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
-import { NewS2SimpleShape, S2SMonoGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
 import { type S2Space, S2Length, S2Extents, S2Position } from '../s2-types';
 
-export class S2RectData extends S2SMonoGraphicData {
-    public position: S2Position;
-    public radius: S2Length;
-    public extents: S2Extents;
+export class S2RectData extends S2TransformGraphicData {
+    public readonly position: S2Position;
+    public readonly radius: S2Length;
+    public readonly extents: S2Extents;
     public anchor: S2Anchor;
 
     constructor() {
@@ -52,7 +52,7 @@ export class S2RectData extends S2SMonoGraphicData {
     }
 }
 
-export class NewS2Rect extends NewS2SimpleShape<S2RectData> {
+export class S2Rect extends S2TransformGraphic<S2RectData> {
     protected element: SVGRectElement;
 
     constructor(scene: S2BaseScene) {

@@ -1,32 +1,32 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, FlexUtils } from '../s2-globals';
-import { NewS2Rect } from './s2-rect';
-import { NewS2Circle } from './s2-circle';
-import { S2SMonoGraphicData } from './s2-shape';
+import { S2Rect } from './s2-rect';
+import { S2Circle } from './s2-circle';
+import { S2TransformGraphicData } from './s2-shape';
 import { S2Extents, S2Length, S2Position, type S2Space } from '../s2-types';
-import { NewS2TextGroup, NewS2TextLine, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
+import { S2TextGroup, S2TextLine, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
-import { NewS2Line } from './s2-line';
-import { NewS2Element, S2LayerData, type S2BaseElement } from './s2-element';
-import { NewS2Group } from './s2-group';
+import { S2Line } from './s2-line';
+import { S2Element, S2LayerData, type S2BaseElement } from './s2-element';
+import { S2Group } from './s2-group';
 
-export class S2NodeBackgroundData extends S2SMonoGraphicData {
-    public radius: S2Length;
+export class S2NodeBackgroundData extends S2TransformGraphicData {
+    public readonly cornerRadius: S2Length;
 
     constructor() {
         super();
-        this.radius = new S2Length(0, 'view');
+        this.cornerRadius = new S2Length(0, 'view');
     }
 
     copy(other: S2NodeBackgroundData): void {
         super.copy(other);
-        this.radius.copy(other.radius);
+        this.cornerRadius.copy(other.cornerRadius);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
-        const radius = this.radius.toSpace('view', scene.activeCamera);
+        const radius = this.cornerRadius.toSpace('view', scene.activeCamera);
         if (radius > 0) {
             element.setAttribute('rx', radius.toString());
             element.setAttribute('ry', radius.toString());
@@ -37,7 +37,7 @@ export class S2NodeBackgroundData extends S2SMonoGraphicData {
     }
 }
 
-export class S2NodeTextData extends S2SMonoGraphicData {
+export class S2NodeTextData extends S2TransformGraphicData {
     public textAlign: S2TextAlign;
     public verticalAlign: S2VerticalAlign;
     public lineHeight: number;
@@ -100,22 +100,22 @@ export class S2NodeData extends S2LayerData {
     }
 }
 
-export class NewS2Node extends NewS2Element<S2NodeData> {
-    protected mainGroup: NewS2Group<S2BaseElement>;
-    protected textGroups: NewS2TextGroup[];
+export class S2Node extends S2Element<S2NodeData> {
+    protected mainGroup: S2Group<S2BaseElement>;
+    protected textGroups: S2TextGroup[];
     protected textGrows: number[];
-    protected sepLines: NewS2Line[];
-    protected background: NewS2Rect | NewS2Circle | null = null;
+    protected sepLines: S2Line[];
+    protected background: S2Rect | S2Circle | null = null;
     protected nodeExtents: S2Extents;
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
         super(scene, new S2NodeData());
-        this.mainGroup = new NewS2Group<S2BaseElement>(scene);
+        this.mainGroup = new S2Group<S2BaseElement>(scene);
 
         this.textGroups = [];
         this.textGrows = [];
         for (let i = 0; i < partCount; i++) {
-            const textGroup = new NewS2TextGroup(this.scene);
+            const textGroup = new S2TextGroup(this.scene);
             textGroup.setLayer(2);
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
@@ -123,7 +123,7 @@ export class NewS2Node extends NewS2Element<S2NodeData> {
         }
         this.sepLines = [];
         for (let i = 0; i < partCount - 1; i++) {
-            const line = new NewS2Line(this.scene).setLayer(1);
+            const line = new S2Line(this.scene).setLayer(1);
             this.sepLines.push(line);
             this.mainGroup.appendChild(line);
         }
@@ -134,22 +134,22 @@ export class NewS2Node extends NewS2Element<S2NodeData> {
         return this.mainGroup.getSVGElement();
     }
 
-    addLine(options?: { partIndex?: number; align?: S2TextAlign; skip?: number }): NewS2TextLine {
+    addLine(options?: { partIndex?: number; align?: S2TextAlign; skip?: number }): S2TextLine {
         const index = clamp(options?.partIndex ?? 0, 0, this.textGroups.length - 1);
         return this.textGroups[index].addLine(options);
     }
 
-    createRectBackground(): NewS2Rect {
+    createRectBackground(): S2Rect {
         if (this.background !== null) this.mainGroup.removeChild(this.background);
-        this.background = new NewS2Rect(this.scene);
+        this.background = new S2Rect(this.scene);
         this.background.setLayer(0);
         this.mainGroup.appendChild(this.background);
         return this.background;
     }
 
-    createCircleBackground(): NewS2Circle {
+    createCircleBackground(): S2Circle {
         if (this.background !== null) this.mainGroup.removeChild(this.background);
-        this.background = new NewS2Circle(this.scene);
+        this.background = new S2Circle(this.scene);
         this.background.setLayer(0);
         this.mainGroup.appendChild(this.background);
         return this.background;
@@ -160,7 +160,7 @@ export class NewS2Node extends NewS2Element<S2NodeData> {
         return this;
     }
 
-    getBackground(): NewS2Circle | NewS2Rect | null {
+    getBackground(): S2Circle | S2Rect | null {
         return this.background;
     }
 
@@ -174,7 +174,7 @@ export class NewS2Node extends NewS2Element<S2NodeData> {
         );
     }
 
-    getTextGroup(index: number = 0): NewS2TextGroup {
+    getTextGroup(index: number = 0): S2TextGroup {
         return this.textGroups[index];
     }
 
@@ -196,7 +196,7 @@ export class NewS2Node extends NewS2Element<S2NodeData> {
             this.background.data.stroke.copy(this.data.background.stroke);
             this.background.data.fill.copy(this.data.background.fill);
             this.background.data.opacity.copy(this.data.background.opacity);
-            this.background.data.radius.copy(this.data.background.radius);
+            this.background.data.radius.copy(this.data.background.cornerRadius);
         }
 
         const partHeights: Array<number> = [];
@@ -240,7 +240,7 @@ export class NewS2Node extends NewS2Element<S2NodeData> {
             textPosition.y += partHeights[i] + 2 * partSep;
         }
 
-        if (this.background instanceof NewS2Rect) {
+        if (this.background instanceof S2Rect) {
             this.background.position.setV(nodeCenter, 'view');
             this.background.extents.setV(nodeExtents, 'view');
             this.background.data.anchor = 'center';
@@ -251,7 +251,7 @@ export class NewS2Node extends NewS2Element<S2NodeData> {
                 this.sepLines[i].endPosition.set(nodeCenter.x + nodeExtents.x, y, 'view');
                 y += partHeights[i + 1] + 2 * partSep;
             }
-        } else if (this.background instanceof NewS2Circle) {
+        } else if (this.background instanceof S2Circle) {
             const radius = Math.max(nodeExtents.x, nodeExtents.y);
             this.background.position.setV(nodeCenter, 'view');
             this.background.radius.set(radius, 'view');

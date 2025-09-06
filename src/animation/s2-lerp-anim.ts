@@ -7,8 +7,8 @@ type S2LerpablePropertyMap<T> = Map<T, S2LerpableProperty<T>>;
 export class S2LerpAnim extends S2Animation {
     protected maps: {
         number: S2LerpablePropertyMap<S2Number>;
-        position: S2LerpablePropertyMap<S2Position>;
         color: S2LerpablePropertyMap<S2Color>;
+        position: S2LerpablePropertyMap<S2Position>;
         length: S2LerpablePropertyMap<S2Length>;
         extents: S2LerpablePropertyMap<S2Extents>;
     };
@@ -17,8 +17,8 @@ export class S2LerpAnim extends S2Animation {
         super(scene);
         this.maps = {
             number: new Map(),
-            position: new Map(),
             color: new Map(),
+            position: new Map(),
             length: new Map(),
             extents: new Map(),
         };
@@ -33,8 +33,8 @@ export class S2LerpAnim extends S2Animation {
         return this;
     }
 
-    bindPosition(property: S2Position, to?: S2Position): this {
-        this.maps.position.set(property, {
+    bindColor(property: S2Color, to?: S2Color): this {
+        this.maps.color.set(property, {
             object: property,
             state0: property.clone(),
             state1: to !== undefined ? to.clone() : property.clone(),
@@ -42,8 +42,8 @@ export class S2LerpAnim extends S2Animation {
         return this;
     }
 
-    bindColor(property: S2Color, to?: S2Color): this {
-        this.maps.color.set(property, {
+    bindPosition(property: S2Position, to?: S2Position): this {
+        this.maps.position.set(property, {
             object: property,
             state0: property.clone(),
             state1: to !== undefined ? to.clone() : property.clone(),
@@ -70,23 +70,23 @@ export class S2LerpAnim extends S2Animation {
     }
 
     bind(property: S2Number, to?: S2Number): this;
-    bind(property: S2Position, to?: S2Position): this;
     bind(property: S2Color, to?: S2Color): this;
+    bind(property: S2Position, to?: S2Position): this;
     bind(property: S2Length, to?: S2Length): this;
     bind(property: S2Extents, to?: S2Extents): this;
     bind(
-        property: S2Number | S2Position | S2Color | S2Length | S2Extents,
-        to?: S2Number | S2Position | S2Color | S2Length | S2Extents,
+        property: S2Number | S2Color | S2Position | S2Length | S2Extents,
+        to?: S2Number | S2Color | S2Position | S2Length | S2Extents,
     ): this {
         switch (property.kind) {
             case 'number':
                 this.bindNumber(property, to as S2Number | undefined);
                 break;
-            case 'position':
-                this.bindPosition(property, to as S2Position | undefined);
-                break;
             case 'color':
                 this.bindColor(property, to as S2Color | undefined);
+                break;
+            case 'position':
+                this.bindPosition(property, to as S2Position | undefined);
                 break;
             case 'length':
                 this.bindLength(property, to as S2Length | undefined);
@@ -104,10 +104,10 @@ export class S2LerpAnim extends S2Animation {
         for (const values of this.maps.number.values()) {
             values.state1.copy(values.object);
         }
-        for (const values of this.maps.position.values()) {
+        for (const values of this.maps.color.values()) {
             values.state1.copy(values.object);
         }
-        for (const values of this.maps.color.values()) {
+        for (const values of this.maps.position.values()) {
             values.state1.copy(values.object);
         }
         for (const values of this.maps.length.values()) {
@@ -122,20 +122,21 @@ export class S2LerpAnim extends S2Animation {
     protected setElapsedImpl(updateId?: number): void {
         void updateId;
         const t = this.wrapedCycleAlpha;
+        const camera = this.scene.activeCamera;
         for (const values of this.maps.number.values()) {
-            values.object.lerp(values.state0, values.state1, t);
-        }
-        for (const values of this.maps.position.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
         for (const values of this.maps.color.values()) {
             values.object.lerp(values.state0, values.state1, t);
         }
+        for (const values of this.maps.position.values()) {
+            values.object.lerp(values.state0, values.state1, t, camera);
+        }
         for (const values of this.maps.length.values()) {
-            values.object.lerp(values.state0, values.state1, t);
+            values.object.lerp(values.state0, values.state1, t, camera);
         }
         for (const values of this.maps.extents.values()) {
-            values.object.lerp(values.state0, values.state1, t);
+            values.object.lerp(values.state0, values.state1, t, camera);
         }
     }
 
@@ -143,10 +144,10 @@ export class S2LerpAnim extends S2Animation {
         for (const values of this.maps.number.values()) {
             values.object.copy(values.state0);
         }
-        for (const values of this.maps.position.values()) {
+        for (const values of this.maps.color.values()) {
             values.object.copy(values.state0);
         }
-        for (const values of this.maps.color.values()) {
+        for (const values of this.maps.position.values()) {
             values.object.copy(values.state0);
         }
         for (const values of this.maps.length.values()) {
@@ -161,10 +162,10 @@ export class S2LerpAnim extends S2Animation {
         for (const values of this.maps.number.values()) {
             values.object.copy(values.state1);
         }
-        for (const values of this.maps.position.values()) {
+        for (const values of this.maps.color.values()) {
             values.object.copy(values.state1);
         }
-        for (const values of this.maps.color.values()) {
+        for (const values of this.maps.position.values()) {
             values.object.copy(values.state1);
         }
         for (const values of this.maps.length.values()) {

@@ -1,13 +1,13 @@
 import { type S2BaseScene } from '../s2-interface';
-import { NewS2SimpleShape, S2SMonoGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
 import { S2Extents, S2Position } from '../s2-types';
 import { svgNS } from '../s2-globals';
 
 export class S2GridGeometryData {
-    public lowerBound: S2Position;
-    public upperBound: S2Position;
-    public steps: S2Extents;
-    public anchor: S2Position;
+    public readonly lowerBound: S2Position;
+    public readonly upperBound: S2Position;
+    public readonly steps: S2Extents;
+    public readonly anchor: S2Position;
 
     constructor() {
         this.lowerBound = new S2Position(-8, -4.5, 'world');
@@ -46,8 +46,8 @@ export class S2GridGeometryData {
     }
 }
 
-export class S2GridData extends S2SMonoGraphicData {
-    public geometry: S2GridGeometryData;
+export class S2GridData extends S2TransformGraphicData {
+    public readonly geometry: S2GridGeometryData;
 
     constructor() {
         super();
@@ -65,7 +65,7 @@ export class S2GridData extends S2SMonoGraphicData {
     }
 }
 
-export class NewS2Grid extends NewS2SimpleShape<S2GridData> {
+export class S2Grid extends S2TransformGraphic<S2GridData> {
     protected element: SVGPathElement;
 
     constructor(scene: S2BaseScene) {

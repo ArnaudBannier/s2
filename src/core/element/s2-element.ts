@@ -1,14 +1,14 @@
 import { S2Camera } from '../math/s2-camera';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2LineCap, type S2LineJoin } from '../s2-globals';
-import { S2Length, S2Number } from '../s2-types';
+import { S2Inheritance, S2Length, S2Number } from '../s2-types';
 import { S2Mat2x3 } from '../math/s2-mat2x3';
 import { S2Color } from '../s2-types';
 
-export type S2BaseElement = NewS2Element<S2LayerData>;
+export type S2BaseElement = S2Element<S2LayerData>;
 
 export class S2LayerData {
-    public layer: S2Number;
+    public readonly layer: S2Number;
     public isActive: boolean;
 
     constructor() {
@@ -17,7 +17,7 @@ export class S2LayerData {
     }
 
     copy(other: S2LayerData): void {
-        this.layer = other.layer;
+        this.layer.copy(other.layer);
         this.isActive = other.isActive;
     }
 
@@ -28,16 +28,16 @@ export class S2LayerData {
 }
 
 export class S2StrokeData {
-    public color: S2Color;
-    public width: S2Length;
-    public opacity: S2Number;
+    public readonly color: S2Color;
+    public readonly width: S2Length;
+    public readonly opacity: S2Number;
     public lineCap?: S2LineCap;
     public lineJoin?: S2LineJoin;
 
     constructor() {
-        this.color = new S2Color();
+        this.color = new S2Color(0, 0, 0, S2Inheritance.Inherited);
         this.width = new S2Length(0, 'view');
-        this.opacity = new S2Number(2);
+        this.opacity = new S2Number(1, S2Inheritance.Inherited);
     }
 
     copy(other: S2StrokeData): void {
@@ -61,12 +61,12 @@ export class S2StrokeData {
 }
 
 export class S2FillData {
-    public color: S2Color;
-    public opacity: S2Number;
+    public readonly color: S2Color;
+    public readonly opacity: S2Number;
 
     constructor() {
-        this.color = new S2Color();
-        this.opacity = new S2Number(2);
+        this.color = new S2Color(255, 255, 255, S2Inheritance.Inherited);
+        this.opacity = new S2Number(1, S2Inheritance.Inherited);
     }
 
     copy(other: S2FillData): void {
@@ -92,7 +92,7 @@ export class S2FillData {
 }
 
 export class S2TransformData {
-    public matrix: S2Mat2x3;
+    public readonly matrix: S2Mat2x3;
 
     constructor() {
         this.matrix = S2Mat2x3.createIdentity();
@@ -115,7 +115,7 @@ export class S2TransformData {
 
 type S2ElementListener = (source: S2BaseElement, updateId?: number) => void;
 
-export abstract class NewS2Element<Data extends S2LayerData> {
+export abstract class S2Element<Data extends S2LayerData> {
     public data: Data;
     public readonly id: number;
 

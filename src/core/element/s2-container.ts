@@ -1,14 +1,14 @@
 import { type S2BaseScene } from '../s2-interface';
-import { NewS2Element, type S2BaseElement } from './s2-element';
-import { NewS2SimpleShape, type S2SMonoGraphicData } from './s2-shape';
+import { S2Element, type S2BaseElement } from './s2-element';
+import { S2TransformGraphic, type S2TransformGraphicData } from './s2-shape';
 
-export type NewS2BaseContainer = NewS2Container<SVGElement, S2BaseElement, S2SMonoGraphicData>;
+export type S2BaseContainer = S2Container<SVGElement, S2BaseElement, S2TransformGraphicData>;
 
-export class NewS2Container<
+export class S2Container<
     SVGType extends SVGElement,
     ChildType extends S2BaseElement,
-    Data extends S2SMonoGraphicData,
-> extends NewS2SimpleShape<Data> {
+    Data extends S2TransformGraphicData,
+> extends S2TransformGraphic<Data> {
     protected element: SVGType;
     protected children: Array<ChildType>;
 
@@ -22,12 +22,12 @@ export class NewS2Container<
     appendChild(child: ChildType): this {
         const prevParent = child.getParent();
         if (prevParent === this) return this;
-        if (prevParent && prevParent instanceof NewS2Container) {
+        if (prevParent && prevParent instanceof S2Container) {
             prevParent.removeChild(child);
         }
         this.children.push(child);
         child.setParent(this);
-        NewS2Element.updateSVGChildren(this.element, this.children);
+        S2Element.updateSVGChildren(this.element, this.children);
         return this;
     }
 
@@ -36,7 +36,7 @@ export class NewS2Container<
             child.setParent(null);
         }
         this.children.length = 0;
-        NewS2Element.updateSVGChildren(this.element, this.children);
+        S2Element.updateSVGChildren(this.element, this.children);
         return this;
     }
 
@@ -46,14 +46,14 @@ export class NewS2Container<
             this.children.splice(index, 1);
             child.setParent(null);
         }
-        NewS2Element.updateSVGChildren(this.element, this.children);
+        S2Element.updateSVGChildren(this.element, this.children);
         return this;
     }
 
     removeLastChild(): this {
         const last = this.children.pop();
         if (last) last.setParent(null);
-        NewS2Element.updateSVGChildren(this.element, this.children);
+        S2Element.updateSVGChildren(this.element, this.children);
         return this;
     }
 

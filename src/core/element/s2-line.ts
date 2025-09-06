@@ -1,11 +1,11 @@
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { NewS2SimpleShape, S2SMonoGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
 import { S2Position } from '../s2-types';
 
-export class S2LineData extends S2SMonoGraphicData {
-    public startPosition: S2Position;
-    public endPosition: S2Position;
+export class S2LineData extends S2TransformGraphicData {
+    public readonly startPosition: S2Position;
+    public readonly endPosition: S2Position;
 
     constructor() {
         super();
@@ -30,7 +30,7 @@ export class S2LineData extends S2SMonoGraphicData {
     }
 }
 
-export class NewS2Line extends NewS2SimpleShape<S2LineData> {
+export class S2Line extends S2TransformGraphic<S2LineData> {
     protected element: SVGLineElement;
 
     constructor(scene: S2BaseScene) {

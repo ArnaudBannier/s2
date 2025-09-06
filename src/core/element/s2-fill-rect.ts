@@ -1,10 +1,10 @@
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { NewS2Element, S2FillData, S2LayerData } from './s2-element';
+import { S2Element, S2FillData, S2LayerData } from './s2-element';
 import { S2Color, S2Number } from '../s2-types';
 
 export class S2FillRectData extends S2LayerData {
-    public fill: S2FillData;
+    public readonly fill: S2FillData;
     constructor() {
         super();
         this.fill = new S2FillData();
@@ -21,7 +21,7 @@ export class S2FillRectData extends S2LayerData {
     }
 }
 
-export class NewS2FillRect extends NewS2Element<S2FillRectData> {
+export class S2FillRect extends S2Element<S2FillRectData> {
     protected element: SVGRectElement;
 
     constructor(scene: S2BaseScene) {

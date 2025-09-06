@@ -3,34 +3,41 @@ import { S2Camera } from './math/s2-camera';
 import { S2MathUtils } from './math/s2-utils';
 
 export type S2Space = 'world' | 'view';
+export enum S2Inheritance {
+    Inherited = 'inherited',
+    Explicit = 'explicit',
+}
 
 export abstract class S2BaseType<T extends S2BaseType<T>> {
     abstract readonly kind: string;
+    public inherit: S2Inheritance = S2Inheritance.Explicit;
     abstract clone(): T;
     abstract copy(other: T): this;
-    abstract lerp(state0: T, state1: T, t: number): this;
 }
 
 export class S2Number extends S2BaseType<S2Number> {
     readonly kind = 'number' as const;
     public value: number;
 
-    constructor(value: number) {
+    constructor(value: number, inherit: S2Inheritance = S2Inheritance.Explicit) {
         super();
         this.value = value;
+        this.inherit = inherit;
     }
 
     clone(): S2Number {
-        return new S2Number(this.value);
+        return new S2Number(this.value, this.inherit);
     }
 
     copy(other: S2Number): this {
         this.value = other.value;
+        this.inherit = other.inherit;
         return this;
     }
 
     lerp(state0: S2Number, state1: S2Number, t: number): this {
         this.value = S2MathUtils.lerp(state0.value, state1.value, t);
+        this.inherit = state0.inherit || state1.inherit;
         return this;
     }
 
@@ -38,8 +45,9 @@ export class S2Number extends S2BaseType<S2Number> {
         return new S2Number(0).lerp(state0, state1, t);
     }
 
-    set(value: number): this {
+    set(value: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
         this.value = value;
+        this.inherit = inherit;
         return this;
     }
 
@@ -63,15 +71,16 @@ export class S2Color extends S2BaseType<S2Color> {
         return color;
     }
 
-    constructor(r: number = 0, g: number = 0, b: number = 0) {
+    constructor(r: number = 0, g: number = 0, b: number = 0, inherit: S2Inheritance = S2Inheritance.Explicit) {
         super();
         this.r = r;
         this.g = g;
         this.b = b;
+        this.inherit = inherit;
     }
 
     clone(): S2Color {
-        return new S2Color(this.r, this.g, this.b);
+        return new S2Color(this.r, this.g, this.b, this.inherit);
     }
 
     copy(color?: S2Color): this {
@@ -86,6 +95,7 @@ export class S2Color extends S2BaseType<S2Color> {
         this.r = S2MathUtils.lerp(state0.r, state1.r, t);
         this.g = S2MathUtils.lerp(state0.g, state1.g, t);
         this.b = S2MathUtils.lerp(state0.b, state1.b, t);
+        this.inherit = state0.inherit || state1.inherit;
         return this;
     }
 
@@ -93,10 +103,11 @@ export class S2Color extends S2BaseType<S2Color> {
         return new S2Color().lerp(color0, color1, t);
     }
 
-    set(r: number, g: number, b: number): this {
+    set(r: number, g: number, b: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
         this.r = r;
         this.g = g;
         this.b = b;
+        this.inherit = inherit;
         return this;
     }
 
@@ -114,45 +125,51 @@ export class S2Position extends S2BaseType<S2Position> {
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(x: number = 0, y: number = 0, space: S2Space = 'world') {
+    constructor(
+        x: number = 0,
+        y: number = 0,
+        space: S2Space = 'world',
+        inherit: S2Inheritance = S2Inheritance.Explicit,
+    ) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
+        this.inherit = inherit;
     }
 
     clone(): S2Position {
-        return new S2Position(this.value.x, this.value.y, this.space);
+        return new S2Position(this.value.x, this.value.y, this.space, this.inherit);
     }
 
-    copy(other?: S2Position): this {
-        if (other) {
-            this.value.copy(other.value);
-            this.space = other.space;
-        } else {
-            this.value.set(0, 0);
-            this.space = 'world';
-        }
+    copy(other: S2Position): this {
+        this.value.copy(other.value);
+        this.space = other.space;
+        this.inherit = other.inherit;
         return this;
     }
 
-    lerp(state0: S2Position, state1: S2Position, t: number): this {
-        this.value = S2Vec2.lerp(state0.value, state1.value, t);
+    lerp(state0: S2Position, state1: S2Position, t: number, camera: S2Camera): this {
+        const value0 = state0.toSpace(state1.space, camera);
+        this.value = S2Vec2.lerp(value0, state1.value, t);
+        this.inherit = state0.inherit || state1.inherit;
         return this;
     }
 
-    static lerp(state0: S2Position, state1: S2Position, t: number): S2Position {
-        return new S2Position().lerp(state0, state1, t);
+    static lerp(state0: S2Position, state1: S2Position, t: number, camera: S2Camera): S2Position {
+        return new S2Position().lerp(state0, state1, t, camera);
     }
 
-    set(x: number = 0, y: number = 0, space?: S2Space): this {
+    set(x: number = 0, y: number = 0, space?: S2Space, inherit: S2Inheritance = S2Inheritance.Explicit): this {
         this.value.set(x, y);
         if (space) this.space = space;
+        this.inherit = inherit;
         return this;
     }
 
-    setV(position: S2Vec2, space?: S2Space): this {
+    setV(position: S2Vec2, space?: S2Space, inherit: S2Inheritance = S2Inheritance.Explicit): this {
         this.value.copy(position);
         if (space) this.space = space;
+        this.inherit = inherit;
         return this;
     }
 
@@ -212,34 +229,39 @@ export class S2Length extends S2BaseType<S2Length> {
     public value: number;
     public space: S2Space;
 
-    constructor(value: number = 0, space: S2Space = 'world') {
+    constructor(value: number = 0, space: S2Space = 'world', inherit: S2Inheritance = S2Inheritance.Explicit) {
         super();
         this.value = value;
         this.space = space;
+        this.inherit = inherit;
     }
 
     clone(): S2Length {
-        return new S2Length(this.value, this.space);
+        return new S2Length(this.value, this.space, this.inherit);
     }
 
-    copy(other?: S2Length): this {
-        this.value = other?.value ?? 0;
-        this.space = other?.space ?? 'world';
+    copy(other: S2Length): this {
+        this.value = other.value;
+        this.space = other.space;
+        this.inherit = other.inherit;
         return this;
     }
 
-    lerp(state0: S2Length, state1: S2Length, t: number): this {
-        this.value = S2MathUtils.lerp(state0.value, state1.value, t);
+    lerp(state0: S2Length, state1: S2Length, t: number, camera: S2Camera): this {
+        const value0 = state0.toSpace(state1.space, camera);
+        this.value = S2MathUtils.lerp(value0, state1.value, t);
+        this.inherit = state0.inherit || state1.inherit;
         return this;
     }
 
-    static lerp(state0: S2Length, state1: S2Length, t: number): S2Length {
-        return new S2Length().lerp(state0, state1, t);
+    static lerp(state0: S2Length, state1: S2Length, t: number, camera: S2Camera): S2Length {
+        return new S2Length().lerp(state0, state1, t, camera);
     }
 
-    set(value: number, space?: S2Space): this {
+    set(value: number, space?: S2Space, inherit: S2Inheritance = S2Inheritance.Explicit): this {
         this.value = value;
         if (space) this.space = space;
+        this.inherit = inherit;
         return this;
     }
 
@@ -295,45 +317,51 @@ export class S2Extents extends S2BaseType<S2Extents> {
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(x: number = 0, y: number = 0, space: S2Space = 'world') {
+    constructor(
+        x: number = 0,
+        y: number = 0,
+        space: S2Space = 'world',
+        inherit: S2Inheritance = S2Inheritance.Explicit,
+    ) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
+        this.inherit = inherit;
     }
 
     clone(): S2Extents {
-        return new S2Extents(this.value.x, this.value.y, this.space);
+        return new S2Extents(this.value.x, this.value.y, this.space, this.inherit);
     }
 
-    copy(other?: S2Extents): this {
-        if (other) {
-            this.value.copy(other.value);
-            this.space = other.space;
-        } else {
-            this.value.set(0, 0);
-            this.space = 'world';
-        }
+    copy(other: S2Extents): this {
+        this.value.copy(other.value);
+        this.space = other.space;
+        this.inherit = other.inherit;
         return this;
     }
 
-    lerp(state0: S2Extents, state1: S2Extents, t: number): this {
-        this.value = S2Vec2.lerp(state0.value, state1.value, t);
+    lerp(state0: S2Extents, state1: S2Extents, t: number, camera: S2Camera): this {
+        const value0 = state0.toSpace(state1.space, camera);
+        this.value = S2Vec2.lerp(value0, state1.value, t);
+        this.inherit = state0.inherit || state1.inherit;
         return this;
     }
 
-    static lerp(state0: S2Extents, state1: S2Extents, t: number): S2Extents {
-        return new S2Extents().lerp(state0, state1, t);
+    static lerp(state0: S2Extents, state1: S2Extents, t: number, camera: S2Camera): S2Extents {
+        return new S2Extents().lerp(state0, state1, t, camera);
     }
 
-    set(x: number, y: number, space?: S2Space): this {
+    set(x: number, y: number, space?: S2Space, inherit: S2Inheritance = S2Inheritance.Explicit): this {
         this.value.set(x, y);
         if (space) this.space = space;
+        this.inherit = inherit;
         return this;
     }
 
-    setV(extents: S2Vec2, space?: S2Space): this {
+    setV(extents: S2Vec2, space?: S2Space, inherit: S2Inheritance = S2Inheritance.Explicit): this {
         this.value.copy(extents);
         if (space) this.space = space;
+        this.inherit = inherit;
         return this;
     }
 

@@ -2,7 +2,7 @@ import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
-import { NewS2Circle } from './core/element/s2-circle.ts';
+import { S2Circle } from './core/element/s2-circle.ts';
 import { S2Length, S2Number } from './core/s2-types.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { easeCos } from './animation/s2-easing.ts';
@@ -38,7 +38,7 @@ const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
 class SceneFigure extends S2Scene {
-    protected circle: NewS2Circle;
+    protected circle: S2Circle;
     protected anim: S2Timeline;
 
     constructor(svgElement: SVGSVGElement) {

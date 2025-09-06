@@ -1,12 +1,12 @@
 import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../s2-globals';
-import { NewS2SimpleShape, S2SMonoGraphicData } from './s2-shape';
+import { S2TransformGraphic, S2TransformGraphicData } from './s2-shape';
 import { type S2Space, S2Length, S2Position } from '../s2-types';
 
-export class S2CircleData extends S2SMonoGraphicData {
-    public position: S2Position;
-    public radius: S2Length;
+export class S2CircleData extends S2TransformGraphicData {
+    public readonly position: S2Position;
+    public readonly radius: S2Length;
 
     constructor() {
         super();
@@ -30,7 +30,7 @@ export class S2CircleData extends S2SMonoGraphicData {
     }
 }
 
-export class NewS2Circle extends NewS2SimpleShape<S2CircleData> {
+export class S2Circle extends S2TransformGraphic<S2CircleData> {
     protected element: SVGCircleElement;
 
     constructor(scene: S2BaseScene) {
