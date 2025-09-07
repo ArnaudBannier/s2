@@ -138,9 +138,10 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         let totalHeight = 0;
         for (const line of this.children) {
             const bbox = line.getBBox();
-            const lineHeight = line.data.font.getInheritedLineHeight(camera);
+            const size = line.data.font.getInheritedSize(camera);
+            const relativeLineHeight = line.data.font.getInheritedRelativeLineHeight();
             maxWidth = bbox.width > maxWidth ? bbox.width : maxWidth;
-            totalHeight += line.data.skip.value + lineHeight;
+            totalHeight += line.data.skip.value + relativeLineHeight * size;
         }
         const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
         const minExtents = this.data.minExtents.toSpace('view', camera);
@@ -159,7 +160,9 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         const textExtents = this.textExtents.toSpace('view', camera);
         const groupExtents = this.extents.toSpace('view', camera);
         const groupNW = this.getCenter('view').subV(groupExtents); // TODO
-        const ascenderHeight = this.children[0].data.font.getInheritedAscenderHeight(camera);
+        const firstLineFont = this.children[0].data.font;
+        const ascenderHeight =
+            firstLineFont.getInheritedRelativeAscenderHeight() * firstLineFont.getInheritedSize(camera);
 
         let lineX = 0;
         let lineY = groupNW.y + ascenderHeight;
@@ -175,7 +178,8 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         }
 
         for (const line of this.children) {
-            const lineHeight = line.data.font.getInheritedLineHeight(camera);
+            const font = line.data.font;
+            const lineHeight = font.getInheritedRelativeLineHeight() * font.getInheritedSize(camera);
             switch (line.data.align ?? this.data.textAlign) {
                 case 'left':
                     lineX = groupNW.x;

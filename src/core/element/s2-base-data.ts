@@ -4,6 +4,8 @@ import type { S2LineCap, S2LineJoin } from '../s2-globals';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Color, S2Inheritance, S2Length, S2Number } from '../s2-types';
 
+// TODO : Ajouter un S2StyleData qui contiendrait stroke, fill, opacity et layer ?
+
 export class S2LayerData {
     public readonly layer: S2Number;
     public isActive: boolean;
@@ -37,10 +39,10 @@ export class S2StrokeData {
         this.opacity = new S2Number(1, S2Inheritance.Inherited);
     }
 
-    setInherited(): void {
-        this.color.setInherited();
-        this.width.setInherited();
-        this.opacity.setInherited();
+    setInherited(parent: S2StrokeData | null = null): void {
+        this.color.setInherited(parent ? parent.color : null);
+        this.width.setInherited(parent ? parent.width : null);
+        this.opacity.setInherited(parent ? parent.opacity : null);
         this.lineCap = undefined;
         this.lineJoin = undefined;
     }
@@ -99,9 +101,9 @@ export class S2FillData {
         this.opacity = new S2Number(1, S2Inheritance.Inherited);
     }
 
-    setInherited(): void {
-        this.color.setInherited();
-        this.opacity.setInherited();
+    setInherited(parent: S2FillData | null = null): void {
+        this.color.setInherited(parent ? parent.color : null);
+        this.opacity.setInherited(parent ? parent.opacity : null);
     }
 
     copy(other: S2FillData): void {
@@ -174,26 +176,24 @@ export class S2FontData {
     }
 
     getInheritedSize(camera: S2Camera): number {
-        if (this.size.inheritance === S2Inheritance.Explicit) {
+        if (this.size.inheritance === S2Inheritance.Explicit || this.parent === undefined) {
             return this.size.toSpace('view', camera);
         }
-        return this.parent?.getInheritedSize(camera) ?? this.size.toSpace('view', camera);
+        return this.parent.getInheritedSize(camera);
     }
 
-    getInheritedLineHeight(camera: S2Camera): number {
-        const size = this.getInheritedSize(camera);
-        if (this.relativeLineHeight.inheritance === S2Inheritance.Explicit) {
-            return this.relativeLineHeight.value * size;
+    getInheritedRelativeLineHeight(): number {
+        if (this.relativeLineHeight.inheritance === S2Inheritance.Explicit || this.parent === undefined) {
+            return this.relativeLineHeight.value;
         }
-        return this.parent?.getInheritedLineHeight(camera) ?? this.relativeLineHeight.value * size;
+        return this.parent.getInheritedRelativeLineHeight();
     }
 
-    getInheritedAscenderHeight(camera: S2Camera): number {
-        const size = this.getInheritedSize(camera);
-        if (this.relativeAscenderHeight.inheritance === S2Inheritance.Explicit) {
-            return this.relativeAscenderHeight.value * size;
+    getInheritedRelativeAscenderHeight(): number {
+        if (this.relativeAscenderHeight.inheritance === S2Inheritance.Explicit || this.parent === undefined) {
+            return this.relativeAscenderHeight.value;
         }
-        return this.parent?.getInheritedAscenderHeight(camera) ?? this.relativeAscenderHeight.value * size;
+        return this.parent.getInheritedRelativeAscenderHeight();
     }
 
     setInherited(): void {

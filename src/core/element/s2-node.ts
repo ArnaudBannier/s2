@@ -10,7 +10,7 @@ import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
 import { S2Element, type S2BaseElement } from './s2-element';
 import { S2Group } from './s2-group';
-import { S2LayerData } from './s2-base-data';
+import { S2FontData, S2LayerData } from './s2-base-data';
 
 export class S2NodeBackgroundData extends S2TransformGraphicData {
     public readonly cornerRadius: S2Length;
@@ -27,6 +27,7 @@ export class S2NodeBackgroundData extends S2TransformGraphicData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
+        if (!(element instanceof SVGRectElement)) return;
         const camera = scene.getActiveCamera();
         const radius = this.cornerRadius.toSpace('view', camera);
         if (radius > 0) {
@@ -40,25 +41,21 @@ export class S2NodeBackgroundData extends S2TransformGraphicData {
 }
 
 export class S2NodeTextData extends S2TransformGraphicData {
+    public readonly font: S2FontData;
     public textAlign: S2TextAlign;
     public verticalAlign: S2VerticalAlign;
-    public lineHeight: number;
-    public ascenderHeight: number;
 
     constructor() {
         super();
+        this.font = new S2FontData();
         this.textAlign = 'center';
         this.verticalAlign = 'middle';
-        this.lineHeight = 24;
-        this.ascenderHeight = 18;
     }
 
     copy(other: S2NodeTextData): void {
         super.copy(other);
         this.textAlign = other.textAlign;
         this.verticalAlign = other.verticalAlign;
-        this.lineHeight = other.lineHeight;
-        this.ascenderHeight = other.ascenderHeight;
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -119,6 +116,7 @@ export class S2Node extends S2Element<S2NodeData> {
         for (let i = 0; i < partCount; i++) {
             const textGroup = new S2TextGroup(this.scene);
             textGroup.setLayer(2);
+            textGroup.data.font.setInherited();
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
             this.mainGroup.appendChild(textGroup);
@@ -138,7 +136,10 @@ export class S2Node extends S2Element<S2NodeData> {
 
     addLine(options?: { partIndex?: number; align?: S2TextAlign; skip?: number }): S2TextLine {
         const index = clamp(options?.partIndex ?? 0, 0, this.textGroups.length - 1);
-        return this.textGroups[index].addLine(options);
+        const textLine = this.textGroups[index].addLine(options);
+        textLine.data.font.setInherited();
+        textLine.data.font.parent = this.data.text.font;
+        return textLine;
     }
 
     createRectBackground(): S2Rect {
@@ -207,6 +208,7 @@ export class S2Node extends S2Element<S2NodeData> {
 
         for (let i = 0; i < this.textGroups.length; i++) {
             const textGroup = this.textGroups[i];
+            textGroup.data.font.parent = this.data.text.font;
             textGroup.updateExtents();
             const extents = textGroup.getTextExtents('view');
             maxPartWidth = Math.max(maxPartWidth, 2 * extents.x);
@@ -272,6 +274,8 @@ export class S2Node extends S2Element<S2NodeData> {
                 y += partHeights[i + 1] + 2 * partSep;
             }
         }
+
+        this.data.text.font.applyToElement(this.mainGroup.getSVGElement(), this.scene);
         this.mainGroup.update(updateId);
     }
 }

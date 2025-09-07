@@ -97,6 +97,7 @@ class SceneFigure extends S2Scene {
         node1.data.background.fill.color.copy(MTL_COLORS.GREY_6);
         node1.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
         node1.data.background.stroke.width.set(4, 'view');
+        node1.data.text.font.size.set(20, 'view');
         node1.createRectBackground();
         node1.addLine().addContent('Hello World');
         node1.addLine().addContent('potoo').data.font.weight.set(700);
