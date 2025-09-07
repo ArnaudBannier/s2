@@ -244,9 +244,8 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         return this;
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         this.data.applyToElement(this.element, this.scene);
-        return this;
     }
 }

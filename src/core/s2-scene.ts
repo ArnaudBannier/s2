@@ -112,6 +112,12 @@ export class S2Scene implements S2BaseScene {
         const child = new S2CubicEdge(this);
         child.data.start = start;
         child.data.end = end;
+        if (start instanceof S2Node) {
+            child.addDependency(start);
+        }
+        if (end instanceof S2Node) {
+            child.addDependency(end);
+        }
         parent.appendChild(child);
         return child;
     }

@@ -12,12 +12,12 @@ export class S2Mat2x3Builder {
 
     setTarget(matrix: S2Mat2x3, makeIdentity: boolean = true): this {
         this.matrix = matrix;
-        if (makeIdentity) this.matrix.identity();
+        if (makeIdentity) this.matrix.makeIdentity();
         return this;
     }
 
     identity(): this {
-        this.matrix.identity();
+        this.matrix.makeIdentity();
         return this;
     }
 

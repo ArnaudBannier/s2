@@ -66,7 +66,7 @@ class SceneFigure extends S2Scene {
             this.svg.appendChild(this.tangent);
             this.tangent.setStartV(this.path.getPointAt(t));
             this.tangent.setEndV(S2Vec2.add(this.path.getPointAt(t), this.path.getTangentAt(t).normalize()));
-            this.tangent.update();
+            this.tangent.updateImpl();
         } else {
             this.svg.removeChild(this.tangent);
         }

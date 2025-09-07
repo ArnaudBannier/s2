@@ -1,7 +1,9 @@
+import type { S2LineCap, S2LineJoin } from '../s2-globals';
 import { type S2BaseScene } from '../s2-interface';
-import { S2Color, S2Inheritance, S2Length, S2Number } from '../s2-types';
+import { S2Color, S2Inheritance, S2Length, S2Number, type S2Space } from '../s2-types';
 import { S2FillData, S2LayerData, S2StrokeData } from './s2-base-data';
 import { S2Element } from './s2-element';
+
 /*
 S2Stylable → stroke + fill + opacity
 S2Transformable → ajoute les transformations
@@ -88,5 +90,63 @@ export abstract class S2MonoGraphic<Data extends S2MonoGraphicData> extends S2El
 
     get strokeWidth(): S2Length {
         return this.data.stroke.width;
+    }
+
+    get strokeLineCap(): S2LineCap | undefined {
+        return this.data.stroke.lineCap;
+    }
+
+    get strokeLineJoin(): S2LineJoin | undefined {
+        return this.data.stroke.lineJoin;
+    }
+
+    setFillColor(r: number, g: number, b: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        this.data.fill.color.set(r, g, b, inherit);
+        return this;
+    }
+
+    setFillColorHex(hex: string, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        this.data.fill.color.setFromHex(hex, inherit);
+        return this;
+    }
+
+    setFillOpacity(opacity: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        this.data.fill.opacity.set(opacity, inherit);
+        return this;
+    }
+
+    setOpacity(opacity: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        this.data.opacity.set(opacity, inherit);
+        return this;
+    }
+
+    setStrokeColor(r: number, g: number, b: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        this.data.stroke.color.set(r, g, b, inherit);
+        return this;
+    }
+
+    setStrokeColorHex(hex: string, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        this.data.stroke.color.setFromHex(hex, inherit);
+        return this;
+    }
+
+    setStrokeOpacity(opacity: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        this.data.stroke.opacity.set(opacity, inherit);
+        return this;
+    }
+
+    setStrokeWidth(width: number, space: S2Space, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        this.data.stroke.width.set(width, space, inherit);
+        return this;
+    }
+
+    setStrokeLineCap(lineCap: S2LineCap): this {
+        this.data.stroke.lineCap = lineCap;
+        return this;
+    }
+
+    setStrokeLineJoin(lineJoin: S2LineJoin): this {
+        this.data.stroke.lineJoin = lineJoin;
+        return this;
     }
 }

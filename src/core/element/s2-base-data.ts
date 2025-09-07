@@ -136,7 +136,7 @@ export class S2TransformData {
     }
 
     setInherited(): void {
-        this.matrix.identity();
+        this.matrix.makeIdentity();
     }
 
     copy(other: S2TransformData): void {

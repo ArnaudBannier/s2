@@ -63,9 +63,7 @@ class SceneFigure extends S2Scene {
         this.circle = this.addCircle();
         this.circle.data.fill.color.copy(MTL_COLORS.GREY_6);
         this.circle.data.stroke.color.copy(MTL_COLORS.GREY_4);
-        this.circle.data.stroke.width.set(4);
-        this.circle.data.radius.set(1, 'world');
-        this.circle.fillOpacity.set(1.0);
+        this.circle.setPosition(0, 0, 'world').setFillOpacity(1.0).setRadius(1, 'world').setStrokeWidth(4, 'view');
         this.circle.update();
 
         const lerpAnim1 = new S2LerpAnim(this)
@@ -146,8 +144,6 @@ class SceneFigure extends S2Scene {
         edge.data.curveAngle = new S2Number(20);
         edge.setLayer(0);
         edge.update();
-
-        edge.addDependency(node1);
 
         this.update();
         console.log('edge', edge);

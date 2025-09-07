@@ -1,22 +1,19 @@
 import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../s2-globals';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
-import { type S2Space, S2Length, S2Position } from '../s2-types';
+import { type S2Space, S2Length } from '../s2-types';
+import { S2ShapeGraphic, S2ShapeGraphicData } from './s2-shape-graphic';
 
-export class S2CircleData extends S2TransformGraphicData {
-    public readonly position: S2Position;
+export class S2CircleData extends S2ShapeGraphicData {
     public readonly radius: S2Length;
 
     constructor() {
         super();
-        this.position = new S2Position(0, 0, 'world');
         this.radius = new S2Length(1, 'view');
     }
 
     copy(other: S2CircleData): void {
         super.copy(other);
-        this.position.copy(other.position);
         this.radius.copy(other.radius);
     }
 
@@ -31,7 +28,7 @@ export class S2CircleData extends S2TransformGraphicData {
     }
 }
 
-export class S2Circle extends S2TransformGraphic<S2CircleData> {
+export class S2Circle extends S2ShapeGraphic<S2CircleData> {
     protected element: SVGCircleElement;
 
     constructor(scene: S2BaseScene) {
@@ -39,12 +36,17 @@ export class S2Circle extends S2TransformGraphic<S2CircleData> {
         this.element = document.createElementNS(svgNS, 'circle');
     }
 
-    get position(): S2Position {
-        return this.data.position;
-    }
-
     get radius(): S2Length {
         return this.data.radius;
+    }
+
+    setRadius(radius: number, space: S2Space = this.data.radius.space): this {
+        this.data.radius.set(radius, space);
+        return this;
+    }
+
+    getRadius(space: S2Space = this.data.radius.space): number {
+        return this.data.radius.toSpace(space, this.scene.getActiveCamera());
     }
 
     getSVGElement(): SVGElement {
@@ -59,9 +61,8 @@ export class S2Circle extends S2TransformGraphic<S2CircleData> {
         return point.addV(this.data.position.toSpace(space, camera));
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         this.data.applyToElement(this.element, this.scene);
-        return this;
     }
 }

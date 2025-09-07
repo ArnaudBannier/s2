@@ -159,8 +159,8 @@ class BTree {
     }
 
     update(): this {
-        this.nodeGroup.update();
-        this.edgeGroup.update();
+        this.nodeGroup.updateImpl();
+        this.edgeGroup.updateImpl();
         return this;
     }
 

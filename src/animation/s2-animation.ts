@@ -79,8 +79,7 @@ export abstract class S2Animation {
 
     setElapsed(elapsed: number, updateId?: number): this {
         this.rawElapsed = elapsed;
-        let currCycle = Math.floor(this.rawElapsed / this.cycleDuration);
-        this.cycleIndex = S2MathUtils.clamp(currCycle, 0, this.cycleCount - 1);
+        this.cycleIndex = S2MathUtils.clamp(Math.floor(this.rawElapsed / this.cycleDuration), 0, this.cycleCount - 1);
 
         if (elapsed >= this.cycleCount * this.cycleDuration) {
             this.rawCycleAlpha = 1;

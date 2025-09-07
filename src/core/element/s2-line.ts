@@ -51,8 +51,8 @@ export class S2Line extends S2TransformGraphic<S2LineData> {
         return this.element;
     }
 
-    update(): this {
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         this.data.applyToElement(this.element, this.scene);
-        return this;
     }
 }

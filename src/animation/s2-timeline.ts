@@ -10,8 +10,6 @@ import { S2Animation } from './s2-animation';
 // Continuer par tous les complete des animation précédentes dans l'ordre de endTime croissant
 // Finir par les animations en cours
 
-// Faut-il sauvegarder les cibles des animations ?
-
 class S2TimelinePart {
     public animation: S2Animation;
     public start: number;

@@ -29,6 +29,22 @@ export abstract class S2Element<Data extends S2LayerData> {
         return this;
     }
 
+    setParent(parent: S2BaseElement | null): this {
+        if (this.parent === parent) return this;
+        if (this.parent !== null) {
+            this.parent.removeDependency(this);
+        }
+        if (parent !== null) {
+            this.addDependency(parent);
+        }
+        this.parent = parent;
+        return this;
+    }
+
+    getParent(): S2BaseElement | null {
+        return this.parent;
+    }
+
     addListener(listener: S2ElementListener): void {
         this.listeners.add(listener);
     }
@@ -39,25 +55,52 @@ export abstract class S2Element<Data extends S2LayerData> {
 
     addDependency(dep: S2BaseElement): void {
         this.dependencies.add(dep);
-        dep.addListener(this.onDependencyUpdate.bind(this));
+        dep.addListener(this.updateFromDependency.bind(this));
     }
 
-    protected onDependencyUpdate(dep: S2BaseElement, updateId?: number): void {
-        if (this.shouldSkipUpdate(updateId)) return;
-        this.updateFromDependency(dep, updateId);
-        this.emitUpdate(updateId);
+    removeDependency(dep: S2BaseElement): void {
+        if (this.dependencies.delete(dep)) {
+            dep.removeListener(this.updateFromDependency.bind(this));
+        }
     }
 
     protected updateFromDependency(dep: S2BaseElement, updateId?: number): void {
+        if (this.shouldSkipUpdate(updateId)) return;
+        this.updateFromDependencyImpl(dep, updateId);
+        this.emitUpdate(updateId);
+    }
+
+    protected updateFromDependencyImpl(dep: S2BaseElement, updateId?: number): void {
         void dep;
         void updateId;
-        this.update(updateId);
+        this.updateImpl(updateId);
     }
 
     protected emitUpdate(updateId?: number): void {
         for (const listener of this.listeners) {
             listener(this, updateId);
         }
+    }
+
+    update(updateId?: number): this {
+        if (this.shouldSkipUpdate(updateId)) return this;
+        this.updateImpl(updateId);
+        this.emitUpdate(updateId);
+        return this;
+    }
+
+    // TODO : Ajouter un updateID pour ne pas faire plusieurs fois le même update dans une frame
+    protected abstract updateImpl(updateId?: number): void;
+
+    protected shouldSkipUpdate(updateId?: number): boolean {
+        if (updateId === undefined) {
+            this.prevUpdateId = this.scene.getNextUpdateId();
+            return false;
+        } else if (this.prevUpdateId !== updateId) {
+            this.prevUpdateId = updateId;
+            return false;
+        }
+        return true;
     }
 
     constructor(scene: S2BaseScene, data: Data) {
@@ -80,28 +123,5 @@ export abstract class S2Element<Data extends S2LayerData> {
         parent.replaceChildren(...elements);
     }
 
-    setParent(parent: S2BaseElement | null): this {
-        this.parent = parent;
-        return this;
-    }
-
-    getParent(): S2BaseElement | null {
-        return this.parent;
-    }
-
     abstract getSVGElement(): SVGElement;
-
-    // TODO : Ajouter un updateID pour ne pas faire plusieurs fois le même update dans une frame
-    abstract update(updateId?: number): this;
-
-    protected shouldSkipUpdate(updateId?: number): boolean {
-        if (updateId === undefined) {
-            this.prevUpdateId = this.scene.getNextUpdateId();
-            return false;
-        } else if (this.prevUpdateId !== updateId) {
-            this.prevUpdateId = updateId;
-            return false;
-        }
-        return true;
-    }
 }

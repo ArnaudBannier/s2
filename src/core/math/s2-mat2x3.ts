@@ -2,7 +2,7 @@ export class S2Mat2x3 {
     // Row-major order of the elements.
     elements: Array<number> = [0, 0, 0, 0, 0, 0];
 
-    constructor(a00 = 0, a01 = 0, a02 = 0, a10 = 0, a11 = 0, a12 = 0) {
+    constructor(a00: number = 0, a01: number = 0, a02: number = 0, a10: number = 0, a11: number = 0, a12: number = 0) {
         this.set(a00, a01, a02, a10, a11, a12);
     }
 
@@ -10,7 +10,7 @@ export class S2Mat2x3 {
         return new S2Mat2x3(1, 0, 0, 0, 1, 0);
     }
 
-    set(a00 = 0, a01 = 0, a02 = 0, a10 = 0, a11 = 0, a12 = 0): this {
+    set(a00: number = 0, a01: number = 0, a02: number = 0, a10: number = 0, a11: number = 0, a12: number = 0): this {
         this.elements[0] = a00;
         this.elements[2] = a01;
         this.elements[4] = a02;
@@ -33,10 +33,6 @@ export class S2Mat2x3 {
             return true;
         }
         return false;
-    }
-
-    identity(): this {
-        return this.set(1, 0, 0, 0, 1, 0);
     }
 
     multiplyMatrices(a: S2Mat2x3, b: S2Mat2x3): this {
@@ -85,6 +81,10 @@ export class S2Mat2x3 {
 
     clone(): S2Mat2x3 {
         return new S2Mat2x3().copy(this);
+    }
+
+    makeIdentity(): this {
+        return this.set(1, 0, 0, 0, 1, 0);
     }
 
     makeTranslation(x: number, y: number): this {

@@ -117,8 +117,7 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         super(scene, new S2EdgeData());
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
         const space: S2Space = 'world';
         const direction = this.getStartToEnd(space).normalize();
         const startDirection = direction.clone();
@@ -135,7 +134,6 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         this.applyStyleToPath();
         this.path.data.space = space;
         this.path.clear().setStartV(start).lineToV(end).update(updateId);
-        return this;
     }
 }
 
@@ -172,9 +170,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         this.data.fill.opacity.set(0);
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
-
+    protected updateImpl(updateId?: number): void {
         const space: S2Space = 'view';
         const sign = -1;
         const startToEnd = this.getStartToEnd(space);
@@ -204,6 +200,5 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         this.applyStyleToPath();
         this.path.data.space = space;
         this.path.clear().setStartV(start).cubicToV(startDirection, endDirection, end).update(updateId);
-        return this;
     }
 }

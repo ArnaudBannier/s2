@@ -67,15 +67,6 @@ export class S2Color extends S2BaseType<S2Color> {
     public g: number;
     public b: number;
 
-    static fromHex(hex: string): S2Color {
-        const color = new S2Color();
-        const num = parseInt(hex.substring(1), 16);
-        color.r = (num >> 16) & 0xff;
-        color.g = (num >> 8) & 0xff;
-        color.b = num & 0xff;
-        return color;
-    }
-
     constructor(r: number = 0, g: number = 0, b: number = 0, inherit: S2Inheritance = S2Inheritance.Explicit) {
         super();
         this.r = r;
@@ -115,6 +106,19 @@ export class S2Color extends S2BaseType<S2Color> {
         this.b = b;
         this.inheritance = inherit;
         return this;
+    }
+
+    setFromHex(hex: string, inherit: S2Inheritance = S2Inheritance.Explicit): this {
+        const num = parseInt(hex.substring(1), 16);
+        this.r = (num >> 16) & 0xff;
+        this.g = (num >> 8) & 0xff;
+        this.b = num & 0xff;
+        this.inheritance = inherit;
+        return this;
+    }
+
+    static fromHex(hex: string, inherit: S2Inheritance = S2Inheritance.Explicit): S2Color {
+        return new S2Color().setFromHex(hex, inherit);
     }
 
     toHex(): string {

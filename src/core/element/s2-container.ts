@@ -1,6 +1,7 @@
 import { type S2BaseScene } from '../s2-interface';
 import { S2Element, type S2BaseElement } from './s2-element';
 import { S2TransformGraphic, type S2TransformGraphicData } from './s2-transform-graphic';
+
 export type S2BaseContainer = S2Container<SVGElement, S2BaseElement, S2TransformGraphicData>;
 
 export class S2Container<
@@ -70,12 +71,8 @@ export class S2Container<
         return this.element;
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         this.data.applyToElement(this.element, this.scene);
-        for (const child of this.children) {
-            child.update(updateId);
-        }
-        return this;
     }
 }

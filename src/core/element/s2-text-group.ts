@@ -139,7 +139,6 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         for (const line of this.children) {
             const bbox = line.getBBox();
             const lineHeight = line.data.font.getInheritedLineHeight(camera);
-            console.log('lineHeight', lineHeight);
             maxWidth = bbox.width > maxWidth ? bbox.width : maxWidth;
             totalHeight += line.data.skip.value + lineHeight;
         }
@@ -150,9 +149,9 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         this.extents.setValueFromSpace('view', camera, extents.x, extents.y);
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
-        if (this.children.length === 0) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
+        if (this.children.length === 0) return;
         const camera = this.scene.getActiveCamera();
         this.data.applyToElement(this.element, this.scene);
         this.updateExtents();
@@ -192,10 +191,7 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
                     break;
             }
             line.position.set(lineX, lineY, 'view');
-            line.update();
             lineY += line.data.skip.value + lineHeight;
         }
-
-        return this;
     }
 }

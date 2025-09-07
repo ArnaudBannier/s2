@@ -99,10 +99,9 @@ export class S2BaseText<Data extends S2TextData> extends S2TransformGraphic<Data
         return new S2Vec2(bbox.width, bbox.height);
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         this.data.applyToElement(this.element, this.scene);
-        return this;
     }
 }
 
@@ -143,9 +142,8 @@ export class S2TSpan extends S2TransformGraphic<S2TSpanData> {
         return this;
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         this.data.applyToElement(this.element, this.scene);
-        return this;
     }
 }

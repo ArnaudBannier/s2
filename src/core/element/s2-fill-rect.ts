@@ -6,6 +6,7 @@ import { S2FillData, S2LayerData } from './s2-base-data';
 
 export class S2FillRectData extends S2LayerData {
     public readonly fill: S2FillData;
+
     constructor() {
         super();
         this.fill = new S2FillData();
@@ -42,8 +43,8 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         return this.element;
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         const data = this.data;
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('x', '0');
@@ -52,6 +53,5 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         this.element.setAttribute('height', camera.viewport.y.toString());
         this.element.setAttribute('fill', data.fill.color.toRgb());
         this.element.setAttribute('fill-opacity', data.fill.opacity.toString());
-        return this;
     }
 }

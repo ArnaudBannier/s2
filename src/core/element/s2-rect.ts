@@ -2,18 +2,16 @@ import { S2ShapeUtils } from '../math/s2-shape-utils';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
-import { type S2Space, S2Length, S2Extents, S2Position } from '../s2-types';
+import { type S2Space, S2Length, S2Extents } from '../s2-types';
+import { S2ShapeGraphic, S2ShapeGraphicData } from './s2-shape-graphic';
 
-export class S2RectData extends S2TransformGraphicData {
-    public readonly position: S2Position;
+export class S2RectData extends S2ShapeGraphicData {
     public readonly radius: S2Length;
     public readonly extents: S2Extents;
     public anchor: S2Anchor;
 
     constructor() {
         super();
-        this.position = new S2Position(0, 0, 'world');
         this.radius = new S2Length(0, 'view');
         this.extents = new S2Extents(1, 1, 'world');
         this.anchor = 'north';
@@ -21,7 +19,6 @@ export class S2RectData extends S2TransformGraphicData {
 
     copy(other: S2RectData): void {
         super.copy(other);
-        this.position.copy(other.position);
         this.radius.copy(other.radius);
         this.extents.copy(other.extents);
         this.anchor = other.anchor;
@@ -47,7 +44,7 @@ export class S2RectData extends S2TransformGraphicData {
     }
 }
 
-export class S2Rect extends S2TransformGraphic<S2RectData> {
+export class S2Rect extends S2ShapeGraphic<S2RectData> {
     protected element: SVGRectElement;
 
     constructor(scene: S2BaseScene) {
@@ -59,12 +56,31 @@ export class S2Rect extends S2TransformGraphic<S2RectData> {
         return this.data.extents;
     }
 
-    get position(): S2Position {
-        return this.data.position;
-    }
-
     get radius(): S2Length {
         return this.data.radius;
+    }
+
+    setRadius(radius: number, space: S2Space = this.data.radius.space): this {
+        this.data.radius.set(radius, space);
+        return this;
+    }
+
+    getRadius(space: S2Space = this.data.radius.space): number {
+        return this.data.radius.toSpace(space, this.scene.getActiveCamera());
+    }
+
+    setExtensts(x: number, y: number, space: S2Space = this.data.extents.space): this {
+        this.data.extents.set(x, y, space);
+        return this;
+    }
+
+    setExtenstsV(v: S2Vec2, space: S2Space = this.data.extents.space): this {
+        this.data.extents.setV(v, space);
+        return this;
+    }
+
+    getExtents(space: S2Space = this.data.extents.space): S2Vec2 {
+        return this.data.extents.toSpace(space, this.scene.getActiveCamera());
     }
 
     getSVGElement(): SVGElement {
@@ -80,9 +96,8 @@ export class S2Rect extends S2TransformGraphic<S2RectData> {
         return S2ShapeUtils.intersectDirectionRoundedRectangle(direction, extents, radius).addV(center);
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         this.data.applyToElement(this.element, this.scene);
-        return this;
     }
 }

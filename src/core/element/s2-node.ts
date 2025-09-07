@@ -191,8 +191,8 @@ export class S2Node extends S2Element<S2NodeData> {
         return this.data.position.toSpace('view', this.scene.getActiveCamera());
     }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
+    protected updateImpl(updateId?: number): void {
+        void updateId;
         const camera = this.scene.getActiveCamera();
 
         if (this.background !== null) {
@@ -272,8 +272,6 @@ export class S2Node extends S2Element<S2NodeData> {
                 y += partHeights[i + 1] + 2 * partSep;
             }
         }
-        this.mainGroup.update();
-        this.emitUpdate(updateId);
-        return this;
+        this.mainGroup.update(updateId);
     }
 }
