@@ -11,9 +11,9 @@ export class S2ShapeGraphicData extends S2TransformGraphicData {
         this.position = new S2Position(0, 0, 'world');
     }
 
-    setInherited(): void {
-        super.setInherited();
-        this.position.setInherited();
+    setParent(): void {
+        super.setParent();
+        this.position.setParent();
     }
 
     copy(other: S2ShapeGraphicData): void {

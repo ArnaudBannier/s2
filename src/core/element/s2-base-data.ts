@@ -2,7 +2,7 @@ import type { S2Camera } from '../math/s2-camera';
 import { S2Mat2x3 } from '../math/s2-mat2x3';
 import type { S2LineCap, S2LineJoin } from '../s2-globals';
 import { type S2BaseScene } from '../s2-interface';
-import { S2Color, S2Inheritance, S2Length, S2Number } from '../s2-types';
+import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../s2-types';
 
 // TODO : Ajouter un S2StyleData qui contiendrait stroke, fill, opacity et layer ?
 
@@ -30,62 +30,63 @@ export class S2StrokeData {
     public readonly color: S2Color;
     public readonly width: S2Length;
     public readonly opacity: S2Number;
-    public lineCap?: S2LineCap;
-    public lineJoin?: S2LineJoin;
+    public readonly lineCap: S2Enum<S2LineCap>;
+    public readonly lineJoin: S2Enum<S2LineJoin>;
 
     constructor() {
-        this.color = new S2Color(0, 0, 0, S2Inheritance.Inherited);
+        this.color = new S2Color(0, 0, 0, S2TypeState.Inactive);
         this.width = new S2Length(0, 'view');
-        this.opacity = new S2Number(1, S2Inheritance.Inherited);
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.lineCap = new S2Enum<S2LineCap>('round', S2TypeState.Inactive);
+        this.lineJoin = new S2Enum<S2LineJoin>('miter', S2TypeState.Inactive);
     }
 
-    setInherited(parent: S2StrokeData | null = null): void {
-        this.color.setInherited(parent ? parent.color : null);
-        this.width.setInherited(parent ? parent.width : null);
-        this.opacity.setInherited(parent ? parent.opacity : null);
-        this.lineCap = undefined;
-        this.lineJoin = undefined;
+    setParent(parent: S2StrokeData | null = null): void {
+        this.color.setParent(parent ? parent.color : null);
+        this.width.setParent(parent ? parent.width : null);
+        this.opacity.setParent(parent ? parent.opacity : null);
+        this.lineCap.setParent(parent ? parent.lineCap : null);
+        this.lineJoin.setParent(parent ? parent.lineJoin : null);
     }
 
     copy(other: S2StrokeData): void {
         this.color.copy(other.color);
         this.width.copy(other.width);
         this.opacity.copy(other.opacity);
-        this.lineCap = other.lineCap;
-        this.lineJoin = other.lineJoin;
+        this.lineCap.copy(other.lineCap);
+        this.lineJoin.copy(other.lineJoin);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        if (this.opacity.inheritance === S2Inheritance.Inherited && this.color.inheritance === S2Inheritance.Inherited)
-            return;
+        if (this.opacity.state === S2TypeState.Inactive && this.color.state === S2TypeState.Inactive) return;
 
-        if (this.width.inheritance === S2Inheritance.Explicit) {
+        if (this.width.state === S2TypeState.Active) {
             const width = this.width.toSpace('view', scene.getActiveCamera());
             element.setAttribute('stroke-width', width.toString());
         } else {
             element.removeAttribute('stroke-width');
         }
 
-        if (this.color.inheritance === S2Inheritance.Explicit) {
+        if (this.color.state === S2TypeState.Active) {
             element.setAttribute('stroke', this.color.toRgb());
         } else {
             element.removeAttribute('stroke');
         }
 
-        if (this.opacity.inheritance === S2Inheritance.Explicit && this.opacity.value <= 1) {
+        if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
             element.setAttribute('stroke-opacity', this.opacity.toString());
         } else {
             element.removeAttribute('stroke-opacity');
         }
 
-        if (this.lineCap) {
-            element.setAttribute('stroke-linecap', this.lineCap);
+        if (this.lineCap.state === S2TypeState.Active) {
+            element.setAttribute('stroke-linecap', this.lineCap.value);
         } else {
             element.removeAttribute('stroke-linecap');
         }
 
-        if (this.lineJoin) {
-            element.setAttribute('stroke-linejoin', this.lineJoin);
+        if (this.lineJoin.state === S2TypeState.Active) {
+            element.setAttribute('stroke-linejoin', this.lineJoin.value);
         } else {
             element.removeAttribute('stroke-linejoin');
         }
@@ -97,13 +98,13 @@ export class S2FillData {
     public readonly opacity: S2Number;
 
     constructor() {
-        this.color = new S2Color(255, 255, 255, S2Inheritance.Inherited);
-        this.opacity = new S2Number(1, S2Inheritance.Inherited);
+        this.color = new S2Color(255, 255, 255, S2TypeState.Inactive);
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
     }
 
-    setInherited(parent: S2FillData | null = null): void {
-        this.color.setInherited(parent ? parent.color : null);
-        this.opacity.setInherited(parent ? parent.opacity : null);
+    setParent(parent: S2FillData | null = null): void {
+        this.color.setParent(parent ? parent.color : null);
+        this.opacity.setParent(parent ? parent.opacity : null);
     }
 
     copy(other: S2FillData): void {
@@ -113,16 +114,15 @@ export class S2FillData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         void scene;
-        if (this.opacity.inheritance === S2Inheritance.Inherited && this.color.inheritance === S2Inheritance.Inherited)
-            return;
+        if (this.opacity.state === S2TypeState.Inactive && this.color.state === S2TypeState.Inactive) return;
 
-        if (this.color.inheritance === S2Inheritance.Explicit) {
+        if (this.color.state === S2TypeState.Active) {
             element.setAttribute('fill', this.color.toRgb());
         } else {
             element.removeAttribute('fill');
         }
 
-        if (this.opacity.inheritance === S2Inheritance.Explicit && this.opacity.value <= 1) {
+        if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
             element.setAttribute('fill-opacity', this.opacity.toString());
         } else {
             element.removeAttribute('fill-opacity');
@@ -156,53 +156,44 @@ export class S2TransformData {
     }
 }
 
+export type S2FontStyle = 'normal' | 'italic' | 'oblique';
+
 export class S2FontData {
     public readonly size: S2Length;
     public readonly weight: S2Number;
     public readonly relativeLineHeight: S2Number;
     public readonly relativeAscenderHeight: S2Number;
-    public parent?: S2FontData;
-
-    public family: string;
-    public style: 'normal' | 'italic' | 'oblique';
+    public readonly family: S2String;
+    public readonly style: S2Enum<S2FontStyle>;
 
     constructor() {
-        this.family = 'system-ui';
+        this.family = new S2String('system-ui');
         this.size = new S2Length(16, 'view');
         this.weight = new S2Number(400);
-        this.style = 'normal';
+        this.style = new S2Enum<S2FontStyle>('normal');
         this.relativeLineHeight = new S2Number(20 / 16);
         this.relativeAscenderHeight = new S2Number(14 / 16);
     }
 
     getInheritedSize(camera: S2Camera): number {
-        if (this.size.inheritance === S2Inheritance.Explicit || this.parent === undefined) {
-            return this.size.toSpace('view', camera);
-        }
-        return this.parent.getInheritedSize(camera);
+        return this.size.getInherited('view', camera);
     }
 
     getInheritedRelativeLineHeight(): number {
-        if (this.relativeLineHeight.inheritance === S2Inheritance.Explicit || this.parent === undefined) {
-            return this.relativeLineHeight.value;
-        }
-        return this.parent.getInheritedRelativeLineHeight();
+        return this.relativeLineHeight.getInherited();
     }
 
     getInheritedRelativeAscenderHeight(): number {
-        if (this.relativeAscenderHeight.inheritance === S2Inheritance.Explicit || this.parent === undefined) {
-            return this.relativeAscenderHeight.value;
-        }
-        return this.parent.getInheritedRelativeAscenderHeight();
+        return this.relativeAscenderHeight.getInherited();
     }
 
-    setInherited(): void {
-        this.size.setInherited();
-        this.weight.setInherited();
-        this.relativeLineHeight.setInherited();
-        this.relativeAscenderHeight.setInherited();
-        this.family = '';
-        this.style = 'normal';
+    setParent(parent: S2FontData | null = null): void {
+        this.size.setParent(parent ? parent.size : null);
+        this.weight.setParent(parent ? parent.weight : null);
+        this.relativeLineHeight.setParent(parent ? parent.relativeLineHeight : null);
+        this.relativeAscenderHeight.setParent(parent ? parent.relativeAscenderHeight : null);
+        this.family.setParent(parent ? parent.family : null);
+        this.style.setParent(parent ? parent.style : null);
     }
 
     copy(other: S2FontData): void {
@@ -210,32 +201,32 @@ export class S2FontData {
         this.weight.copy(other.weight);
         this.relativeLineHeight.copy(other.relativeLineHeight);
         this.relativeAscenderHeight.copy(other.relativeAscenderHeight);
-        this.family = other.family;
-        this.style = other.style;
+        this.family.copy(other.family);
+        this.style.copy(other.style);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        if (this.size.inheritance === S2Inheritance.Explicit) {
+        if (this.size.state === S2TypeState.Active) {
             const size = this.size.toSpace('view', scene.getActiveCamera());
             element.setAttribute('font-size', size.toString());
         } else {
             element.removeAttribute('font-size');
         }
 
-        if (this.weight.inheritance === S2Inheritance.Explicit) {
+        if (this.weight.state === S2TypeState.Active) {
             element.setAttribute('font-weight', this.weight.toString(0));
         } else {
             element.removeAttribute('font-weight');
         }
 
-        if (this.family !== '') {
-            element.setAttribute('font-family', this.family);
+        if (this.family.state === S2TypeState.Active) {
+            element.setAttribute('font-family', this.family.toString());
         } else {
             element.removeAttribute('font-family');
         }
 
-        if (this.style !== 'normal') {
-            element.setAttribute('font-style', this.style);
+        if (this.style.state === S2TypeState.Active) {
+            element.setAttribute('font-style', this.style.value);
         } else {
             element.removeAttribute('font-style');
         }

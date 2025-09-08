@@ -4,7 +4,7 @@ import { type S2Anchor, S2AnchorUtils, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
 import { S2TransformGraphicData } from './s2-transform-graphic';
-import { S2Extents, S2Length, S2Position, type S2Space } from '../s2-types';
+import { S2Enum, S2Extents, S2Length, S2Position, type S2Space } from '../s2-types';
 import { S2TextGroup, S2TextLine, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
@@ -42,19 +42,19 @@ export class S2NodeBackgroundData extends S2TransformGraphicData {
 
 export class S2NodeTextData extends S2TransformGraphicData {
     public readonly font: S2FontData;
-    public textAlign: S2TextAlign;
+    public readonly textAlign: S2Enum<S2TextAlign>;
     public verticalAlign: S2VerticalAlign;
 
     constructor() {
         super();
         this.font = new S2FontData();
-        this.textAlign = 'center';
+        this.textAlign = new S2Enum<S2TextAlign>('center');
         this.verticalAlign = 'middle';
     }
 
     copy(other: S2NodeTextData): void {
         super.copy(other);
-        this.textAlign = other.textAlign;
+        this.textAlign.copy(other.textAlign);
         this.verticalAlign = other.verticalAlign;
     }
 
@@ -116,7 +116,9 @@ export class S2Node extends S2Element<S2NodeData> {
         for (let i = 0; i < partCount; i++) {
             const textGroup = new S2TextGroup(this.scene);
             textGroup.setLayer(2);
-            textGroup.data.font.setInherited();
+            textGroup.data.setParent(this.data.text);
+            textGroup.data.font.setParent(this.data.text.font);
+            textGroup.data.textAlign.setParent(this.data.text.textAlign);
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
             this.mainGroup.appendChild(textGroup);
@@ -137,8 +139,7 @@ export class S2Node extends S2Element<S2NodeData> {
     addLine(options?: { partIndex?: number; align?: S2TextAlign; skip?: number }): S2TextLine {
         const index = clamp(options?.partIndex ?? 0, 0, this.textGroups.length - 1);
         const textLine = this.textGroups[index].addLine(options);
-        textLine.data.font.setInherited();
-        textLine.data.font.parent = this.data.text.font;
+        textLine.data.font.setParent(this.data.text.font);
         return textLine;
     }
 
@@ -208,7 +209,6 @@ export class S2Node extends S2Element<S2NodeData> {
 
         for (let i = 0; i < this.textGroups.length; i++) {
             const textGroup = this.textGroups[i];
-            textGroup.data.font.parent = this.data.text.font;
             textGroup.updateExtents();
             const extents = textGroup.getTextExtents('view');
             maxPartWidth = Math.max(maxPartWidth, 2 * extents.x);
@@ -250,7 +250,7 @@ export class S2Node extends S2Element<S2NodeData> {
             // Background
             this.background.position.setV(nodeCenter, 'view');
             this.background.extents.setV(nodeExtents, 'view');
-            this.background.data.anchor = 'center';
+            this.background.data.anchor.set('center');
 
             // Separator lines
             let y = nodeCenter.y - nodeExtents.y + padding.y + partHeights[0] + partSep;

@@ -2,26 +2,26 @@ import { S2ShapeUtils } from '../math/s2-shape-utils';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
-import { type S2Space, S2Length, S2Extents } from '../s2-types';
+import { type S2Space, S2Length, S2Extents, S2Enum } from '../s2-types';
 import { S2ShapeGraphic, S2ShapeGraphicData } from './s2-shape-graphic';
 
 export class S2RectData extends S2ShapeGraphicData {
     public readonly radius: S2Length;
     public readonly extents: S2Extents;
-    public anchor: S2Anchor;
+    public readonly anchor: S2Enum<S2Anchor>;
 
     constructor() {
         super();
         this.radius = new S2Length(0, 'view');
         this.extents = new S2Extents(1, 1, 'world');
-        this.anchor = 'north';
+        this.anchor = new S2Enum<S2Anchor>('north');
     }
 
     copy(other: S2RectData): void {
         super.copy(other);
         this.radius.copy(other.radius);
         this.extents.copy(other.extents);
-        this.anchor = other.anchor;
+        this.anchor.copy(other.anchor);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -29,7 +29,13 @@ export class S2RectData extends S2ShapeGraphicData {
         const camera = scene.getActiveCamera();
         const radius = this.radius.toSpace('view', camera);
         const extents = this.extents.toSpace('view', camera);
-        const northWest = S2AnchorUtils.getNorthWest(this.anchor, 'view', camera, this.position, this.extents);
+        const northWest = S2AnchorUtils.getNorthWest(
+            this.anchor.getInherited(),
+            'view',
+            camera,
+            this.position,
+            this.extents,
+        );
         element.setAttribute('x', northWest.x.toString());
         element.setAttribute('y', northWest.y.toString());
         element.setAttribute('width', (2 * extents.x).toString());
@@ -92,7 +98,13 @@ export class S2Rect extends S2ShapeGraphic<S2RectData> {
         const d = distance.toSpace(space, camera);
         const extents = this.data.extents.toSpace(space, camera).add(d, d).max(0, 0);
         const radius = Math.min(Math.max(this.data.radius.toSpace(space, camera) + d, 0), extents.x, extents.y);
-        const center = S2AnchorUtils.getCenter(this.data.anchor, space, camera, this.data.position, this.data.extents);
+        const center = S2AnchorUtils.getCenter(
+            this.data.anchor.getInherited(),
+            space,
+            camera,
+            this.data.position,
+            this.data.extents,
+        );
         return S2ShapeUtils.intersectDirectionRoundedRectangle(direction, extents, radius).addV(center);
     }
 

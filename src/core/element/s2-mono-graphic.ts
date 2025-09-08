@@ -1,6 +1,6 @@
 import type { S2LineCap, S2LineJoin } from '../s2-globals';
 import { type S2BaseScene } from '../s2-interface';
-import { S2Color, S2Inheritance, S2Length, S2Number, type S2Space } from '../s2-types';
+import { S2Color, S2TypeState, S2Length, S2Number, type S2Space, S2Enum } from '../s2-types';
 import { S2FillData, S2LayerData, S2StrokeData } from './s2-base-data';
 import { S2Element } from './s2-element';
 
@@ -31,16 +31,16 @@ export class S2MonoGraphicData extends S2LayerData {
         super();
         this.stroke = new S2StrokeData();
         this.fill = new S2FillData();
-        this.opacity = new S2Number(1, S2Inheritance.Inherited);
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
 
-        this.fill.opacity.set(1, S2Inheritance.Inherited);
-        this.stroke.opacity.set(1, S2Inheritance.Inherited);
+        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.opacity.set(1, S2TypeState.Inactive);
     }
 
-    setInherited(): void {
-        this.stroke.setInherited();
-        this.fill.setInherited();
-        this.opacity.setInherited();
+    setParent(parent: S2MonoGraphicData | null = null): void {
+        this.stroke.setParent(parent ? parent.stroke : null);
+        this.fill.setParent(parent ? parent.fill : null);
+        this.opacity.setParent(parent ? parent.opacity : null);
     }
 
     copy(other: S2MonoGraphicData): void {
@@ -55,7 +55,7 @@ export class S2MonoGraphicData extends S2LayerData {
         this.stroke.applyToElement(element, scene);
         this.fill.applyToElement(element, scene);
 
-        if (this.opacity.inheritance === S2Inheritance.Explicit && this.opacity.value <= 1) {
+        if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
             element.setAttribute('opacity', this.opacity.toString());
         } else {
             element.removeAttribute('opacity');
@@ -92,61 +92,61 @@ export abstract class S2MonoGraphic<Data extends S2MonoGraphicData> extends S2El
         return this.data.stroke.width;
     }
 
-    get strokeLineCap(): S2LineCap | undefined {
+    get strokeLineCap(): S2Enum<S2LineCap> {
         return this.data.stroke.lineCap;
     }
 
-    get strokeLineJoin(): S2LineJoin | undefined {
+    get strokeLineJoin(): S2Enum<S2LineJoin> {
         return this.data.stroke.lineJoin;
     }
 
-    setFillColor(r: number, g: number, b: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
-        this.data.fill.color.set(r, g, b, inherit);
+    setFillColor(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.fill.color.set(r, g, b, state);
         return this;
     }
 
-    setFillColorHex(hex: string, inherit: S2Inheritance = S2Inheritance.Explicit): this {
-        this.data.fill.color.setFromHex(hex, inherit);
+    setFillColorHex(hex: string, state: S2TypeState = S2TypeState.Active): this {
+        this.data.fill.color.setFromHex(hex, state);
         return this;
     }
 
-    setFillOpacity(opacity: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
-        this.data.fill.opacity.set(opacity, inherit);
+    setFillOpacity(opacity: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.fill.opacity.set(opacity, state);
         return this;
     }
 
-    setOpacity(opacity: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
-        this.data.opacity.set(opacity, inherit);
+    setOpacity(opacity: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.opacity.set(opacity, state);
         return this;
     }
 
-    setStrokeColor(r: number, g: number, b: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
-        this.data.stroke.color.set(r, g, b, inherit);
+    setStrokeColor(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.stroke.color.set(r, g, b, state);
         return this;
     }
 
-    setStrokeColorHex(hex: string, inherit: S2Inheritance = S2Inheritance.Explicit): this {
-        this.data.stroke.color.setFromHex(hex, inherit);
+    setStrokeColorHex(hex: string, state: S2TypeState = S2TypeState.Active): this {
+        this.data.stroke.color.setFromHex(hex, state);
         return this;
     }
 
-    setStrokeOpacity(opacity: number, inherit: S2Inheritance = S2Inheritance.Explicit): this {
-        this.data.stroke.opacity.set(opacity, inherit);
+    setStrokeOpacity(opacity: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.stroke.opacity.set(opacity, state);
         return this;
     }
 
-    setStrokeWidth(width: number, space: S2Space, inherit: S2Inheritance = S2Inheritance.Explicit): this {
-        this.data.stroke.width.set(width, space, inherit);
+    setStrokeWidth(width: number, space: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.stroke.width.set(width, space, state);
         return this;
     }
 
-    setStrokeLineCap(lineCap: S2LineCap): this {
-        this.data.stroke.lineCap = lineCap;
+    setStrokeLineCap(lineCap: S2LineCap, state: S2TypeState = S2TypeState.Active): this {
+        this.data.stroke.lineCap.set(lineCap, state);
         return this;
     }
 
-    setStrokeLineJoin(lineJoin: S2LineJoin): this {
-        this.data.stroke.lineJoin = lineJoin;
+    setStrokeLineJoin(lineJoin: S2LineJoin, state: S2TypeState = S2TypeState.Active): this {
+        this.data.stroke.lineJoin.set(lineJoin, state);
         return this;
     }
 }

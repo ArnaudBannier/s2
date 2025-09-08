@@ -14,9 +14,9 @@ export class S2Container<
 
     constructor(scene: S2BaseScene, data: Data, element: SVGType) {
         super(scene, data);
-        this.data.fill.opacity.setInherited();
-        this.data.stroke.opacity.setInherited();
-        this.data.opacity.setInherited();
+        this.data.fill.opacity.setParent();
+        this.data.stroke.opacity.setParent();
+        this.data.opacity.setParent();
         this.element = element;
         this.children = [];
     }

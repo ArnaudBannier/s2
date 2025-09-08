@@ -3,7 +3,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, svgNS } from '../s2-globals';
 import { S2TransformGraphicData } from './s2-transform-graphic';
 import { S2BaseText, S2TextData } from './s2-text';
-import { S2Extents, S2Number, S2Position, type S2Space } from '../s2-types';
+import { S2Enum, S2Extents, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2Container } from './s2-container';
 import { S2FontData } from './s2-base-data';
 
@@ -21,23 +21,24 @@ export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 
 export class S2TextLineData extends S2TextData {
     public readonly skip: S2Number;
-    public align?: S2TextAlign;
+    public readonly align: S2Enum<S2TextAlign>;
 
     constructor() {
         super();
         this.skip = new S2Number(0);
+        this.align = new S2Enum<S2TextAlign>('left', S2TypeState.Inactive);
     }
 
-    setInherited(): void {
-        super.setInherited();
-        this.skip.setInherited();
-        this.align = undefined;
+    setParent(parent: S2TextLineData | null = null): void {
+        super.setParent(parent);
+        this.skip.setParent(parent ? parent.skip : null);
+        this.align.setParent(parent ? parent.align : null);
     }
 
     copy(other: S2TextLineData): void {
         super.copy(other);
         this.skip.copy(other.skip);
-        this.align = other.align;
+        this.align.copy(other.align);
     }
 }
 
@@ -56,7 +57,7 @@ export class S2TextGroupData extends S2TransformGraphicData {
     public readonly position: S2Position;
     public readonly minExtents: S2Extents;
     public anchor: S2Anchor;
-    public textAlign: S2TextAlign;
+    public textAlign: S2Enum<S2TextAlign>;
     public verticalAlign: S2VerticalAlign;
 
     constructor() {
@@ -64,7 +65,7 @@ export class S2TextGroupData extends S2TransformGraphicData {
         this.font = new S2FontData();
         this.position = new S2Position(0, 0, 'world');
         this.anchor = 'center';
-        this.textAlign = 'center';
+        this.textAlign = new S2Enum<S2TextAlign>('center');
         this.verticalAlign = 'middle';
         this.minExtents = new S2Extents(0, 0, 'view');
     }
@@ -75,7 +76,7 @@ export class S2TextGroupData extends S2TransformGraphicData {
         this.minExtents.copy(other.minExtents);
         this.font.copy(other.font);
         this.anchor = other.anchor;
-        this.textAlign = other.textAlign;
+        this.textAlign.copy(other.textAlign);
         this.verticalAlign = other.verticalAlign;
     }
 
@@ -106,10 +107,18 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
 
     addLine(options?: { align?: S2TextAlign; skip?: number }): S2TextLine {
         const textLine = new S2TextLine(this.scene);
-        textLine.data.setInherited();
-        textLine.data.font.parent = this.data.font;
+        textLine.data.font.setParent(this.data.font);
+        textLine.data.fill.setParent(this.data.fill);
+        textLine.data.stroke.setParent(this.data.stroke);
+        textLine.data.opacity.setParent(this.data.opacity);
+        textLine.data.align.setParent(this.data.textAlign);
+
+        if (options?.align) {
+            textLine.data.align.set(options.align);
+        }
+
         textLine.data.skip.value = options?.skip ?? 0;
-        textLine.data.align = options?.align ?? this.data.textAlign;
+        //textLine.data.align = options?.align ?? this.data.textAlign;
         this.appendChild(textLine);
         return textLine;
     }
@@ -180,18 +189,19 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         for (const line of this.children) {
             const font = line.data.font;
             const lineHeight = font.getInheritedRelativeLineHeight() * font.getInheritedSize(camera);
-            switch (line.data.align ?? this.data.textAlign) {
+            switch (line.data.align.getInherited()) {
+                //switch (line.data.align ?? this.data.textAlign) {
                 case 'left':
                     lineX = groupNW.x;
-                    line.data.textAnchor = 'start';
+                    line.data.textAnchor.set('start');
                     break;
                 case 'center':
                     lineX = groupNW.x + groupExtents.x;
-                    line.data.textAnchor = 'middle';
+                    line.data.textAnchor.set('middle');
                     break;
                 case 'right':
                     lineX = groupNW.x + 2 * groupExtents.x;
-                    line.data.textAnchor = 'end';
+                    line.data.textAnchor.set('end');
                     break;
             }
             line.position.set(lineX, lineY, 'view');

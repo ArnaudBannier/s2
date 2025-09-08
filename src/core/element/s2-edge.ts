@@ -3,7 +3,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { S2Node } from './s2-node';
 import { S2Path } from './s2-path';
 import { S2MonoGraphic, S2MonoGraphicData } from './s2-mono-graphic';
-import { type S2Space, S2Inheritance, S2Length, S2Number, S2Position } from '../s2-types';
+import { type S2Space, S2TypeState, S2Length, S2Number, S2Position } from '../s2-types';
 
 // S2NodeArcManhattan
 
@@ -19,12 +19,12 @@ export class S2EdgeData extends S2MonoGraphicData {
 
     constructor() {
         super();
-        this.fill.opacity.set(0, S2Inheritance.Explicit);
-        this.stroke.opacity.set(1, S2Inheritance.Explicit);
-        this.stroke.width.set(4, 'view', S2Inheritance.Explicit);
-        this.stroke.color.set(0, 0, 0, S2Inheritance.Explicit);
-        this.fill.color.setInherited();
-        this.opacity.set(1, S2Inheritance.Inherited);
+        this.fill.opacity.set(0, S2TypeState.Active);
+        this.stroke.opacity.set(1, S2TypeState.Active);
+        this.stroke.width.set(4, 'view', S2TypeState.Active);
+        this.stroke.color.set(0, 0, 0, S2TypeState.Active);
+        this.fill.color.setParent();
+        this.opacity.set(1, S2TypeState.Inactive);
         this.pathFrom = new S2Number(-1);
         this.pathTo = new S2Number(2);
         this.start = new S2Position(-1, 0, 'world');
@@ -132,7 +132,7 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         const end = this.getPoint(this.data.end, space, this.data.endDistance, endDirection);
 
         this.applyStyleToPath();
-        this.path.data.space = space;
+        this.path.data.space.set(space);
         this.path.clear().setStartV(start).lineToV(end).update(updateId);
     }
 }
@@ -198,7 +198,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         endDirection.scale(endTension * distance);
 
         this.applyStyleToPath();
-        this.path.data.space = space;
+        this.path.data.space.set(space);
         this.path.clear().setStartV(start).cubicToV(startDirection, endDirection, end).update(updateId);
     }
 }

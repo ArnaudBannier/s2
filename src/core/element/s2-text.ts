@@ -2,7 +2,7 @@ import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
-import { S2Position } from '../s2-types';
+import { S2Enum, S2Position } from '../s2-types';
 import { S2FontData } from './s2-base-data';
 
 // "text-anchor": "start | middle | end"
@@ -19,27 +19,27 @@ export type S2TextAnchor = 'start' | 'middle' | 'end';
 export class S2TextData extends S2TransformGraphicData {
     public readonly position: S2Position;
     public readonly font: S2FontData;
-    public textAnchor: S2TextAnchor;
+    public readonly textAnchor: S2Enum<S2TextAnchor>;
 
     constructor() {
         super();
         this.position = new S2Position(0, 0, 'world');
         this.font = new S2FontData();
-        this.textAnchor = 'start';
+        this.textAnchor = new S2Enum<S2TextAnchor>('start');
     }
 
-    setInherited(): void {
-        super.setInherited();
-        this.position.setInherited();
-        this.font.setInherited();
-        this.textAnchor = 'start';
+    setParent(parent: S2TextData | null = null): void {
+        super.setParent(parent);
+        this.position.setParent(parent ? parent.position : null);
+        this.font.setParent(parent ? parent.font : null);
+        this.textAnchor.setParent(parent ? parent.textAnchor : null);
     }
 
     copy(other: S2TextData): void {
         super.copy(other);
         this.position.copy(other.position);
         this.font.copy(other.font);
-        this.textAnchor = other.textAnchor;
+        this.textAnchor.copy(other.textAnchor);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -49,7 +49,7 @@ export class S2TextData extends S2TransformGraphicData {
         const position = this.position.toSpace('view', camera);
         element.setAttribute('x', position.x.toString());
         element.setAttribute('y', position.y.toString());
-        element.setAttribute('text-anchor', this.textAnchor);
+        element.setAttribute('text-anchor', this.textAnchor.getInherited());
     }
 }
 

@@ -9,6 +9,7 @@ import { easeCos } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2Timeline } from './animation/s2-timeline.ts';
 import { S2PlayableAnimation } from './animation/s2-animation-manager.ts';
+import type { S2Node } from './core/element/s2-node.ts';
 
 /*
     TODO:
@@ -40,6 +41,7 @@ const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
     protected anim: S2Timeline;
+    protected node1: S2Node;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
@@ -98,11 +100,15 @@ class SceneFigure extends S2Scene {
         node1.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
         node1.data.background.stroke.width.set(4, 'view');
         node1.data.text.font.size.set(20, 'view');
+        node1.data.text.textAlign.set('left');
         node1.createRectBackground();
         node1.addLine().addContent('Hello World');
-        node1.addLine().addContent('potoo').data.font.weight.set(700);
+        const line = node1.addLine().addContent('potoo');
+        line.data.font.weight.set(700);
+        line.data.font.style.set('italic');
         node1.setLayer(1);
         node1.update();
+        this.node1 = node1;
 
         const lerpAnim3 = new S2LerpAnim(this)
             .addUpdateTarget(node1)
@@ -138,21 +144,19 @@ class SceneFigure extends S2Scene {
 
         const edge = this.addCubicEdge(node1, node2);
         edge.data.stroke.color.copy(MTL_COLORS.RED_5);
-        edge.data.stroke.width.set(8, 'view');
-        edge.data.stroke.lineCap = 'round';
-        edge.data.startDistance = new S2Length(10, 'view');
-        edge.data.endDistance = new S2Length(10, 'view');
-        edge.data.curveAngle = new S2Number(20);
-        edge.setLayer(0);
+        edge.setStrokeLineCap('round').setStrokeWidth(8, 'view').setLayer(0);
+        edge.data.startDistance = new S2Length(20, 'view');
+        edge.data.endDistance = new S2Length(20, 'view');
+        edge.data.curveAngle = new S2Number(40);
         edge.update();
 
         this.update();
-        console.log('edge', edge);
     }
 
     setAnimationValue(t: number): void {
-        console.log('\n');
-        console.log('Setting animation to', t);
+        // console.log('\n');
+        // console.log('Setting animation to', t);
+        // console.log(this.node1.getTextGroup(0).data.font.size);
         this.anim.setElapsed(t * 5000);
     }
 }
