@@ -40,12 +40,12 @@ export class S2Circle extends S2ShapeGraphic<S2CircleData> {
         return this.data.radius;
     }
 
-    setRadius(radius: number, space: S2Space = this.data.radius.space): this {
+    setRadius(radius: number, space: S2Space): this {
         this.data.radius.set(radius, space);
         return this;
     }
 
-    getRadius(space: S2Space = this.data.radius.space): number {
+    getRadius(space: S2Space): number {
         return this.data.radius.toSpace(space, this.scene.getActiveCamera());
     }
 

@@ -121,7 +121,7 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         return this;
     }
 
-    getStart(space: S2Space = this.data.space.getInherited()): S2Vec2 {
+    getStart(space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getStart(),
             this.data.space.getInherited(),
@@ -130,7 +130,7 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         );
     }
 
-    getEnd(space: S2Space = this.data.space.getInherited()): S2Vec2 {
+    getEnd(space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getEnd(),
             this.data.space.getInherited(),
@@ -139,7 +139,7 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         );
     }
 
-    getPointAt(t: number, space: S2Space = 'world'): S2Vec2 {
+    getPointAt(t: number, space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getPointAt(t),
             this.data.space.getInherited(),
@@ -148,7 +148,7 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         );
     }
 
-    getTangentAt(t: number, space: S2Space = 'world'): S2Vec2 {
+    getTangentAt(t: number, space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getTangentAt(t),
             this.data.space.getInherited(),
@@ -157,7 +157,7 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         );
     }
 
-    getStartTangent(space: S2Space = 'world'): S2Vec2 {
+    getStartTangent(space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getStartTangent(),
             this.data.space.getInherited(),
@@ -166,7 +166,7 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         );
     }
 
-    getEndTangent(space: S2Space = 'world'): S2Vec2 {
+    getEndTangent(space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getEndTangent(),
             this.data.space.getInherited(),
@@ -175,7 +175,7 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         );
     }
 
-    getLength(space: S2Space = 'world'): number {
+    getLength(space: S2Space): number {
         return S2Length.toSpace(
             this.data.polyCurve.getLength(),
             this.data.space.getInherited(),

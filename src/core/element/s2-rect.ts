@@ -66,26 +66,26 @@ export class S2Rect extends S2ShapeGraphic<S2RectData> {
         return this.data.cornerRadius;
     }
 
-    setRadius(radius: number, space: S2Space = this.data.cornerRadius.space): this {
+    setCornerRadius(radius: number, space: S2Space): this {
         this.data.cornerRadius.set(radius, space);
         return this;
     }
 
-    getRadius(space: S2Space = this.data.cornerRadius.space): number {
+    getCornerRadius(space: S2Space): number {
         return this.data.cornerRadius.toSpace(space, this.scene.getActiveCamera());
     }
 
-    setExtents(x: number, y: number, space: S2Space = this.data.extents.space): this {
+    setExtents(x: number, y: number, space: S2Space): this {
         this.data.extents.set(x, y, space);
         return this;
     }
 
-    setExtentsV(v: S2Vec2, space: S2Space = this.data.extents.space): this {
+    setExtentsV(v: S2Vec2, space: S2Space): this {
         this.data.extents.setV(v, space);
         return this;
     }
 
-    getExtents(space: S2Space = this.data.extents.space): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.data.extents.toSpace(space, this.scene.getActiveCamera());
     }
 

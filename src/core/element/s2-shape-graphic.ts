@@ -35,17 +35,17 @@ export abstract class S2ShapeGraphic<Data extends S2ShapeGraphicData> extends S2
         return this.data.position;
     }
 
-    setPosition(x: number, y: number, space: S2Space = this.data.position.space): this {
+    setPosition(x: number, y: number, space: S2Space): this {
         this.data.position.set(x, y, space);
         return this;
     }
 
-    setPositionV(v: S2Vec2, space: S2Space = this.data.position.space): this {
+    setPositionV(v: S2Vec2, space: S2Space): this {
         this.data.position.setV(v, space);
         return this;
     }
 
-    getPosition(space: S2Space = this.data.position.space): S2Vec2 {
+    getPosition(space: S2Space): S2Vec2 {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 }

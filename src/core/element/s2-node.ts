@@ -201,32 +201,51 @@ export class S2Node extends S2Element<S2NodeData> {
         return this.data.background.opacity;
     }
 
-    setPosition(x: number, y: number, space: S2Space = this.data.position.space): this {
+    setPosition(x: number, y: number, space: S2Space): this {
         this.data.position.set(x, y, space);
         return this;
     }
 
-    setPositionV(v: S2Vec2, space: S2Space = this.data.position.space): this {
+    setPositionV(v: S2Vec2, space: S2Space): this {
         this.data.position.setV(v, space);
         return this;
     }
 
-    getPosition(space: S2Space = this.data.position.space): S2Vec2 {
+    getPosition(space: S2Space): S2Vec2 {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
-    setMinExtents(x: number, y: number, space: S2Space = 'view'): this {
+    setMinExtents(x: number, y: number, space: S2Space): this {
         this.data.minExtents.set(x, y, space);
         return this;
     }
 
-    setMinExtentsV(v: S2Vec2, space: S2Space = 'view'): this {
+    setMinExtentsV(v: S2Vec2, space: S2Space): this {
         this.data.minExtents.setV(v, space);
         return this;
     }
 
-    getMinExtents(space: S2Space = 'view'): S2Vec2 {
+    getMinExtents(space: S2Space): S2Vec2 {
         return this.data.minExtents.toSpace(space, this.scene.getActiveCamera());
+    }
+
+    setPadding(x: number, y: number, space: S2Space): this {
+        this.data.padding.set(x, y, space);
+        return this;
+    }
+
+    setPaddingV(v: S2Vec2, space: S2Space): this {
+        this.data.padding.setV(v, space);
+        return this;
+    }
+
+    getPadding(space: S2Space): S2Vec2 {
+        return this.data.padding.toSpace(space, this.scene.getActiveCamera());
+    }
+
+    setPartSep(sep: number, space: S2Space): this {
+        this.data.partSep.set(sep, space);
+        return this;
     }
 
     getSVGElement(): SVGElement {
@@ -292,7 +311,7 @@ export class S2Node extends S2Element<S2NodeData> {
         if (this.background) {
             return this.background.getPointInDirection(direction, space, distance);
         }
-        return this.data.position.toSpace('view', this.scene.getActiveCamera());
+        return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
     protected updateImpl(updateId?: number): void {
@@ -303,6 +322,7 @@ export class S2Node extends S2Element<S2NodeData> {
             this.background.data.stroke.copy(this.data.background.stroke);
             this.background.data.fill.copy(this.data.background.fill);
             this.background.data.opacity.copy(this.data.background.opacity);
+            this.background.data.transform.copy(this.data.background.transform);
             if (this.background instanceof S2Rect) {
                 this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
             }

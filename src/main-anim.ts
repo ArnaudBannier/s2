@@ -23,13 +23,6 @@ import { S2Node } from './core/element/s2-node.ts';
         - Il n'est pas défini en global mais créé pour chaque path
     - Définir un système de listener pour les update
     - S2SVG contient des fonctionnalités supplémentaires, comme ajouter des styles
-    - S2Attributes potentiellement sans copie profonde
-        - Contient toutes les propriétés, y compris pour les noeuds
-    - S2Animatable avec une copie profonde
-    - Erreur sur animate
-        - Il ne faut pas sauvegarder l'état avec currStepIndex mais avec une ID
-        - Cela pose pb si le même objet est animé plusieurs fois dans un step
-    - Creer ma propre lib d'animation, Regarder singleton pour le moteur
 */
 // Slides.com
 // Reveal.js

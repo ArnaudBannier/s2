@@ -24,13 +24,6 @@ import type { S2Node } from './core/element/s2-node.ts';
         - Il n'est pas défini en global mais créé pour chaque path
     - Définir un système de listener pour les update
     - S2SVG contient des fonctionnalités supplémentaires, comme ajouter des styles
-    - S2Attributes potentiellement sans copie profonde
-        - Contient toutes les propriétés, y compris pour les noeuds
-    - S2Animatable avec une copie profonde
-    - Erreur sur animate
-        - Il ne faut pas sauvegarder l'état avec currStepIndex mais avec une ID
-        - Cela pose pb si le même objet est animé plusieurs fois dans un step
-    - Creer ma propre lib d'animation, Regarder singleton pour le moteur
 */
 
 const viewportScale = 1.5;
@@ -93,14 +86,13 @@ class SceneFigure extends S2Scene {
         lerpAnim2.commitFinalStates();
 
         const node1 = this.addNode(1);
-        node1.setPosition(-5, 0, 'world').setAnchor('center');
+        node1.setPosition(-5, 0, 'world').setAnchor('center').setPadding(20, 10, 'view');
         node1.data.background.fill.color.copy(MTL_COLORS.GREY_6);
         node1.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
         node1.data.background.stroke.width.set(4, 'view');
         node1.data.text.font.size.set(20, 'view');
         node1.data.text.horizontalAlign.set('left');
         node1.backCornerRadius.set(20, 'view');
-        node1.padding.set(20, 10, 'view');
         node1.createRectBackground();
         node1.addLine().addContent('Hello World');
         const line = node1.addLine().addContent('potoo');
@@ -140,6 +132,7 @@ class SceneFigure extends S2Scene {
         node2.createCircleBackground();
         node2.addLine().addContent('Hello World');
         node2.setLayer(1);
+        //node2.data.background.transform.matrix.set(1, 1, -300, 0, 1, 0);
         node2.update();
 
         const edge = this.addCubicEdge(node1, node2);
