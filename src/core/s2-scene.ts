@@ -98,8 +98,8 @@ export class S2Scene implements S2BaseScene {
 
     addLineEdge(start: S2Node | S2Position, end: S2Node | S2Position, parent: S2BaseContainer = this.svg): S2LineEdge {
         const child = new S2LineEdge(this);
-        child.data.start = start;
-        child.data.end = end;
+        child.data.start.set(start);
+        child.data.end.set(end);
         parent.appendChild(child);
         return child;
     }
@@ -110,8 +110,8 @@ export class S2Scene implements S2BaseScene {
         parent: S2BaseContainer = this.svg,
     ): S2CubicEdge {
         const child = new S2CubicEdge(this);
-        child.data.start = start;
-        child.data.end = end;
+        child.data.start.set(start);
+        child.data.end.set(end);
         if (start instanceof S2Node) {
             child.addDependency(start);
         }

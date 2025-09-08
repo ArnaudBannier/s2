@@ -56,17 +56,17 @@ export class S2TextGroupData extends S2TransformGraphicData {
     public readonly font: S2FontData;
     public readonly position: S2Position;
     public readonly minExtents: S2Extents;
-    public anchor: S2Anchor;
-    public textAlign: S2Enum<S2TextAlign>;
-    public verticalAlign: S2VerticalAlign;
+    public readonly anchor: S2Enum<S2Anchor>;
+    public readonly textAlign: S2Enum<S2TextAlign>;
+    public readonly verticalAlign: S2Enum<S2VerticalAlign>;
 
     constructor() {
         super();
         this.font = new S2FontData();
         this.position = new S2Position(0, 0, 'world');
-        this.anchor = 'center';
+        this.anchor = new S2Enum<S2Anchor>('center');
         this.textAlign = new S2Enum<S2TextAlign>('center');
-        this.verticalAlign = 'middle';
+        this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
         this.minExtents = new S2Extents(0, 0, 'view');
     }
 
@@ -75,9 +75,9 @@ export class S2TextGroupData extends S2TransformGraphicData {
         this.position.copy(other.position);
         this.minExtents.copy(other.minExtents);
         this.font.copy(other.font);
-        this.anchor = other.anchor;
+        this.anchor.copy(other.anchor);
         this.textAlign.copy(other.textAlign);
-        this.verticalAlign = other.verticalAlign;
+        this.verticalAlign.copy(other.verticalAlign);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -133,7 +133,7 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
 
     getCenter(space: S2Space = this.data.position.space): S2Vec2 {
         return S2AnchorUtils.getCenter(
-            this.data.anchor,
+            this.data.anchor.getInherited(),
             space,
             this.scene.getActiveCamera(),
             this.data.position,
@@ -175,7 +175,7 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
 
         let lineX = 0;
         let lineY = groupNW.y + ascenderHeight;
-        switch (this.data.verticalAlign) {
+        switch (this.data.verticalAlign.getInherited()) {
             case 'top':
                 break;
             case 'middle':

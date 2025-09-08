@@ -4,8 +4,8 @@ import { type S2Anchor, S2AnchorUtils, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
 import { S2TransformGraphicData } from './s2-transform-graphic';
-import { S2Enum, S2Extents, S2Length, S2Position, type S2Space } from '../s2-types';
-import { S2TextGroup, S2TextLine, type S2TextAlign, type S2VerticalAlign } from './s2-text-group';
+import { S2Color, S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
+import { S2TextGroup, S2TextLine, type S2TextAlign as S2HorizontalAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
 import { S2Element, type S2BaseElement } from './s2-element';
@@ -29,10 +29,10 @@ export class S2NodeBackgroundData extends S2TransformGraphicData {
         super.applyToElement(element, scene);
         if (!(element instanceof SVGRectElement)) return;
         const camera = scene.getActiveCamera();
-        const radius = this.cornerRadius.toSpace('view', camera);
-        if (radius > 0) {
-            element.setAttribute('rx', radius.toString());
-            element.setAttribute('ry', radius.toString());
+        const cornerRadius = this.cornerRadius.toSpace('view', camera);
+        if (cornerRadius > 0) {
+            element.setAttribute('rx', cornerRadius.toString());
+            element.setAttribute('ry', cornerRadius.toString());
         } else {
             element.removeAttribute('rx');
             element.removeAttribute('ry');
@@ -42,20 +42,20 @@ export class S2NodeBackgroundData extends S2TransformGraphicData {
 
 export class S2NodeTextData extends S2TransformGraphicData {
     public readonly font: S2FontData;
-    public readonly textAlign: S2Enum<S2TextAlign>;
-    public verticalAlign: S2VerticalAlign;
+    public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
+    public readonly verticalAlign: S2Enum<S2VerticalAlign>;
 
     constructor() {
         super();
         this.font = new S2FontData();
-        this.textAlign = new S2Enum<S2TextAlign>('center');
-        this.verticalAlign = 'middle';
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
+        this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
     }
 
     copy(other: S2NodeTextData): void {
         super.copy(other);
-        this.textAlign.copy(other.textAlign);
-        this.verticalAlign = other.verticalAlign;
+        this.horizontalAlign.copy(other.horizontalAlign);
+        this.verticalAlign.copy(other.verticalAlign);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -64,18 +64,18 @@ export class S2NodeTextData extends S2TransformGraphicData {
 }
 
 export class S2NodeData extends S2LayerData {
-    public position: S2Position;
-    public anchor: S2Anchor;
-    public background: S2NodeBackgroundData;
-    public text: S2NodeTextData;
-    public padding: S2Extents;
-    public partSep: S2Length;
-    public minExtents: S2Extents;
+    public readonly position: S2Position;
+    public readonly anchor: S2Enum<S2Anchor>;
+    public readonly background: S2NodeBackgroundData;
+    public readonly text: S2NodeTextData;
+    public readonly padding: S2Extents;
+    public readonly partSep: S2Length;
+    public readonly minExtents: S2Extents;
 
     constructor() {
         super();
         this.position = new S2Position(0, 0, 'world');
-        this.anchor = 'center';
+        this.anchor = new S2Enum<S2Anchor>('center');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.background = new S2NodeBackgroundData();
         this.text = new S2NodeTextData();
@@ -87,7 +87,7 @@ export class S2NodeData extends S2LayerData {
         super.copy(other);
         this.position.copy(other.position);
         this.minExtents.copy(other.minExtents);
-        this.anchor = other.anchor;
+        this.anchor.copy(other.anchor);
         this.background.copy(other.background);
         this.text.copy(other.text);
         this.padding.copy(other.padding);
@@ -118,7 +118,8 @@ export class S2Node extends S2Element<S2NodeData> {
             textGroup.setLayer(2);
             textGroup.data.setParent(this.data.text);
             textGroup.data.font.setParent(this.data.text.font);
-            textGroup.data.textAlign.setParent(this.data.text.textAlign);
+            textGroup.data.textAlign.setParent(this.data.text.horizontalAlign);
+            textGroup.data.verticalAlign.setParent(this.data.text.verticalAlign);
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
             this.mainGroup.appendChild(textGroup);
@@ -132,11 +133,112 @@ export class S2Node extends S2Element<S2NodeData> {
         this.nodeExtents = new S2Extents(0, 0, 'view');
     }
 
+    get position(): S2Position {
+        return this.data.position;
+    }
+
+    get anchor(): S2Enum<S2Anchor> {
+        return this.data.anchor;
+    }
+
+    get minExtents(): S2Extents {
+        return this.data.minExtents;
+    }
+
+    get padding(): S2Extents {
+        return this.data.padding;
+    }
+
+    get partSep(): S2Length {
+        return this.data.partSep;
+    }
+
+    get textHorizontalAlign(): S2Enum<S2HorizontalAlign> {
+        return this.data.text.horizontalAlign;
+    }
+
+    get textVerticalAlign(): S2Enum<S2VerticalAlign> {
+        return this.data.text.verticalAlign;
+    }
+
+    get textFillColor(): S2Color {
+        return this.data.text.fill.color;
+    }
+
+    get textOpacity(): S2Number {
+        return this.data.text.opacity;
+    }
+
+    get textFont(): S2FontData {
+        return this.data.text.font;
+    }
+
+    get backFillColor(): S2Color {
+        return this.data.background.fill.color;
+    }
+
+    get backFillOpacity(): S2Number {
+        return this.data.background.fill.opacity;
+    }
+
+    get backStrokeColor(): S2Color {
+        return this.data.background.stroke.color;
+    }
+
+    get backStrokeOpacity(): S2Number {
+        return this.data.background.stroke.opacity;
+    }
+
+    get backStrokeWidth(): S2Length {
+        return this.data.background.stroke.width;
+    }
+
+    get backCornerRadius(): S2Length {
+        return this.data.background.cornerRadius;
+    }
+
+    get backOpacity(): S2Number {
+        return this.data.background.opacity;
+    }
+
+    setPosition(x: number, y: number, space: S2Space = this.data.position.space): this {
+        this.data.position.set(x, y, space);
+        return this;
+    }
+
+    setPositionV(v: S2Vec2, space: S2Space = this.data.position.space): this {
+        this.data.position.setV(v, space);
+        return this;
+    }
+
+    getPosition(space: S2Space = this.data.position.space): S2Vec2 {
+        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+    }
+
+    setMinExtents(x: number, y: number, space: S2Space = 'view'): this {
+        this.data.minExtents.set(x, y, space);
+        return this;
+    }
+
+    setMinExtentsV(v: S2Vec2, space: S2Space = 'view'): this {
+        this.data.minExtents.setV(v, space);
+        return this;
+    }
+
+    getMinExtents(space: S2Space = 'view'): S2Vec2 {
+        return this.data.minExtents.toSpace(space, this.scene.getActiveCamera());
+    }
+
     getSVGElement(): SVGElement {
         return this.mainGroup.getSVGElement();
     }
 
-    addLine(options?: { partIndex?: number; align?: S2TextAlign; skip?: number }): S2TextLine {
+    setAnchor(anchor: S2Anchor, state: S2TypeState = S2TypeState.Active): this {
+        this.data.anchor.set(anchor, state);
+        return this;
+    }
+
+    addLine(options?: { partIndex?: number; align?: S2HorizontalAlign; skip?: number }): S2TextLine {
         const index = clamp(options?.partIndex ?? 0, 0, this.textGroups.length - 1);
         const textLine = this.textGroups[index].addLine(options);
         textLine.data.font.setParent(this.data.text.font);
@@ -170,7 +272,7 @@ export class S2Node extends S2Element<S2NodeData> {
 
     getCenter(space: S2Space = this.data.position.space): S2Vec2 {
         return S2AnchorUtils.getCenter(
-            this.data.anchor,
+            this.data.anchor.getInherited(),
             space,
             this.scene.getActiveCamera(),
             this.data.position,
@@ -201,7 +303,9 @@ export class S2Node extends S2Element<S2NodeData> {
             this.background.data.stroke.copy(this.data.background.stroke);
             this.background.data.fill.copy(this.data.background.fill);
             this.background.data.opacity.copy(this.data.background.opacity);
-            this.background.data.radius.copy(this.data.background.cornerRadius);
+            if (this.background instanceof S2Rect) {
+                this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
+            }
         }
 
         const partHeights: Array<number> = [];
@@ -231,7 +335,7 @@ export class S2Node extends S2Element<S2NodeData> {
         this.nodeExtents.setValueFromSpace('view', camera, nodeExtents.x, nodeExtents.y);
 
         const nodeCenter = S2AnchorUtils.getCenter(
-            this.data.anchor,
+            this.data.anchor.getInherited(),
             'view',
             camera,
             this.data.position,
@@ -241,7 +345,7 @@ export class S2Node extends S2Element<S2NodeData> {
         for (let i = 0; i < this.textGroups.length; i++) {
             this.textGroups[i].data.position.setV(textPosition, 'view');
             this.textGroups[i].data.minExtents.set(nodeExtents.x - padding.x, partHeights[i] / 2, 'view');
-            this.textGroups[i].data.anchor = 'north west';
+            this.textGroups[i].data.anchor.set('north west');
             textPosition.y += partHeights[i] + 2 * partSep;
         }
 

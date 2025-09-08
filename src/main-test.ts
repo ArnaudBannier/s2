@@ -3,7 +3,6 @@ import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
-import { S2Length, S2Number } from './core/s2-types.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { easeCos } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
@@ -94,13 +93,14 @@ class SceneFigure extends S2Scene {
         lerpAnim2.commitFinalStates();
 
         const node1 = this.addNode(1);
-        node1.data.position.set(-5, 0, 'world');
-        node1.data.anchor = 'center';
+        node1.setPosition(-5, 0, 'world').setAnchor('center');
         node1.data.background.fill.color.copy(MTL_COLORS.GREY_6);
         node1.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
         node1.data.background.stroke.width.set(4, 'view');
         node1.data.text.font.size.set(20, 'view');
-        node1.data.text.textAlign.set('left');
+        node1.data.text.horizontalAlign.set('left');
+        node1.backCornerRadius.set(20, 'view');
+        node1.padding.set(20, 10, 'view');
         node1.createRectBackground();
         node1.addLine().addContent('Hello World');
         const line = node1.addLine().addContent('potoo');
@@ -133,7 +133,7 @@ class SceneFigure extends S2Scene {
 
         const node2 = this.addNode();
         node2.data.position.set(3, 1, 'world');
-        node2.data.anchor = 'center';
+        node2.data.anchor.set('center');
         node2.data.background.fill.color.copy(MTL_COLORS.GREY_6);
         node2.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
         node2.data.background.stroke.width.set(4, 'view');
@@ -145,9 +145,13 @@ class SceneFigure extends S2Scene {
         const edge = this.addCubicEdge(node1, node2);
         edge.data.stroke.color.copy(MTL_COLORS.RED_5);
         edge.setStrokeLineCap('round').setStrokeWidth(8, 'view').setLayer(0);
-        edge.data.startDistance = new S2Length(20, 'view');
-        edge.data.endDistance = new S2Length(20, 'view');
-        edge.data.curveAngle = new S2Number(40);
+        edge.data.startDistance.set(20, 'view');
+        edge.data.endDistance.set(20, 'view');
+        edge.setCurveBendAngle(30);
+        // edge.data.curveBendAngle.set(30);
+        // edge.setCurveTension(0.5);
+        // edge.data.startAngle.set(-90);
+        // edge.data.endAngle.set(180);
         edge.update();
 
         this.update();

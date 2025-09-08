@@ -48,6 +48,12 @@ export class S2Enum<T> extends S2BaseType {
         return this;
     }
 
+    hasActiveHierarchy(): boolean {
+        if (this.state === S2TypeState.Active) return true;
+        if (this.parent === null) return false;
+        return this.parent.hasActiveHierarchy();
+    }
+
     getInherited(): T {
         if (this.state === S2TypeState.Active || this.parent === null) {
             return this.value;
@@ -89,6 +95,12 @@ export class S2String extends S2BaseType {
         this.value = value;
         this.state = state;
         return this;
+    }
+
+    hasActiveHierarchy(): boolean {
+        if (this.state === S2TypeState.Active) return true;
+        if (this.parent === null) return false;
+        return this.parent.hasActiveHierarchy();
     }
 
     getInherited(): string {
@@ -148,6 +160,12 @@ export class S2Number extends S2BaseType {
         this.value = value;
         this.state = state;
         return this;
+    }
+
+    hasActiveHierarchy(): boolean {
+        if (this.state === S2TypeState.Active) return true;
+        if (this.parent === null) return false;
+        return this.parent.hasActiveHierarchy();
     }
 
     getInherited(): number {
@@ -246,6 +264,12 @@ export class S2Color extends S2BaseType {
         return `rgb(${Math.floor(this.r)}, ${Math.floor(this.g)}, ${Math.floor(this.b)})`;
     }
 
+    hasActiveHierarchy(): boolean {
+        if (this.state === S2TypeState.Active) return true;
+        if (this.parent === null) return false;
+        return this.parent.hasActiveHierarchy();
+    }
+
     getInherited(): { r: number; g: number; b: number } {
         if (this.state === S2TypeState.Active || this.parent === null) {
             return { r: this.r, g: this.g, b: this.b };
@@ -332,6 +356,12 @@ export class S2Position extends S2BaseType {
             this.value.y = camera.worldToViewY(y);
         }
         return this;
+    }
+
+    hasActiveHierarchy(): boolean {
+        if (this.state === S2TypeState.Active) return true;
+        if (this.parent === null) return false;
+        return this.parent.hasActiveHierarchy();
     }
 
     getInherited(space: S2Space, camera: S2Camera): S2Vec2 {
@@ -444,6 +474,12 @@ export class S2Length extends S2BaseType {
             this.value = camera.worldToViewLength(value);
         }
         return this;
+    }
+
+    hasActiveHierarchy(): boolean {
+        if (this.state === S2TypeState.Active) return true;
+        if (this.parent === null) return false;
+        return this.parent.hasActiveHierarchy();
     }
 
     getInherited(space: S2Space, camera: S2Camera): number {

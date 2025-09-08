@@ -6,20 +6,20 @@ import { type S2Space, S2Length, S2Extents, S2Enum } from '../s2-types';
 import { S2ShapeGraphic, S2ShapeGraphicData } from './s2-shape-graphic';
 
 export class S2RectData extends S2ShapeGraphicData {
-    public readonly radius: S2Length;
+    public readonly cornerRadius: S2Length;
     public readonly extents: S2Extents;
     public readonly anchor: S2Enum<S2Anchor>;
 
     constructor() {
         super();
-        this.radius = new S2Length(0, 'view');
+        this.cornerRadius = new S2Length(0, 'view');
         this.extents = new S2Extents(1, 1, 'world');
         this.anchor = new S2Enum<S2Anchor>('north');
     }
 
     copy(other: S2RectData): void {
         super.copy(other);
-        this.radius.copy(other.radius);
+        this.cornerRadius.copy(other.cornerRadius);
         this.extents.copy(other.extents);
         this.anchor.copy(other.anchor);
     }
@@ -27,7 +27,7 @@ export class S2RectData extends S2ShapeGraphicData {
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         const camera = scene.getActiveCamera();
-        const radius = this.radius.toSpace('view', camera);
+        const radius = this.cornerRadius.toSpace('view', camera);
         const extents = this.extents.toSpace('view', camera);
         const northWest = S2AnchorUtils.getNorthWest(
             this.anchor.getInherited(),
@@ -63,24 +63,24 @@ export class S2Rect extends S2ShapeGraphic<S2RectData> {
     }
 
     get radius(): S2Length {
-        return this.data.radius;
+        return this.data.cornerRadius;
     }
 
-    setRadius(radius: number, space: S2Space = this.data.radius.space): this {
-        this.data.radius.set(radius, space);
+    setRadius(radius: number, space: S2Space = this.data.cornerRadius.space): this {
+        this.data.cornerRadius.set(radius, space);
         return this;
     }
 
-    getRadius(space: S2Space = this.data.radius.space): number {
-        return this.data.radius.toSpace(space, this.scene.getActiveCamera());
+    getRadius(space: S2Space = this.data.cornerRadius.space): number {
+        return this.data.cornerRadius.toSpace(space, this.scene.getActiveCamera());
     }
 
-    setExtensts(x: number, y: number, space: S2Space = this.data.extents.space): this {
+    setExtents(x: number, y: number, space: S2Space = this.data.extents.space): this {
         this.data.extents.set(x, y, space);
         return this;
     }
 
-    setExtenstsV(v: S2Vec2, space: S2Space = this.data.extents.space): this {
+    setExtentsV(v: S2Vec2, space: S2Space = this.data.extents.space): this {
         this.data.extents.setV(v, space);
         return this;
     }
@@ -97,7 +97,7 @@ export class S2Rect extends S2ShapeGraphic<S2RectData> {
         const camera = this.scene.getActiveCamera();
         const d = distance.toSpace(space, camera);
         const extents = this.data.extents.toSpace(space, camera).add(d, d).max(0, 0);
-        const radius = Math.min(Math.max(this.data.radius.toSpace(space, camera) + d, 0), extents.x, extents.y);
+        const radius = Math.min(Math.max(this.data.cornerRadius.toSpace(space, camera) + d, 0), extents.x, extents.y);
         const center = S2AnchorUtils.getCenter(
             this.data.anchor.getInherited(),
             space,

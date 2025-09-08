@@ -6,7 +6,7 @@ export type S2BaseElement = S2Element<S2LayerData>;
 type S2ElementListener = (source: S2BaseElement, updateId?: number) => void;
 
 export abstract class S2Element<Data extends S2LayerData> {
-    public data: Data;
+    public readonly data: Data;
     public readonly id: number;
 
     protected scene: S2BaseScene;
