@@ -1,7 +1,7 @@
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
-import { S2Position } from '../s2-types';
+import { S2Position, S2TypeState, type S2Space } from '../s2-types';
 
 export class S2LineData extends S2TransformGraphicData {
     public readonly startPosition: S2Position;
@@ -45,6 +45,16 @@ export class S2Line extends S2TransformGraphic<S2LineData> {
 
     get endPosition(): S2Position {
         return this.data.endPosition;
+    }
+
+    setStartPosition(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.startPosition.set(x, y, space, state);
+        return this;
+    }
+
+    setEndPosition(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.endPosition.set(x, y, space, state);
+        return this;
     }
 
     getSVGElement(): SVGElement {

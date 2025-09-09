@@ -1,26 +1,8 @@
 import type { S2LineCap, S2LineJoin } from '../s2-globals';
-import { type S2BaseScene } from '../s2-interface';
+import { S2BaseScene } from '../s2-interface';
 import { S2Color, S2TypeState, S2Length, S2Number, type S2Space, S2Enum } from '../s2-types';
 import { S2FillData, S2LayerData, S2StrokeData } from './s2-base-data';
 import { S2Element } from './s2-element';
-
-/*
-S2Stylable → stroke + fill + opacity
-S2Transformable → ajoute les transformations
-S2Shape → ajoute une géométrie (position, dimensions…)
-
-S2Graphic → stroke + fill + opacity
-S2GraphicTransform (ou TransformableGraphic) → + transform
-S2ShapeGraphic (ou PlacedGraphic) → + position
-
-MonoGraphic → ton niveau de base (stroke/fill/opacity)
-TransformedGraphic → ajoute transform
-ShapeGraphic → ajoute la position et devient un vrai "objet dessiné" (rect, circle, path…).
-
-MonoGraphic
-TransformGraphic
-ShapeGraphic
-*/
 
 export class S2MonoGraphicData extends S2LayerData {
     public readonly stroke: S2StrokeData;
@@ -100,7 +82,12 @@ export abstract class S2MonoGraphic<Data extends S2MonoGraphicData> extends S2El
         return this.data.stroke.lineJoin;
     }
 
-    setFillColor(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
+    setFillColor(color: S2Color): this {
+        this.data.fill.color.copy(color);
+        return this;
+    }
+
+    setFillColorRGB(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
         this.data.fill.color.set(r, g, b, state);
         return this;
     }
@@ -120,7 +107,12 @@ export abstract class S2MonoGraphic<Data extends S2MonoGraphicData> extends S2El
         return this;
     }
 
-    setStrokeColor(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
+    setStrokeColor(color: S2Color): this {
+        this.data.stroke.color.copy(color);
+        return this;
+    }
+
+    setStrokeColorRGB(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
         this.data.stroke.color.set(r, g, b, state);
         return this;
     }

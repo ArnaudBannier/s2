@@ -2,7 +2,7 @@ import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
-import { S2Enum, S2Length, S2Number, S2Position, type S2Space } from '../s2-types';
+import { S2Enum, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import type { S2Camera } from '../math/s2-camera';
 
@@ -103,6 +103,24 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
         this.fillOpacity.set(0);
     }
 
+    get pathFrom(): S2Number {
+        return this.data.pathFrom;
+    }
+
+    get pathTo(): S2Number {
+        return this.data.pathTo;
+    }
+
+    setPathFrom(pathFrom: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.pathFrom.set(pathFrom, state);
+        return this;
+    }
+
+    setPathTo(pathTo: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.pathTo.set(pathTo, state);
+        return this;
+    }
+
     setSampleCount(sampleCount: number): this {
         this.sampleCount = sampleCount;
         return this;
@@ -110,15 +128,6 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
 
     getSVGElement(): SVGElement {
         return this.element;
-    }
-
-    setStart(x: number, y: number): this {
-        return this.setStartV(new S2Vec2(x, y));
-    }
-
-    setStartV(start: S2Vec2): this {
-        this.moveToV(start);
-        return this;
     }
 
     getStart(space: S2Space): S2Vec2 {

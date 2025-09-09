@@ -2,12 +2,12 @@ import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL_COLORS } from './utils/mtl-colors.ts';
+import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
-import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
 import { S2Path } from './core/element/s2-path.ts';
 import { S2Length } from './core/s2-types.ts';
-import { S2Attributes } from './core/s2-attributes.ts';
 import { S2Node } from './core/element/s2-node.ts';
+import { S2Scene } from './core/s2-scene.ts';
 
 /*
     TODO:
@@ -31,30 +31,30 @@ const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
-class SceneFigure extends S2AnimatedScene {
+class SceneFigure extends S2Scene {
     protected circle: S2Circle;
     protected path: S2Path;
     protected node: S2Node;
-    protected styles = {
-        backBase: new S2Attributes({
-            fillColor: MTL_COLORS.GREY_6,
-            strokeColor: MTL_COLORS.GREY_4,
-            strokeWidth: new S2Length(4, 'view'),
-            textFillColor: MTL_COLORS.GREY_1,
-        }),
-        backSlct: new S2Attributes({
-            fillColor: MTL_COLORS.BLUE_GREY_9,
-            strokeColor: MTL_COLORS.LIGHT_BLUE_5,
-            strokeWidth: new S2Length(4, 'view'),
-            textFillColor: MTL_COLORS.LIGHT_BLUE_1,
-        }),
-        path: new S2Attributes({
-            strokeColor: MTL_COLORS.CYAN_5,
-            strokeWidth: new S2Length(4, 'view'),
-            fillOpacity: 0,
-            lineCap: 'round',
-        }),
-    };
+    // protected styles = {
+    //     backBase: new S2Attributes({
+    //         fillColor: MTL_COLORS.GREY_6,
+    //         strokeColor: MTL_COLORS.GREY_4,
+    //         strokeWidth: new S2Length(4, 'view'),
+    //         textFillColor: MTL_COLORS.GREY_1,
+    //     }),
+    //     backSlct: new S2Attributes({
+    //         fillColor: MTL_COLORS.BLUE_GREY_9,
+    //         strokeColor: MTL_COLORS.LIGHT_BLUE_5,
+    //         strokeWidth: new S2Length(4, 'view'),
+    //         textFillColor: MTL_COLORS.LIGHT_BLUE_1,
+    //     }),
+    //     path: new S2Attributes({
+    //         strokeColor: MTL_COLORS.CYAN_5,
+    //         strokeWidth: new S2Length(4, 'view'),
+    //         fillOpacity: 0,
+    //         lineCap: 'round',
+    //     }),
+    // };
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
@@ -78,9 +78,9 @@ class SceneFigure extends S2AnimatedScene {
 
         const group = this.addGroup<S2Circle>();
 
-        const circle1 = this.addCircle(group).setPosition(3, 0).setFillColor(MTL_COLORS.RED_5);
-        const circle2 = this.addCircle(group).setPosition(4, 0).setFillColor(MTL_COLORS.GREEN_5);
-        const circle3 = this.addCircle(group).setPosition(3.5, 0.5).setFillColor(MTL_COLORS.BLUE_5);
+        const circle1 = this.addCircle(group).setPosition(3, 0).setFillColorRGB(MTL_COLORS.RED_5);
+        const circle2 = this.addCircle(group).setPosition(4, 0).setFillColorRGB(MTL_COLORS.GREEN_5);
+        const circle3 = this.addCircle(group).setPosition(3.5, 0.5).setFillColorRGB(MTL_COLORS.BLUE_5);
 
         circle1.setLayer(2);
         circle2.setLayer(1);
@@ -120,7 +120,7 @@ class SceneFigure extends S2AnimatedScene {
         this.circle.setAttributes(this.styles.backBase);
 
         this.animator.makeStep();
-        this.path.setStrokeWidth(0.5, 'world').setStrokeColor(MTL_COLORS.GREY_7);
+        this.path.setStrokeWidth(0.5, 'world').setStrokeColorRGB(MTL_COLORS.GREY_7);
         this.animator.animate(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
         this.animator.animate(this.path, { duration: 800, ease: 'out' }, '<<+=200');
         this.animator.finalize();

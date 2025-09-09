@@ -1,14 +1,14 @@
 import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL_COLORS } from './utils/mtl-colors.ts';
+import { MTL_COLORS, MTL } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { easeCos } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2Timeline } from './animation/s2-timeline.ts';
 import { S2PlayableAnimation } from './animation/s2-animation-manager.ts';
-import type { S2Node } from './core/element/s2-node.ts';
+import { S2Node } from './core/element/s2-node.ts';
 
 /*
     TODO:
@@ -38,27 +38,22 @@ class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
-        const fillRect = this.addFillRect().setLayer(-1);
-        fillRect.color.copy(MTL_COLORS.GREY_8);
-        fillRect.opacity.set(1.0);
-        fillRect.update();
-
-        const grid = this.addGrid().setLayer(-1);
-        grid.strokeWidth.set(2, 'view');
-        grid.strokeColor.copy(MTL_COLORS.GREY_5);
-        grid.lowerBound.set(10, 10, 'view');
-        grid.upperBound.set(viewport.x - 10, viewport.y - 10, 'view');
-        grid.anchor.set(0, 0, 'world');
-        grid.steps.set(1, 1, 'world');
-        grid.update();
+        // Fill the background
+        this.addFillRect().setLayer(-1).setColorHex(MTL.GREY_8).update();
+        // Reference grid
+        this.addWorldGrid().setStrokeColorHex(MTL.GREY_6).update();
 
         this.anim = new S2Timeline(this);
 
         this.circle = this.addCircle();
-        this.circle.data.fill.color.copy(MTL_COLORS.GREY_6);
-        this.circle.data.stroke.color.copy(MTL_COLORS.GREY_4);
-        this.circle.setPosition(0, 0, 'world').setFillOpacity(1.0).setRadius(1, 'world').setStrokeWidth(4, 'view');
-        this.circle.update();
+        this.circle
+            .setPosition(0, 0, 'world')
+            .setFillOpacity(1.0)
+            .setRadius(1, 'world')
+            .setStrokeWidth(4, 'view')
+            .setFillColorHex(MTL.GREY_6)
+            .setStrokeColorHex(MTL.GREY_4)
+            .update();
 
         const lerpAnim1 = new S2LerpAnim(this)
             .addUpdateTarget(this.circle)
@@ -68,9 +63,7 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(500)
             .setEasing(easeCos);
 
-        this.circle.fillColor.copy(MTL_COLORS.BLUE_GREY_9);
-        this.circle.strokeColor.copy(MTL_COLORS.LIGHT_BLUE_5);
-        this.circle.fillOpacity.set(0.5);
+        this.circle.setFillColorHex(MTL.BLUE_GREY_9).setStrokeColorHex(MTL.LIGHT_BLUE_5).setFillOpacity(0.5);
 
         lerpAnim1.commitFinalStates();
 
@@ -86,7 +79,7 @@ class SceneFigure extends S2Scene {
         lerpAnim2.commitFinalStates();
 
         const node1 = this.addNode(1);
-        node1.setPosition(-5, 0, 'world').setAnchor('center').setPadding(20, 10, 'view');
+        node1.setPosition(-5, 0, 'world').setAnchor('center').setPadding(10, 8, 'view');
         node1.data.background.fill.color.copy(MTL_COLORS.GREY_6);
         node1.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
         node1.data.background.stroke.width.set(4, 'view');
@@ -104,13 +97,13 @@ class SceneFigure extends S2Scene {
 
         const lerpAnim3 = new S2LerpAnim(this)
             .addUpdateTarget(node1)
-            .bind(node1.data.position)
+            //.bind(node1.data.position)
             .bind(node1.getTextGroup(0).data.font.size)
             .setCycleDuration(500)
             .setEasing(easeCos);
 
-        node1.data.position.set(-5, 1, 'world');
-        node1.getTextGroup(0).data.font.size.set(25, 'view');
+        //node1.data.position.set(-5, 1, 'world');
+        node1.getTextGroup(0).data.font.size.set(40, 'view');
         lerpAnim3.commitFinalStates();
 
         this.anim.addAnimation(lerpAnim1);
@@ -123,13 +116,13 @@ class SceneFigure extends S2Scene {
         const playable = new S2PlayableAnimation(this.anim);
         playable.play(false).setSpeed(1);
 
-        const node2 = this.addNode();
+        const node2 = this.addNode().setPadding(10, 8, 'view');
         node2.data.position.set(3, 1, 'world');
         node2.data.anchor.set('center');
         node2.data.background.fill.color.copy(MTL_COLORS.GREY_6);
         node2.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
         node2.data.background.stroke.width.set(4, 'view');
-        node2.createCircleBackground();
+        node2.createRectBackground();
         node2.addLine().addContent('Hello World');
         node2.setLayer(1);
         //node2.data.background.transform.matrix.set(1, 1, -300, 0, 1, 0);

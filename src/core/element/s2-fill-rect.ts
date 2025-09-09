@@ -1,7 +1,7 @@
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
 import { S2Element } from './s2-element';
-import { S2Color, S2Number } from '../s2-types';
+import { S2Color, S2Number, S2TypeState } from '../s2-types';
 import { S2FillData, S2LayerData } from './s2-base-data';
 
 export class S2FillRectData extends S2LayerData {
@@ -37,6 +37,26 @@ export class S2FillRect extends S2Element<S2FillRectData> {
 
     get opacity(): S2Number {
         return this.data.fill.opacity;
+    }
+
+    setColor(color: S2Color): this {
+        this.data.fill.color.copy(color);
+        return this;
+    }
+
+    setColorHex(color: string, state: S2TypeState = S2TypeState.Active): this {
+        this.data.fill.color.setFromHex(color, state);
+        return this;
+    }
+
+    setColorRGB(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.fill.color.set(r, g, b, state);
+        return this;
+    }
+
+    setOpacity(opacity: number, state: S2TypeState = S2TypeState.Active): this {
+        this.data.fill.opacity.set(opacity, state);
+        return this;
     }
 
     getSVGElement(): SVGElement {

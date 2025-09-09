@@ -235,7 +235,7 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
 
         this.applyStyleToPath();
         this.path.data.space.set(space);
-        this.path.clear().setStartV(start).lineToV(end).update(updateId);
+        this.path.clear().moveToV(start).lineToV(end).update(updateId);
     }
 }
 
@@ -335,6 +335,6 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
 
         this.applyStyleToPath();
         this.path.data.space.set(space);
-        this.path.clear().setStartV(start).cubicToV(startDirection, endDirection, end).update(updateId);
+        this.path.clear().moveToV(start).cubicToV(startDirection, endDirection, end).update(updateId);
     }
 }

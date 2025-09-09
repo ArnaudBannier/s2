@@ -128,7 +128,7 @@ export class S2Number extends S2BaseType {
     }
 
     setParent(parent: S2Number | null = null): this {
-        this.state = parent ? S2TypeState.Inactive : S2TypeState.Active;
+        this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
         return this;
     }
@@ -317,10 +317,12 @@ export class S2Position extends S2BaseType {
     }
 
     lerp(state0: S2Position, state1: S2Position, t: number, camera: S2Camera): this {
-        const value0 = state0.getInherited(state1.space, camera);
-        const value1 = state1.getInherited(state1.space, camera);
+        const space = state1.space;
+        const value0 = state0.getInherited(space, camera);
+        const value1 = state1.getInherited(space, camera);
         this.value = S2Vec2.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
+        this.space = space;
         return this;
     }
 
@@ -444,10 +446,12 @@ export class S2Length extends S2BaseType {
     }
 
     lerp(state0: S2Length, state1: S2Length, t: number, camera: S2Camera): this {
-        const value0 = state0.getInherited(state1.space, camera);
-        const value1 = state1.getInherited(state1.space, camera);
+        const space = state1.space;
+        const value0 = state0.getInherited(space, camera);
+        const value1 = state1.getInherited(space, camera);
         this.value = S2MathUtils.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
+        this.space = space;
         return this;
     }
 
@@ -561,10 +565,12 @@ export class S2Extents extends S2BaseType {
     }
 
     lerp(state0: S2Extents, state1: S2Extents, t: number, camera: S2Camera): this {
-        const value0 = state0.getInherited(state1.space, camera);
-        const value1 = state1.getInherited(state1.space, camera);
+        const space = state1.space;
+        const value0 = state0.getInherited(space, camera);
+        const value1 = state1.getInherited(space, camera);
         this.value = S2Vec2.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
+        this.space = space;
         return this;
     }
 

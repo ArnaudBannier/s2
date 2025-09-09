@@ -1,6 +1,5 @@
-import type { S2Camera } from '../math/s2-camera';
 import { S2Mat2x3 } from '../math/s2-mat2x3';
-import type { S2LineCap, S2LineJoin } from '../s2-globals';
+import { type S2LineCap, type S2LineJoin } from '../s2-globals';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../s2-types';
 
@@ -171,20 +170,8 @@ export class S2FontData {
         this.size = new S2Length(16, 'view');
         this.weight = new S2Number(400);
         this.style = new S2Enum<S2FontStyle>('normal');
-        this.relativeLineHeight = new S2Number(20 / 16);
-        this.relativeAscenderHeight = new S2Number(14 / 16);
-    }
-
-    getInheritedSize(camera: S2Camera): number {
-        return this.size.getInherited('view', camera);
-    }
-
-    getInheritedRelativeLineHeight(): number {
-        return this.relativeLineHeight.getInherited();
-    }
-
-    getInheritedRelativeAscenderHeight(): number {
-        return this.relativeAscenderHeight.getInherited();
+        this.relativeLineHeight = new S2Number(21 / 16);
+        this.relativeAscenderHeight = new S2Number(16 / 16);
     }
 
     setParent(parent: S2FontData | null = null): void {

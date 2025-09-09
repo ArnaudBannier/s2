@@ -1,39 +1,39 @@
 import { type S2BaseScene } from '../s2-interface';
 import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
-import { S2Extents, S2Position } from '../s2-types';
+import { S2Extents, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { svgNS } from '../s2-globals';
 
 export class S2GridGeometryData {
-    public readonly lowerBound: S2Position;
-    public readonly upperBound: S2Position;
+    public readonly boundA: S2Position;
+    public readonly boundB: S2Position;
     public readonly steps: S2Extents;
-    public readonly anchor: S2Position;
+    public readonly referencePoint: S2Position;
 
     constructor() {
-        this.lowerBound = new S2Position(-8, -4.5, 'world');
-        this.upperBound = new S2Position(+8, +4.5, 'world');
+        this.boundA = new S2Position(-8, -4.5, 'world');
+        this.boundB = new S2Position(+8, +4.5, 'world');
         this.steps = new S2Extents(1, 1, 'world');
-        this.anchor = new S2Position(0, 0, 'world');
+        this.referencePoint = new S2Position(0, 0, 'world');
     }
 
     copy(other: S2GridGeometryData): void {
-        this.lowerBound.copy(other.lowerBound);
-        this.upperBound.copy(other.upperBound);
+        this.boundA.copy(other.boundA);
+        this.boundB.copy(other.boundB);
         this.steps.copy(other.steps);
-        this.anchor.copy(other.anchor);
+        this.referencePoint.copy(other.referencePoint);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         const epsilon = 1e-5;
         const camera = scene.getActiveCamera();
-        const lowerBound = this.lowerBound.toSpace('view', camera);
-        const upperBound = this.upperBound.toSpace('view', camera);
+        const boundA = this.boundA.toSpace('view', camera);
+        const boundB = this.boundB.toSpace('view', camera);
         const steps = this.steps.toSpace('view', camera);
-        const anchor = this.anchor.toSpace('view', camera);
-        const lowerX = Math.min(lowerBound.x, upperBound.x);
-        const upperX = Math.max(lowerBound.x, upperBound.x);
-        const lowerY = Math.min(lowerBound.y, upperBound.y);
-        const upperY = Math.max(lowerBound.y, upperBound.y);
+        const anchor = this.referencePoint.toSpace('view', camera);
+        const lowerX = Math.min(boundA.x, boundB.x);
+        const upperX = Math.max(boundA.x, boundB.x);
+        const lowerY = Math.min(boundA.y, boundB.y);
+        const upperY = Math.max(boundA.y, boundB.y);
         const startX = anchor.x - Math.floor((anchor.x - lowerX) / steps.x) * steps.x;
         const startY = anchor.y - Math.floor((anchor.y - lowerY) / steps.y) * steps.y;
         let d = '';
@@ -72,22 +72,43 @@ export class S2Grid extends S2TransformGraphic<S2GridData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2GridData());
         this.element = document.createElementNS(svgNS, 'path');
+        this.data.stroke.width.set(1, 'view', S2TypeState.Active);
     }
 
-    get lowerBound(): S2Position {
-        return this.data.geometry.lowerBound;
+    get boundA(): S2Position {
+        return this.data.geometry.boundA;
     }
 
-    get upperBound(): S2Position {
-        return this.data.geometry.upperBound;
+    get boundB(): S2Position {
+        return this.data.geometry.boundB;
     }
 
     get steps(): S2Extents {
         return this.data.geometry.steps;
     }
 
-    get anchor(): S2Position {
-        return this.data.geometry.anchor;
+    get referencePoint(): S2Position {
+        return this.data.geometry.referencePoint;
+    }
+
+    setBoundA(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.geometry.boundA.set(x, y, space, state);
+        return this;
+    }
+
+    setBoundB(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.geometry.boundB.set(x, y, space, state);
+        return this;
+    }
+
+    setSteps(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.geometry.steps.set(x, y, space, state);
+        return this;
+    }
+
+    setReferencePoint(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.geometry.referencePoint.set(x, y, space, state);
+        return this;
     }
 
     getSVGElement(): SVGElement {

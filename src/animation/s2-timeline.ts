@@ -22,7 +22,7 @@ class S2TimelinePart {
     }
 }
 
-type S2TimelinePositionTypes = 'absolute' | 'previous-start' | 'previous-end';
+export type S2TimelinePositionTypes = 'absolute' | 'previous-start' | 'previous-end';
 export class S2Timeline extends S2Animation {
     protected parts: S2TimelinePart[] = [];
     protected sortedStart: S2TimelinePart[] = [];

@@ -62,8 +62,12 @@ export class S2Rect extends S2ShapeGraphic<S2RectData> {
         return this.data.extents;
     }
 
-    get radius(): S2Length {
+    get cornerRadius(): S2Length {
         return this.data.cornerRadius;
+    }
+
+    get anchor(): S2Enum<S2Anchor> {
+        return this.data.anchor;
     }
 
     setCornerRadius(radius: number, space: S2Space): this {
@@ -87,6 +91,11 @@ export class S2Rect extends S2ShapeGraphic<S2RectData> {
 
     getExtents(space: S2Space): S2Vec2 {
         return this.data.extents.toSpace(space, this.scene.getActiveCamera());
+    }
+
+    setAnchor(anchor: S2Anchor): this {
+        this.data.anchor.set(anchor);
+        return this;
     }
 
     getSVGElement(): SVGElement {

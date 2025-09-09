@@ -12,34 +12,12 @@ import { S2CubicEdge, S2LineEdge } from './element/s2-edge';
 import { S2Position } from './s2-types';
 import { type S2BaseContainer } from './element/s2-container';
 import { type S2BaseElement } from './element/s2-element';
-import { type S2BaseScene } from './s2-interface';
+import { S2BaseScene } from './s2-interface';
 import { S2Line } from './element/s2-line';
 
-export class S2Scene implements S2BaseScene {
-    readonly svg: S2SVG;
-    protected activeCamera: S2Camera;
-    private nextElementId: number;
-    private nextUpdateId: number;
-
-    getNextElementId(): number {
-        return this.nextElementId++;
-    }
-
-    getNextUpdateId(): number {
-        return this.nextUpdateId++;
-    }
-
-    getActiveCamera(): S2Camera {
-        return this.activeCamera;
-    }
-
+export class S2Scene extends S2BaseScene {
     constructor(element: SVGSVGElement, camera: S2Camera) {
-        this.activeCamera = camera;
-        this.svg = new S2SVG(this, element);
-        element.innerHTML = '';
-        this.svg.update();
-        this.nextElementId = 0;
-        this.nextUpdateId = 0;
+        super(element, camera);
     }
 
     addCircle(parent: S2BaseContainer = this.svg): S2Circle {
@@ -62,6 +40,19 @@ export class S2Scene implements S2BaseScene {
 
     addGrid(parent: S2BaseContainer = this.svg): S2Grid {
         const child = new S2Grid(this);
+        parent.appendChild(child);
+        return child;
+    }
+
+    addWorldGrid(parent: S2BaseContainer = this.svg): S2Grid {
+        const child = new S2Grid(this);
+        const viewport = this.getActiveCamera().viewport;
+        child
+            .setBoundA(0, 0, 'view')
+            .setBoundB(viewport.x, viewport.y, 'view')
+            .setReferencePoint(0, 0, 'world')
+            .setSteps(1, 1, 'world')
+            .setStrokeWidth(1, 'view');
         parent.appendChild(child);
         return child;
     }

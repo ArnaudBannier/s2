@@ -5,7 +5,7 @@ import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
 import { S2TransformGraphicData } from './s2-transform-graphic';
 import { S2Color, S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
-import { S2TextGroup, S2TextLine, type S2TextAlign as S2HorizontalAlign, type S2VerticalAlign } from './s2-text-group';
+import { S2TextGroup, S2TextLine, type S2HorizontalAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
 import { S2Element, type S2BaseElement } from './s2-element';
@@ -63,11 +63,14 @@ export class S2NodeTextData extends S2TransformGraphicData {
     }
 }
 
+export class S2NodeSeparatorData extends S2TransformGraphicData {}
+
 export class S2NodeData extends S2LayerData {
     public readonly position: S2Position;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly background: S2NodeBackgroundData;
     public readonly text: S2NodeTextData;
+    public readonly separator: S2NodeSeparatorData;
     public readonly padding: S2Extents;
     public readonly partSep: S2Length;
     public readonly minExtents: S2Extents;
@@ -78,6 +81,7 @@ export class S2NodeData extends S2LayerData {
         this.anchor = new S2Enum<S2Anchor>('center');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.background = new S2NodeBackgroundData();
+        this.separator = new S2NodeSeparatorData();
         this.text = new S2NodeTextData();
         this.padding = new S2Extents(10, 5, 'view');
         this.partSep = new S2Length(5, 'view');
@@ -89,6 +93,7 @@ export class S2NodeData extends S2LayerData {
         this.minExtents.copy(other.minExtents);
         this.anchor.copy(other.anchor);
         this.background.copy(other.background);
+        this.separator.copy(other.separator);
         this.text.copy(other.text);
         this.padding.copy(other.padding);
         this.partSep.copy(other.partSep);
@@ -118,7 +123,7 @@ export class S2Node extends S2Element<S2NodeData> {
             textGroup.setLayer(2);
             textGroup.data.setParent(this.data.text);
             textGroup.data.font.setParent(this.data.text.font);
-            textGroup.data.textAlign.setParent(this.data.text.horizontalAlign);
+            textGroup.data.horizontalAlign.setParent(this.data.text.horizontalAlign);
             textGroup.data.verticalAlign.setParent(this.data.text.verticalAlign);
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
@@ -127,6 +132,7 @@ export class S2Node extends S2Element<S2NodeData> {
         this.sepLines = [];
         for (let i = 0; i < partCount - 1; i++) {
             const line = new S2Line(this.scene).setLayer(1);
+            line.data.setParent(this.data.separator);
             this.sepLines.push(line);
             this.mainGroup.appendChild(line);
         }
@@ -260,7 +266,6 @@ export class S2Node extends S2Element<S2NodeData> {
     addLine(options?: { partIndex?: number; align?: S2HorizontalAlign; skip?: number }): S2TextLine {
         const index = clamp(options?.partIndex ?? 0, 0, this.textGroups.length - 1);
         const textLine = this.textGroups[index].addLine(options);
-        textLine.data.font.setParent(this.data.text.font);
         return textLine;
     }
 

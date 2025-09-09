@@ -3,7 +3,7 @@ import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, svgNS } from '../s2-globals';
 import { S2TransformGraphicData } from './s2-transform-graphic';
 import { S2BaseText, S2TextData } from './s2-text';
-import { S2Enum, S2Extents, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2Container } from './s2-container';
 import { S2FontData } from './s2-base-data';
 
@@ -16,17 +16,17 @@ import { S2FontData } from './s2-base-data';
 // "font-variant"
 // "font-weight"
 
-export type S2TextAlign = 'left' | 'center' | 'right';
+export type S2HorizontalAlign = 'left' | 'center' | 'right';
 export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 
 export class S2TextLineData extends S2TextData {
-    public readonly skip: S2Number;
-    public readonly align: S2Enum<S2TextAlign>;
+    public readonly skip: S2Length;
+    public readonly align: S2Enum<S2HorizontalAlign>;
 
     constructor() {
         super();
-        this.skip = new S2Number(0);
-        this.align = new S2Enum<S2TextAlign>('left', S2TypeState.Inactive);
+        this.skip = new S2Length(0, 'view');
+        this.align = new S2Enum<S2HorizontalAlign>('left', S2TypeState.Inactive);
     }
 
     setParent(parent: S2TextLineData | null = null): void {
@@ -47,7 +47,7 @@ export class S2TextLine extends S2BaseText<S2TextLineData> {
         super(scene, new S2TextLineData());
     }
 
-    get skip(): S2Number {
+    get skip(): S2Length {
         return this.data.skip;
     }
 }
@@ -57,7 +57,7 @@ export class S2TextGroupData extends S2TransformGraphicData {
     public readonly position: S2Position;
     public readonly minExtents: S2Extents;
     public readonly anchor: S2Enum<S2Anchor>;
-    public readonly textAlign: S2Enum<S2TextAlign>;
+    public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
     public readonly verticalAlign: S2Enum<S2VerticalAlign>;
 
     constructor() {
@@ -65,7 +65,7 @@ export class S2TextGroupData extends S2TransformGraphicData {
         this.font = new S2FontData();
         this.position = new S2Position(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
-        this.textAlign = new S2Enum<S2TextAlign>('center');
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
         this.minExtents = new S2Extents(0, 0, 'view');
     }
@@ -76,7 +76,7 @@ export class S2TextGroupData extends S2TransformGraphicData {
         this.minExtents.copy(other.minExtents);
         this.font.copy(other.font);
         this.anchor.copy(other.anchor);
-        this.textAlign.copy(other.textAlign);
+        this.horizontalAlign.copy(other.horizontalAlign);
         this.verticalAlign.copy(other.verticalAlign);
     }
 
@@ -105,13 +105,13 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         return this.data.minExtents;
     }
 
-    addLine(options?: { align?: S2TextAlign; skip?: number }): S2TextLine {
+    addLine(options?: { align?: S2HorizontalAlign; skip?: number }): S2TextLine {
         const textLine = new S2TextLine(this.scene);
         textLine.data.font.setParent(this.data.font);
         textLine.data.fill.setParent(this.data.fill);
         textLine.data.stroke.setParent(this.data.stroke);
         textLine.data.opacity.setParent(this.data.opacity);
-        textLine.data.align.setParent(this.data.textAlign);
+        textLine.data.align.setParent(this.data.horizontalAlign);
 
         if (options?.align) {
             textLine.data.align.set(options.align);
@@ -123,15 +123,15 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         return textLine;
     }
 
-    getTextExtents(space: S2Space = this.textExtents.space): S2Vec2 {
+    getTextExtents(space: S2Space): S2Vec2 {
         return this.textExtents.toSpace(space, this.scene.getActiveCamera());
     }
 
-    getExtents(space: S2Space = this.extents.space): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.extents.toSpace(space, this.scene.getActiveCamera());
     }
 
-    getCenter(space: S2Space = this.data.position.space): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         return S2AnchorUtils.getCenter(
             this.data.anchor.getInherited(),
             space,
@@ -143,20 +143,28 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
 
     updateExtents(): void {
         const camera = this.scene.getActiveCamera();
+        const space = 'view';
+
+        // Apply font to group element to ensure correct measurement of bounding boxes
+        this.data.font.applyToElement(this.element, this.scene);
+
         let maxWidth = 0;
         let totalHeight = 0;
-        for (const line of this.children) {
+        for (let i = 0; i < this.children.length; i++) {
+            const line = this.children[i];
             const bbox = line.getBBox();
-            const size = line.data.font.getInheritedSize(camera);
-            const relativeLineHeight = line.data.font.getInheritedRelativeLineHeight();
-            maxWidth = bbox.width > maxWidth ? bbox.width : maxWidth;
-            totalHeight += line.data.skip.value + relativeLineHeight * size;
+            const font = line.data.font;
+            const relativeHeight = font.relativeLineHeight.getInherited();
+            const size = font.size.getInherited(space, camera);
+            maxWidth = Math.max(bbox.width, maxWidth);
+            totalHeight += line.data.skip.value + relativeHeight * size;
         }
         const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
-        const minExtents = this.data.minExtents.toSpace('view', camera);
+        const minExtents = this.data.minExtents.toSpace(space, camera);
         const extents = minExtents.maxV(textExtents);
-        this.textExtents.setValueFromSpace('view', camera, textExtents.x, textExtents.y);
-        this.extents.setValueFromSpace('view', camera, extents.x, extents.y);
+
+        this.textExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
+        this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
     }
 
     protected updateImpl(updateId?: number): void {
@@ -171,7 +179,7 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
         const groupNW = this.getCenter('view').subV(groupExtents); // TODO
         const firstLineFont = this.children[0].data.font;
         const ascenderHeight =
-            firstLineFont.getInheritedRelativeAscenderHeight() * firstLineFont.getInheritedSize(camera);
+            firstLineFont.relativeAscenderHeight.getInherited() * firstLineFont.size.getInherited('view', camera);
 
         let lineX = 0;
         let lineY = groupNW.y + ascenderHeight;
@@ -188,7 +196,7 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGrou
 
         for (const line of this.children) {
             const font = line.data.font;
-            const lineHeight = font.getInheritedRelativeLineHeight() * font.getInheritedSize(camera);
+            const lineHeight = font.relativeLineHeight.getInherited() * font.size.getInherited('view', camera);
             switch (line.data.align.getInherited()) {
                 //switch (line.data.align ?? this.data.textAlign) {
                 case 'left':
