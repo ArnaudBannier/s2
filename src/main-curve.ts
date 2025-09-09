@@ -1,7 +1,7 @@
 import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL } from './utils/mtl-colors.ts';
+import { MTL_HEX } from './utils/mtl-colors.ts';
 import { type S2SVGAttributes } from './core/s2-globals.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { invLerp } from './core/math/s2-utils.ts';
@@ -15,22 +15,26 @@ class SceneFigure extends S2Scene {
     protected path: S2Path;
     protected tangent: S2Line;
     protected tangentStyle: S2SVGAttributes = {
-        stroke: MTL.RED,
+        stroke: MTL_HEX.RED,
         'stroke-width': '3',
     };
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
-        this.addFillRect().setSVGAttribute('fill', MTL.GREY_2);
+        this.addFillRect().setSVGAttribute('fill', MTL_HEX.GREY_2);
 
         const pathStyle: S2SVGAttributes = {
-            stroke: MTL.GREEN,
+            stroke: MTL_HEX.GREEN,
             'stroke-width': '6',
             'fill-opacity': '0',
         };
 
-        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setSVGAttribute('stroke', MTL.GREY);
+        this.addGrid()
+            .setExtents(8, 5)
+            .setSteps(1, 1)
+            .setStrokeWidth(2, 'view')
+            .setSVGAttribute('stroke', MTL_HEX.GREY);
 
         const p0 = new S2Vec2(-3, -2);
         const co0 = new S2Vec2(4, 8);

@@ -1,7 +1,7 @@
 import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL_COLORS } from './utils/mtl-colors.ts';
+import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle, S2CircleData } from './core/element/s2-circle.ts';
 import { S2Path } from './core/element/s2-path.ts';
 import { S2Scene } from './core/s2-scene.ts';
@@ -57,17 +57,17 @@ class SceneFigure extends S2Scene {
         super(svgElement, camera);
 
         const circleStyle = new S2CircleData();
-        circleStyle.fill.color.copy(MTL_COLORS.GREY_6);
-        circleStyle.stroke.color.copy(MTL_COLORS.GREY_4);
+        circleStyle.fill.color.copy(MTL.GREY_6);
+        circleStyle.stroke.color.copy(MTL.GREY_4);
         circleStyle.stroke.width.set(4, 'view');
         circleStyle.fill.opacity.set(1.0);
         circleStyle.radius.set(1, 'world');
 
-        this.addFillRect().setColor(MTL_COLORS.GREY_8);
-        this.addWorldGrid().setStrokeColor(MTL_COLORS.GREY_6);
+        this.addFillRect().setColor(MTL.GREY_8);
+        this.addWorldGrid().setStrokeColor(MTL.GREY_6);
 
         this.path = this.addPath();
-        this.path.setStrokeColor(MTL_COLORS.CYAN_5).setStrokeWidth(4, 'view').setStrokeLineCap('round');
+        this.path.setStrokeColor(MTL.CYAN_5).setStrokeWidth(4, 'view').setStrokeLineCap('round');
         this.path.setSpace('world').moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0).update();
         this.path.setPathFrom(0.2).setPathTo(0.9);
 
@@ -83,9 +83,9 @@ class SceneFigure extends S2Scene {
 
         const group = this.addGroup<S2Circle>();
 
-        const circle1 = this.addCircle(group).setPosition(3, 0).setFillColor(MTL_COLORS.RED_5);
-        const circle2 = this.addCircle(group).setPosition(4, 0).setFillColor(MTL_COLORS.GREEN_5);
-        const circle3 = this.addCircle(group).setPosition(3.5, 0.5).setFillColor(MTL_COLORS.BLUE_5);
+        const circle1 = this.addCircle(group).setPosition(3, 0).setFillColor(MTL.RED_5);
+        const circle2 = this.addCircle(group).setPosition(4, 0).setFillColor(MTL.GREEN_5);
+        const circle3 = this.addCircle(group).setPosition(3.5, 0.5).setFillColor(MTL.BLUE_5);
 
         circle1.setLayer(-2);
         circle2.setLayer(1);

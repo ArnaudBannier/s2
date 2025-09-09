@@ -1,7 +1,7 @@
 import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL_COLORS, MTL } from './utils/mtl-colors.ts';
+import { MTL, MTL_HEX } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { easeCos } from './animation/s2-easing.ts';
@@ -39,9 +39,9 @@ class SceneFigure extends S2Scene {
         super(svgElement, camera);
 
         // Fill the background
-        this.addFillRect().setLayer(-1).setColorHex(MTL.GREY_8).update();
+        this.addFillRect().setLayer(-1).setColorHex(MTL_HEX.GREY_8).update();
         // Reference grid
-        this.addWorldGrid().setStrokeColorHex(MTL.GREY_6).update();
+        this.addWorldGrid().setStrokeColorHex(MTL_HEX.GREY_6).update();
 
         this.anim = new S2Timeline(this);
 
@@ -51,8 +51,8 @@ class SceneFigure extends S2Scene {
             .setFillOpacity(1.0)
             .setRadius(1, 'world')
             .setStrokeWidth(4, 'view')
-            .setFillColorHex(MTL.GREY_6)
-            .setStrokeColorHex(MTL.GREY_4)
+            .setFillColorHex(MTL_HEX.GREY_6)
+            .setStrokeColorHex(MTL_HEX.GREY_4)
             .update();
 
         const lerpAnim1 = new S2LerpAnim(this)
@@ -63,7 +63,7 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(500)
             .setEasing(easeCos);
 
-        this.circle.setFillColorHex(MTL.BLUE_GREY_9).setStrokeColorHex(MTL.LIGHT_BLUE_5).setFillOpacity(0.5);
+        this.circle.setFillColorHex(MTL_HEX.BLUE_GREY_9).setStrokeColorHex(MTL_HEX.LIGHT_BLUE_5).setFillOpacity(0.5);
 
         lerpAnim1.commitFinalStates();
 
@@ -74,14 +74,14 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(500)
             .setEasing(easeCos);
 
-        this.circle.fillColor.copy(MTL_COLORS.RED_8);
-        this.circle.strokeColor.copy(MTL_COLORS.RED_1);
+        this.circle.fillColor.copy(MTL.RED_8);
+        this.circle.strokeColor.copy(MTL.RED_1);
         lerpAnim2.commitFinalStates();
 
         const node1 = this.addNode(1);
         node1.setPosition(-5, 0, 'world').setAnchor('center').setPadding(10, 8, 'view');
-        node1.data.background.fill.color.copy(MTL_COLORS.GREY_6);
-        node1.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
+        node1.data.background.fill.color.copy(MTL.GREY_6);
+        node1.data.background.stroke.color.copy(MTL.GREY_4);
         node1.data.background.stroke.width.set(4, 'view');
         node1.data.text.font.size.set(20, 'view');
         node1.data.text.horizontalAlign.set('left');
@@ -119,8 +119,8 @@ class SceneFigure extends S2Scene {
         const node2 = this.addNode().setPadding(10, 8, 'view');
         node2.data.position.set(3, 1, 'world');
         node2.data.anchor.set('center');
-        node2.data.background.fill.color.copy(MTL_COLORS.GREY_6);
-        node2.data.background.stroke.color.copy(MTL_COLORS.GREY_4);
+        node2.data.background.fill.color.copy(MTL.GREY_6);
+        node2.data.background.stroke.color.copy(MTL.GREY_4);
         node2.data.background.stroke.width.set(4, 'view');
         node2.createRectBackground();
         node2.addLine().addContent('Hello World');
@@ -129,7 +129,7 @@ class SceneFigure extends S2Scene {
         node2.update();
 
         const edge = this.addCubicEdge(node1, node2);
-        edge.data.stroke.color.copy(MTL_COLORS.RED_5);
+        edge.data.stroke.color.copy(MTL.RED_5);
         edge.setStrokeLineCap('round').setStrokeWidth(8, 'view').setLayer(0);
         edge.data.startDistance.set(20, 'view');
         edge.data.endDistance.set(20, 'view');

@@ -1,7 +1,7 @@
 import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL } from './utils/mtl-colors.ts';
+import { MTL_HEX } from './utils/mtl-colors.ts';
 import { S2Node } from './core/element/s2-node.ts';
 import { lerp } from './core/math/s2-utils.ts';
 import { S2LineEdge } from './core/element/s2-edge.ts';
@@ -19,23 +19,27 @@ class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
-        this.addRect().setPosition(0, 0, 'view').setExtentsV(viewport).setSVGAttribute('fill', MTL.GREY_1);
+        this.addRect().setPosition(0, 0, 'view').setExtentsV(viewport).setSVGAttribute('fill', MTL_HEX.GREY_1);
 
         const style = this.addStyle();
-        style.addRule('.s2-node-background', { fill: MTL.BLUE_3, stroke: MTL.BLUE_8 });
-        style.addRule('circle', { fill: MTL.BLUE });
+        style.addRule('.s2-node-background', { fill: MTL_HEX.BLUE_3, stroke: MTL_HEX.BLUE_8 });
+        style.addRule('circle', { fill: MTL_HEX.BLUE });
         style.addRule('.line', {
-            stroke: MTL.BLUE_8,
+            stroke: MTL_HEX.BLUE_8,
             'stroke-width': '4',
             'fill-opacity': '0',
         });
         const sepStyle: S2SVGAttributes = {
-            stroke: MTL.BLUE_8,
+            stroke: MTL_HEX.BLUE_8,
             'stroke-width': '4',
         };
         style.update();
 
-        this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setSVGAttribute('stroke', MTL.GREY);
+        this.addGrid()
+            .setExtents(8, 5)
+            .setSteps(1, 1)
+            .setStrokeWidth(2, 'view')
+            .setSVGAttribute('stroke', MTL_HEX.GREY);
 
         for (let i = 0; i < 2; i++) {
             const node = this.addNode(3);

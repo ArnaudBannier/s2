@@ -1,5 +1,5 @@
 import { S2Color } from '../core/s2-types';
-export const MTL_COLORS: Record<string, S2Color> = {
+export const MTL: Record<string, S2Color> = {
     // RED: new S2Color(0xf4, 0x43, 0x36),
     // PINK: new S2Color(0xe9, 0x1e, 0x63),
     // PURPLE: new S2Color(0x9c, 0x27, 0xb0),
@@ -211,9 +211,9 @@ export const MTL_COLORS: Record<string, S2Color> = {
     BLUE_GREY_7: new S2Color(0x45, 0x5a, 0x64),
     BLUE_GREY_8: new S2Color(0x37, 0x47, 0x4f),
     BLUE_GREY_9: new S2Color(0x26, 0x32, 0x38),
-};
+} as const;
 
-export const MTL = {
+export const MTL_HEX = {
     RED: '#F44336',
     PINK: '#E91E63',
     PURPLE: '#9C27B0',

@@ -1,7 +1,7 @@
 import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL, MTL_COLORS } from './utils/mtl-colors.ts';
+import { MTL_HEX, MTL } from './utils/mtl-colors.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { type S2SVGAttributes } from './core/s2-globals.ts';
 import { S2Node } from './core/element/s2-node.ts';
@@ -18,39 +18,39 @@ const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport
 class BTreeStyle {
     // Background
     public backBase = new S2Attributes({
-        fillColor: MTL_COLORS.GREY_6,
-        strokeColor: MTL_COLORS.GREY_4,
+        fillColor: MTL.GREY_6,
+        strokeColor: MTL.GREY_4,
         strokeWidth: new S2Length(4, 'view'),
     });
     public backSlct = new S2Attributes({
-        fillColor: MTL_COLORS.GREY_8,
-        strokeColor: MTL_COLORS.LIGHT_BLUE_6,
+        fillColor: MTL.GREY_8,
+        strokeColor: MTL.LIGHT_BLUE_6,
         strokeWidth: new S2Length(4, 'view'),
-        textFillColor: MTL_COLORS.WHITE,
+        textFillColor: MTL.WHITE,
     });
     public backExpl = new S2Attributes({
-        fillColor: MTL_COLORS.LIGHT_BLUE_7,
-        strokeColor: MTL_COLORS.LIGHT_BLUE_3,
+        fillColor: MTL.LIGHT_BLUE_7,
+        strokeColor: MTL.LIGHT_BLUE_3,
         strokeWidth: new S2Length(6, 'view'),
-        textFillColor: MTL_COLORS.WHITE,
+        textFillColor: MTL.WHITE,
     });
 
     // Edge
     public edgeBase = new S2Attributes({
-        strokeColor: MTL_COLORS.GREY_6,
+        strokeColor: MTL.GREY_6,
         strokeWidth: new S2Length(4, 'view'),
         lineCap: 'round',
     });
     public edgeEmph = new S2Attributes({
-        strokeColor: MTL_COLORS.WHITE,
+        strokeColor: MTL.WHITE,
         strokeWidth: new S2Length(6, 'view'),
         lineCap: 'round',
     });
     public edgeSlct = new S2Attributes({
-        strokeColor: MTL_COLORS.LIGHT_BLUE_6,
+        strokeColor: MTL.LIGHT_BLUE_6,
     });
     public edgeExpl = new S2Attributes({
-        strokeColor: MTL_COLORS.GREY_7,
+        strokeColor: MTL.GREY_7,
     });
     public edgeOpts: S2EdgeOptions = {
         startDistance: new S2Length(0, 'view'),
@@ -59,7 +59,7 @@ class BTreeStyle {
 
     // Text
     public text: S2SVGAttributes = {
-        fill: MTL.WHITE,
+        fill: MTL_HEX.WHITE,
         'font-family': 'monospace',
         'font-size': '20px',
     };
@@ -236,7 +236,7 @@ class SceneFigure extends S2AnimatedScene {
         order: 'in-order' | 'pre-order' | 'post-order',
     ) {
         super(svgElement, camera);
-        this.addFillRect().setFillColor(MTL_COLORS.GREY_8);
+        this.addFillRect().setFillColor(MTL.GREY_8);
         //this.addGrid().setExtents(8, 5).setSteps(1, 1).setStrokeWidth(2, 'view').setStrokeColor(MTL_COLORS.GREY_7);
 
         // Tree
