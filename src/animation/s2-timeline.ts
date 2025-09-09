@@ -30,6 +30,7 @@ export class S2Timeline extends S2Animation {
 
     constructor(scene: S2BaseScene) {
         super(scene);
+        this.cycleDuration = 0;
     }
 
     addAnimation(animation: S2Animation, position: S2TimelinePositionTypes = 'previous-end', offset: number = 0): this {
@@ -52,12 +53,16 @@ export class S2Timeline extends S2Animation {
         start = Math.max(0, start);
         const end = start + animation.getDuration();
         const part = new S2TimelinePart(animation, start);
-        this.cycleDuration = Math.max(this.cycleDuration, end);
         this.parts.push(part);
         this.sortedStart.push(part);
         this.sortedEnd.push(part);
         this.sortedStart.sort((a, b) => a.start - b.start);
         this.sortedEnd.sort((a, b) => a.end - b.end);
+
+        console.log(`Added animation at ${start}..${end} (duration=${animation.getDuration()})`);
+
+        this.cycleDuration = Math.max(this.cycleDuration, end);
+        this.updateRawDuration();
         return this;
     }
 

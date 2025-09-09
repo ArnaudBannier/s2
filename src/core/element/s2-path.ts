@@ -50,8 +50,6 @@ export class S2PathUtils {
         camera: S2Camera,
         space: S2Space,
     ): string {
-        const curveCount = polyCurve.getCurveCount();
-        if (curveCount === 0 || pathFrom >= pathTo) return '';
         if (pathFrom > 0 && pathTo < 1) {
             polyCurve = polyCurve.createPartialCurveRange(pathFrom, pathTo);
         } else if (pathFrom > 0) {
@@ -59,6 +57,9 @@ export class S2PathUtils {
         } else if (pathTo < 1) {
             polyCurve = polyCurve.createPartialCurveTo(pathTo);
         }
+
+        const curveCount = polyCurve.getCurveCount();
+        if (curveCount <= 0 || pathFrom >= pathTo) return '';
 
         let svgPath = '';
         let currStart = polyCurve.getCurve(0).getStart();

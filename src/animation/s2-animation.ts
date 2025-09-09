@@ -110,13 +110,13 @@ export abstract class S2Animation {
 
     setCycleCount(cycleCount: number): this {
         this.cycleCount = cycleCount;
-        this.rawDuration = this.cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);
+        this.updateRawDuration();
         return this;
     }
 
     setCycleDuration(cycleDuration: number): this {
         this.cycleDuration = cycleDuration;
-        this.rawDuration = cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);
+        this.updateRawDuration();
         return this;
     }
 
@@ -157,5 +157,9 @@ export abstract class S2Animation {
     protected applyFinalStateImpl(): void {}
     protected setElapsedImpl(updateId?: number): void {
         void updateId;
+    }
+
+    protected updateRawDuration(): void {
+        this.rawDuration = this.cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);
     }
 }

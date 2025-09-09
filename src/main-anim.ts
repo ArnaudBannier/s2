@@ -74,7 +74,7 @@ class SceneFigure extends S2Scene {
         this.path = this.addPath();
         this.path.setStrokeColor(MTL.CYAN_5).setStrokeWidth(4, 'view').setStrokeLineCap('round');
         this.path.setSpace('world').moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0).update();
-        this.path.setPathFrom(0.1).setPathTo(1.0).update();
+        this.path.setPathFrom(0.0).setPathTo(0.0).update();
 
         this.circle = this.addCircle();
         this.circle.data.copy(circleStyle);
@@ -108,18 +108,29 @@ class SceneFigure extends S2Scene {
 
         let anim = new S2LerpAnim(this)
             .addUpdateTarget(this.path)
-            .bind(this.path.pathFrom)
             .bind(this.path.pathTo)
-            .setCycleDuration(1000)
+            .setCycleDuration(2000)
             .setEasing(easeInOut);
 
-        this.path.setPathFrom(0.0).setPathTo(0.7).update();
+        this.path.setPathTo(1.0).update();
         anim.commitFinalStates();
 
         this.animator.addAnimation(anim);
+
+        anim = new S2LerpAnim(this)
+            .addUpdateTarget(this.path)
+            .bind(this.path.pathFrom)
+            .setCycleDuration(1000)
+            .setEasing(easeInOut);
+
+        this.path.setPathFrom(1.0).update();
+        anim.commitFinalStates();
+
+        this.animator.addAnimation(anim, 'previous-start', 1000);
+
         this.animator.finalize();
 
-        this.animator.getPlayableStep(0).play();
+        this.animator.getPlayableStep(0).play(true);
 
         // this.path.setPathRange(0.2, 0.5);
         // this.circle.setAttributes(this.styles.backSlct);
