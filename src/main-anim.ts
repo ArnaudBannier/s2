@@ -5,6 +5,9 @@ import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle, S2CircleData } from './core/element/s2-circle.ts';
 import { S2Path } from './core/element/s2-path.ts';
 import { S2Scene } from './core/s2-scene.ts';
+import { S2Animator } from './animation/s2-animator.ts';
+import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
+import { easeInOut } from './animation/s2-easing.ts';
 
 /*
     TODO:
@@ -31,6 +34,7 @@ const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
     protected path: S2Path;
+    protected animator: S2Animator;
     //protected node: S2Node;
     // protected styles = {
     //     backBase: new S2Attributes({
@@ -55,6 +59,7 @@ class SceneFigure extends S2Scene {
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
+        this.animator = new S2Animator(this);
 
         const circleStyle = new S2CircleData();
         circleStyle.fill.color.copy(MTL.GREY_6);
@@ -69,7 +74,7 @@ class SceneFigure extends S2Scene {
         this.path = this.addPath();
         this.path.setStrokeColor(MTL.CYAN_5).setStrokeWidth(4, 'view').setStrokeLineCap('round');
         this.path.setSpace('world').moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0).update();
-        this.path.setPathFrom(0.2).setPathTo(0.9);
+        this.path.setPathFrom(0.1).setPathTo(1.0).update();
 
         this.circle = this.addCircle();
         this.circle.data.copy(circleStyle);
@@ -100,6 +105,22 @@ class SceneFigure extends S2Scene {
         // this.animator.saveState(this.circle);
         // this.animator.saveState(this.path);
         // this.animator.saveState(this.node);
+
+        let anim = new S2LerpAnim(this)
+            .addUpdateTarget(this.path)
+            .bind(this.path.pathFrom)
+            .bind(this.path.pathTo)
+            .setCycleDuration(1000)
+            .setEasing(easeInOut);
+
+        this.path.setPathFrom(0.0).setPathTo(0.7).update();
+        anim.commitFinalStates();
+
+        this.animator.addAnimation(anim);
+        this.animator.finalize();
+
+        this.animator.getPlayableStep(0).play();
+
         // this.path.setPathRange(0.2, 0.5);
         // this.circle.setAttributes(this.styles.backSlct);
         // this.node.setAttributes(this.styles.backSlct);
