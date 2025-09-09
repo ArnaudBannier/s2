@@ -29,6 +29,11 @@ export abstract class S2Element<Data extends S2LayerData> {
         return this;
     }
 
+    setIsActive(isActive: boolean): this {
+        this.data.isActive = isActive;
+        return this;
+    }
+
     setParent(parent: S2BaseElement | null): this {
         if (this.parent === parent) return this;
         if (this.parent !== null) {

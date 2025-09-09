@@ -9,7 +9,8 @@ export class S2SVG extends S2Container<SVGElement, S2BaseElement, S2TransformGra
     }
 
     protected updateImpl(updateId?: number): void {
-        super.updateImpl(updateId);
+        void updateId;
+        //super.updateImpl(updateId);
         this.data.applyToElement(this.element, this.scene);
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('viewBox', `0 0 ${camera.viewport.width} ${camera.viewport.height}`);

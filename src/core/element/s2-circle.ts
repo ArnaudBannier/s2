@@ -1,7 +1,7 @@
 import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../s2-globals';
-import { type S2Space, S2Length } from '../s2-types';
+import { type S2Space, S2Length, S2TypeState } from '../s2-types';
 import { S2ShapeGraphic, S2ShapeGraphicData } from './s2-shape-graphic';
 
 export class S2CircleData extends S2ShapeGraphicData {
@@ -9,7 +9,7 @@ export class S2CircleData extends S2ShapeGraphicData {
 
     constructor() {
         super();
-        this.radius = new S2Length(1, 'view');
+        this.radius = new S2Length(1, 'world');
     }
 
     copy(other: S2CircleData): void {
@@ -40,8 +40,8 @@ export class S2Circle extends S2ShapeGraphic<S2CircleData> {
         return this.data.radius;
     }
 
-    setRadius(radius: number, space: S2Space): this {
-        this.data.radius.set(radius, space);
+    setRadius(radius: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.radius.set(radius, space, state);
         return this;
     }
 

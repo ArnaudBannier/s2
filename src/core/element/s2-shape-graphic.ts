@@ -1,6 +1,6 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
-import { S2Position, type S2Space } from '../s2-types';
+import { S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
 
 export class S2ShapeGraphicData extends S2TransformGraphicData {
@@ -35,13 +35,13 @@ export abstract class S2ShapeGraphic<Data extends S2ShapeGraphicData> extends S2
         return this.data.position;
     }
 
-    setPosition(x: number, y: number, space: S2Space): this {
-        this.data.position.set(x, y, space);
+    setPosition(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.position.set(x, y, space, state);
         return this;
     }
 
-    setPositionV(v: S2Vec2, space: S2Space): this {
-        this.data.position.setV(v, space);
+    setPositionV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.position.setV(v, space, state);
         return this;
     }
 

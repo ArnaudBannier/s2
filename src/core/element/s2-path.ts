@@ -60,32 +60,37 @@ export class S2PathUtils {
             polyCurve = polyCurve.createPartialCurveTo(pathTo);
         }
 
-        let prevEnd: S2Vec2 | null = null;
         let svgPath = '';
+        let currStart = polyCurve.getCurve(0).getStart();
+        let prevEnd = new S2Vec2(Infinity, Infinity);
+
         for (let i = 0; i < curveCount; i++) {
             const curve = polyCurve.getCurve(i);
-            const start = curve.getStart();
-            if (prevEnd === null || !S2Vec2.eq(start, prevEnd)) {
-                const point = S2Position.toSpace(start, space, 'view', camera);
-                svgPath += ` M ${point.x} ${point.y}`;
-            } else if (S2Vec2.eq(start, prevEnd)) {
-                svgPath += ' Z';
+
+            if (!S2Vec2.eq(prevEnd, curve.getStart())) {
+                const point = S2Position.toSpace(currStart, space, 'view', camera);
+                svgPath += `M ${point.x},${point.y} `;
             }
 
             if (curve instanceof S2LineCurve) {
                 const point = S2Position.toSpace(curve.getEnd(), space, 'view', camera);
-                svgPath += ` L ${point.x} ${point.y}`;
+                svgPath += `L ${point.x},${point.y} `;
             } else if (curve instanceof S2CubicCurve) {
                 const bezierPoints = curve.getBezierPoints();
-                svgPath += ' C';
+                svgPath += 'C ';
                 for (let j = 1; j < bezierPoints.length; j++) {
                     const point = S2Position.toSpace(bezierPoints[j], space, 'view', camera);
-                    svgPath += ` ${point.x} ${point.y}`;
+                    svgPath += `${point.x},${point.y} `;
                 }
             }
-            prevEnd = curve.getEnd();
+            const end = curve.getEnd();
+            if (S2Vec2.eq(currStart, end)) {
+                svgPath += 'Z ';
+                currStart.copy(end);
+            }
+            prevEnd.copy(end);
         }
-        return svgPath;
+        return svgPath.trimEnd();
     }
 }
 
@@ -118,6 +123,11 @@ export class S2Path extends S2TransformGraphic<S2PathData> {
 
     setPathTo(pathTo: number, state: S2TypeState = S2TypeState.Active): this {
         this.data.pathTo.set(pathTo, state);
+        return this;
+    }
+
+    setSpace(space: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.data.space.set(space, state);
         return this;
     }
 

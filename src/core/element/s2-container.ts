@@ -14,8 +14,8 @@ export class S2Container<
 
     constructor(scene: S2BaseScene, data: Data, element: SVGType) {
         super(scene, data);
-        this.data.fill.opacity.setParent();
-        this.data.stroke.opacity.setParent();
+        this.data.fill.setParent();
+        this.data.stroke.setParent();
         this.data.opacity.setParent();
         this.element = element;
         this.children = [];
@@ -73,6 +73,7 @@ export class S2Container<
 
     protected updateImpl(updateId?: number): void {
         void updateId;
-        this.data.applyToElement(this.element, this.scene);
+        S2Element.updateSVGChildren(this.element, this.children);
+        //this.data.applyToElement(this.element, this.scene);
     }
 }

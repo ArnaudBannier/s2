@@ -38,12 +38,12 @@ export class S2GridGeometryData {
         const startY = anchor.y - Math.floor((anchor.y - lowerY) / steps.y) * steps.y;
         let d = '';
         for (let x = startX; x < upperX + epsilon; x += steps.x) {
-            d += `M${x},${lowerY} L${x},${upperY} `;
+            d += `M${x},${lowerY} V ${upperY} `;
         }
         for (let y = startY; y < upperY + epsilon; y += steps.y) {
-            d += `M${lowerX},${y} L${upperX},${y} `;
+            d += `M${lowerX},${y} H ${upperX} `;
         }
-        element.setAttribute('d', d);
+        element.setAttribute('d', d.trimEnd());
     }
 }
 
@@ -73,6 +73,7 @@ export class S2Grid extends S2TransformGraphic<S2GridData> {
         super(scene, new S2GridData());
         this.element = document.createElementNS(svgNS, 'path');
         this.data.stroke.width.set(1, 'view', S2TypeState.Active);
+        this.data.stroke.lineCap.set('butt', S2TypeState.Active);
     }
 
     get boundA(): S2Position {
