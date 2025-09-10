@@ -71,6 +71,11 @@ export class S2Container<
         return this.element;
     }
 
+    updateSVGChildren(): this {
+        S2Element.updateSVGChildren(this.element, this.children);
+        return this;
+    }
+
     protected updateImpl(updateId?: number): void {
         void updateId;
         S2Element.updateSVGChildren(this.element, this.children);

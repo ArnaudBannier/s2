@@ -31,6 +31,9 @@ export abstract class S2Element<Data extends S2LayerData> {
 
     setIsActive(isActive: boolean): this {
         this.data.isActive = isActive;
+        if (this.parent) {
+            this.parent.updateSVGChildren();
+        }
         return this;
     }
 
@@ -112,6 +115,10 @@ export abstract class S2Element<Data extends S2LayerData> {
         this.data = data;
         this.scene = scene;
         this.id = scene.getNextElementId();
+    }
+
+    updateSVGChildren(): this {
+        return this;
     }
 
     protected static updateSVGChildren(parent: SVGElement, children: S2BaseElement[]): void {

@@ -8,6 +8,7 @@ import { S2Scene } from './core/s2-scene.ts';
 import { S2Animator } from './animation/s2-animator.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { easeInOut } from './animation/s2-easing.ts';
+import { S2MathUtils } from './core/math/s2-utils.ts';
 
 /*
     TODO:
@@ -34,7 +35,7 @@ const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
     protected path: S2Path;
-    protected animator: S2Animator;
+    public animator: S2Animator;
     //protected node: S2Node;
     // protected styles = {
     //     backBase: new S2Attributes({
@@ -78,7 +79,7 @@ class SceneFigure extends S2Scene {
 
         this.circle = this.addCircle();
         this.circle.data.copy(circleStyle);
-        this.circle.setPosition(0, 0, 'world');
+        this.circle.setPosition(0, 0, 'world').setOpacity(0.0).update();
 
         // this.node = this.addNode();
         // this.node.setAttributes(this.styles.backBase);
@@ -94,7 +95,7 @@ class SceneFigure extends S2Scene {
 
         circle1.setLayer(-2);
         circle2.setLayer(1);
-        circle3.setIsActive(true);
+        circle3.setIsActive(false);
 
         this.update();
 
@@ -113,9 +114,7 @@ class SceneFigure extends S2Scene {
             .setEasing(easeInOut);
 
         this.path.setPathTo(1.0).update();
-        anim.commitFinalStates();
-
-        this.animator.addAnimation(anim);
+        this.animator.addAnimation(anim.commitFinalStates());
 
         anim = new S2LerpAnim(this)
             .addUpdateTarget(this.path)
@@ -123,14 +122,29 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(1000)
             .setEasing(easeInOut);
 
-        this.path.setPathFrom(1.0).update();
-        anim.commitFinalStates();
+        this.path.setPathFrom(0.8).update();
 
-        this.animator.addAnimation(anim, 'previous-start', 1000);
+        this.animator.addAnimation(anim.commitFinalStates(), 'previous-start', 1000);
 
-        this.animator.finalize();
+        this.animator.makeStep();
 
-        this.animator.getPlayableStep(0).play(true);
+        anim = new S2LerpAnim(this)
+            .addUpdateTarget(this.circle)
+            .bind(this.circle.opacity)
+            .setCycleDuration(1500)
+            .setEasing(easeInOut);
+        // .onApplyInitial((source) => {
+        //     void source;
+        //     this.circle.setIsActive(false);
+        // })
+        // .onSetElapsed((source, updateId) => {
+        //     void source;
+        //     void updateId;
+        //     this.circle.setIsActive(true);
+        // });
+
+        this.circle.setOpacity(1.0).update();
+        this.animator.addAnimation(anim.commitFinalStates());
 
         // this.path.setPathRange(0.2, 0.5);
         // this.circle.setAttributes(this.styles.backSlct);
@@ -163,6 +177,7 @@ if (appDiv) {
             <h1>My first SVG</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
+                <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
                 <button id="reset-button"><i class="fa-solid fa-backward-fast"></i></button>
                 <button id="prev-button"><i class="fa-solid fa-step-backward"></i></button>
                 <button id="play-button"><i class="fa-solid fa-redo"></i></button>
@@ -173,24 +188,40 @@ if (appDiv) {
 }
 
 const svgElement = appDiv?.querySelector<SVGSVGElement>('#test-svg');
+const slider = document.querySelector<HTMLInputElement>('#slider');
 
-if (svgElement) {
+if (svgElement && slider) {
     const scene = new SceneFigure(svgElement);
     void scene;
 
+    let index = 0;
+
     document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
+        index = 0;
         //scene.reset();
     });
     document.querySelector<HTMLButtonElement>('#prev-button')?.addEventListener('click', () => {
-        //scene.createPrevStep();
+        //scene.animator.getPlayableStep(index).stop();
+        index = S2MathUtils.clamp(index - 1, 0, scene.animator.getStepCount() - 1);
+        scene.animator.resetStep(index);
+        scene.animator.getPlayableStep(index).play();
     });
     document.querySelector<HTMLButtonElement>('#next-button')?.addEventListener('click', () => {
-        //scene.createNextStep();
+        //scene.animator.getPlayableStep(index).stop();
+        index = S2MathUtils.clamp(index + 1, 0, scene.animator.getStepCount() + 1);
+        scene.animator.resetStep(index);
+        scene.animator.getPlayableStep(index).play();
     });
     document.querySelector<HTMLButtonElement>('#play-button')?.addEventListener('click', () => {
-        //scene.play();
+        scene.animator.resetStep(index);
+        scene.animator.getPlayableStep(index).play();
     });
     document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
-        //scene.createFullAnimation();
+        scene.animator.getMainPlayable().play();
+    });
+
+    slider.addEventListener('input', () => {
+        const ratio = slider.valueAsNumber / 100;
+        scene.animator.getTimeline().setElapsed(ratio * scene.animator.getTimeline().getDuration());
     });
 }
