@@ -247,6 +247,9 @@ export class S2Vec2 {
     }
 
     normalize(): this {
+        if (this.length() === 0) {
+            return this;
+        }
         return this.scale(1.0 / this.length());
     }
 

@@ -219,17 +219,17 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
     }
 
     protected updateImpl(updateId?: number): void {
-        const space: S2Space = 'world';
+        const space: S2Space = 'view';
         const camera = this.scene.getActiveCamera();
-        const startToEnd = this.getStartToEnd(space).normalize();
-        const startDirection = startToEnd.clone();
+        const startDirection = this.getStartToEnd(space).normalize();
+        const endDirection = startDirection.clone().negate();
         if (this.data.startAngle.hasActiveHierarchy()) {
             startDirection.setFromPolarDeg(this.data.startAngle.value);
         }
-        const endDirection = startToEnd.clone().negate();
         if (this.data.endAngle.hasActiveHierarchy()) {
             endDirection.setFromPolarDeg(this.data.endAngle.value);
         }
+
         const start = this.data.start.getPointInDirection(startDirection, space, camera, this.data.startDistance);
         const end = this.data.end.getPointInDirection(endDirection, space, camera, this.data.endDistance);
 
