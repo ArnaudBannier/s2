@@ -66,6 +66,7 @@ export abstract class S2Element<Data extends S2LayerData> {
         dep.addListener(this.updateFromDependency.bind(this));
     }
 
+    // TODO : Vérifier la fonctionnalité
     removeDependency(dep: S2BaseElement): void {
         if (this.dependencies.delete(dep)) {
             dep.removeListener(this.updateFromDependency.bind(this));
@@ -80,7 +81,6 @@ export abstract class S2Element<Data extends S2LayerData> {
 
     protected updateFromDependencyImpl(dep: S2BaseElement, updateId?: number): void {
         void dep;
-        void updateId;
         this.updateImpl(updateId);
     }
 
@@ -97,7 +97,6 @@ export abstract class S2Element<Data extends S2LayerData> {
         return this;
     }
 
-    // TODO : Ajouter un updateID pour ne pas faire plusieurs fois le même update dans une frame
     protected abstract updateImpl(updateId?: number): void;
 
     protected shouldSkipUpdate(updateId?: number): boolean {
@@ -117,10 +116,13 @@ export abstract class S2Element<Data extends S2LayerData> {
         this.id = scene.getNextElementId();
     }
 
+    // TODO : abstrait ?
+    // Appel dans setParent et setIsActive et setLayer ?
     updateSVGChildren(): this {
         return this;
     }
 
+    // TODO : déplacer dans un utilitaire
     protected static updateSVGChildren(parent: SVGElement, children: S2BaseElement[]): void {
         children.sort((a: S2BaseElement, b: S2BaseElement): number => {
             if (a.data.layer.value !== b.data.layer.value) return a.data.layer.value - b.data.layer.value;

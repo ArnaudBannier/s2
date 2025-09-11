@@ -1,4 +1,4 @@
-export type S2Easing = (t: number) => number;
+export type S2EaseType = (t: number) => number;
 
 export function easeLinear(t: number): number {
     return t;

@@ -1,7 +1,7 @@
 import { type S2BaseElement } from '../core/element/s2-element';
 import { S2MathUtils } from '../core/math/s2-utils';
 import { type S2BaseScene } from '../core/s2-interface';
-import { easeLinear, type S2Easing } from './s2-easing';
+import { easeLinear, type S2EaseType } from './s2-easing';
 
 // Créer deux catégories -> timeAnim eventAnim ?
 // Comment gérer les smoothDamped ?
@@ -25,7 +25,7 @@ export abstract class S2Animation {
     protected rawDuration: number = 1000;
     protected wrapedCycleAlpha: number = 0;
     protected wrapedCycleElapsed: number = 0;
-    protected ease: S2Easing = easeLinear;
+    protected ease: S2EaseType = easeLinear;
     protected reversed: boolean = false;
     protected alternate: boolean = false;
     protected elementsToUpdate: Set<S2BaseElement>;
@@ -120,7 +120,7 @@ export abstract class S2Animation {
         return this;
     }
 
-    setEasing(ease: S2Easing): this {
+    setEasing(ease: S2EaseType): this {
         this.ease = ease;
         return this;
     }

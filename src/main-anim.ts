@@ -5,7 +5,7 @@ import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle, S2CircleData } from './core/element/s2-circle.ts';
 import { S2Path } from './core/element/s2-path.ts';
 import { S2Scene } from './core/s2-scene.ts';
-import { S2Animator } from './animation/s2-animator.ts';
+import { S2StepAnimator } from './animation/s2-step-animator.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { easeInOut } from './animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
@@ -35,7 +35,7 @@ const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
     protected path: S2Path;
-    public animator: S2Animator;
+    public animator: S2StepAnimator;
     //protected node: S2Node;
     // protected styles = {
     //     backBase: new S2Attributes({
@@ -60,7 +60,7 @@ class SceneFigure extends S2Scene {
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
-        this.animator = new S2Animator(this);
+        this.animator = new S2StepAnimator(this);
 
         const circleStyle = new S2CircleData();
         circleStyle.fill.color.copy(MTL.GREY_6);
@@ -197,31 +197,27 @@ if (svgElement && slider) {
     let index = 0;
 
     document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
-        index = 0;
-        //scene.reset();
+        index = -1;
+        scene.animator.reset();
     });
     document.querySelector<HTMLButtonElement>('#prev-button')?.addEventListener('click', () => {
-        //scene.animator.getPlayableStep(index).stop();
         index = S2MathUtils.clamp(index - 1, 0, scene.animator.getStepCount() - 1);
-        scene.animator.resetStep(index);
-        scene.animator.getPlayableStep(index).play();
+        scene.animator.playStep(index);
     });
     document.querySelector<HTMLButtonElement>('#next-button')?.addEventListener('click', () => {
-        //scene.animator.getPlayableStep(index).stop();
-        index = S2MathUtils.clamp(index + 1, 0, scene.animator.getStepCount() + 1);
-        scene.animator.resetStep(index);
-        scene.animator.getPlayableStep(index).play();
+        index = S2MathUtils.clamp(index + 1, 0, scene.animator.getStepCount() - 1);
+        scene.animator.playStep(index);
     });
     document.querySelector<HTMLButtonElement>('#play-button')?.addEventListener('click', () => {
-        scene.animator.resetStep(index);
-        scene.animator.getPlayableStep(index).play();
+        scene.animator.playStep(index);
     });
     document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
-        scene.animator.getMainPlayable().play();
+        scene.animator.playMaster();
     });
 
     slider.addEventListener('input', () => {
         const ratio = slider.valueAsNumber / 100;
-        scene.animator.getTimeline().setElapsed(ratio * scene.animator.getTimeline().getDuration());
+        scene.animator.stop();
+        scene.animator.setMasterElapsed(ratio * scene.animator.getMasterDuration());
     });
 }

@@ -13,6 +13,10 @@ export class S2PlayableAnimation {
         this.manager = S2AnimationManager.getInstance();
     }
 
+    getAnimation(): S2Animation {
+        return this.animation;
+    }
+
     setSpeed(speed: number): this {
         this.speed = speed;
         return this;
@@ -25,6 +29,18 @@ export class S2PlayableAnimation {
     setElapsed(elapsed: number, updateId?: number): this {
         this.animation.setElapsed(elapsed, updateId);
         return this;
+    }
+
+    isPlaying(): boolean {
+        return this.state === 'playing';
+    }
+
+    isPaused(): boolean {
+        return this.state === 'paused';
+    }
+
+    isStopped(): boolean {
+        return this.state === 'stopped';
     }
 
     play(repeat: boolean = false): this {

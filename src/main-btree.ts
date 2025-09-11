@@ -10,7 +10,7 @@ import { S2Group } from './core/element/s2-group.ts';
 import { S2Length } from './core/s2-types.ts';
 import { S2Attributes } from './core/s2-attributes.ts';
 import { S2AnimatedScene } from './animation/s2-animated-scene.ts';
-import type { S2Animator } from './animation/s2-animator.ts';
+import type { S2StepAnimator } from './animation/s2-step-animator.ts';
 
 const viewport = new S2Vec2(640.0, 360.0);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
@@ -164,7 +164,7 @@ class BTree {
         return this;
     }
 
-    animateSelectNode(animator: S2Animator, node: BTreeNode) {
+    animateSelectNode(animator: S2StepAnimator, node: BTreeNode) {
         if (node.parentEmphEdge) {
             node.parentEmphEdge.setPathRange(0, 1);
             animator.animate(node.parentEmphEdge, { duration: 500, easing: 'inOutQuad' }, '+=0');
@@ -182,12 +182,12 @@ class BTree {
         }
     }
 
-    animateExploreNode(animator: S2Animator, node: BTreeNode) {
+    animateExploreNode(animator: S2StepAnimator, node: BTreeNode) {
         node.s2Node.setAttributes(this.style.backExpl);
         animator.animate(node.s2Node, { duration: 300, easing: 'inOut' }, '+=0');
     }
 
-    animateExitParentEdge(animator: S2Animator, node: BTreeNode) {
+    animateExitParentEdge(animator: S2StepAnimator, node: BTreeNode) {
         if (!node.parentEdge || !node.parentEmphEdge) return;
         node.parentEmphEdge.setPathRange(0, 0);
         node.parentEdge.setAttributes(this.style.edgeExpl);

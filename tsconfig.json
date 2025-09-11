@@ -19,5 +19,5 @@
         "noFallthroughCasesInSwitch": true
         //"noUncheckedSideEffectImports": true
     },
-    "include": ["src", "src/animation/s2-animator.ts"]
+    "include": ["src", "src/animation/s2-step-animator.ts"]
 }
