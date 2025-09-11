@@ -3,12 +3,6 @@ import { S2MathUtils } from '../core/math/s2-utils';
 import { type S2BaseScene } from '../core/s2-interface';
 import { easeLinear, type S2EaseType } from './s2-easing';
 
-// Créer deux catégories -> timeAnim eventAnim ?
-// Comment gérer les smoothDamped ?
-
-// Changement immédiats
-// => Les callbacks onStart peuvent faire la même chose. beforeStart, afterComplete ?
-
 interface S2AnimationCallbacks {
     onSetElapsed?: (source: S2Animation, elapsed: number, updateId?: number) => void;
     onApplyInitial?: (source: S2Animation) => void;

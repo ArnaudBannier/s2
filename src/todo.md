@@ -1,5 +1,6 @@
 # TODO
 
+- Easing dans un record ?
 - isActive à tester.
 - Possibilité d'ajouter des label sur un edge (qui devient un groupe)
 - Tracer une fonction
@@ -14,3 +15,7 @@
 - S2SVG contient des fonctionnalités supplémentaires, comme ajouter des styles
 - setCycleDuration qui n'est pas valide sur une timeline pour l'instant
 - S2AnimationGroup ?
+
+
+// Créer deux catégories -> timeAnim eventAnim ?
+// Comment gérer les smoothDamped ?
