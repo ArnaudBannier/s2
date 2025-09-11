@@ -119,6 +119,10 @@ export class S2LerpAnim extends S2Animation {
         return this;
     }
 
+    refreshState(): this {
+        return this;
+    }
+
     protected setElapsedImpl(updateId?: number): void {
         void updateId;
         const alpha = this.wrapedCycleAlpha;

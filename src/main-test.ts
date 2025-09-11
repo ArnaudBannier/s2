@@ -10,22 +10,6 @@ import { S2Timeline } from './animation/s2-timeline.ts';
 import { S2PlayableAnimation } from './animation/s2-animation-manager.ts';
 import { S2Node } from './core/element/s2-node.ts';
 
-/*
-    TODO:
-    - isActive à tester.
-    - Possibilité d'ajouter des label sur un edge (qui devient un groupe)
-    - Tracer une fonction
-    - Ajouter dans le Readme la feature de chemins partiels
-    - Ajouter des descriptions/titres sur les éléments
-    - Ajouter un système d'event au S2Element
-    - Coder une interaction avec la souris dans le monde
-    - Interpolation de Mat2x3
-    - Définir un marker perso qui vient s'ajouter et s'adapter à un S2Edge
-        - Il n'est pas défini en global mais créé pour chaque path
-    - Définir un système de listener pour les update
-    - S2SVG contient des fonctionnalités supplémentaires, comme ajouter des styles
-*/
-
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);

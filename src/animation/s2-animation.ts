@@ -162,4 +162,6 @@ export abstract class S2Animation {
     protected updateRawDuration(): void {
         this.rawDuration = this.cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);
     }
+
+    abstract refreshState(): this;
 }

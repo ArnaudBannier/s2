@@ -135,10 +135,10 @@ export class S2StepAnimator {
         this.stepTimes[0] = 0;
         for (let i = 0; i < this.stepTimelines.length; i++) {
             const step = this.stepTimelines[i];
-            stepTime += step.update().getDuration();
+            stepTime += step.refreshState().getDuration();
             this.stepTimes[i + 1] = stepTime;
         }
-        this.masterTimeline.update();
+        this.masterTimeline.refreshState();
     }
 
     getMasterTimeline(): S2Timeline {

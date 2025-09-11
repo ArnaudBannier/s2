@@ -10,24 +10,6 @@ import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
 import { easeInOut } from './animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 
-/*
-    TODO:
-    - isActive à tester.
-    - Possibilité d'ajouter des label sur un edge (qui devient un groupe)
-    - Tracer une fonction
-    - Ajouter dans le Readme la feature de chemins partiels
-    - Ajouter des descriptions/titres sur les éléments
-    - Ajouter un système d'event au S2Element
-    - Coder une interaction avec la souris dans le monde
-    - Interpolation de Mat2x3
-    - Définir un marker perso qui vient s'ajouter et s'adapter à un S2Edge
-        - Il n'est pas défini en global mais créé pour chaque path
-    - Définir un système de listener pour les update
-    - S2SVG contient des fonctionnalités supplémentaires, comme ajouter des styles
-*/
-// Slides.com
-// Reveal.js
-
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
@@ -95,7 +77,7 @@ class SceneFigure extends S2Scene {
 
         circle1.setLayer(-2);
         circle2.setLayer(1);
-        circle3.setIsActive(false);
+        circle3.setIsActive(true);
 
         this.update();
 
@@ -103,10 +85,6 @@ class SceneFigure extends S2Scene {
     }
 
     createAnimation(): void {
-        // this.animator.saveState(this.circle);
-        // this.animator.saveState(this.path);
-        // this.animator.saveState(this.node);
-
         let anim = new S2LerpAnim(this)
             .addUpdateTarget(this.path)
             .bind(this.path.pathTo)
@@ -133,40 +111,29 @@ class SceneFigure extends S2Scene {
             .bind(this.circle.opacity)
             .setCycleDuration(1500)
             .setEasing(easeInOut);
-        // .onApplyInitial((source) => {
-        //     void source;
-        //     this.circle.setIsActive(false);
-        // })
-        // .onSetElapsed((source, updateId) => {
-        //     void source;
-        //     void updateId;
-        //     this.circle.setIsActive(true);
-        // });
 
         this.circle.setOpacity(1.0).update();
         this.animator.addAnimation(anim.commitFinalStates());
 
-        // this.path.setPathRange(0.2, 0.5);
-        // this.circle.setAttributes(this.styles.backSlct);
-        // this.node.setAttributes(this.styles.backSlct);
-        // this.animator.animate(this.circle, { duration: 1000, easing: 'outCubic' }, '+=0');
-        // this.animator.animate(this.node, { duration: 1000, easing: 'outCubic' }, '<<');
-        // this.animator.animate(this.path, { duration: 1000, ease: 'outCubic' }, '<<+=200');
-        // this.path.setPathRange(0.5, 1.0).setStrokeColor(MTL_COLORS.LIGHT_GREEN_5);
-        // this.node.setPosition(-5, 0); //.setAttributes(this.styles.backBase);
-        // this.animator.makeStep();
-        // this.animator.animate(this.node, { duration: 1000, easing: 'outBounce' }, '+=0');
-        // this.animator.animate(this.path, { duration: 1000, ease: 'outBounce' }, '<<+=200');
-        // this.circle.setPosition(-1, 1, 'world');
-        // this.animator.makeStep();
-        // this.animator.animate(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
-        // this.circle.setPosition(1, 1, 'world');
-        // this.circle.setAttributes(this.styles.backBase);
-        // this.animator.makeStep();
-        // this.path.setStrokeWidth(0.5, 'world').setStrokeColorRGB(MTL_COLORS.GREY_7);
-        // this.animator.animate(this.circle, { duration: 1000, ease: 'inOut' }, '+=0');
-        // this.animator.animate(this.path, { duration: 800, ease: 'out' }, '<<+=200');
-        // this.animator.finalize();
+        this.animator.makeStep();
+        anim = new S2LerpAnim(this)
+            .addUpdateTarget(this.circle)
+            .addUpdateTarget(this.path)
+            .bind(this.circle.position)
+            .bind(this.circle.radius)
+            .bind(this.circle.fillColor)
+            .bind(this.circle.strokeColor)
+            .bind(this.path.strokeColor)
+            .setCycleDuration(1000)
+            .setEasing(easeInOut);
+
+        this.circle
+            .setRadius(20, 'view')
+            .setPosition(-2, 0, 'world')
+            .setFillColor(MTL.LIGHT_GREEN_9)
+            .setStrokeColor(MTL.LIGHT_GREEN_5);
+        this.path.setStrokeColor(MTL.LIGHT_GREEN_5).update();
+        this.animator.addAnimation(anim.commitFinalStates());
     }
 }
 
@@ -194,7 +161,8 @@ if (svgElement && slider) {
     const scene = new SceneFigure(svgElement);
     void scene;
 
-    let index = 0;
+    let index = -1;
+    scene.animator.reset();
 
     document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
         index = -1;

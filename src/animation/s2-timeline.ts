@@ -26,7 +26,7 @@ class S2TimelinePart {
         this.offset = offset;
     }
 
-    update(prevPart: S2TimelinePart | null): void {
+    updateRange(prevPart: S2TimelinePart | null): void {
         this.start = this.offset;
         if (prevPart !== null) {
             switch (this.position) {
@@ -49,11 +49,6 @@ class S2TimelinePart {
     }
 }
 
-// TODO :
-// - S2AnimationGroup ?
-// - update pour chaque animation ?
-// - setCycleDuration qui n'est pas valide sur une timeline pour l'instant
-
 export class S2Timeline extends S2Animation {
     protected parts: S2TimelinePart[] = [];
     protected sortedStart: S2TimelinePart[] = [];
@@ -64,11 +59,11 @@ export class S2Timeline extends S2Animation {
         this.cycleDuration = 0;
     }
 
-    update(): this {
+    refreshState(): this {
         let prevPart: S2TimelinePart | null = null;
         for (let i = 0; i < this.parts.length; i++) {
             const part = this.parts[i];
-            part.update(prevPart);
+            part.updateRange(prevPart);
             prevPart = part;
         }
         this.sortedStart.sort((a, b) => a.start - b.start);
@@ -91,7 +86,7 @@ export class S2Timeline extends S2Animation {
         this.parts.push(part);
         this.sortedStart.push(part);
         this.sortedEnd.push(part);
-        this.update();
+        this.refreshState();
         return this;
     }
 
