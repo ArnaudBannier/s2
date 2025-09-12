@@ -1,15 +1,6 @@
 import type { S2BaseScene } from '../core/s2-interface';
 import { S2Animation } from './s2-animation';
 
-//             |     |
-// A - < # > . . < > . < # > . .
-// B - . . < # # > . . < > . . .
-// C - . < > . . . < # # > . . .
-// D - . . . . . < # # # # # # >
-// Commencer par tous les starts des animation suivantes dans l'ordre de beginTime décroissant
-// Continuer par tous les complete des animation précédentes dans l'ordre de endTime croissant
-// Finir par les animations en cours
-
 export type S2TimelinePosition = 'absolute' | 'previous-start' | 'previous-end';
 class S2TimelinePart {
     public animation: S2Animation;

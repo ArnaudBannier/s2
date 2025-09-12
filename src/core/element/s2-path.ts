@@ -4,7 +4,7 @@ import { svgNS } from '../s2-globals';
 import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
 import { S2Enum, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
-import type { S2Camera } from '../math/s2-camera';
+import { S2Camera } from '../math/s2-camera';
 
 export class S2PathData extends S2TransformGraphicData {
     public readonly space: S2Enum<S2Space>;
@@ -15,8 +15,8 @@ export class S2PathData extends S2TransformGraphicData {
     constructor() {
         super();
         this.polyCurve = new S2PolyCurve();
-        this.pathFrom = new S2Number(-1);
-        this.pathTo = new S2Number(2);
+        this.pathFrom = new S2Number(0);
+        this.pathTo = new S2Number(1);
         this.space = new S2Enum<S2Space>('world');
     }
 
@@ -38,7 +38,11 @@ export class S2PathData extends S2TransformGraphicData {
             scene.getActiveCamera(),
             this.space.getInherited(),
         );
-        element.setAttribute('d', d);
+        if (d.length >= 0) {
+            element.setAttribute('d', d);
+        } else {
+            element.removeAttribute('d');
+        }
     }
 }
 

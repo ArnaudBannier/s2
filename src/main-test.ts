@@ -112,12 +112,12 @@ class SceneFigure extends S2Scene {
         //node2.data.background.transform.matrix.set(1, 1, -300, 0, 1, 0);
         node2.update();
 
-        const edge = this.addCubicEdge(node1, node2);
+        const edge = this.addLineEdge(node1, node2);
         edge.data.stroke.color.copy(MTL.RED_5);
         edge.setStrokeLineCap('round').setStrokeWidth(8, 'view').setLayer(0);
         edge.data.startDistance.set(20, 'view');
         edge.data.endDistance.set(20, 'view');
-        edge.setCurveBendAngle(30);
+        //edge.setCurveBendAngle(30);
         // edge.data.curveBendAngle.set(30);
         // edge.setCurveTension(0.5);
         // edge.data.startAngle.set(-90);

@@ -36,6 +36,7 @@ export class S2EdgeEndpoint {
         this.mode = other.mode;
         this.node = other.node;
         this.position.copy(other.position);
+        console.log('copy !!');
     }
 
     getCenter(space: S2Space, camera: S2Camera): S2Vec2 {
@@ -73,8 +74,8 @@ export class S2EdgeData extends S2MonoGraphicData {
 
     constructor() {
         super();
-        this.pathFrom = new S2Number(-1);
-        this.pathTo = new S2Number(2);
+        this.pathFrom = new S2Number(0);
+        this.pathTo = new S2Number(1);
         this.startDistance = new S2Length(0, 'view', S2TypeState.Inactive);
         this.endDistance = new S2Length(0, 'view', S2TypeState.Inactive);
         this.startAngle = new S2Number(0, S2TypeState.Inactive);
@@ -90,7 +91,7 @@ export class S2EdgeData extends S2MonoGraphicData {
         this.opacity.set(1, S2TypeState.Inactive);
     }
 
-    copy(other: S2EdgeData): void {
+    copyStyle(other: S2EdgeData): void {
         super.copy(other);
         this.pathFrom.copy(other.pathFrom);
         this.pathTo.copy(other.pathTo);
@@ -98,6 +99,17 @@ export class S2EdgeData extends S2MonoGraphicData {
         this.endDistance.copy(other.endDistance);
         this.startAngle.copy(other.startAngle);
         this.endAngle.copy(other.endAngle);
+    }
+
+    copy(other: S2EdgeData): void {
+        // super.copy(other);
+        // this.pathFrom.copy(other.pathFrom);
+        // this.pathTo.copy(other.pathTo);
+        // this.startDistance.copy(other.startDistance);
+        // this.endDistance.copy(other.endDistance);
+        // this.startAngle.copy(other.startAngle);
+        // this.endAngle.copy(other.endAngle);
+        this.copyStyle(other);
         this.start.copy(other.start);
         this.end.copy(other.end);
     }
@@ -219,7 +231,7 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
     }
 
     protected updateImpl(updateId?: number): void {
-        const space: S2Space = 'view';
+        const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
         const startDirection = this.getStartToEnd(space).normalize();
         const endDirection = startDirection.clone().negate();
@@ -303,7 +315,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
     }
 
     protected updateImpl(updateId?: number): void {
-        const space: S2Space = 'view';
+        const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
         const sign = -1;
         const startDirection = this.getStartToEnd(space).normalize();

@@ -52,6 +52,12 @@ class BTreeStyle {
         this.edgeBase.startDistance.set(0, 'view');
         this.edgeBase.endDistance.set(10, 'view');
 
+        this.edgeSlct.stroke.color.copy(MTL.LIGHT_BLUE_6);
+        this.edgeSlct.stroke.width.set(4, 'view');
+        this.edgeSlct.stroke.lineCap.set('round');
+        this.edgeSlct.startDistance.set(0, 'view');
+        this.edgeSlct.endDistance.set(10, 'view');
+
         this.edgeEmph.stroke.color.copy(MTL.WHITE);
         this.edgeEmph.stroke.width.set(6, 'view');
         this.edgeEmph.stroke.lineCap.set('round');
@@ -129,15 +135,15 @@ class BTree {
         if (node === null) return;
         if (parent) {
             node.parentEdge = this.scene.addLineEdge(parent.s2Node, node.s2Node, this.edgeGroup).update();
-            console.log(node.parentEdge);
             node.parentEmphEdge = this.scene
                 .addLineEdge(parent.s2Node, node.s2Node, this.edgeGroup)
                 .setPathFrom(0)
-                .setPathTo(0);
+                .setPathTo(0.2);
 
-            node.parentEdge.data.copy(this.style.edgeBase);
-            node.parentEmphEdge.data.copy(this.style.edgeEmph);
+            node.parentEdge.data.copyStyle(this.style.edgeBase);
+            node.parentEmphEdge.data.copyStyle(this.style.edgeEmph);
         }
+
         this.createNodeLines(node.left, node);
         this.createNodeLines(node.right, node);
     }
@@ -172,6 +178,7 @@ class BTree {
     animateSelectNode(animator: S2StepAnimator, node: BTreeNode) {
         let anim: S2LerpAnim | null = null;
         if (node.parentEmphEdge) {
+            node.parentEmphEdge.setPathTo(0.0);
             anim = new S2LerpAnim(this.scene)
                 .addUpdateTarget(node.parentEmphEdge)
                 .bind(node.parentEmphEdge.pathTo)
@@ -225,7 +232,7 @@ class BTree {
 
         node.s2Node.data.background.fill.color.copy(this.style.backExpl.background.fill.color);
         node.s2Node.data.background.stroke.color.copy(this.style.backExpl.background.stroke.color);
-        animator.addAnimation(anim.commitFinalStates(), 'previous-end', 300);
+        animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
     }
 
     animateExitParentEdge(animator: S2StepAnimator, node: BTreeNode) {
@@ -238,7 +245,7 @@ class BTree {
             .setEasing(easeInOut);
 
         node.parentEmphEdge.setPathTo(0.0).update();
-        animator.addAnimation(anim.commitFinalStates(), 'previous-start', 0);
+        animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
 
         anim = new S2LerpAnim(this.scene)
             .addUpdateTarget(node.parentEdge)
@@ -389,6 +396,7 @@ if (appDiv) {
             <h1>Parcours d'un arbre binaire</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id="test-svg" class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
+                <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
                 <select id="order-select">
                     <option value="pre-order">Préfixe</option>
                     <option value="in-order">Infixe</option>
@@ -404,8 +412,9 @@ if (appDiv) {
 }
 
 const svgElement = appDiv?.querySelector<SVGSVGElement>('#test-svg');
+const slider = document.querySelector<HTMLInputElement>('#slider');
 
-if (svgElement) {
+if (svgElement && slider) {
     const userTree = {
         data: 0,
         left: {
@@ -441,6 +450,12 @@ if (svgElement) {
     });
     document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
         scene.animator.playMaster();
+    });
+
+    slider.addEventListener('input', () => {
+        const ratio = slider.valueAsNumber / 100;
+        scene.animator.stop();
+        scene.animator.setMasterElapsed(ratio * scene.animator.getMasterDuration());
     });
 
     const selectElement = document.getElementById('order-select') as HTMLSelectElement;
