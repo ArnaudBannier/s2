@@ -60,6 +60,7 @@ export class S2NodeTextData extends S2TransformGraphicData {
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
+        this.font.applyToElement(element, scene);
     }
 }
 
@@ -125,6 +126,7 @@ export class S2Node extends S2Element<S2NodeData> {
             textGroup.data.font.setParent(this.data.text.font);
             textGroup.data.horizontalAlign.setParent(this.data.text.horizontalAlign);
             textGroup.data.verticalAlign.setParent(this.data.text.verticalAlign);
+            textGroup.data.fill.color.setParent(this.data.text.fill.color);
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
             this.mainGroup.appendChild(textGroup);
@@ -404,7 +406,7 @@ export class S2Node extends S2Element<S2NodeData> {
             }
         }
 
-        this.data.text.font.applyToElement(this.mainGroup.getSVGElement(), this.scene);
+        this.data.text.applyToElement(this.mainGroup.getSVGElement(), this.scene);
         this.mainGroup.update(updateId);
     }
 }

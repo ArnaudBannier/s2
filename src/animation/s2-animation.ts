@@ -1,7 +1,7 @@
 import { type S2BaseElement } from '../core/element/s2-element';
 import { S2MathUtils } from '../core/math/s2-utils';
 import { type S2BaseScene } from '../core/s2-interface';
-import { easeLinear, type S2EaseType } from './s2-easing';
+import { ease, type S2EaseType } from './s2-easing';
 
 interface S2AnimationCallbacks {
     onSetElapsed?: (source: S2Animation, elapsed: number, updateId?: number) => void;
@@ -19,7 +19,7 @@ export abstract class S2Animation {
     protected rawDuration: number = 1000;
     protected wrapedCycleAlpha: number = 0;
     protected wrapedCycleElapsed: number = 0;
-    protected ease: S2EaseType = easeLinear;
+    protected ease: S2EaseType = ease.linear;
     protected reversed: boolean = false;
     protected alternate: boolean = false;
     protected elementsToUpdate: Set<S2BaseElement>;

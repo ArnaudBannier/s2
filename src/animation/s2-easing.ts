@@ -1,19 +1,21 @@
 export type S2EaseType = (t: number) => number;
+//type S2ParamEaseType = (param?: number) => S2EaseType;
 
-export function easeLinear(t: number): number {
+function easeLinear(t: number): number {
     return t;
 }
 
-export function easeIn(t: number): number {
+// Quadratic easing functions (t^2)
+function easeInQuad(t: number): number {
     return t * t;
 }
 
-export function easeOut(t: number): number {
+function easeOutQuad(t: number): number {
     const s = 1 - t;
     return 1 - s * s;
 }
 
-export function easeInOut(t: number): number {
+function easeInOutQuad(t: number): number {
     if (t < 0.5) {
         return 2 * t * t;
     } else {
@@ -22,16 +24,122 @@ export function easeInOut(t: number): number {
     }
 }
 
-export function easeCos(t: number): number {
+// Cubic easing functions (t^3)
+function easeInCubic(t: number): number {
+    return t * t * t;
+}
+
+function easeOutCubic(t: number): number {
+    const s = 1 - t;
+    return 1 - s * s * s;
+}
+
+function easeInOutCubic(t: number): number {
+    if (t < 0.5) {
+        return 4 * t * t * t;
+    } else {
+        const s = 1 - t;
+        return 1 - 2 * s * s * s;
+    }
+}
+
+// Quartic easing functions (t^4)
+function easeInQuart(t: number): number {
+    return t * t * t * t;
+}
+
+function easeOutQuart(t: number): number {
+    const s = 1 - t;
+    return 1 - s * s * s * s;
+}
+
+function easeInOutQuart(t: number): number {
+    if (t < 0.5) {
+        return 8 * t * t * t * t;
+    } else {
+        const s = 1 - t;
+        return 1 - 8 * s * s * s * s;
+    }
+}
+
+// Sine easing functions (sin(t * (PI / 2)))
+function easeInSine(t: number): number {
+    return 1 - Math.cos(t * (Math.PI / 2));
+}
+
+function easeOutSine(t: number): number {
+    return Math.sin(t * (Math.PI / 2));
+}
+
+function easeInOutSine(t: number): number {
     return 0.5 * (1 - Math.cos(Math.PI * t));
 }
+
+export const ease: Record<string, S2EaseType> = {
+    linear: easeLinear,
+    in: easeInQuad,
+    inSine: easeInSine,
+    inQuad: easeInQuad,
+    inCubic: easeInCubic,
+    inQuart: easeInQuart,
+    out: easeOutQuad,
+    outSine: easeOutSine,
+    outQuad: easeOutQuad,
+    outCubic: easeOutCubic,
+    outQuart: easeOutQuart,
+    inOut: easeInOutQuad,
+    inOutSine: easeInOutSine,
+    inOutQuad: easeInOutQuad,
+    inOutCubic: easeInOutCubic,
+    inOutQuart: easeInOutQuart,
+} as const;
+
+function easeInPower(power: number): S2EaseType {
+    return (t: number) => Math.pow(t, power);
+}
+
+function easeOutPower(power: number): S2EaseType {
+    return (t: number) => 1 - Math.pow(1 - t, power);
+}
+
+function easeInOutPower(power: number): S2EaseType {
+    return (t: number) => {
+        if (t < 0.5) {
+            return Math.pow(2 * t, power) / 2;
+        } else {
+            return 1 - Math.pow(2 * (1 - t), power) / 2;
+        }
+    };
+}
+
+function easeOutBack(overshoot: number): S2EaseType {
+    return (t: number) => {
+        const s = 1 - t;
+        return 1 - (1 + overshoot) * s * s * s + overshoot * s * s;
+    };
+}
+
+export const easeParam: Record<string, (param?: number) => S2EaseType> = {
+    inPower: (power: number = 2) => {
+        return easeInPower(power);
+    },
+    outPower: (power: number = 2) => {
+        return easeOutPower(power);
+    },
+    inOutPower: (power: number = 2) => {
+        return easeInOutPower(power);
+    },
+    outBack: (overshoot: number = 1.70158) => {
+        return easeOutBack(overshoot);
+    },
+} as const;
 
 // const halfPI = PI / 2;
 // const doublePI = PI * 2;
 // /** @type {PowerEasing} */
 // export const easeInPower = (p = 1.68) => t => pow(t, +p);
 
-// /** @type {Record<String, EasesFactory|EasingFunction>} */
+///** @type {Record<String, EasesFactory|EasingFunction>} */
 // const easeInFunctions = {
 //   [emptyString]: easeInPower,
 //   Quad: easeInPower(2),

@@ -7,7 +7,7 @@ import { S2Path } from './core/element/s2-path.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2StepAnimator } from './animation/s2-step-animator.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
-import { easeInOut } from './animation/s2-easing.ts';
+import { ease } from './animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 
 const viewportScale = 1.5;
@@ -63,21 +63,15 @@ class SceneFigure extends S2Scene {
         this.circle.data.copy(circleStyle);
         this.circle.setPosition(0, 0, 'world').setOpacity(0.0).update();
 
-        // this.node = this.addNode();
-        // this.node.setAttributes(this.styles.backBase);
-        // this.node.setPosition(-5, -2);
-        // this.node.createRectBackground();
-        // this.node.addLine().addContent('Coucou');
+        // const group = this.addGroup<S2Circle>();
 
-        const group = this.addGroup<S2Circle>();
+        // const circle1 = this.addCircle(group).setPosition(3, 0).setFillColor(MTL.RED_5);
+        // const circle2 = this.addCircle(group).setPosition(4, 0).setFillColor(MTL.GREEN_5);
+        // const circle3 = this.addCircle(group).setPosition(3.5, 0.5).setFillColor(MTL.BLUE_5);
 
-        const circle1 = this.addCircle(group).setPosition(3, 0).setFillColor(MTL.RED_5);
-        const circle2 = this.addCircle(group).setPosition(4, 0).setFillColor(MTL.GREEN_5);
-        const circle3 = this.addCircle(group).setPosition(3.5, 0.5).setFillColor(MTL.BLUE_5);
-
-        circle1.setLayer(-2);
-        circle2.setLayer(1);
-        circle3.setIsActive(true);
+        // circle1.setLayer(-2);
+        // circle2.setLayer(1);
+        // circle3.setIsActive(true);
 
         this.update();
 
@@ -89,16 +83,17 @@ class SceneFigure extends S2Scene {
             .addUpdateTarget(this.path)
             .bind(this.path.pathTo)
             .setCycleDuration(2000)
-            .setEasing(easeInOut);
+            .setEasing(ease.inOut);
 
         this.path.setPathTo(1.0).update();
-        this.animator.addAnimation(anim.commitFinalStates());
+        anim.commitFinalStates();
+        this.animator.addAnimation(anim);
 
         anim = new S2LerpAnim(this)
             .addUpdateTarget(this.path)
             .bind(this.path.pathFrom)
             .setCycleDuration(1000)
-            .setEasing(easeInOut);
+            .setEasing(ease.inOut);
 
         this.path.setPathFrom(0.8).update();
 
@@ -109,8 +104,8 @@ class SceneFigure extends S2Scene {
         anim = new S2LerpAnim(this)
             .addUpdateTarget(this.circle)
             .bind(this.circle.opacity)
-            .setCycleDuration(1500)
-            .setEasing(easeInOut);
+            .setCycleDuration(500)
+            .setEasing(ease.inOut);
 
         this.circle.setOpacity(1.0).update();
         this.animator.addAnimation(anim.commitFinalStates());
@@ -120,20 +115,26 @@ class SceneFigure extends S2Scene {
             .addUpdateTarget(this.circle)
             .addUpdateTarget(this.path)
             .bind(this.circle.position)
-            .bind(this.circle.radius)
-            .bind(this.circle.fillColor)
-            .bind(this.circle.strokeColor)
+            .bind(this.circle.fillColor);
+        anim.bind(this.circle.strokeColor)
             .bind(this.path.strokeColor)
-            .setCycleDuration(1000)
-            .setEasing(easeInOut);
+            .setCycleDuration(600)
+            .setCycleCount(3)
+            .setAlternate(true)
+            .setEasing(ease.inOut);
 
-        this.circle
-            .setRadius(20, 'view')
-            .setPosition(-2, 0, 'world')
-            .setFillColor(MTL.LIGHT_GREEN_9)
-            .setStrokeColor(MTL.LIGHT_GREEN_5);
+        const anim2 = new S2LerpAnim(this)
+            .addUpdateTarget(this.circle)
+            .bind(this.circle.radius)
+            .setCycleDuration(1800)
+            .setEasing(ease.inOut);
+
+        this.circle.setPosition(-2, 0, 'world').setFillColor(MTL.LIGHT_GREEN_9).setStrokeColor(MTL.LIGHT_GREEN_5);
+        this.circle.setRadius(20, 'view');
         this.path.setStrokeColor(MTL.LIGHT_GREEN_5).update();
+
         this.animator.addAnimation(anim.commitFinalStates());
+        this.animator.addAnimation(anim2.commitFinalStates(), 'previous-start', 0);
     }
 }
 
@@ -166,6 +167,7 @@ if (svgElement && slider) {
 
     document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
         index = -1;
+        scene.animator.stop();
         scene.animator.reset();
     });
     document.querySelector<HTMLButtonElement>('#prev-button')?.addEventListener('click', () => {

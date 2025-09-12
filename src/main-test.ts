@@ -4,7 +4,7 @@ import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL, MTL_HEX } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
 import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
-import { easeCos } from './animation/s2-easing.ts';
+import { ease } from './animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2Timeline } from './animation/s2-timeline.ts';
 import { S2PlayableAnimation } from './animation/s2-animation-manager.ts';
@@ -45,7 +45,7 @@ class SceneFigure extends S2Scene {
             .bind(this.circle.strokeColor)
             .bind(this.circle.fillOpacity)
             .setCycleDuration(500)
-            .setEasing(easeCos);
+            .setEasing(ease.inOut);
 
         this.circle.setFillColorHex(MTL_HEX.BLUE_GREY_9).setStrokeColorHex(MTL_HEX.LIGHT_BLUE_5).setFillOpacity(0.5);
 
@@ -56,7 +56,7 @@ class SceneFigure extends S2Scene {
             .bind(this.circle.fillColor)
             .bind(this.circle.strokeColor)
             .setCycleDuration(500)
-            .setEasing(easeCos);
+            .setEasing(ease.inOut);
 
         this.circle.fillColor.copy(MTL.RED_8);
         this.circle.strokeColor.copy(MTL.RED_1);
@@ -84,7 +84,7 @@ class SceneFigure extends S2Scene {
             //.bind(node1.data.position)
             .bind(node1.getTextGroup(0).data.font.size)
             .setCycleDuration(500)
-            .setEasing(easeCos);
+            .setEasing(ease.InOut);
 
         //node1.data.position.set(-5, 1, 'world');
         node1.getTextGroup(0).data.font.size.set(40, 'view');
@@ -94,11 +94,11 @@ class SceneFigure extends S2Scene {
         this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
         this.anim.addAnimation(lerpAnim3, 'previous-start', 0);
 
-        this.anim.setCycleCount(2).setReversed(false).setAlternate(true);
-        this.anim.setElapsed(0);
+        this.anim.setCycleCount(1).setReversed(false).setAlternate(false);
+        //this.anim.setElapsed(0).refreshState();
 
         const playable = new S2PlayableAnimation(this.anim);
-        playable.play(false).setSpeed(1);
+        playable.play(true).setSpeed(1);
 
         const node2 = this.addNode().setPadding(10, 8, 'view');
         node2.data.position.set(3, 1, 'world');
