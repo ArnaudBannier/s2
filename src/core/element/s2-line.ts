@@ -13,12 +13,6 @@ export class S2LineData extends S2TransformGraphicData {
         this.endPosition = new S2Position();
     }
 
-    copy(other: S2LineData): void {
-        super.copy(other);
-        this.startPosition.copy(other.startPosition);
-        this.endPosition.copy(other.endPosition);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         const camera = scene.getActiveCamera();

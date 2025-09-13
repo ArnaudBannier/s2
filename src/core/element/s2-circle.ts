@@ -12,11 +12,6 @@ export class S2CircleData extends S2ShapeGraphicData {
         this.radius = new S2Length(1, 'world');
     }
 
-    copy(other: S2CircleData): void {
-        super.copy(other);
-        this.radius.copy(other.radius);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         const camera = scene.getActiveCamera();

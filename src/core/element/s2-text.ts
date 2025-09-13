@@ -35,13 +35,6 @@ export class S2TextData extends S2TransformGraphicData {
         this.textAnchor.setParent(parent ? parent.textAnchor : null);
     }
 
-    copy(other: S2TextData): void {
-        super.copy(other);
-        this.position.copy(other.position);
-        this.font.copy(other.font);
-        this.textAnchor.copy(other.textAnchor);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         this.font.applyToElement(element, scene);
@@ -114,10 +107,6 @@ export class S2Text extends S2BaseText<S2TextData> {
 export class S2TSpanData extends S2TransformGraphicData {
     constructor() {
         super();
-    }
-
-    copy(other: S2TSpanData): void {
-        super.copy(other);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {

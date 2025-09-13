@@ -3,8 +3,6 @@ import { type S2LineCap, type S2LineJoin } from '../s2-globals';
 import { type S2BaseScene } from '../s2-interface';
 import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../s2-types';
 
-// TODO : Ajouter un S2StyleData qui contiendrait stroke, fill, opacity et layer ?
-
 export class S2LayerData {
     public readonly layer: S2Number;
     public isActive: boolean;
@@ -14,9 +12,8 @@ export class S2LayerData {
         this.isActive = true;
     }
 
-    copy(other: S2LayerData): void {
-        this.layer.copy(other.layer);
-        this.isActive = other.isActive;
+    setParent(parent: S2LayerData | null = null): void {
+        void parent;
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {

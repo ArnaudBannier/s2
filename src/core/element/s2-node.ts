@@ -20,11 +20,6 @@ export class S2NodeBackgroundData extends S2TransformGraphicData {
         this.cornerRadius = new S2Length(0, 'view');
     }
 
-    copy(other: S2NodeBackgroundData): void {
-        super.copy(other);
-        this.cornerRadius.copy(other.cornerRadius);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         if (!(element instanceof SVGRectElement)) return;
@@ -50,12 +45,6 @@ export class S2NodeTextData extends S2TransformGraphicData {
         this.font = new S2FontData();
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
-    }
-
-    copy(other: S2NodeTextData): void {
-        super.copy(other);
-        this.horizontalAlign.copy(other.horizontalAlign);
-        this.verticalAlign.copy(other.verticalAlign);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -86,18 +75,6 @@ export class S2NodeData extends S2LayerData {
         this.text = new S2NodeTextData();
         this.padding = new S2Extents(10, 5, 'view');
         this.partSep = new S2Length(5, 'view');
-    }
-
-    copy(other: S2NodeData): void {
-        super.copy(other);
-        this.position.copy(other.position);
-        this.minExtents.copy(other.minExtents);
-        this.anchor.copy(other.anchor);
-        this.background.copy(other.background);
-        this.separator.copy(other.separator);
-        this.text.copy(other.text);
-        this.padding.copy(other.padding);
-        this.partSep.copy(other.partSep);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {

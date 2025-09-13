@@ -40,6 +40,15 @@ class SceneFigure extends S2Scene {
     //     }),
     // };
 
+    setCircleDefaultStyle(circle: S2Circle): void {
+        circle
+            .setFillColor(MTL.GREY_6)
+            .setStrokeColor(MTL.GREY_4)
+            .setStrokeWidth(4, 'view')
+            .setFillOpacity(1.0)
+            .setRadius(1, 'world');
+    }
+
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
         this.animator = new S2StepAnimator(this);
@@ -60,7 +69,7 @@ class SceneFigure extends S2Scene {
         this.path.setPathFrom(0.0).setPathTo(0.0).update();
 
         this.circle = this.addCircle();
-        this.circle.data.copy(circleStyle);
+        this.setCircleDefaultStyle(this.circle);
         this.circle.setPosition(0, 0, 'world').setOpacity(0.0).update();
 
         // const group = this.addGroup<S2Circle>();

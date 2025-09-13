@@ -16,11 +16,6 @@ export class S2TransformGraphicData extends S2MonoGraphicData {
         this.transform.matrix.makeIdentity();
     }
 
-    copy(other: S2TransformGraphicData): void {
-        super.copy(other);
-        this.transform.copy(other.transform);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         this.transform.applyToElement(element, scene);

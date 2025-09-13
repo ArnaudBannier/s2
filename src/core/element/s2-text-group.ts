@@ -34,12 +34,6 @@ export class S2TextLineData extends S2TextData {
         this.skip.setParent(parent ? parent.skip : null);
         this.align.setParent(parent ? parent.align : null);
     }
-
-    copy(other: S2TextLineData): void {
-        super.copy(other);
-        this.skip.copy(other.skip);
-        this.align.copy(other.align);
-    }
 }
 
 export class S2TextLine extends S2BaseText<S2TextLineData> {
@@ -68,16 +62,6 @@ export class S2TextGroupData extends S2TransformGraphicData {
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
         this.minExtents = new S2Extents(0, 0, 'view');
-    }
-
-    copy(other: S2TextGroupData): void {
-        super.copy(other);
-        this.position.copy(other.position);
-        this.minExtents.copy(other.minExtents);
-        this.font.copy(other.font);
-        this.anchor.copy(other.anchor);
-        this.horizontalAlign.copy(other.horizontalAlign);
-        this.verticalAlign.copy(other.verticalAlign);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {

@@ -1,6 +1,7 @@
 export type S2EaseType = (t: number) => number;
-//type S2ParamEaseType = (param?: number) => S2EaseType;
+export type S2ParamEaseType = (param?: number) => S2EaseType;
 
+// Linear easing function (t)
 function easeLinear(t: number): number {
     return t;
 }
@@ -62,7 +63,7 @@ function easeInOutQuart(t: number): number {
     }
 }
 
-// Sine easing functions (sin(t * (PI / 2)))
+// Sine easing functions
 function easeInSine(t: number): number {
     return 1 - Math.cos(t * (Math.PI / 2));
 }
@@ -94,15 +95,15 @@ export const ease: Record<string, S2EaseType> = {
     inOutQuart: easeInOutQuart,
 } as const;
 
-function easeInPower(power: number): S2EaseType {
+function easeInPower(power: number = 2): S2EaseType {
     return (t: number) => Math.pow(t, power);
 }
 
-function easeOutPower(power: number): S2EaseType {
+function easeOutPower(power: number = 2): S2EaseType {
     return (t: number) => 1 - Math.pow(1 - t, power);
 }
 
-function easeInOutPower(power: number): S2EaseType {
+function easeInOutPower(power: number = 2): S2EaseType {
     return (t: number) => {
         if (t < 0.5) {
             return Math.pow(2 * t, power) / 2;
@@ -112,26 +113,18 @@ function easeInOutPower(power: number): S2EaseType {
     };
 }
 
-function easeOutBack(overshoot: number): S2EaseType {
+function easeOutBack(overshoot: number = 1.70158): S2EaseType {
     return (t: number) => {
         const s = 1 - t;
         return 1 - (1 + overshoot) * s * s * s + overshoot * s * s;
     };
 }
 
-export const easeParam: Record<string, (param?: number) => S2EaseType> = {
-    inPower: (power: number = 2) => {
-        return easeInPower(power);
-    },
-    outPower: (power: number = 2) => {
-        return easeOutPower(power);
-    },
-    inOutPower: (power: number = 2) => {
-        return easeInOutPower(power);
-    },
-    outBack: (overshoot: number = 1.70158) => {
-        return easeOutBack(overshoot);
-    },
+export const easeParam: Record<string, S2ParamEaseType> = {
+    inPower: easeInPower,
+    outPower: easeOutPower,
+    inOutPower: easeInOutPower,
+    outBack: easeOutBack,
 } as const;
 
 // const halfPI = PI / 2;
