@@ -1,6 +1,7 @@
 import { S2Vec2 } from './math/s2-vec2';
 import { S2Camera } from './math/s2-camera';
 import { S2MathUtils } from './math/s2-utils';
+import { S2Mat2x3 } from './math/s2-mat2x3';
 
 export type S2Space = 'world' | 'view';
 export enum S2TypeState {
@@ -173,7 +174,7 @@ export class S2Number extends S2BaseType {
         return this.parent.getInherited();
     }
 
-    toString(precision: number = 2): string {
+    toFixed(precision: number = 2): string {
         return this.value.toFixed(precision);
     }
 }
@@ -645,5 +646,79 @@ export class S2Extents extends S2BaseType {
             // this: view, other: world
             return new S2Vec2(camera.viewToWorldLength(extents.x), camera.viewToWorldLength(extents.y));
         }
+    }
+}
+
+export class S2Transform extends S2BaseType {
+    readonly kind = 'transform' as const;
+    public parent: S2Transform | null = null;
+    public value: S2Mat2x3;
+
+    constructor(
+        a00: number = 1,
+        a01: number = 0,
+        a02: number = 0,
+        a10: number = 0,
+        a11: number = 1,
+        a12: number = 0,
+        state: S2TypeState = S2TypeState.Active,
+        parent: S2Transform | null = null,
+    ) {
+        super();
+        this.value = new S2Mat2x3(a00, a01, a02, a10, a11, a12);
+        this.state = state;
+        this.parent = parent;
+    }
+
+    setParent(parent: S2Transform | null = null): this {
+        this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
+        this.parent = parent;
+        return this;
+    }
+
+    clone(): S2Transform {
+        return new S2Transform().copy(this);
+    }
+
+    copy(other: S2Transform): this {
+        this.value.copy(other.value);
+        this.state = other.state;
+        this.parent = other.parent;
+        return this;
+    }
+
+    lerp(state0: S2Transform, state1: S2Transform, t: number): this {
+        const value0 = state0.getInherited();
+        const value1 = state1.getInherited();
+        this.value.lerp(value0, value1, t);
+        this.state = S2TypeState.Active;
+        return this;
+    }
+
+    static lerp(state0: S2Transform, state1: S2Transform, t: number): S2Transform {
+        return new S2Transform().lerp(state0, state1, t);
+    }
+
+    set(value: S2Mat2x3, state: S2TypeState = S2TypeState.Active): this {
+        this.value.copy(value);
+        this.state = state;
+        return this;
+    }
+
+    hasActiveHierarchy(): boolean {
+        if (this.state === S2TypeState.Active) return true;
+        if (this.parent === null) return false;
+        return this.parent.hasActiveHierarchy();
+    }
+
+    getInherited(): S2Mat2x3 {
+        if (this.state === S2TypeState.Active || this.parent === null) {
+            return this.value;
+        }
+        return this.parent.getInherited();
+    }
+
+    toFixed(precision: number = 2): string {
+        return 'matrix(' + this.value.elements.map((v) => v.toFixed(precision)).join(', ') + ')';
     }
 }

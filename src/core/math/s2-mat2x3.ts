@@ -10,6 +10,26 @@ export class S2Mat2x3 {
         return new S2Mat2x3(1, 0, 0, 0, 1, 0);
     }
 
+    static lerp(matrix0: S2Mat2x3, matrix1: S2Mat2x3, t: number): S2Mat2x3 {
+        const s = 1 - t;
+        return new S2Mat2x3(
+            s * matrix0.elements[0] + t * matrix1.elements[0],
+            s * matrix0.elements[1] + t * matrix1.elements[1],
+            s * matrix0.elements[2] + t * matrix1.elements[2],
+            s * matrix0.elements[3] + t * matrix1.elements[3],
+            s * matrix0.elements[4] + t * matrix1.elements[4],
+            s * matrix0.elements[5] + t * matrix1.elements[5],
+        );
+    }
+
+    lerp(matrix0: S2Mat2x3, matrix1: S2Mat2x3, t: number): this {
+        const s = 1 - t;
+        for (let i = 0; i < 6; i++) {
+            this.elements[i] = s * matrix0.elements[i] + t * matrix1.elements[i];
+        }
+        return this;
+    }
+
     set(a00: number = 0, a01: number = 0, a02: number = 0, a10: number = 0, a11: number = 0, a12: number = 0): this {
         this.elements[0] = a00;
         this.elements[2] = a01;

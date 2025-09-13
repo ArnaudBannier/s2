@@ -23,7 +23,7 @@ export class S2FillRectData extends S2LayerData {
         }
 
         if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
-            element.setAttribute('fill-opacity', this.opacity.toString());
+            element.setAttribute('fill-opacity', this.opacity.toFixed());
         } else {
             element.removeAttribute('fill-opacity');
         }
@@ -79,6 +79,6 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         this.element.setAttribute('width', camera.viewport.x.toString());
         this.element.setAttribute('height', camera.viewport.y.toString());
         this.element.setAttribute('fill', data.color.toRgb());
-        this.element.setAttribute('fill-opacity', data.opacity.toString());
+        this.element.setAttribute('fill-opacity', data.opacity.toFixed());
     }
 }

@@ -1,7 +1,6 @@
-import { S2Mat2x3 } from '../../math/s2-mat2x3';
 import { type S2LineCap, type S2LineJoin } from '../../s2-globals';
-import { type S2BaseScene } from '../../s2-interface';
-import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../../s2-types';
+import { S2BaseScene } from '../../s2-interface';
+import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String, S2Transform } from '../../s2-types';
 
 export class S2LayerData {
     public readonly layer: S2Number;
@@ -70,7 +69,7 @@ export class S2StrokeData {
         }
 
         if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
-            element.setAttribute('stroke-opacity', this.opacity.toString());
+            element.setAttribute('stroke-opacity', this.opacity.toFixed());
         } else {
             element.removeAttribute('stroke-opacity');
         }
@@ -119,7 +118,7 @@ export class S2FillData {
         }
 
         if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
-            element.setAttribute('fill-opacity', this.opacity.toString());
+            element.setAttribute('fill-opacity', this.opacity.toFixed());
         } else {
             element.removeAttribute('fill-opacity');
         }
@@ -127,27 +126,26 @@ export class S2FillData {
 }
 
 export class S2TransformData {
-    public readonly matrix: S2Mat2x3;
+    public readonly transform: S2Transform;
 
     constructor() {
-        this.matrix = S2Mat2x3.createIdentity();
+        this.transform = new S2Transform();
     }
 
-    setInherited(): void {
-        this.matrix.makeIdentity();
+    setParent(parent: S2TransformData | null = null): void {
+        this.transform.setParent(parent ? parent.transform : null);
     }
 
     copy(other: S2TransformData): void {
-        this.matrix.copy(other.matrix);
+        this.transform.copy(other.transform);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         void scene;
-        if (this.matrix.isIdentity()) {
-            element.removeAttribute('transform');
+        if (this.transform.state === S2TypeState.Active) {
+            element.setAttribute('transform', this.transform.toFixed());
         } else {
-            const m = this.matrix.elements;
-            element.setAttribute('transform', `matrix(${m[0]}, ${m[1]}, ${m[2]}, ${m[3]}, ${m[4]}, ${m[5]})`);
+            element.removeAttribute('transform');
         }
     }
 }
@@ -198,7 +196,7 @@ export class S2FontData {
         }
 
         if (this.weight.state === S2TypeState.Active) {
-            element.setAttribute('font-weight', this.weight.toString(0));
+            element.setAttribute('font-weight', this.weight.toFixed(0));
         } else {
             element.removeAttribute('font-weight');
         }

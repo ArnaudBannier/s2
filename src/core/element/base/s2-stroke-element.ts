@@ -26,7 +26,7 @@ export class S2StrokeElementData extends S2LayerData {
         this.stroke.applyToElement(element, scene);
 
         if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
-            element.setAttribute('opacity', this.opacity.toString());
+            element.setAttribute('opacity', this.opacity.toFixed());
         } else {
             element.removeAttribute('opacity');
         }
