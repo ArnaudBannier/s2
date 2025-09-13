@@ -1,22 +1,19 @@
 import { type S2BaseScene } from '../../s2-interface';
-import { S2Element, type S2BaseElement } from './s2-element';
-import { S2TransformableElement, type S2TransformableElementData } from './s2-transformable-element';
+import type { S2LayerData } from './s2-base-data';
+import { S2Element } from './s2-element';
 
-export type S2BaseContainer = S2Container<SVGElement, S2BaseElement, S2TransformableElementData>;
+export type S2BaseContainer = S2Container<SVGElement, S2LayerData, S2Element<S2LayerData>>;
 
 export class S2Container<
     SVGType extends SVGElement,
-    ChildType extends S2BaseElement,
-    Data extends S2TransformableElementData,
-> extends S2TransformableElement<Data> {
+    DataType extends S2LayerData,
+    ChildType extends S2Element<DataType>,
+> extends S2Element<DataType> {
     protected element: SVGType;
     protected children: Array<ChildType>;
 
-    constructor(scene: S2BaseScene, data: Data, element: SVGType) {
+    constructor(scene: S2BaseScene, data: DataType, element: SVGType) {
         super(scene, data);
-        this.data.fill.setParent();
-        this.data.stroke.setParent();
-        this.data.opacity.setParent();
         this.element = element;
         this.children = [];
     }

@@ -11,15 +11,7 @@ export class S2Mat2x3 {
     }
 
     static lerp(matrix0: S2Mat2x3, matrix1: S2Mat2x3, t: number): S2Mat2x3 {
-        const s = 1 - t;
-        return new S2Mat2x3(
-            s * matrix0.elements[0] + t * matrix1.elements[0],
-            s * matrix0.elements[1] + t * matrix1.elements[1],
-            s * matrix0.elements[2] + t * matrix1.elements[2],
-            s * matrix0.elements[3] + t * matrix1.elements[3],
-            s * matrix0.elements[4] + t * matrix1.elements[4],
-            s * matrix0.elements[5] + t * matrix1.elements[5],
-        );
+        return new S2Mat2x3().lerp(matrix0, matrix1, t);
     }
 
     lerp(matrix0: S2Mat2x3, matrix1: S2Mat2x3, t: number): this {

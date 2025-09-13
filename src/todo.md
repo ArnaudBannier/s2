@@ -1,6 +1,8 @@
 # TODO
 
-- Easing dans un record ?
+- Passer toutes les fonctions setXXX (et getXXX ?) dans les data
+- Les S2Element deviennent plus des systèmes
+
 - isActive à tester.
 - Possibilité d'ajouter des label sur un edge (qui devient un groupe)
 - Tracer une fonction

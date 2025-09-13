@@ -1,5 +1,5 @@
 import { S2Vec2 } from '../math/s2-vec2';
-import { type S2BaseScene } from '../s2-interface';
+import { S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
@@ -83,7 +83,7 @@ export class S2NodeData extends S2LayerData {
 }
 
 export class S2Node extends S2Element<S2NodeData> {
-    protected mainGroup: S2Group<S2BaseElement>;
+    protected mainGroup: S2Group<S2LayerData, S2BaseElement>;
     protected textGroups: S2TextGroup[];
     protected textGrows: number[];
     protected sepLines: S2Line[];
@@ -92,7 +92,7 @@ export class S2Node extends S2Element<S2NodeData> {
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
         super(scene, new S2NodeData());
-        this.mainGroup = new S2Group<S2BaseElement>(scene);
+        this.mainGroup = new S2Group(scene, new S2LayerData());
 
         this.textGroups = [];
         this.textGrows = [];

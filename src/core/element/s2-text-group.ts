@@ -61,7 +61,7 @@ export class S2TextGroupData extends S2TransformableElementData {
     }
 }
 
-export class S2TextGroup extends S2Container<SVGGElement, S2TextLine, S2TextGroupData> {
+export class S2TextGroup extends S2Container<SVGGElement, S2TextGroupData, S2TextLine> {
     protected textExtents: S2Extents;
     protected extents: S2Extents;
 
