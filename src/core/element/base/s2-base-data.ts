@@ -1,7 +1,7 @@
-import { S2Mat2x3 } from '../math/s2-mat2x3';
-import { type S2LineCap, type S2LineJoin } from '../s2-globals';
-import { type S2BaseScene } from '../s2-interface';
-import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../s2-types';
+import { S2Mat2x3 } from '../../math/s2-mat2x3';
+import { type S2LineCap, type S2LineJoin } from '../../s2-globals';
+import { type S2BaseScene } from '../../s2-interface';
+import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../../s2-types';
 
 export class S2LayerData {
     public readonly layer: S2Number;

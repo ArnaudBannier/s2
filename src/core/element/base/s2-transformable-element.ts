@@ -1,9 +1,9 @@
-import { S2Mat2x3 } from '../math/s2-mat2x3';
-import { type S2BaseScene } from '../s2-interface';
+import { S2Mat2x3 } from '../../math/s2-mat2x3';
+import { S2BaseScene } from '../../s2-interface';
 import { S2TransformData } from './s2-base-data';
-import { S2MonoGraphic, S2MonoGraphicData } from './s2-mono-graphic';
+import { S2FillStrokeElement, S2FillStrokeElementData } from './s2-fill-stroke-element';
 
-export class S2TransformGraphicData extends S2MonoGraphicData {
+export class S2TransformableElementData extends S2FillStrokeElementData {
     public readonly transform: S2TransformData;
 
     constructor() {
@@ -11,7 +11,7 @@ export class S2TransformGraphicData extends S2MonoGraphicData {
         this.transform = new S2TransformData();
     }
 
-    setParent(parent: S2TransformGraphicData | null = null): void {
+    setParent(parent: S2TransformableElementData | null = null): void {
         super.setParent(parent);
         this.transform.matrix.makeIdentity();
     }
@@ -22,7 +22,9 @@ export class S2TransformGraphicData extends S2MonoGraphicData {
     }
 }
 
-export abstract class S2TransformGraphic<Data extends S2TransformGraphicData> extends S2MonoGraphic<Data> {
+export abstract class S2TransformableElement<
+    Data extends S2TransformableElementData,
+> extends S2FillStrokeElement<Data> {
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
     }

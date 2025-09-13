@@ -1,4 +1,4 @@
-import { type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene } from '../../s2-interface';
 import { S2LayerData } from './s2-base-data';
 
 export type S2BaseElement = S2Element<S2LayerData>;

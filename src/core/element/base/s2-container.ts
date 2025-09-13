@@ -1,14 +1,14 @@
-import { type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene } from '../../s2-interface';
 import { S2Element, type S2BaseElement } from './s2-element';
-import { S2TransformGraphic, type S2TransformGraphicData } from './s2-transform-graphic';
+import { S2TransformableElement, type S2TransformableElementData } from './s2-transformable-element';
 
-export type S2BaseContainer = S2Container<SVGElement, S2BaseElement, S2TransformGraphicData>;
+export type S2BaseContainer = S2Container<SVGElement, S2BaseElement, S2TransformableElementData>;
 
 export class S2Container<
     SVGType extends SVGElement,
     ChildType extends S2BaseElement,
-    Data extends S2TransformGraphicData,
-> extends S2TransformGraphic<Data> {
+    Data extends S2TransformableElementData,
+> extends S2TransformableElement<Data> {
     protected element: SVGType;
     protected children: Array<ChildType>;
 

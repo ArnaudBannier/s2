@@ -10,8 +10,8 @@ import { S2FillRect } from './element/s2-fill-rect';
 import { S2Group } from './element/s2-group';
 import { S2CubicEdge, S2LineEdge } from './element/s2-edge';
 import { S2Position } from './s2-types';
-import { type S2BaseContainer } from './element/s2-container';
-import { type S2BaseElement } from './element/s2-element';
+import { type S2BaseContainer } from './element/base/s2-container';
+import { type S2BaseElement } from './element/base/s2-element';
 import { S2BaseScene } from './s2-interface';
 import { S2Line } from './element/s2-line';
 

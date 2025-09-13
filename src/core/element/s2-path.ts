@@ -1,12 +1,12 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
+import { S2TransformableElement, S2TransformableElementData } from './base/s2-transformable-element';
 import { S2Enum, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
 
-export class S2PathData extends S2TransformGraphicData {
+export class S2PathData extends S2TransformableElementData {
     public readonly space: S2Enum<S2Space>;
     public readonly polyCurve: S2PolyCurve;
     public readonly pathFrom: S2Number;
@@ -91,7 +91,7 @@ export class S2PathUtils {
     }
 }
 
-export class S2Path extends S2TransformGraphic<S2PathData> {
+export class S2Path extends S2TransformableElement<S2PathData> {
     protected element: SVGPathElement;
     protected sampleCount: number = 0;
     protected currStart: S2Vec2;

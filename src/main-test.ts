@@ -3,11 +3,11 @@ import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL, MTL_HEX } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
-import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
-import { ease } from './animation/s2-easing.ts';
+import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
+import { ease } from './core/animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
-import { S2Timeline } from './animation/s2-timeline.ts';
-import { S2PlayableAnimation } from './animation/s2-animation-manager.ts';
+import { S2Timeline } from './core/animation/s2-timeline.ts';
+import { S2PlayableAnimation } from './core/animation/s2-animation-manager.ts';
 import { S2Node } from './core/element/s2-node.ts';
 
 const viewportScale = 1.5;

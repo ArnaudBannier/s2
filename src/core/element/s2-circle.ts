@@ -2,9 +2,9 @@ import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../s2-globals';
 import { type S2Space, S2Length, S2TypeState } from '../s2-types';
-import { S2ShapeGraphic, S2ShapeGraphicData } from './s2-shape-graphic';
+import { S2ShapeElement, S2ShapeElementData } from './base/s2-shape-element';
 
-export class S2CircleData extends S2ShapeGraphicData {
+export class S2CircleData extends S2ShapeElementData {
     public readonly radius: S2Length;
 
     constructor() {
@@ -23,7 +23,7 @@ export class S2CircleData extends S2ShapeGraphicData {
     }
 }
 
-export class S2Circle extends S2ShapeGraphic<S2CircleData> {
+export class S2Circle extends S2ShapeElement<S2CircleData> {
     protected element: SVGCircleElement;
 
     constructor(scene: S2BaseScene) {

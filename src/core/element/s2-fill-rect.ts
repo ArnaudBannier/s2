@@ -1,20 +1,32 @@
-import { type S2BaseScene } from '../s2-interface';
+import { S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { S2Element } from './s2-element';
+import { S2Element } from './base/s2-element';
 import { S2Color, S2Number, S2TypeState } from '../s2-types';
-import { S2FillData, S2LayerData } from './s2-base-data';
+import { S2LayerData } from './base/s2-base-data';
 
 export class S2FillRectData extends S2LayerData {
-    public readonly fill: S2FillData;
+    public readonly color: S2Color;
+    public readonly opacity: S2Number;
 
     constructor() {
         super();
-        this.fill = new S2FillData();
+        this.color = new S2Color();
+        this.opacity = new S2Number(1);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-        this.fill.applyToElement(element, scene);
+        void scene;
+        if (this.color.state === S2TypeState.Active) {
+            element.setAttribute('fill', this.color.toRgb());
+        } else {
+            element.removeAttribute('fill');
+        }
+
+        if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
+            element.setAttribute('fill-opacity', this.opacity.toString());
+        } else {
+            element.removeAttribute('fill-opacity');
+        }
     }
 }
 
@@ -27,30 +39,30 @@ export class S2FillRect extends S2Element<S2FillRectData> {
     }
 
     get color(): S2Color {
-        return this.data.fill.color;
+        return this.data.color;
     }
 
     get opacity(): S2Number {
-        return this.data.fill.opacity;
+        return this.data.opacity;
     }
 
     setColor(color: S2Color): this {
-        this.data.fill.color.copy(color);
+        this.data.color.copy(color);
         return this;
     }
 
     setColorHex(color: string, state: S2TypeState = S2TypeState.Active): this {
-        this.data.fill.color.setFromHex(color, state);
+        this.data.color.setFromHex(color, state);
         return this;
     }
 
     setColorRGB(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.fill.color.set(r, g, b, state);
+        this.data.color.set(r, g, b, state);
         return this;
     }
 
     setOpacity(opacity: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.fill.opacity.set(opacity, state);
+        this.data.opacity.set(opacity, state);
         return this;
     }
 
@@ -66,7 +78,7 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         this.element.setAttribute('y', '0');
         this.element.setAttribute('width', camera.viewport.x.toString());
         this.element.setAttribute('height', camera.viewport.y.toString());
-        this.element.setAttribute('fill', data.fill.color.toRgb());
-        this.element.setAttribute('fill-opacity', data.fill.opacity.toString());
+        this.element.setAttribute('fill', data.color.toRgb());
+        this.element.setAttribute('fill-opacity', data.opacity.toString());
     }
 }

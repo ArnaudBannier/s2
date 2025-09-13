@@ -1,9 +1,9 @@
-import { S2Vec2 } from '../math/s2-vec2';
-import { type S2BaseScene } from '../s2-interface';
-import { S2Position, S2TypeState, type S2Space } from '../s2-types';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
+import { S2Vec2 } from '../../math/s2-vec2';
+import { type S2BaseScene } from '../../s2-interface';
+import { S2Position, S2TypeState, type S2Space } from '../../s2-types';
+import { S2TransformableElement, S2TransformableElementData } from './s2-transformable-element';
 
-export class S2ShapeGraphicData extends S2TransformGraphicData {
+export class S2ShapeElementData extends S2TransformableElementData {
     public readonly position: S2Position;
 
     constructor() {
@@ -21,7 +21,7 @@ export class S2ShapeGraphicData extends S2TransformGraphicData {
     }
 }
 
-export abstract class S2ShapeGraphic<Data extends S2ShapeGraphicData> extends S2TransformGraphic<Data> {
+export abstract class S2ShapeElement<Data extends S2ShapeElementData> extends S2TransformableElement<Data> {
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
     }

@@ -3,16 +3,16 @@ import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, FlexUtils } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
-import { S2TransformGraphicData } from './s2-transform-graphic';
+import { S2TransformableElementData } from './base/s2-transformable-element';
 import { S2Color, S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2TextGroup, S2TextLine, type S2HorizontalAlign, type S2VerticalAlign } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
-import { S2Element, type S2BaseElement } from './s2-element';
+import { S2Element, type S2BaseElement } from './base/s2-element';
 import { S2Group } from './s2-group';
-import { S2FontData, S2LayerData } from './s2-base-data';
+import { S2FontData, S2LayerData } from './base/s2-base-data';
 
-export class S2NodeBackgroundData extends S2TransformGraphicData {
+export class S2NodeBackgroundData extends S2TransformableElementData {
     public readonly cornerRadius: S2Length;
 
     constructor() {
@@ -35,7 +35,7 @@ export class S2NodeBackgroundData extends S2TransformGraphicData {
     }
 }
 
-export class S2NodeTextData extends S2TransformGraphicData {
+export class S2NodeTextData extends S2TransformableElementData {
     public readonly font: S2FontData;
     public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
     public readonly verticalAlign: S2Enum<S2VerticalAlign>;
@@ -53,7 +53,7 @@ export class S2NodeTextData extends S2TransformGraphicData {
     }
 }
 
-export class S2NodeSeparatorData extends S2TransformGraphicData {}
+export class S2NodeSeparatorData extends S2TransformableElementData {}
 
 export class S2NodeData extends S2LayerData {
     public readonly position: S2Position;

@@ -6,9 +6,9 @@ import { S2Scene } from './core/s2-scene.ts';
 import { S2Node } from './core/element/s2-node.ts';
 import { S2LineEdge } from './core/element/s2-edge.ts';
 import { S2Group } from './core/element/s2-group.ts';
-import { S2StepAnimator } from './animation/s2-step-animator.ts';
-import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
-import { ease } from './animation/s2-easing.ts';
+import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
+import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
+import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 
 const viewport = new S2Vec2(640.0, 360.0);

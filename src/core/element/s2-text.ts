@@ -1,22 +1,13 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { svgNS } from '../s2-globals';
-import { S2TransformGraphic, S2TransformGraphicData } from './s2-transform-graphic';
+import { S2TransformableElement, S2TransformableElementData } from './base/s2-transformable-element';
 import { S2Enum, S2Position } from '../s2-types';
-import { S2FontData } from './s2-base-data';
-
-// "text-anchor": "start | middle | end"
-// "dominant-baseline": "auto | middle | hanging" + autres
-// "font-family"
-// "font-size"
-// "font-stretch"
-// "font-style"
-// "font-variant"
-// "font-weight"
+import { S2FontData } from './base/s2-base-data';
 
 export type S2TextAnchor = 'start' | 'middle' | 'end';
 
-export class S2TextData extends S2TransformGraphicData {
+export class S2TextData extends S2TransformableElementData {
     public readonly position: S2Position;
     public readonly font: S2FontData;
     public readonly textAnchor: S2Enum<S2TextAnchor>;
@@ -46,7 +37,7 @@ export class S2TextData extends S2TransformGraphicData {
     }
 }
 
-export class S2BaseText<Data extends S2TextData> extends S2TransformGraphic<Data> {
+export class S2BaseText<Data extends S2TextData> extends S2TransformableElement<Data> {
     protected element: SVGTextElement;
     protected tspans: Array<S2TSpan>;
 
@@ -104,7 +95,7 @@ export class S2Text extends S2BaseText<S2TextData> {
     }
 }
 
-export class S2TSpanData extends S2TransformGraphicData {
+export class S2TSpanData extends S2TransformableElementData {
     constructor() {
         super();
     }
@@ -114,7 +105,7 @@ export class S2TSpanData extends S2TransformGraphicData {
     }
 }
 
-export class S2TSpan extends S2TransformGraphic<S2TSpanData> {
+export class S2TSpan extends S2TransformableElement<S2TSpanData> {
     protected element: SVGTSpanElement;
 
     constructor(scene: S2BaseScene) {

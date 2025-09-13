@@ -1,20 +1,11 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-interface';
 import { type S2Anchor, S2AnchorUtils, svgNS } from '../s2-globals';
-import { S2TransformGraphicData } from './s2-transform-graphic';
+import { S2TransformableElementData } from './base/s2-transformable-element';
 import { S2BaseText, S2TextData } from './s2-text';
 import { S2Enum, S2Extents, S2Length, S2Position, S2TypeState, type S2Space } from '../s2-types';
-import { S2Container } from './s2-container';
-import { S2FontData } from './s2-base-data';
-
-// "text-anchor": "start | middle | end"
-// "dominant-baseline": "auto | middle | hanging" + autres
-// "font-family"
-// "font-size"
-// "font-stretch"
-// "font-style"
-// "font-variant"
-// "font-weight"
+import { S2Container } from './base/s2-container';
+import { S2FontData } from './base/s2-base-data';
 
 export type S2HorizontalAlign = 'left' | 'center' | 'right';
 export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
@@ -46,7 +37,7 @@ export class S2TextLine extends S2BaseText<S2TextLineData> {
     }
 }
 
-export class S2TextGroupData extends S2TransformGraphicData {
+export class S2TextGroupData extends S2TransformableElementData {
     public readonly font: S2FontData;
     public readonly position: S2Position;
     public readonly minExtents: S2Extents;

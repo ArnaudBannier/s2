@@ -1,5 +1,5 @@
-import { type S2BaseScene } from '../core/s2-interface';
-import { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../core/s2-types';
+import { type S2BaseScene } from '../s2-interface';
+import { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../s2-types';
 import { S2Animation } from './s2-animation';
 
 type S2LerpableProperty<T> = { object: T; state0: T; state1: T };

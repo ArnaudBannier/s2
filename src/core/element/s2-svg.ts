@@ -1,11 +1,11 @@
 import { type S2BaseScene } from '../s2-interface';
-import { S2Container } from './s2-container';
-import { type S2BaseElement } from './s2-element';
-import { S2TransformGraphicData } from './s2-transform-graphic';
+import { S2Container } from './base/s2-container';
+import { type S2BaseElement } from './base/s2-element';
+import { S2TransformableElementData } from './base/s2-transformable-element';
 
-export class S2SVG extends S2Container<SVGElement, S2BaseElement, S2TransformGraphicData> {
+export class S2SVG extends S2Container<SVGElement, S2BaseElement, S2TransformableElementData> {
     constructor(scene: S2BaseScene, element: SVGSVGElement) {
-        super(scene, new S2TransformGraphicData(), element);
+        super(scene, new S2TransformableElementData(), element);
     }
 
     protected updateImpl(updateId?: number): void {

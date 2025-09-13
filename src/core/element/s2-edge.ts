@@ -1,10 +1,10 @@
 import { S2Vec2 } from '../math/s2-vec2';
-import { type S2BaseScene } from '../s2-interface';
+import { S2BaseScene } from '../s2-interface';
 import { S2Node } from './s2-node';
 import { S2Path } from './s2-path';
-import { S2MonoGraphic, S2MonoGraphicData } from './s2-mono-graphic';
 import { type S2Space, S2TypeState, S2Length, S2Number, S2Position } from '../s2-types';
-import type { S2Camera } from '../math/s2-camera';
+import { S2Camera } from '../math/s2-camera';
+import { S2StrokeElement, S2StrokeElementData } from './base/s2-stroke-element';
 
 // S2NodeArcManhattan
 
@@ -36,7 +36,6 @@ export class S2EdgeEndpoint {
         this.mode = other.mode;
         this.node = other.node;
         this.position.copy(other.position);
-        console.log('copy !!');
     }
 
     getCenter(space: S2Space, camera: S2Camera): S2Vec2 {
@@ -62,7 +61,7 @@ export class S2EdgeEndpoint {
     }
 }
 
-export class S2EdgeData extends S2MonoGraphicData {
+export class S2EdgeData extends S2StrokeElementData {
     public readonly pathFrom: S2Number;
     public readonly pathTo: S2Number;
     public readonly startDistance: S2Length;
@@ -83,11 +82,9 @@ export class S2EdgeData extends S2MonoGraphicData {
         this.start = new S2EdgeEndpoint();
         this.end = new S2EdgeEndpoint();
 
-        this.fill.opacity.set(0, S2TypeState.Active);
         this.stroke.opacity.set(1, S2TypeState.Active);
         this.stroke.width.set(4, 'view', S2TypeState.Active);
         this.stroke.color.set(0, 0, 0, S2TypeState.Active);
-        this.fill.color.setParent();
         this.opacity.set(1, S2TypeState.Inactive);
     }
 
@@ -96,7 +93,7 @@ export class S2EdgeData extends S2MonoGraphicData {
     }
 }
 
-export abstract class S2Edge<Data extends S2EdgeData> extends S2MonoGraphic<Data> {
+export abstract class S2Edge<Data extends S2EdgeData> extends S2StrokeElement<Data> {
     protected path: S2Path;
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
@@ -196,7 +193,6 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2MonoGraphic<Data
     protected applyStyleToPath(): void {
         this.path.data.pathFrom.copy(this.data.pathFrom);
         this.path.data.pathTo.copy(this.data.pathTo);
-        this.path.data.fill.copy(this.data.fill);
         this.path.data.stroke.copy(this.data.stroke);
         this.path.data.opacity.copy(this.data.opacity);
     }
@@ -248,7 +244,6 @@ export class S2CubicEdgeData extends S2EdgeData {
 export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2CubicEdgeData());
-        this.data.fill.opacity.set(0);
     }
 
     get curveBendAngle(): S2Number {

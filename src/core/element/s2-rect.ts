@@ -3,9 +3,9 @@ import { type S2BaseScene } from '../s2-interface';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { type S2Space, S2Length, S2Extents, S2Enum } from '../s2-types';
-import { S2ShapeGraphic, S2ShapeGraphicData } from './s2-shape-graphic';
+import { S2ShapeElement, S2ShapeElementData } from './base/s2-shape-element';
 
-export class S2RectData extends S2ShapeGraphicData {
+export class S2RectData extends S2ShapeElementData {
     public readonly cornerRadius: S2Length;
     public readonly extents: S2Extents;
     public readonly anchor: S2Enum<S2Anchor>;
@@ -43,7 +43,7 @@ export class S2RectData extends S2ShapeGraphicData {
     }
 }
 
-export class S2Rect extends S2ShapeGraphic<S2RectData> {
+export class S2Rect extends S2ShapeElement<S2RectData> {
     protected element: SVGRectElement;
 
     constructor(scene: S2BaseScene) {

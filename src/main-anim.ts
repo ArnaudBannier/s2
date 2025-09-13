@@ -5,9 +5,9 @@ import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle, S2CircleData } from './core/element/s2-circle.ts';
 import { S2Path } from './core/element/s2-path.ts';
 import { S2Scene } from './core/s2-scene.ts';
-import { S2StepAnimator } from './animation/s2-step-animator.ts';
-import { S2LerpAnim } from './animation/s2-lerp-anim.ts';
-import { ease } from './animation/s2-easing.ts';
+import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
+import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
+import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 
 const viewportScale = 1.5;
