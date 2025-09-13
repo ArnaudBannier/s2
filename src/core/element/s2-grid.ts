@@ -16,13 +16,6 @@ export class S2GridGeometryData {
         this.referencePoint = new S2Position(0, 0, 'world');
     }
 
-    copy(other: S2GridGeometryData): void {
-        this.boundA.copy(other.boundA);
-        this.boundB.copy(other.boundB);
-        this.steps.copy(other.steps);
-        this.referencePoint.copy(other.referencePoint);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         const epsilon = 1e-5;
         const camera = scene.getActiveCamera();
@@ -53,11 +46,6 @@ export class S2GridData extends S2TransformGraphicData {
     constructor() {
         super();
         this.geometry = new S2GridGeometryData();
-    }
-
-    copy(other: S2GridData): void {
-        super.copy(other);
-        this.geometry.copy(other.geometry);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {

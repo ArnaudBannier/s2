@@ -25,13 +25,6 @@ export class S2MonoGraphicData extends S2LayerData {
         this.opacity.setParent(parent ? parent.opacity : null);
     }
 
-    copy(other: S2MonoGraphicData): void {
-        super.copy(other);
-        this.stroke.copy(other.stroke);
-        this.fill.copy(other.fill);
-        this.opacity.copy(other.opacity);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         this.stroke.applyToElement(element, scene);

@@ -12,11 +12,6 @@ export class S2FillRectData extends S2LayerData {
         this.fill = new S2FillData();
     }
 
-    copy(other: S2FillRectData): void {
-        super.copy(other);
-        this.fill.copy(other.fill);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         this.fill.applyToElement(element, scene);

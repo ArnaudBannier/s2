@@ -19,3 +19,5 @@
 
 // Créer deux catégories -> timeAnim eventAnim ?
 // Comment gérer les smoothDamped ?
+// TODO : Ajouter un S2StyleData qui contiendrait stroke, fill, opacity et layer ?
+// TODO : Ajouter S2Transform ?

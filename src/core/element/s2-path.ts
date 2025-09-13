@@ -20,14 +20,6 @@ export class S2PathData extends S2TransformGraphicData {
         this.space = new S2Enum<S2Space>('world');
     }
 
-    copy(other: S2PathData): void {
-        super.copy(other);
-        this.pathFrom.copy(other.pathFrom);
-        this.pathTo.copy(other.pathTo);
-        this.polyCurve.copy(other.polyCurve);
-        this.space.copy(other.space);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         this.polyCurve.updateLength();

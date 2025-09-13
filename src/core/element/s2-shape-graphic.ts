@@ -16,11 +16,6 @@ export class S2ShapeGraphicData extends S2TransformGraphicData {
         this.position.setParent();
     }
 
-    copy(other: S2ShapeGraphicData): void {
-        super.copy(other);
-        this.position.copy(other.position);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
     }

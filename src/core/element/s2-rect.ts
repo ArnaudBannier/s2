@@ -17,13 +17,6 @@ export class S2RectData extends S2ShapeGraphicData {
         this.anchor = new S2Enum<S2Anchor>('north');
     }
 
-    copy(other: S2RectData): void {
-        super.copy(other);
-        this.cornerRadius.copy(other.cornerRadius);
-        this.extents.copy(other.extents);
-        this.anchor.copy(other.anchor);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         const camera = scene.getActiveCamera();
