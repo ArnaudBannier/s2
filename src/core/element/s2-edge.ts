@@ -91,29 +91,6 @@ export class S2EdgeData extends S2MonoGraphicData {
         this.opacity.set(1, S2TypeState.Inactive);
     }
 
-    copyStyle(other: S2EdgeData): void {
-        super.copy(other);
-        this.pathFrom.copy(other.pathFrom);
-        this.pathTo.copy(other.pathTo);
-        this.startDistance.copy(other.startDistance);
-        this.endDistance.copy(other.endDistance);
-        this.startAngle.copy(other.startAngle);
-        this.endAngle.copy(other.endAngle);
-    }
-
-    copy(other: S2EdgeData): void {
-        // super.copy(other);
-        // this.pathFrom.copy(other.pathFrom);
-        // this.pathTo.copy(other.pathTo);
-        // this.startDistance.copy(other.startDistance);
-        // this.endDistance.copy(other.endDistance);
-        // this.startAngle.copy(other.startAngle);
-        // this.endAngle.copy(other.endAngle);
-        this.copyStyle(other);
-        this.start.copy(other.start);
-        this.end.copy(other.end);
-    }
-
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
     }
@@ -261,13 +238,6 @@ export class S2CubicEdgeData extends S2EdgeData {
         this.curveStartTension = new S2Number(0.3, S2TypeState.Inactive);
         this.curveEndTension = new S2Number(0.3, S2TypeState.Inactive);
         this.curveBendAngle = new S2Number(0, S2TypeState.Inactive);
-    }
-
-    copy(other: S2CubicEdgeData): void {
-        super.copy(other);
-        this.curveStartTension.copy(other.curveStartTension);
-        this.curveEndTension.copy(other.curveEndTension);
-        this.curveBendAngle.copy(other.curveBendAngle);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {

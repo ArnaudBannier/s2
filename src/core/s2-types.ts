@@ -2,8 +2,6 @@ import { S2Vec2 } from './math/s2-vec2';
 import { S2Camera } from './math/s2-camera';
 import { S2MathUtils } from './math/s2-utils';
 
-// TODO : Ajouter S2Transform ?
-
 export type S2Space = 'world' | 'view';
 export enum S2TypeState {
     Inactive = 'inactive',
