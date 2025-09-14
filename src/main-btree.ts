@@ -10,6 +10,7 @@ import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
 import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
+import { S2LayerData } from './core/element/base/s2-base-data.ts';
 
 const viewport = new S2Vec2(640.0, 360.0);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
@@ -56,7 +57,8 @@ class BTreeStyle {
     }
 
     setEdgeBase(edge: S2LineEdge): void {
-        edge.setStrokeColor(MTL.GREY_6)
+        edge.data
+            .setStrokeColor(MTL.GREY_6)
             .setStrokeWidth(4, 'view')
             .setStrokeLineCap('round')
             .setStartDistance(0, 'view')
@@ -64,7 +66,8 @@ class BTreeStyle {
     }
 
     setEdgeEmphasized(edge: S2LineEdge): void {
-        edge.setStrokeColor(MTL.WHITE)
+        edge.data
+            .setStrokeColor(MTL.WHITE)
             .setStrokeWidth(6, 'view')
             .setStrokeLineCap('round')
             .setStartDistance(0, 'view')
@@ -72,19 +75,19 @@ class BTreeStyle {
     }
 
     setEdgeSelected(edge: S2LineEdge): void {
-        edge.setStrokeColor(MTL.BLUE_5);
+        edge.data.setStrokeColor(MTL.BLUE_5);
     }
 
     bindEdgeSelected(anim: S2LerpAnim, edge: S2LineEdge): void {
-        anim.addUpdateTarget(edge).bind(edge.strokeColor);
+        anim.addUpdateTarget(edge).bind(edge.data.strokeColor);
     }
 
     setEdgeExplored(edge: S2LineEdge): void {
-        edge.setStrokeColor(MTL.GREY_7);
+        edge.data.setStrokeColor(MTL.GREY_7);
     }
 
     bindEdgeExplored(anim: S2LerpAnim, edge: S2LineEdge): void {
-        anim.addUpdateTarget(edge).bind(edge.strokeColor);
+        anim.addUpdateTarget(edge).bind(edge.data.strokeColor);
     }
 }
 
@@ -98,8 +101,8 @@ class BTree {
     public root: BTreeNode | null;
     protected style: BTreeStyle;
     protected scene: S2Scene;
-    protected edgeGroup: S2Group<S2LineEdge>;
-    protected nodeGroup: S2Group<S2Node>;
+    protected edgeGroup: S2Group<S2LayerData, S2LineEdge>;
+    protected nodeGroup: S2Group<S2LayerData, S2Node>;
 
     levelDistance: number = 1.8;
     baseSep: number = 0.8;
@@ -113,8 +116,8 @@ class BTree {
         this.style = style;
         this.center = new S2Vec2();
         this.extents = new S2Vec2();
-        this.edgeGroup = scene.addGroup<S2LineEdge>();
-        this.nodeGroup = scene.addGroup<S2Node>();
+        this.edgeGroup = scene.addGroup(new S2LayerData());
+        this.nodeGroup = scene.addGroup(new S2LayerData());
 
         this.height = 0;
         this.root = this.createNodes(userTree);
@@ -144,10 +147,8 @@ class BTree {
         if (bTreeNode === null) return;
         if (parent) {
             bTreeNode.parentEdge = this.scene.addLineEdge(parent.node, bTreeNode.node, this.edgeGroup).update();
-            bTreeNode.parentEmphEdge = this.scene
-                .addLineEdge(parent.node, bTreeNode.node, this.edgeGroup)
-                .setPathFrom(0)
-                .setPathTo(0.2);
+            bTreeNode.parentEmphEdge = this.scene.addLineEdge(parent.node, bTreeNode.node, this.edgeGroup);
+            bTreeNode.parentEmphEdge.data.setPathFrom(0).setPathTo(0.2);
 
             this.style.setEdgeBase(bTreeNode.parentEdge);
             this.style.setEdgeEmphasized(bTreeNode.parentEmphEdge);
@@ -168,7 +169,7 @@ class BTree {
     private computeLayoutRec(bTreeNode: BTreeNode | null, index: number, depth: number): number {
         if (bTreeNode === null) return index;
         index = this.computeLayoutRec(bTreeNode.left, index, depth + 1);
-        bTreeNode.node.setPosition(
+        bTreeNode.node.data.setPosition(
             this.center.x - this.extents.x + index * this.baseSep,
             this.center.y + this.extents.y - depth * this.levelDistance,
             'world',
@@ -187,14 +188,15 @@ class BTree {
     animateSelectNode(animator: S2StepAnimator, bTreeNode: BTreeNode) {
         let anim: S2LerpAnim | null = null;
         if (bTreeNode.parentEmphEdge) {
-            bTreeNode.parentEmphEdge.setPathTo(0.0);
+            bTreeNode.parentEmphEdge.data.setPathTo(0.0);
             anim = new S2LerpAnim(this.scene)
                 .addUpdateTarget(bTreeNode.parentEmphEdge)
-                .bind(bTreeNode.parentEmphEdge.pathTo)
+                .bind(bTreeNode.parentEmphEdge.data.pathTo)
                 .setCycleDuration(500)
                 .setEasing(ease.inOut);
 
-            bTreeNode.parentEmphEdge.setPathTo(1.0).update();
+            bTreeNode.parentEmphEdge.data.setPathTo(1.0);
+            bTreeNode.parentEmphEdge.update();
             animator.addAnimation(anim.commitFinalStates());
         }
 
@@ -221,7 +223,7 @@ class BTree {
     }
 
     animateExploreNode(animator: S2StepAnimator, bTreeNode: BTreeNode) {
-        let anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
+        const anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
 
         this.style.bindNodeExplored(anim, bTreeNode.node);
         this.style.setNodeExplored(bTreeNode.node);
@@ -233,11 +235,12 @@ class BTree {
 
         let anim = new S2LerpAnim(this.scene)
             .addUpdateTarget(bTreeNode.parentEmphEdge)
-            .bind(bTreeNode.parentEmphEdge.pathTo)
+            .bind(bTreeNode.parentEmphEdge.data.pathTo)
             .setCycleDuration(500)
             .setEasing(ease.inOut);
 
-        bTreeNode.parentEmphEdge.setPathTo(0.0).update();
+        bTreeNode.parentEmphEdge.data.setPathTo(0.0);
+        bTreeNode.parentEmphEdge.update();
         animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
 
         anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
@@ -288,8 +291,8 @@ class SceneFigure extends S2Scene {
         super(svgElement, camera);
         this.animator = new S2StepAnimator(this);
 
-        this.addFillRect().setColor(MTL.GREY_8);
-        this.addWorldGrid().setStrokeColor(MTL.GREY_6);
+        this.addFillRect().data.setColor(MTL.GREY_8);
+        this.addWorldGrid().data.setStrokeColor(MTL.GREY_6);
 
         // Tree
         this.tree = new BTree(this, userTree);

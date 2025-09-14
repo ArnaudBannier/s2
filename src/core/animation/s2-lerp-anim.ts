@@ -1,4 +1,4 @@
-import { type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene } from '../s2-base-scene';
 import { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../s2-types';
 import { S2Animation } from './s2-animation';
 

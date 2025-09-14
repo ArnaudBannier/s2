@@ -1,6 +1,6 @@
 import { type S2BaseElement } from '../element/base/s2-element';
 import { S2MathUtils } from '../math/s2-utils';
-import { S2BaseScene } from '../s2-interface';
+import { S2BaseScene } from '../s2-base-scene';
 import { ease, type S2EaseType } from './s2-easing';
 
 interface S2AnimationCallbacks {

@@ -9,6 +9,7 @@ import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
 import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
+import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -41,7 +42,7 @@ class SceneFigure extends S2Scene {
     // };
 
     setCircleDefaultStyle(circle: S2Circle): void {
-        circle
+        circle.data
             .setFillColor(MTL.GREY_6)
             .setStrokeColor(MTL.GREY_4)
             .setStrokeWidth(4, 'view')
@@ -60,17 +61,26 @@ class SceneFigure extends S2Scene {
         circleStyle.fill.opacity.set(1.0);
         circleStyle.radius.set(1, 'world');
 
-        this.addFillRect().setColor(MTL.GREY_8);
-        this.addWorldGrid().setStrokeColor(MTL.GREY_6);
+        const fillRect = this.addFillRect();
+        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
+
+        const grid = this.addWorldGrid();
+        S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
 
         this.path = this.addPath();
-        this.path.setStrokeColor(MTL.CYAN_5).setStrokeWidth(4, 'view').setStrokeLineCap('round');
-        this.path.setSpace('world').moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0).update();
-        this.path.setPathFrom(0.0).setPathTo(0.0).update();
+        this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0).update();
+        S2DataSetter.addTarget(this.path.data)
+            .setStrokeColor(MTL.CYAN_5)
+            .setStrokeWidth(4, 'view')
+            .setStrokeLineCap('round')
+            .setSpace('world')
+            .setPathFrom(0.0)
+            .setPathTo(0.0);
 
         this.circle = this.addCircle();
         this.setCircleDefaultStyle(this.circle);
-        this.circle.setPosition(0, 0, 'world').setOpacity(0.0).update();
+        this.circle.data.setPosition(0, 0, 'world').setOpacity(0.0);
+        this.circle.update();
 
         // const group = this.addGroup<S2Circle>();
 
@@ -90,21 +100,21 @@ class SceneFigure extends S2Scene {
     createAnimation(): void {
         let anim = new S2LerpAnim(this)
             .addUpdateTarget(this.path)
-            .bind(this.path.pathTo)
+            .bind(this.path.data.pathTo)
             .setCycleDuration(2000)
             .setEasing(ease.inOut);
 
-        this.path.setPathTo(1.0).update();
+        this.path.data.setPathTo(1.0);
         anim.commitFinalStates();
         this.animator.addAnimation(anim);
 
         anim = new S2LerpAnim(this)
             .addUpdateTarget(this.path)
-            .bind(this.path.pathFrom)
+            .bind(this.path.data.pathFrom)
             .setCycleDuration(1000)
             .setEasing(ease.inOut);
 
-        this.path.setPathFrom(0.8).update();
+        this.path.data.setPathFrom(0.8);
 
         this.animator.addAnimation(anim.commitFinalStates(), 'previous-start', 1000);
 
@@ -112,21 +122,21 @@ class SceneFigure extends S2Scene {
 
         anim = new S2LerpAnim(this)
             .addUpdateTarget(this.circle)
-            .bind(this.circle.opacity)
+            .bind(this.circle.data.opacity)
             .setCycleDuration(500)
             .setEasing(ease.inOut);
 
-        this.circle.setOpacity(1.0).update();
+        this.circle.data.setOpacity(1.0);
         this.animator.addAnimation(anim.commitFinalStates());
 
         this.animator.makeStep();
         anim = new S2LerpAnim(this)
             .addUpdateTarget(this.circle)
             .addUpdateTarget(this.path)
-            .bind(this.circle.position)
-            .bind(this.circle.fillColor);
-        anim.bind(this.circle.strokeColor)
-            .bind(this.path.strokeColor)
+            .bind(this.circle.data.position)
+            .bind(this.circle.data.fillColor);
+        anim.bind(this.circle.data.strokeColor)
+            .bind(this.path.data.strokeColor)
             .setCycleDuration(600)
             .setCycleCount(3)
             .setAlternate(true)
@@ -134,13 +144,16 @@ class SceneFigure extends S2Scene {
 
         const anim2 = new S2LerpAnim(this)
             .addUpdateTarget(this.circle)
-            .bind(this.circle.radius)
+            .bind(this.circle.data.radius)
             .setCycleDuration(1800)
             .setEasing(ease.inOut);
 
-        this.circle.setPosition(-2, 0, 'world').setFillColor(MTL.LIGHT_GREEN_9).setStrokeColor(MTL.LIGHT_GREEN_5);
-        this.circle.setRadius(20, 'view');
-        this.path.setStrokeColor(MTL.LIGHT_GREEN_5).update();
+        this.circle.data
+            .setPosition(-2, 0, 'world')
+            .setFillColor(MTL.LIGHT_GREEN_9)
+            .setStrokeColor(MTL.LIGHT_GREEN_5)
+            .setRadius(20, 'view');
+        this.path.data.setStrokeColor(MTL.LIGHT_GREEN_5);
 
         this.animator.addAnimation(anim.commitFinalStates());
         this.animator.addAnimation(anim2.commitFinalStates(), 'previous-start', 0);

@@ -1,6 +1,6 @@
 import { type S2LineCap, type S2LineJoin } from '../../s2-globals';
-import { S2BaseScene } from '../../s2-interface';
-import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String, S2Transform } from '../../s2-types';
+import { S2BaseScene } from '../../s2-base-scene';
+import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../../s2-types';
 
 export class S2LayerData {
     public readonly layer: S2Number;
@@ -18,6 +18,11 @@ export class S2LayerData {
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         void element;
         void scene;
+    }
+
+    setLayer(layer: number, state: S2TypeState = S2TypeState.Active): this {
+        this.layer.set(layer, state);
+        return this;
     }
 }
 
@@ -121,31 +126,6 @@ export class S2FillData {
             element.setAttribute('fill-opacity', this.opacity.toFixed());
         } else {
             element.removeAttribute('fill-opacity');
-        }
-    }
-}
-
-export class S2TransformData {
-    public readonly transform: S2Transform;
-
-    constructor() {
-        this.transform = new S2Transform();
-    }
-
-    setParent(parent: S2TransformData | null = null): void {
-        this.transform.setParent(parent ? parent.transform : null);
-    }
-
-    copy(other: S2TransformData): void {
-        this.transform.copy(other.transform);
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        void scene;
-        if (this.transform.state === S2TypeState.Active) {
-            element.setAttribute('transform', this.transform.toFixed());
-        } else {
-            element.removeAttribute('transform');
         }
     }
 }

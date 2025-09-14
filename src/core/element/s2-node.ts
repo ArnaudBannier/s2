@@ -1,16 +1,17 @@
 import { S2Vec2 } from '../math/s2-vec2';
-import { S2BaseScene } from '../s2-interface';
-import { type S2Anchor, S2AnchorUtils, FlexUtils } from '../s2-globals';
+import { S2BaseScene } from '../s2-base-scene';
+import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../s2-globals';
+import { S2AnchorUtils, S2FlexUtils, svgNS } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
 import { S2TransformableElementData } from './base/s2-transformable-element';
 import { S2Color, S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
-import { S2TextGroup, S2TextLine, type S2HorizontalAlign, type S2VerticalAlign } from './s2-text-group';
+import { S2TextGroup, S2TextLine } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
-import { S2Element, type S2BaseElement } from './base/s2-element';
-import { S2Group } from './s2-group';
+import { S2Element, S2ElementUtils, type S2BaseElement } from './base/s2-element';
 import { S2FontData, S2LayerData } from './base/s2-base-data';
+import { S2StrokeElementData } from './base/s2-stroke-element';
 
 export class S2NodeBackgroundData extends S2TransformableElementData {
     public readonly cornerRadius: S2Length;
@@ -53,7 +54,7 @@ export class S2NodeTextData extends S2TransformableElementData {
     }
 }
 
-export class S2NodeSeparatorData extends S2TransformableElementData {}
+export class S2NodeSeparatorData extends S2StrokeElementData {}
 
 export class S2NodeData extends S2LayerData {
     public readonly position: S2Position;
@@ -80,10 +81,99 @@ export class S2NodeData extends S2LayerData {
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
     }
+
+    get textHorizontalAlign(): S2Enum<S2HorizontalAlign> {
+        return this.text.horizontalAlign;
+    }
+
+    get textVerticalAlign(): S2Enum<S2VerticalAlign> {
+        return this.text.verticalAlign;
+    }
+
+    get textFillColor(): S2Color {
+        return this.text.fill.color;
+    }
+
+    get textOpacity(): S2Number {
+        return this.text.opacity;
+    }
+
+    get textFont(): S2FontData {
+        return this.text.font;
+    }
+
+    get backFillColor(): S2Color {
+        return this.background.fill.color;
+    }
+
+    get backFillOpacity(): S2Number {
+        return this.background.fill.opacity;
+    }
+
+    get backStrokeColor(): S2Color {
+        return this.background.stroke.color;
+    }
+
+    get backStrokeOpacity(): S2Number {
+        return this.background.stroke.opacity;
+    }
+
+    get backStrokeWidth(): S2Length {
+        return this.background.stroke.width;
+    }
+
+    get backCornerRadius(): S2Length {
+        return this.background.cornerRadius;
+    }
+
+    get backOpacity(): S2Number {
+        return this.background.opacity;
+    }
+
+    setPosition(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.position.set(x, y, space, state);
+        return this;
+    }
+
+    setPositionV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.position.setV(v, space, state);
+        return this;
+    }
+
+    setMinExtents(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.minExtents.set(x, y, space, state);
+        return this;
+    }
+
+    setMinExtentsV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.minExtents.setV(v, space, state);
+        return this;
+    }
+
+    setPadding(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.padding.set(x, y, space, state);
+        return this;
+    }
+
+    setPaddingV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.padding.setV(v, space, state);
+        return this;
+    }
+
+    setPartSep(sep: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.partSep.set(sep, space, state);
+        return this;
+    }
+
+    setAnchor(anchor: S2Anchor, state: S2TypeState = S2TypeState.Active): this {
+        this.anchor.set(anchor, state);
+        return this;
+    }
 }
 
 export class S2Node extends S2Element<S2NodeData> {
-    protected mainGroup: S2Group<S2LayerData, S2BaseElement>;
+    protected element: SVGGElement;
+    protected children: Array<S2BaseElement>;
     protected textGroups: S2TextGroup[];
     protected textGrows: number[];
     protected sepLines: S2Line[];
@@ -92,154 +182,53 @@ export class S2Node extends S2Element<S2NodeData> {
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
         super(scene, new S2NodeData());
-        this.mainGroup = new S2Group(scene, new S2LayerData());
-
+        this.element = document.createElementNS(svgNS, 'g');
+        this.children = [];
         this.textGroups = [];
         this.textGrows = [];
+        this.sepLines = [];
+
         for (let i = 0; i < partCount; i++) {
             const textGroup = new S2TextGroup(this.scene);
-            textGroup.setLayer(2);
-            textGroup.data.setParent(this.data.text);
+            textGroup.data.setLayer(2);
             textGroup.data.font.setParent(this.data.text.font);
             textGroup.data.horizontalAlign.setParent(this.data.text.horizontalAlign);
             textGroup.data.verticalAlign.setParent(this.data.text.verticalAlign);
-            textGroup.data.fill.color.setParent(this.data.text.fill.color);
+            textGroup.data.fill.setParent(this.data.text.fill);
+            textGroup.data.opacity.setParent(this.data.text.opacity);
+            textGroup.data.stroke.setParent(this.data.text.stroke);
+
+            S2ElementUtils.appendChild(this, this.children, textGroup);
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
-            this.mainGroup.appendChild(textGroup);
         }
-        this.sepLines = [];
         for (let i = 0; i < partCount - 1; i++) {
-            const line = new S2Line(this.scene).setLayer(1);
-            line.data.setParent(this.data.separator);
+            const line = new S2Line(this.scene);
+            line.data.setLayer(1);
+            line.data.opacity.setParent(this.data.separator.opacity);
+            line.data.stroke.setParent(this.data.separator.stroke);
+
+            S2ElementUtils.appendChild(this, this.children, line);
             this.sepLines.push(line);
-            this.mainGroup.appendChild(line);
         }
         this.nodeExtents = new S2Extents(0, 0, 'view');
-    }
-
-    get position(): S2Position {
-        return this.data.position;
-    }
-
-    get anchor(): S2Enum<S2Anchor> {
-        return this.data.anchor;
-    }
-
-    get minExtents(): S2Extents {
-        return this.data.minExtents;
-    }
-
-    get padding(): S2Extents {
-        return this.data.padding;
-    }
-
-    get partSep(): S2Length {
-        return this.data.partSep;
-    }
-
-    get textHorizontalAlign(): S2Enum<S2HorizontalAlign> {
-        return this.data.text.horizontalAlign;
-    }
-
-    get textVerticalAlign(): S2Enum<S2VerticalAlign> {
-        return this.data.text.verticalAlign;
-    }
-
-    get textFillColor(): S2Color {
-        return this.data.text.fill.color;
-    }
-
-    get textOpacity(): S2Number {
-        return this.data.text.opacity;
-    }
-
-    get textFont(): S2FontData {
-        return this.data.text.font;
-    }
-
-    get backFillColor(): S2Color {
-        return this.data.background.fill.color;
-    }
-
-    get backFillOpacity(): S2Number {
-        return this.data.background.fill.opacity;
-    }
-
-    get backStrokeColor(): S2Color {
-        return this.data.background.stroke.color;
-    }
-
-    get backStrokeOpacity(): S2Number {
-        return this.data.background.stroke.opacity;
-    }
-
-    get backStrokeWidth(): S2Length {
-        return this.data.background.stroke.width;
-    }
-
-    get backCornerRadius(): S2Length {
-        return this.data.background.cornerRadius;
-    }
-
-    get backOpacity(): S2Number {
-        return this.data.background.opacity;
-    }
-
-    setPosition(x: number, y: number, space: S2Space): this {
-        this.data.position.set(x, y, space);
-        return this;
-    }
-
-    setPositionV(v: S2Vec2, space: S2Space): this {
-        this.data.position.setV(v, space);
-        return this;
+        S2ElementUtils.updateSVGChildren(this.element, this.children);
     }
 
     getPosition(space: S2Space): S2Vec2 {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
-    setMinExtents(x: number, y: number, space: S2Space): this {
-        this.data.minExtents.set(x, y, space);
-        return this;
-    }
-
-    setMinExtentsV(v: S2Vec2, space: S2Space): this {
-        this.data.minExtents.setV(v, space);
-        return this;
-    }
-
     getMinExtents(space: S2Space): S2Vec2 {
         return this.data.minExtents.toSpace(space, this.scene.getActiveCamera());
-    }
-
-    setPadding(x: number, y: number, space: S2Space): this {
-        this.data.padding.set(x, y, space);
-        return this;
-    }
-
-    setPaddingV(v: S2Vec2, space: S2Space): this {
-        this.data.padding.setV(v, space);
-        return this;
     }
 
     getPadding(space: S2Space): S2Vec2 {
         return this.data.padding.toSpace(space, this.scene.getActiveCamera());
     }
 
-    setPartSep(sep: number, space: S2Space): this {
-        this.data.partSep.set(sep, space);
-        return this;
-    }
-
     getSVGElement(): SVGElement {
-        return this.mainGroup.getSVGElement();
-    }
-
-    setAnchor(anchor: S2Anchor, state: S2TypeState = S2TypeState.Active): this {
-        this.data.anchor.set(anchor, state);
-        return this;
+        return this.element;
     }
 
     addLine(options?: { partIndex?: number; align?: S2HorizontalAlign; skip?: number }): S2TextLine {
@@ -249,18 +238,22 @@ export class S2Node extends S2Element<S2NodeData> {
     }
 
     createRectBackground(): S2Rect {
-        if (this.background !== null) this.mainGroup.removeChild(this.background);
+        if (this.background !== null) S2ElementUtils.removeChild(this.children, this.background);
         this.background = new S2Rect(this.scene);
-        this.background.setLayer(0);
-        this.mainGroup.appendChild(this.background);
+        this.background.data.setLayer(0);
+
+        S2ElementUtils.appendChild(this, this.children, this.background);
+        S2ElementUtils.updateSVGChildren(this.element, this.children);
         return this.background;
     }
 
     createCircleBackground(): S2Circle {
-        if (this.background !== null) this.mainGroup.removeChild(this.background);
+        if (this.background !== null) S2ElementUtils.removeChild(this.children, this.background);
         this.background = new S2Circle(this.scene);
-        this.background.setLayer(0);
-        this.mainGroup.appendChild(this.background);
+        this.background.data.setLayer(0);
+
+        S2ElementUtils.appendChild(this, this.children, this.background);
+        S2ElementUtils.updateSVGChildren(this.element, this.children);
         return this.background;
     }
 
@@ -327,7 +320,7 @@ export class S2Node extends S2Element<S2NodeData> {
         const padding = this.data.padding.toSpace('view', camera);
         const partSep = this.data.partSep.toSpace('view', camera);
 
-        const height = FlexUtils.computeSizes(
+        const height = S2FlexUtils.computeSizes(
             partHeights,
             this.textGrows,
             2 * nodeMinExtents.y,
@@ -356,34 +349,36 @@ export class S2Node extends S2Element<S2NodeData> {
         // Position background and separator lines
         if (this.background instanceof S2Rect) {
             // Background
-            this.background.position.setV(nodeCenter, 'view');
-            this.background.extents.setV(nodeExtents, 'view');
+            this.background.data.position.setV(nodeCenter, 'view');
+            this.background.data.extents.setV(nodeExtents, 'view');
             this.background.data.anchor.set('center');
 
             // Separator lines
             let y = nodeCenter.y - nodeExtents.y + padding.y + partHeights[0] + partSep;
             for (let i = 0; i < this.textGroups.length - 1; i++) {
-                this.sepLines[i].startPosition.set(nodeCenter.x - nodeExtents.x, y, 'view');
-                this.sepLines[i].endPosition.set(nodeCenter.x + nodeExtents.x, y, 'view');
+                this.sepLines[i].data.startPosition.set(nodeCenter.x - nodeExtents.x, y, 'view');
+                this.sepLines[i].data.endPosition.set(nodeCenter.x + nodeExtents.x, y, 'view');
                 y += partHeights[i + 1] + 2 * partSep;
             }
         } else if (this.background instanceof S2Circle) {
             // Background
             const radius = Math.max(nodeExtents.x, nodeExtents.y);
-            this.background.position.setV(nodeCenter, 'view');
-            this.background.radius.set(radius, 'view');
+            this.background.data.position.setV(nodeCenter, 'view');
+            this.background.data.radius.set(radius, 'view');
 
             // Separator lines
             let y = nodeCenter.y - nodeExtents.y + padding.y + partHeights[0] + partSep;
             for (let i = 0; i < this.textGroups.length - 1; i++) {
                 const x = Math.sqrt(radius * radius - (y - nodeCenter.y) * (y - nodeCenter.y));
-                this.sepLines[i].startPosition.set(nodeCenter.x - x, y, 'view');
-                this.sepLines[i].endPosition.set(nodeCenter.x + x, y, 'view');
+                this.sepLines[i].data.startPosition.set(nodeCenter.x - x, y, 'view');
+                this.sepLines[i].data.endPosition.set(nodeCenter.x + x, y, 'view');
                 y += partHeights[i + 1] + 2 * partSep;
             }
         }
 
-        this.data.text.applyToElement(this.mainGroup.getSVGElement(), this.scene);
-        this.mainGroup.update(updateId);
+        this.data.text.applyToElement(this.element, this.scene);
+        for (const child of this.children) {
+            child.update(updateId);
+        }
     }
 }

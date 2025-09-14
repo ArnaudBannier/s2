@@ -1,5 +1,5 @@
 import { S2MathUtils } from '../math/s2-utils';
-import { S2BaseScene } from '../s2-interface';
+import { S2BaseScene } from '../s2-base-scene';
 import { S2Animation } from './s2-animation';
 import { S2PlayableAnimation } from './s2-animation-manager';
 import { S2Timeline, type S2TimelinePosition } from './s2-timeline';

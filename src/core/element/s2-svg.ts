@@ -1,5 +1,5 @@
-import { type S2BaseScene } from '../s2-interface';
-import type { S2LayerData } from './base/s2-base-data';
+import { S2BaseScene } from '../s2-base-scene';
+import { S2LayerData } from './base/s2-base-data';
 import { S2Container } from './base/s2-container';
 import { S2Element } from './base/s2-element';
 import { S2TransformableElementData } from './base/s2-transformable-element';

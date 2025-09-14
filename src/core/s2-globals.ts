@@ -7,6 +7,9 @@ export type S2SVGAttributes = Record<string, string>;
 
 export type S2LineCap = 'butt' | 'round' | 'square';
 export type S2LineJoin = 'miter' | 'round' | 'bevel';
+export type S2TextAnchor = 'start' | 'middle' | 'end';
+export type S2HorizontalAlign = 'left' | 'center' | 'right';
+export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 
 export type S2Anchor =
     | 'north west'
@@ -103,7 +106,7 @@ export class S2AnchorUtils {
     }
 }
 
-export class FlexUtils {
+export class S2FlexUtils {
     static computeSizes(
         itemSizes: Array<number>,
         grows: Array<number>,

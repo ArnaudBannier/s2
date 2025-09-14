@@ -1,29 +1,26 @@
 import { S2Vec2 } from '../math/s2-vec2';
-import { type S2BaseScene } from '../s2-interface';
-import { type S2Anchor, S2AnchorUtils, svgNS } from '../s2-globals';
-import { S2TransformableElementData } from './base/s2-transformable-element';
+import { S2BaseScene } from '../s2-base-scene';
+import { type S2Anchor, type S2HorizontalAlign, type S2VerticalAlign, S2AnchorUtils, svgNS } from '../s2-globals';
 import { S2BaseText, S2TextData } from './s2-text';
-import { S2Enum, S2Extents, S2Length, S2Position, S2TypeState, type S2Space } from '../s2-types';
-import { S2Container } from './base/s2-container';
+import { S2Enum, S2Extents, S2Length, S2TypeState, type S2Space } from '../s2-types';
+import { S2Element, S2ElementUtils } from './base/s2-element';
+import { S2ShapeElementData } from './base/s2-shape-element';
 import { S2FontData } from './base/s2-base-data';
-
-export type S2HorizontalAlign = 'left' | 'center' | 'right';
-export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 
 export class S2TextLineData extends S2TextData {
     public readonly skip: S2Length;
-    public readonly align: S2Enum<S2HorizontalAlign>;
+    public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
 
     constructor() {
         super();
         this.skip = new S2Length(0, 'view');
-        this.align = new S2Enum<S2HorizontalAlign>('left', S2TypeState.Inactive);
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left', S2TypeState.Inactive);
     }
 
     setParent(parent: S2TextLineData | null = null): void {
         super.setParent(parent);
         this.skip.setParent(parent ? parent.skip : null);
-        this.align.setParent(parent ? parent.align : null);
+        this.horizontalAlign.setParent(parent ? parent.horizontalAlign : null);
     }
 }
 
@@ -31,28 +28,34 @@ export class S2TextLine extends S2BaseText<S2TextLineData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2TextLineData());
     }
-
-    get skip(): S2Length {
-        return this.data.skip;
-    }
 }
 
-export class S2TextGroupData extends S2TransformableElementData {
+export class S2TextGroupData extends S2ShapeElementData {
     public readonly font: S2FontData;
-    public readonly position: S2Position;
-    public readonly minExtents: S2Extents;
-    public readonly anchor: S2Enum<S2Anchor>;
+    public readonly skip: S2Length;
     public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
     public readonly verticalAlign: S2Enum<S2VerticalAlign>;
+    public readonly minExtents: S2Extents;
+    public readonly anchor: S2Enum<S2Anchor>;
 
     constructor() {
         super();
         this.font = new S2FontData();
-        this.position = new S2Position(0, 0, 'world');
-        this.anchor = new S2Enum<S2Anchor>('center');
-        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
+        this.skip = new S2Length(0, 'view');
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left', S2TypeState.Inactive);
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
         this.minExtents = new S2Extents(0, 0, 'view');
+        this.anchor = new S2Enum<S2Anchor>('center');
+    }
+
+    setParent(parent: S2TextGroupData | null = null): void {
+        super.setParent(parent);
+        this.font.setParent(parent ? parent.font : null);
+        this.skip.setParent(parent ? parent.skip : null);
+        this.horizontalAlign.setParent(parent ? parent.horizontalAlign : null);
+        this.verticalAlign.setParent(parent ? parent.verticalAlign : null);
+        this.minExtents.setParent(parent ? parent.minExtents : null);
+        this.anchor.setParent(parent ? parent.anchor : null);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -61,23 +64,22 @@ export class S2TextGroupData extends S2TransformableElementData {
     }
 }
 
-export class S2TextGroup extends S2Container<SVGGElement, S2TextGroupData, S2TextLine> {
+export class S2TextGroup extends S2Element<S2TextGroupData> {
+    protected element: SVGGElement;
+    protected children: Array<S2TextLine>;
     protected textExtents: S2Extents;
     protected extents: S2Extents;
 
     constructor(scene: S2BaseScene) {
-        const element = document.createElementNS(svgNS, 'g');
-        super(scene, new S2TextGroupData(), element);
+        super(scene, new S2TextGroupData());
+        this.children = [];
+        this.element = document.createElementNS(svgNS, 'g');
         this.textExtents = new S2Extents(0, 0, 'view');
         this.extents = new S2Extents(0, 0, 'view');
     }
 
-    get position(): S2Position {
-        return this.data.position;
-    }
-
-    get minExtents(): S2Extents {
-        return this.data.minExtents;
+    getSVGElement(): SVGElement {
+        return this.element;
     }
 
     addLine(options?: { align?: S2HorizontalAlign; skip?: number }): S2TextLine {
@@ -86,15 +88,17 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextGroupData, S2Tex
         textLine.data.fill.setParent(this.data.fill);
         textLine.data.stroke.setParent(this.data.stroke);
         textLine.data.opacity.setParent(this.data.opacity);
-        textLine.data.align.setParent(this.data.horizontalAlign);
+        textLine.data.horizontalAlign.setParent(this.data.horizontalAlign);
+        textLine.data.skip.setParent(this.data.skip);
 
         if (options?.align) {
-            textLine.data.align.set(options.align);
+            textLine.data.horizontalAlign.set(options.align);
         }
-
-        textLine.data.skip.value = options?.skip ?? 0;
-        //textLine.data.align = options?.align ?? this.data.textAlign;
-        this.appendChild(textLine);
+        if (options?.skip !== undefined) {
+            textLine.data.skip.set(options.skip);
+        }
+        S2ElementUtils.appendChild(this, this.children, textLine);
+        S2ElementUtils.updateSVGChildren(this.element, this.children);
         return textLine;
     }
 
@@ -169,11 +173,11 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextGroupData, S2Tex
                 break;
         }
 
-        for (const line of this.children) {
+        for (let i = 0; i < this.children.length; i++) {
+            const line = this.children[i];
             const font = line.data.font;
             const lineHeight = font.relativeLineHeight.getInherited() * font.size.getInherited('view', camera);
-            switch (line.data.align.getInherited()) {
-                //switch (line.data.align ?? this.data.textAlign) {
+            switch (line.data.horizontalAlign.getInherited()) {
                 case 'left':
                     lineX = groupNW.x;
                     line.data.textAnchor.set('start');
@@ -187,7 +191,7 @@ export class S2TextGroup extends S2Container<SVGGElement, S2TextGroupData, S2Tex
                     line.data.textAnchor.set('end');
                     break;
             }
-            line.position.set(lineX, lineY, 'view');
+            line.data.position.set(lineX, lineY, 'view');
             lineY += line.data.skip.value + lineHeight;
         }
     }

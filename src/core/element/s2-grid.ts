@@ -1,7 +1,8 @@
-import { type S2BaseScene } from '../s2-interface';
-import { S2TransformableElement, S2TransformableElementData } from './base/s2-transformable-element';
+import { type S2BaseScene } from '../s2-base-scene';
+import { S2TransformableElementData } from './base/s2-transformable-element';
 import { S2Extents, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { svgNS } from '../s2-globals';
+import { S2Element } from './base/s2-element';
 
 export class S2GridGeometryData {
     public readonly boundA: S2Position;
@@ -52,9 +53,29 @@ export class S2GridData extends S2TransformableElementData {
         super.applyToElement(element, scene);
         this.geometry.applyToElement(element, scene);
     }
+
+    setBoundA(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.geometry.boundA.set(x, y, space, state);
+        return this;
+    }
+
+    setBoundB(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.geometry.boundB.set(x, y, space, state);
+        return this;
+    }
+
+    setSteps(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.geometry.steps.set(x, y, space, state);
+        return this;
+    }
+
+    setReferencePoint(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.geometry.referencePoint.set(x, y, space, state);
+        return this;
+    }
 }
 
-export class S2Grid extends S2TransformableElement<S2GridData> {
+export class S2Grid extends S2Element<S2GridData> {
     protected element: SVGPathElement;
 
     constructor(scene: S2BaseScene) {
@@ -62,42 +83,6 @@ export class S2Grid extends S2TransformableElement<S2GridData> {
         this.element = document.createElementNS(svgNS, 'path');
         this.data.stroke.width.set(1, 'view', S2TypeState.Active);
         this.data.stroke.lineCap.set('butt', S2TypeState.Active);
-    }
-
-    get boundA(): S2Position {
-        return this.data.geometry.boundA;
-    }
-
-    get boundB(): S2Position {
-        return this.data.geometry.boundB;
-    }
-
-    get steps(): S2Extents {
-        return this.data.geometry.steps;
-    }
-
-    get referencePoint(): S2Position {
-        return this.data.geometry.referencePoint;
-    }
-
-    setBoundA(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.data.geometry.boundA.set(x, y, space, state);
-        return this;
-    }
-
-    setBoundB(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.data.geometry.boundB.set(x, y, space, state);
-        return this;
-    }
-
-    setSteps(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.data.geometry.steps.set(x, y, space, state);
-        return this;
-    }
-
-    setReferencePoint(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.data.geometry.referencePoint.set(x, y, space, state);
-        return this;
     }
 
     getSVGElement(): SVGElement {

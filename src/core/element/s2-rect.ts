@@ -1,5 +1,5 @@
 import { S2ShapeUtils } from '../math/s2-shape-utils';
-import { type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene } from '../s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils } from '../s2-globals';
 import { type S2Space, S2Length, S2Extents, S2Enum } from '../s2-types';
@@ -41,6 +41,26 @@ export class S2RectData extends S2ShapeElementData {
             element.removeAttribute('ry');
         }
     }
+
+    setCornerRadius(radius: number, space: S2Space): this {
+        this.cornerRadius.set(radius, space);
+        return this;
+    }
+
+    setExtents(x: number, y: number, space: S2Space): this {
+        this.extents.set(x, y, space);
+        return this;
+    }
+
+    setExtentsV(v: S2Vec2, space: S2Space): this {
+        this.extents.setV(v, space);
+        return this;
+    }
+
+    setAnchor(anchor: S2Anchor): this {
+        this.anchor.set(anchor);
+        return this;
+    }
 }
 
 export class S2Rect extends S2ShapeElement<S2RectData> {
@@ -51,44 +71,12 @@ export class S2Rect extends S2ShapeElement<S2RectData> {
         this.element = document.createElementNS(svgNS, 'rect');
     }
 
-    get extents(): S2Extents {
-        return this.data.extents;
-    }
-
-    get cornerRadius(): S2Length {
-        return this.data.cornerRadius;
-    }
-
-    get anchor(): S2Enum<S2Anchor> {
-        return this.data.anchor;
-    }
-
-    setCornerRadius(radius: number, space: S2Space): this {
-        this.data.cornerRadius.set(radius, space);
-        return this;
-    }
-
-    getCornerRadius(space: S2Space): number {
-        return this.data.cornerRadius.toSpace(space, this.scene.getActiveCamera());
-    }
-
-    setExtents(x: number, y: number, space: S2Space): this {
-        this.data.extents.set(x, y, space);
-        return this;
-    }
-
-    setExtentsV(v: S2Vec2, space: S2Space): this {
-        this.data.extents.setV(v, space);
-        return this;
-    }
-
     getExtents(space: S2Space): S2Vec2 {
         return this.data.extents.toSpace(space, this.scene.getActiveCamera());
     }
 
-    setAnchor(anchor: S2Anchor): this {
-        this.data.anchor.set(anchor);
-        return this;
+    getCornerRadius(space: S2Space): number {
+        return this.data.cornerRadius.toSpace(space, this.scene.getActiveCamera());
     }
 
     getSVGElement(): SVGElement {

@@ -1,27 +1,24 @@
 import { S2Vec2 } from '../math/s2-vec2';
-import { type S2BaseScene } from '../s2-interface';
-import { svgNS } from '../s2-globals';
-import { S2TransformableElement, S2TransformableElementData } from './base/s2-transformable-element';
-import { S2Enum, S2Position } from '../s2-types';
+import { S2BaseScene } from '../s2-base-scene';
+import { svgNS, type S2TextAnchor } from '../s2-globals';
+import { S2TransformableElementData } from './base/s2-transformable-element';
+import { S2Enum } from '../s2-types';
 import { S2FontData } from './base/s2-base-data';
+import { S2ShapeElement, S2ShapeElementData } from './base/s2-shape-element';
+import { S2Element } from './base/s2-element';
 
-export type S2TextAnchor = 'start' | 'middle' | 'end';
-
-export class S2TextData extends S2TransformableElementData {
-    public readonly position: S2Position;
+export class S2TextData extends S2ShapeElementData {
     public readonly font: S2FontData;
     public readonly textAnchor: S2Enum<S2TextAnchor>;
 
     constructor() {
         super();
-        this.position = new S2Position(0, 0, 'world');
         this.font = new S2FontData();
         this.textAnchor = new S2Enum<S2TextAnchor>('start');
     }
 
     setParent(parent: S2TextData | null = null): void {
         super.setParent(parent);
-        this.position.setParent(parent ? parent.position : null);
         this.font.setParent(parent ? parent.font : null);
         this.textAnchor.setParent(parent ? parent.textAnchor : null);
     }
@@ -37,7 +34,7 @@ export class S2TextData extends S2TransformableElementData {
     }
 }
 
-export class S2BaseText<Data extends S2TextData> extends S2TransformableElement<Data> {
+export class S2BaseText<Data extends S2TextData> extends S2ShapeElement<Data> {
     protected element: SVGTextElement;
     protected tspans: Array<S2TSpan>;
 
@@ -45,10 +42,6 @@ export class S2BaseText<Data extends S2TextData> extends S2TransformableElement<
         super(scene, data);
         this.element = document.createElementNS(svgNS, 'text');
         this.tspans = [];
-    }
-
-    get position(): S2Position {
-        return this.data.position;
     }
 
     getSVGElement(): SVGElement {
@@ -105,7 +98,7 @@ export class S2TSpanData extends S2TransformableElementData {
     }
 }
 
-export class S2TSpan extends S2TransformableElement<S2TSpanData> {
+export class S2TSpan extends S2Element<S2TSpanData> {
     protected element: SVGTSpanElement;
 
     constructor(scene: S2BaseScene) {

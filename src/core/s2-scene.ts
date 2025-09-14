@@ -11,9 +11,10 @@ import { S2Group } from './element/s2-group';
 import { S2CubicEdge, S2LineEdge } from './element/s2-edge';
 import { S2Position } from './s2-types';
 import { type S2BaseContainer } from './element/base/s2-container';
-import { type S2BaseElement } from './element/base/s2-element';
-import { S2BaseScene } from './s2-interface';
+import { S2Element } from './element/base/s2-element';
+import { S2BaseScene } from './s2-base-scene';
 import { S2Line } from './element/s2-line';
+import { S2LayerData } from './element/base/s2-base-data';
 
 export class S2Scene extends S2BaseScene {
     constructor(element: SVGSVGElement, camera: S2Camera) {
@@ -47,7 +48,7 @@ export class S2Scene extends S2BaseScene {
     addWorldGrid(parent: S2BaseContainer = this.svg): S2Grid {
         const child = new S2Grid(this);
         const viewport = this.getActiveCamera().viewport;
-        child
+        child.data
             .setBoundA(0, 0, 'view')
             .setBoundB(viewport.x, viewport.y, 'view')
             .setReferencePoint(0, 0, 'world')
@@ -72,11 +73,15 @@ export class S2Scene extends S2BaseScene {
     addPath(parent: S2BaseContainer = this.svg): S2Path {
         const child = new S2Path(this);
         parent.appendChild(child);
+        child.data.fill.opacity.setParent(null);
         return child;
     }
 
-    addGroup<ChildType extends S2BaseElement>(parent: S2BaseContainer = this.svg): S2Group<ChildType> {
-        const child = new S2Group<ChildType>(this);
+    addGroup<Data extends S2LayerData, ChildType extends S2Element<Data>>(
+        data: Data,
+        parent: S2BaseContainer = this.svg,
+    ): S2Group<Data, ChildType> {
+        const child = new S2Group<Data, ChildType>(this, data);
         parent.appendChild(child);
         return child;
     }

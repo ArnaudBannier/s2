@@ -1,10 +1,11 @@
 import { S2Vec2 } from '../math/s2-vec2';
-import { type S2BaseScene } from '../s2-interface';
+import { type S2BaseScene } from '../s2-base-scene';
 import { svgNS } from '../s2-globals';
-import { S2TransformableElement, S2TransformableElementData } from './base/s2-transformable-element';
+import { S2TransformableElementData } from './base/s2-transformable-element';
 import { S2Enum, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
+import { S2Element } from './base/s2-element';
 
 export class S2PathData extends S2TransformableElementData {
     public readonly space: S2Enum<S2Space>;
@@ -18,6 +19,7 @@ export class S2PathData extends S2TransformableElementData {
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
         this.space = new S2Enum<S2Space>('world');
+        this.fill.opacity.set(0, S2TypeState.Active);
     }
 
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
@@ -35,6 +37,21 @@ export class S2PathData extends S2TransformableElementData {
         } else {
             element.removeAttribute('d');
         }
+    }
+
+    setPathFrom(pathFrom: number, state: S2TypeState = S2TypeState.Active): this {
+        this.pathFrom.set(pathFrom, state);
+        return this;
+    }
+
+    setPathTo(pathTo: number, state: S2TypeState = S2TypeState.Active): this {
+        this.pathTo.set(pathTo, state);
+        return this;
+    }
+
+    setSpace(space: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        this.space.set(space, state);
+        return this;
     }
 }
 
@@ -58,8 +75,8 @@ export class S2PathUtils {
         if (curveCount <= 0 || pathFrom >= pathTo) return '';
 
         let svgPath = '';
-        let currStart = polyCurve.getCurve(0).getStart();
-        let prevEnd = new S2Vec2(Infinity, Infinity);
+        const currStart = polyCurve.getCurve(0).getStart();
+        const prevEnd = new S2Vec2(Infinity, Infinity);
 
         for (let i = 0; i < curveCount; i++) {
             const curve = polyCurve.getCurve(i);
@@ -91,7 +108,7 @@ export class S2PathUtils {
     }
 }
 
-export class S2Path extends S2TransformableElement<S2PathData> {
+export class S2Path extends S2Element<S2PathData> {
     protected element: SVGPathElement;
     protected sampleCount: number = 0;
     protected currStart: S2Vec2;
@@ -102,30 +119,6 @@ export class S2Path extends S2TransformableElement<S2PathData> {
         this.element = document.createElementNS(svgNS, 'path');
         this.endPosition = new S2Vec2(0, 0);
         this.currStart = new S2Vec2(0, 0);
-        this.fillOpacity.set(0);
-    }
-
-    get pathFrom(): S2Number {
-        return this.data.pathFrom;
-    }
-
-    get pathTo(): S2Number {
-        return this.data.pathTo;
-    }
-
-    setPathFrom(pathFrom: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.pathFrom.set(pathFrom, state);
-        return this;
-    }
-
-    setPathTo(pathTo: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.pathTo.set(pathTo, state);
-        return this;
-    }
-
-    setSpace(space: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.data.space.set(space, state);
-        return this;
     }
 
     setSampleCount(sampleCount: number): this {

@@ -1,10 +1,11 @@
 import { S2Vec2 } from '../math/s2-vec2';
-import { S2BaseScene } from '../s2-interface';
+import { S2BaseScene } from '../s2-base-scene';
 import { S2Node } from './s2-node';
 import { S2Path } from './s2-path';
 import { type S2Space, S2TypeState, S2Length, S2Number, S2Position } from '../s2-types';
 import { S2Camera } from '../math/s2-camera';
-import { S2StrokeElement, S2StrokeElementData } from './base/s2-stroke-element';
+import { S2StrokeElementData } from './base/s2-stroke-element';
+import { S2Element } from './base/s2-element';
 
 // S2NodeArcManhattan
 
@@ -91,67 +92,43 @@ export class S2EdgeData extends S2StrokeElementData {
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
     }
-}
-
-export abstract class S2Edge<Data extends S2EdgeData> extends S2StrokeElement<Data> {
-    protected path: S2Path;
-    constructor(scene: S2BaseScene, data: Data) {
-        super(scene, data);
-        this.path = new S2Path(scene);
-    }
-
-    get pathFrom(): S2Number {
-        return this.data.pathFrom;
-    }
-
-    get pathTo(): S2Number {
-        return this.data.pathTo;
-    }
-
-    get startDistance(): S2Length {
-        return this.data.startDistance;
-    }
-
-    get endDistance(): S2Length {
-        return this.data.endDistance;
-    }
-
-    get startAngle(): S2Number {
-        return this.data.startAngle;
-    }
-
-    get endAngle(): S2Number {
-        return this.data.endAngle;
-    }
 
     setStartDistance(distance: number, space: S2Space = 'view', state: S2TypeState = S2TypeState.Active): this {
-        this.data.startDistance.set(distance, space, state);
+        this.startDistance.set(distance, space, state);
         return this;
     }
 
     setEndDistance(distance: number, space: S2Space = 'view', state: S2TypeState = S2TypeState.Active): this {
-        this.data.endDistance.set(distance, space, state);
+        this.endDistance.set(distance, space, state);
         return this;
     }
 
     setStartAngle(angle: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.startAngle.set(angle, state);
+        this.startAngle.set(angle, state);
         return this;
     }
 
     setEndAngle(angle: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.endAngle.set(angle, state);
+        this.endAngle.set(angle, state);
         return this;
     }
 
     setPathFrom(value: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.pathFrom.set(value, state);
+        this.pathFrom.set(value, state);
         return this;
     }
 
     setPathTo(value: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.pathTo.set(value, state);
+        this.pathTo.set(value, state);
         return this;
+    }
+}
+
+export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> {
+    protected path: S2Path;
+    constructor(scene: S2BaseScene, data: Data) {
+        super(scene, data);
+        this.path = new S2Path(scene);
     }
 
     getSVGElement(): SVGElement {
@@ -239,44 +216,32 @@ export class S2CubicEdgeData extends S2EdgeData {
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
     }
+
+    setCurveBendAngle(angle: number, state: S2TypeState = S2TypeState.Active): this {
+        this.curveBendAngle.set(angle, state);
+        return this;
+    }
+
+    setCurveTension(tension: number, state: S2TypeState = S2TypeState.Active): this {
+        this.curveStartTension.set(tension, state);
+        this.curveEndTension.set(tension, state);
+        return this;
+    }
+
+    setCurveStartTension(tension: number, state: S2TypeState = S2TypeState.Active): this {
+        this.curveStartTension.set(tension, state);
+        return this;
+    }
+
+    setCurveEndTension(tension: number, state: S2TypeState = S2TypeState.Active): this {
+        this.curveEndTension.set(tension, state);
+        return this;
+    }
 }
 
 export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2CubicEdgeData());
-    }
-
-    get curveBendAngle(): S2Number {
-        return this.data.curveBendAngle;
-    }
-
-    get curveStartTension(): S2Number {
-        return this.data.curveStartTension;
-    }
-
-    get curveEndTension(): S2Number {
-        return this.data.curveEndTension;
-    }
-
-    setCurveBendAngle(angle: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.curveBendAngle.set(angle, state);
-        return this;
-    }
-
-    setCurveTension(tension: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.curveStartTension.set(tension, state);
-        this.data.curveEndTension.set(tension, state);
-        return this;
-    }
-
-    setCurveStartTension(tension: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.curveStartTension.set(tension, state);
-        return this;
-    }
-
-    setCurveEndTension(tension: number, state: S2TypeState = S2TypeState.Active): this {
-        this.data.curveEndTension.set(tension, state);
-        return this;
     }
 
     protected updateImpl(updateId?: number): void {

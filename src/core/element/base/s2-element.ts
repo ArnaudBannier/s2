@@ -1,4 +1,4 @@
-import { type S2BaseScene } from '../../s2-interface';
+import { type S2BaseScene } from '../../s2-base-scene';
 import { S2LayerData } from './s2-base-data';
 
 export type S2BaseElement = S2Element<S2LayerData>;
@@ -15,19 +15,6 @@ export abstract class S2Element<Data extends S2LayerData> {
 
     private listeners: Set<S2ElementListener> = new Set();
     private dependencies: Set<S2BaseElement> = new Set();
-
-    get layer(): number {
-        return this.data.layer.value;
-    }
-
-    set layer(layer: number) {
-        this.data.layer.value = layer;
-    }
-
-    setLayer(layer: number = 0): this {
-        this.data.layer.value = layer;
-        return this;
-    }
 
     setIsActive(isActive: boolean): this {
         this.data.isActive = isActive;
@@ -122,8 +109,11 @@ export abstract class S2Element<Data extends S2LayerData> {
         return this;
     }
 
-    // TODO : déplacer dans un utilitaire
-    protected static updateSVGChildren(parent: SVGElement, children: S2BaseElement[]): void {
+    abstract getSVGElement(): SVGElement;
+}
+
+export class S2ElementUtils {
+    static updateSVGChildren(svgElement: SVGElement, children: S2BaseElement[]): void {
         children.sort((a: S2BaseElement, b: S2BaseElement): number => {
             if (a.data.layer.value !== b.data.layer.value) return a.data.layer.value - b.data.layer.value;
             return a.id - b.id;
@@ -134,8 +124,20 @@ export abstract class S2Element<Data extends S2LayerData> {
                 elements.push(child.getSVGElement());
             }
         }
-        parent.replaceChildren(...elements);
+        svgElement.replaceChildren(...elements);
     }
 
-    abstract getSVGElement(): SVGElement;
+    static appendChild(element: S2BaseElement, children: S2BaseElement[], child: S2BaseElement): void {
+        if (children.includes(child)) return;
+        children.push(child);
+        child.setParent(element);
+    }
+
+    static removeChild(children: S2BaseElement[], child: S2BaseElement): void {
+        const index = children.indexOf(child);
+        if (index !== -1) {
+            children.splice(index, 1);
+            child.setParent(null);
+        }
+    }
 }
