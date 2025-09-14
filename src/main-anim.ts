@@ -2,7 +2,7 @@ import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL } from './utils/mtl-colors.ts';
-import { S2Circle, S2CircleData } from './core/element/s2-circle.ts';
+import { S2Circle } from './core/element/s2-circle.ts';
 import { S2Path } from './core/element/s2-path.ts';
 import { S2Scene } from './core/s2-scene.ts';
 import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
@@ -10,10 +10,22 @@ import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
+import type { S2LayerData } from './core/element/base/s2-base-data.ts';
+import { S2BaseType, S2Position } from './core/s2-types.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
+
+export class TEST {
+    static setParent<Data extends S2LayerData>(data: Data, parent: Data): void {
+        for (const key of Object.keys(data) as (keyof Data)[]) {
+            if (data[key] instanceof S2Position) {
+                (data[key] as S2Position).setParent(parent[key] as S2Position);
+            }
+        }
+    }
+}
 
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
@@ -54,13 +66,6 @@ class SceneFigure extends S2Scene {
         super(svgElement, camera);
         this.animator = new S2StepAnimator(this);
 
-        const circleStyle = new S2CircleData();
-        circleStyle.fill.color.copy(MTL.GREY_6);
-        circleStyle.stroke.color.copy(MTL.GREY_4);
-        circleStyle.stroke.width.set(4, 'view');
-        circleStyle.fill.opacity.set(1.0);
-        circleStyle.radius.set(1, 'world');
-
         const fillRect = this.addFillRect();
         S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
 
@@ -82,15 +87,13 @@ class SceneFigure extends S2Scene {
         this.circle.data.setPosition(0, 0, 'world').setOpacity(0.0);
         this.circle.update();
 
-        // const group = this.addGroup<S2Circle>();
-
-        // const circle1 = this.addCircle(group).setPosition(3, 0).setFillColor(MTL.RED_5);
-        // const circle2 = this.addCircle(group).setPosition(4, 0).setFillColor(MTL.GREEN_5);
-        // const circle3 = this.addCircle(group).setPosition(3.5, 0.5).setFillColor(MTL.BLUE_5);
-
-        // circle1.setLayer(-2);
-        // circle2.setLayer(1);
-        // circle3.setIsActive(true);
+        const line = this.addLine();
+        S2DataSetter.addTarget(line.data)
+            .setStrokeColor(MTL.RED_5)
+            .setStrokeWidth(4, 'view')
+            .setStartPosition(-6, -2, 'world')
+            .setEndPosition(6, 2, 'world');
+        line.update();
 
         this.update();
 

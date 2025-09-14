@@ -349,6 +349,52 @@ export class S2DataUtils {
         }
     }
 
+    static setStartPosition(
+        data: S2LayerData,
+        x: number,
+        y: number,
+        space?: S2Space,
+        state: S2TypeState = S2TypeState.Active,
+    ): void {
+        if ('startPosition' in data && data.startPosition instanceof S2Position) {
+            data.startPosition.set(x, y, space, state);
+        }
+    }
+
+    static setStartPositionV(
+        data: S2LayerData,
+        v: S2Vec2,
+        space?: S2Space,
+        state: S2TypeState = S2TypeState.Active,
+    ): void {
+        if ('startPosition' in data && data.startPosition instanceof S2Position) {
+            data.startPosition.setV(v, space, state);
+        }
+    }
+
+    static setEndPosition(
+        data: S2LayerData,
+        x: number,
+        y: number,
+        space?: S2Space,
+        state: S2TypeState = S2TypeState.Active,
+    ): void {
+        if ('endPosition' in data && data.endPosition instanceof S2Position) {
+            data.endPosition.set(x, y, space, state);
+        }
+    }
+
+    static setEndPositionV(
+        data: S2LayerData,
+        v: S2Vec2,
+        space?: S2Space,
+        state: S2TypeState = S2TypeState.Active,
+    ): void {
+        if ('endPosition' in data && data.endPosition instanceof S2Position) {
+            data.endPosition.setV(v, space, state);
+        }
+    }
+
     static setRadius(
         data: S2LayerData,
         radius: number,
@@ -652,6 +698,34 @@ export class S2DataSetter {
     setPositionV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
         for (const target of this.targets) {
             S2DataUtils.setPositionV(target, v, space, state);
+        }
+        return this;
+    }
+
+    setStartPosition(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        for (const target of this.targets) {
+            S2DataUtils.setStartPosition(target, x, y, space, state);
+        }
+        return this;
+    }
+
+    setStartPositionV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        for (const target of this.targets) {
+            S2DataUtils.setStartPositionV(target, v, space, state);
+        }
+        return this;
+    }
+
+    setEndPosition(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        for (const target of this.targets) {
+            S2DataUtils.setEndPosition(target, x, y, space, state);
+        }
+        return this;
+    }
+
+    setEndPositionV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        for (const target of this.targets) {
+            S2DataUtils.setEndPositionV(target, v, space, state);
         }
         return this;
     }
