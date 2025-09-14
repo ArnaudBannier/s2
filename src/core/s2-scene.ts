@@ -15,6 +15,7 @@ import { S2Element } from './element/base/s2-element';
 import { S2BaseScene } from './s2-base-scene';
 import { S2Line } from './element/s2-line';
 import { S2LayerData } from './element/base/s2-base-data';
+import { S2DataSetter } from './element/base/s2-data-setter';
 
 export class S2Scene extends S2BaseScene {
     constructor(element: SVGSVGElement, camera: S2Camera) {
@@ -48,11 +49,11 @@ export class S2Scene extends S2BaseScene {
     addWorldGrid(parent: S2BaseContainer = this.svg): S2Grid {
         const child = new S2Grid(this);
         const viewport = this.getActiveCamera().viewport;
-        child.data
-            .setBoundA(0, 0, 'view')
-            .setBoundB(viewport.x, viewport.y, 'view')
-            .setReferencePoint(0, 0, 'world')
-            .setSteps(1, 1, 'world')
+        S2DataSetter.addTarget(child.data)
+            .setGridBoundA(0, 0, 'view')
+            .setGridBoundB(viewport.x, viewport.y, 'view')
+            .setGridReferencePoint(0, 0, 'world')
+            .setGridSteps(1, 1, 'world')
             .setStrokeWidth(1, 'view');
         parent.appendChild(child);
         return child;

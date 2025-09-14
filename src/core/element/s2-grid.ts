@@ -1,6 +1,6 @@
 import { type S2BaseScene } from '../s2-base-scene';
 import { S2TransformableElementData } from './base/s2-transformable-element';
-import { S2Extents, S2Position, S2TypeState, type S2Space } from '../s2-types';
+import { S2Extents, S2Position, S2TypeState } from '../s2-types';
 import { svgNS } from '../s2-globals';
 import { S2Element } from './base/s2-element';
 
@@ -52,26 +52,6 @@ export class S2GridData extends S2TransformableElementData {
     applyToElement(element: SVGElement, scene: S2BaseScene): void {
         super.applyToElement(element, scene);
         this.geometry.applyToElement(element, scene);
-    }
-
-    setBoundA(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.geometry.boundA.set(x, y, space, state);
-        return this;
-    }
-
-    setBoundB(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.geometry.boundB.set(x, y, space, state);
-        return this;
-    }
-
-    setSteps(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.geometry.steps.set(x, y, space, state);
-        return this;
-    }
-
-    setReferencePoint(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.geometry.referencePoint.set(x, y, space, state);
-        return this;
     }
 }
 

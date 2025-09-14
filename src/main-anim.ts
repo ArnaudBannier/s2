@@ -42,7 +42,7 @@ class SceneFigure extends S2Scene {
     // };
 
     setCircleDefaultStyle(circle: S2Circle): void {
-        circle.data
+        S2DataSetter.addTarget(circle.data)
             .setFillColor(MTL.GREY_6)
             .setStrokeColor(MTL.GREY_4)
             .setStrokeWidth(4, 'view')
@@ -134,9 +134,9 @@ class SceneFigure extends S2Scene {
             .addUpdateTarget(this.circle)
             .addUpdateTarget(this.path)
             .bind(this.circle.data.position)
-            .bind(this.circle.data.fillColor);
-        anim.bind(this.circle.data.strokeColor)
-            .bind(this.path.data.strokeColor)
+            .bind(this.circle.data.fill.color);
+        anim.bind(this.circle.data.stroke.color)
+            .bind(this.path.data.stroke.color)
             .setCycleDuration(600)
             .setCycleCount(3)
             .setAlternate(true)
@@ -148,12 +148,12 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(1800)
             .setEasing(ease.inOut);
 
-        this.circle.data
+        S2DataSetter.addTarget(this.circle.data)
             .setPosition(-2, 0, 'world')
             .setFillColor(MTL.LIGHT_GREEN_9)
             .setStrokeColor(MTL.LIGHT_GREEN_5)
             .setRadius(20, 'view');
-        this.path.data.setStrokeColor(MTL.LIGHT_GREEN_5);
+        S2DataSetter.addTarget(this.path.data).setStrokeColor(MTL.LIGHT_GREEN_5);
 
         this.animator.addAnimation(anim.commitFinalStates());
         this.animator.addAnimation(anim2.commitFinalStates(), 'previous-start', 0);

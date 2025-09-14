@@ -1,13 +1,18 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-base-scene';
 import { svgNS } from '../s2-globals';
-import { S2TransformableElementData } from './base/s2-transformable-element';
-import { S2Enum, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
+import { S2Enum, S2Length, S2Number, S2Position, S2Transform, S2TypeState, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
 import { S2Element } from './base/s2-element';
+import { S2DataUtils } from './base/s2-data-setter';
+import { S2FillData, S2LayerData, S2StrokeData } from './base/s2-base-data';
 
-export class S2PathData extends S2TransformableElementData {
+export class S2PathData extends S2LayerData {
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly fill: S2FillData;
+    public readonly transform: S2Transform;
     public readonly space: S2Enum<S2Space>;
     public readonly polyCurve: S2PolyCurve;
     public readonly pathFrom: S2Number;
@@ -15,10 +20,16 @@ export class S2PathData extends S2TransformableElementData {
 
     constructor() {
         super();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.fill = new S2FillData();
+        this.transform = new S2Transform();
+        this.space = new S2Enum<S2Space>('world');
         this.polyCurve = new S2PolyCurve();
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
-        this.space = new S2Enum<S2Space>('world');
+
+        this.transform.state = S2TypeState.Inactive;
         this.fill.opacity.set(0, S2TypeState.Active);
     }
 
@@ -270,6 +281,17 @@ export class S2Path extends S2Element<S2PathData> {
 
     protected updateImpl(updateId?: number): void {
         void updateId;
-        this.data.applyToElement(this.element, this.scene);
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
+        S2DataUtils.applyPath(
+            this.data.polyCurve,
+            this.data.space,
+            this.data.pathFrom,
+            this.data.pathTo,
+            this.element,
+            this.scene,
+        );
     }
 }

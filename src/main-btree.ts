@@ -11,6 +11,7 @@ import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2LayerData } from './core/element/base/s2-base-data.ts';
+import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 
 const viewport = new S2Vec2(640.0, 360.0);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
@@ -291,8 +292,11 @@ class SceneFigure extends S2Scene {
         super(svgElement, camera);
         this.animator = new S2StepAnimator(this);
 
-        this.addFillRect().data.setColor(MTL.GREY_8);
-        this.addWorldGrid().data.setStrokeColor(MTL.GREY_6);
+        const fillRect = this.addFillRect();
+        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
+
+        const grid = this.addWorldGrid();
+        S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
 
         // Tree
         this.tree = new BTree(this, userTree);

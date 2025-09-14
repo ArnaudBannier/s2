@@ -1,8 +1,9 @@
 import { type S2BaseScene } from '../s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../s2-globals';
-import { type S2Space, S2Length, S2TypeState } from '../s2-types';
+import { type S2Space, S2Length } from '../s2-types';
 import { S2ShapeElement, S2ShapeElementData } from './base/s2-shape-element';
+import { S2DataUtils } from './base/s2-data-setter';
 
 export class S2CircleData extends S2ShapeElementData {
     public readonly radius: S2Length;
@@ -10,21 +11,6 @@ export class S2CircleData extends S2ShapeElementData {
     constructor() {
         super();
         this.radius = new S2Length(1, 'world');
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-        const camera = scene.getActiveCamera();
-        const position = this.position.toSpace('view', camera);
-        const radius = this.radius.toSpace('view', camera);
-        element.setAttribute('cx', position.x.toString());
-        element.setAttribute('cy', position.y.toString());
-        element.setAttribute('r', radius.toString());
-    }
-
-    setRadius(radius: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.radius.set(radius, space, state);
-        return this;
     }
 }
 
@@ -54,6 +40,11 @@ export class S2Circle extends S2ShapeElement<S2CircleData> {
 
     protected updateImpl(updateId?: number): void {
         void updateId;
-        this.data.applyToElement(this.element, this.scene);
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
+        S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');
+        S2DataUtils.applyRadius(this.data.radius, this.element, this.scene);
     }
 }
