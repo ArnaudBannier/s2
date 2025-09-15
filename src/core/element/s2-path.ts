@@ -1,6 +1,6 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-base-scene';
-import { svgNS } from '../s2-globals';
+import { S2TipTransform, svgNS, type S2Tipable } from '../s2-globals';
 import { S2Enum, S2Length, S2Number, S2Position, S2Transform, S2TypeState, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
@@ -87,11 +87,25 @@ export class S2PathUtils {
     }
 }
 
-export class S2Path extends S2Element<S2PathData> {
+export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     protected element: SVGPathElement;
     protected sampleCount: number = 0;
     protected currStart: S2Vec2;
     protected endPosition: S2Vec2;
+
+    getTipTransformAt(t: number): S2TipTransform {
+        const from = this.data.pathFrom.getInherited();
+        const to = this.data.pathTo.getInherited();
+        t = t * (to - from) + from;
+        const camera = this.scene.getActiveCamera();
+        const transform = new S2TipTransform();
+        transform.space = this.data.space.getInherited();
+        transform.position = this.data.polyCurve.getPointAt(t);
+        transform.tangent = this.data.polyCurve.getTangentAt(t);
+        transform.pathLength = this.data.polyCurve.getLength() * t;
+        transform.strokeWidth = this.data.stroke.width.getInherited(transform.space, camera);
+        return transform;
+    }
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2PathData());

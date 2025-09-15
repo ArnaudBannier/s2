@@ -10,6 +10,10 @@ export class S2Mat2x3Builder {
         this.matrix = this.tmp;
     }
 
+    static setTarget(matrix: S2Mat2x3, makeIdentity: boolean = true): S2Mat2x3Builder {
+        return new S2Mat2x3Builder().setTarget(matrix, makeIdentity);
+    }
+
     setTarget(matrix: S2Mat2x3, makeIdentity: boolean = true): this {
         this.matrix = matrix;
         if (makeIdentity) this.matrix.makeIdentity();

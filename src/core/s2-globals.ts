@@ -12,6 +12,18 @@ export type S2HorizontalAlign = 'left' | 'center' | 'right';
 export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 export type S2FontStyle = 'normal' | 'italic' | 'oblique';
 
+export class S2TipTransform {
+    public space: S2Space = 'world';
+    public position: S2Vec2 = new S2Vec2();
+    public tangent: S2Vec2 = new S2Vec2();
+    public strokeWidth: number = 1;
+    public pathLength: number = 1;
+}
+
+export interface S2Tipable {
+    getTipTransformAt(t: number): S2TipTransform;
+}
+
 export type S2Anchor =
     | 'north west'
     | 'north'

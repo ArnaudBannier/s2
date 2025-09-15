@@ -10,8 +10,9 @@ import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
-import type { S2BaseData } from './core/element/base/s2-base-data.ts';
+import { S2BaseData } from './core/element/base/s2-base-data.ts';
 import { S2Position } from './core/s2-types.ts';
+import { S2ArrowTip } from './core/element/s2-arrow-tip.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -88,13 +89,24 @@ class SceneFigure extends S2Scene {
         this.circle.data.opacity.set(0.0);
         this.circle.update();
 
-        const line = this.addLine();
-        S2DataSetter.addTarget(line.data)
-            .setStrokeColor(MTL.RED_5)
+        // const line = this.addLine();
+        // S2DataSetter.addTarget(line.data)
+        //     .setStrokeColor(MTL.RED_5)
+        //     .setStrokeWidth(4, 'view')
+        //     .setStartPosition(-6, -2, 'world')
+        //     .setEndPosition(6, 2, 'world');
+        // line.update();
+
+        const tip = new S2ArrowTip(this);
+        this.getSVG().appendChild(tip);
+        S2DataSetter.addTarget(tip.data)
+            .setFillColor(MTL.GREY_6)
+            .setStrokeColor(MTL.GREY_4)
             .setStrokeWidth(4, 'view')
-            .setStartPosition(-6, -2, 'world')
-            .setEndPosition(6, 2, 'world');
-        line.update();
+            .setOpacity(1.0);
+        tip.setTipableReference(this.path);
+        tip.data.ratio.set(1);
+        tip.update();
 
         this.update();
 

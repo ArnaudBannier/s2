@@ -1,7 +1,9 @@
 import { type S2BaseScene } from '../../s2-base-scene';
+import type { S2Tipable } from '../../s2-globals';
 import { S2BaseData } from './s2-base-data';
 
 export type S2BaseElement = S2Element<S2BaseData>;
+export type S2BaseTipable = S2Element<S2BaseData> & S2Tipable;
 
 type S2ElementListener = (source: S2BaseElement, updateId?: number) => void;
 
