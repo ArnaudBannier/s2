@@ -2,7 +2,6 @@
 
 - Possibilité d'ajouter des label sur un edge (qui devient un groupe)
 - Tracer une fonction
-- Ajouter dans le Readme la feature de chemins partiels
 - Ajouter un système d'event au S2Element
 - Coder une interaction avec la souris dans le monde
 - Interpolation de Mat2x3
