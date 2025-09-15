@@ -2,10 +2,10 @@ import { S2BaseScene } from '../s2-base-scene';
 import { svgNS } from '../s2-globals';
 import { S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
 import { S2Element } from './base/s2-element';
-import { S2LayerData, S2StrokeData } from './base/s2-base-data';
-import { S2DataUtils } from './base/s2-data-setter';
+import { S2BaseData, S2StrokeData } from './base/s2-base-data';
+import { S2DataUtils } from './base/s2-data-utils';
 
-export class S2LineData extends S2LayerData {
+export class S2LineData extends S2BaseData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;

@@ -8,6 +8,7 @@ import { S2LineEdge } from './core/element/s2-edge.ts';
 import { S2Length } from './core/s2-types.ts';
 import type { S2SVGAttributes } from './core/s2-globals.ts';
 import { S2Scene } from './core/s2-scene.ts';
+import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 
 const viewport = new S2Vec2(2 * 640.0, 2 * 360.0);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
@@ -19,7 +20,8 @@ class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
 
-        this.addRect().setPosition(0, 0, 'view').setExtentsV(viewport).setSVGAttribute('fill', MTL_HEX.GREY_1);
+        const fillRect = this.addFillRect();
+        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
 
         const style = this.addStyle();
         style.addRule('.s2-node-background', { fill: MTL_HEX.BLUE_3, stroke: MTL_HEX.BLUE_8 });

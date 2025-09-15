@@ -4,59 +4,25 @@ import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../s2-globals
 import { S2AnchorUtils, S2FlexUtils, svgNS } from '../s2-globals';
 import { S2Rect } from './s2-rect';
 import { S2Circle } from './s2-circle';
-import { S2TransformableElementData } from './base/s2-transformable-element';
-import { S2Color, S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
+import {
+    S2Color,
+    S2Enum,
+    S2Extents,
+    S2Length,
+    S2Number,
+    S2Position,
+    S2Transform,
+    S2TypeState,
+    type S2Space,
+} from '../s2-types';
 import { S2TextGroup, S2TextLine } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
 import { S2Element, S2ElementUtils, type S2BaseElement } from './base/s2-element';
-import { S2FontData, S2LayerData } from './base/s2-base-data';
-import { S2StrokeElementData } from './base/s2-stroke-element';
+import { S2FontData, S2BaseData, S2FillData, S2StrokeData } from './base/s2-base-data';
+import { S2DataUtils } from './base/s2-data-utils';
 
-export class S2NodeBackgroundData extends S2TransformableElementData {
-    public readonly cornerRadius: S2Length;
-
-    constructor() {
-        super();
-        this.cornerRadius = new S2Length(0, 'view');
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-        if (!(element instanceof SVGRectElement)) return;
-        const camera = scene.getActiveCamera();
-        const cornerRadius = this.cornerRadius.toSpace('view', camera);
-        if (cornerRadius > 0) {
-            element.setAttribute('rx', cornerRadius.toString());
-            element.setAttribute('ry', cornerRadius.toString());
-        } else {
-            element.removeAttribute('rx');
-            element.removeAttribute('ry');
-        }
-    }
-}
-
-export class S2NodeTextData extends S2TransformableElementData {
-    public readonly font: S2FontData;
-    public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
-    public readonly verticalAlign: S2Enum<S2VerticalAlign>;
-
-    constructor() {
-        super();
-        this.font = new S2FontData();
-        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
-        this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-        this.font.applyToElement(element, scene);
-    }
-}
-
-export class S2NodeSeparatorData extends S2StrokeElementData {}
-
-export class S2NodeData extends S2LayerData {
+export class S2NodeData extends S2BaseData {
     public readonly position: S2Position;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly background: S2NodeBackgroundData;
@@ -168,6 +134,67 @@ export class S2NodeData extends S2LayerData {
     setAnchor(anchor: S2Anchor, state: S2TypeState = S2TypeState.Active): this {
         this.anchor.set(anchor, state);
         return this;
+    }
+}
+
+export class S2NodeBackgroundData extends S2BaseData {
+    public readonly fill: S2FillData;
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly transform: S2Transform;
+    public readonly cornerRadius: S2Length;
+
+    constructor() {
+        super();
+        this.fill = new S2FillData();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.transform = new S2Transform();
+        this.cornerRadius = new S2Length(5, 'view');
+
+        this.stroke.opacity.set(1, S2TypeState.Inactive);
+        this.transform.state = S2TypeState.Inactive;
+        this.fill.opacity.set(1, S2TypeState.Inactive);
+    }
+}
+
+export class S2NodeTextData extends S2BaseData {
+    public readonly fill: S2FillData;
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly transform: S2Transform;
+
+    public readonly font: S2FontData;
+    public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
+    public readonly verticalAlign: S2Enum<S2VerticalAlign>;
+
+    constructor() {
+        super();
+        this.fill = new S2FillData();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.transform = new S2Transform();
+        this.font = new S2FontData();
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
+        this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
+
+        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
+        this.transform.state = S2TypeState.Inactive;
+        this.fill.opacity.set(1, S2TypeState.Inactive);
+    }
+}
+
+export class S2NodeSeparatorData extends S2BaseData {
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+
+    constructor() {
+        super();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+
+        this.stroke.width.set(2, 'view', S2TypeState.Inactive);
+        this.opacity.set(1, S2TypeState.Inactive);
     }
 }
 
@@ -376,7 +403,12 @@ export class S2Node extends S2Element<S2NodeData> {
             }
         }
 
-        this.data.text.applyToElement(this.element, this.scene);
+        S2DataUtils.applyFont(this.data.text.font, this.element, this.scene);
+        S2DataUtils.applyFill(this.data.text.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.text.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.text.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.data.text.transform, this.element, this.scene);
+
         for (const child of this.children) {
             child.update(updateId);
         }

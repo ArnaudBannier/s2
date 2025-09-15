@@ -1,40 +1,37 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2BaseScene } from '../s2-base-scene';
 import { svgNS, type S2TextAnchor } from '../s2-globals';
-import { S2TransformableElementData } from './base/s2-transformable-element';
-import { S2Enum } from '../s2-types';
-import { S2FontData } from './base/s2-base-data';
-import { S2ShapeElement, S2ShapeElementData } from './base/s2-shape-element';
+import { S2Enum, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
+import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
+import { S2DataUtils } from './base/s2-data-utils';
 
-export class S2TextData extends S2ShapeElementData {
+export class S2TextData extends S2BaseData {
+    public readonly fill: S2FillData;
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly transform: S2Transform;
+    public readonly position: S2Position;
     public readonly font: S2FontData;
     public readonly textAnchor: S2Enum<S2TextAnchor>;
 
     constructor() {
         super();
+        this.fill = new S2FillData();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.transform = new S2Transform();
+        this.position = new S2Position(0, 0, 'world');
         this.font = new S2FontData();
         this.textAnchor = new S2Enum<S2TextAnchor>('start');
-    }
 
-    setParent(parent: S2TextData | null = null): void {
-        super.setParent(parent);
-        this.font.setParent(parent ? parent.font : null);
-        this.textAnchor.setParent(parent ? parent.textAnchor : null);
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-        this.font.applyToElement(element, scene);
-        const camera = scene.getActiveCamera();
-        const position = this.position.toSpace('view', camera);
-        element.setAttribute('x', position.x.toString());
-        element.setAttribute('y', position.y.toString());
-        element.setAttribute('text-anchor', this.textAnchor.getInherited());
+        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
+        this.transform.state = S2TypeState.Inactive;
+        this.fill.opacity.set(1, S2TypeState.Inactive);
     }
 }
 
-export class S2BaseText<Data extends S2TextData> extends S2ShapeElement<Data> {
+export class S2BaseText<Data extends S2TextData> extends S2Element<Data> {
     protected element: SVGTextElement;
     protected tspans: Array<S2TSpan>;
 
@@ -78,7 +75,13 @@ export class S2BaseText<Data extends S2TextData> extends S2ShapeElement<Data> {
 
     protected updateImpl(updateId?: number): void {
         void updateId;
-        this.data.applyToElement(this.element, this.scene);
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
+        S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'x', 'y');
+        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+        this.element.setAttribute('text-anchor', this.data.textAnchor.getInherited());
     }
 }
 
@@ -88,13 +91,22 @@ export class S2Text extends S2BaseText<S2TextData> {
     }
 }
 
-export class S2TSpanData extends S2TransformableElementData {
+export class S2TSpanData extends S2BaseData {
+    public readonly fill: S2FillData;
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly transform: S2Transform;
+
     constructor() {
         super();
-    }
+        this.fill = new S2FillData();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.transform = new S2Transform();
 
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
+        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
+        this.transform.state = S2TypeState.Inactive;
+        this.fill.opacity.set(1, S2TypeState.Inactive);
     }
 }
 
@@ -117,6 +129,9 @@ export class S2TSpan extends S2Element<S2TSpanData> {
 
     protected updateImpl(updateId?: number): void {
         void updateId;
-        this.data.applyToElement(this.element, this.scene);
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
     }
 }

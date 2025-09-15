@@ -1,11 +1,11 @@
 import { type S2BaseScene } from '../../s2-base-scene';
-import { S2LayerData } from './s2-base-data';
+import { S2BaseData } from './s2-base-data';
 
-export type S2BaseElement = S2Element<S2LayerData>;
+export type S2BaseElement = S2Element<S2BaseData>;
 
 type S2ElementListener = (source: S2BaseElement, updateId?: number) => void;
 
-export abstract class S2Element<Data extends S2LayerData> {
+export abstract class S2Element<Data extends S2BaseData> {
     public readonly data: Data;
     public readonly id: number;
 

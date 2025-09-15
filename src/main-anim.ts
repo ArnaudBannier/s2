@@ -10,15 +10,15 @@ import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
-import type { S2LayerData } from './core/element/base/s2-base-data.ts';
-import { S2BaseType, S2Position } from './core/s2-types.ts';
+import type { S2BaseData } from './core/element/base/s2-base-data.ts';
+import { S2Position } from './core/s2-types.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
 export class TEST {
-    static setParent<Data extends S2LayerData>(data: Data, parent: Data): void {
+    static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
         for (const key of Object.keys(data) as (keyof Data)[]) {
             if (data[key] instanceof S2Position) {
                 (data[key] as S2Position).setParent(parent[key] as S2Position);
@@ -84,7 +84,8 @@ class SceneFigure extends S2Scene {
 
         this.circle = this.addCircle();
         this.setCircleDefaultStyle(this.circle);
-        this.circle.data.setPosition(0, 0, 'world').setOpacity(0.0);
+        this.circle.data.position.set(0, 0, 'world');
+        this.circle.data.opacity.set(0.0);
         this.circle.update();
 
         const line = this.addLine();
@@ -107,7 +108,7 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(2000)
             .setEasing(ease.inOut);
 
-        this.path.data.setPathTo(1.0);
+        this.path.data.pathTo.set(1.0);
         anim.commitFinalStates();
         this.animator.addAnimation(anim);
 
@@ -117,7 +118,7 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(1000)
             .setEasing(ease.inOut);
 
-        this.path.data.setPathFrom(0.8);
+        this.path.data.pathFrom.set(0.8);
 
         this.animator.addAnimation(anim.commitFinalStates(), 'previous-start', 1000);
 
@@ -129,7 +130,7 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(500)
             .setEasing(ease.inOut);
 
-        this.circle.data.setOpacity(1.0);
+        this.circle.data.opacity.set(1.0);
         this.animator.addAnimation(anim.commitFinalStates());
 
         this.animator.makeStep();

@@ -5,10 +5,10 @@ import { S2Enum, S2Length, S2Number, S2Position, S2Transform, S2TypeState, type 
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
 import { S2Element } from './base/s2-element';
-import { S2DataUtils } from './base/s2-data-setter';
-import { S2FillData, S2LayerData, S2StrokeData } from './base/s2-base-data';
+import { S2DataUtils } from './base/s2-data-utils';
+import { S2FillData, S2BaseData, S2StrokeData } from './base/s2-base-data';
 
-export class S2PathData extends S2LayerData {
+export class S2PathData extends S2BaseData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly fill: S2FillData;
@@ -31,38 +31,6 @@ export class S2PathData extends S2LayerData {
 
         this.transform.state = S2TypeState.Inactive;
         this.fill.opacity.set(0, S2TypeState.Active);
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-        this.polyCurve.updateLength();
-        const d = S2PathUtils.polyCurveToSVGPath(
-            this.polyCurve,
-            this.pathFrom.value,
-            this.pathTo.value,
-            scene.getActiveCamera(),
-            this.space.getInherited(),
-        );
-        if (d.length >= 0) {
-            element.setAttribute('d', d);
-        } else {
-            element.removeAttribute('d');
-        }
-    }
-
-    setPathFrom(pathFrom: number, state: S2TypeState = S2TypeState.Active): this {
-        this.pathFrom.set(pathFrom, state);
-        return this;
-    }
-
-    setPathTo(pathTo: number, state: S2TypeState = S2TypeState.Active): this {
-        this.pathTo.set(pathTo, state);
-        return this;
-    }
-
-    setSpace(space: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.space.set(space, state);
-        return this;
     }
 }
 

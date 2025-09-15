@@ -14,7 +14,7 @@ import { type S2BaseContainer } from './element/base/s2-container';
 import { S2Element } from './element/base/s2-element';
 import { S2BaseScene } from './s2-base-scene';
 import { S2Line } from './element/s2-line';
-import { S2LayerData } from './element/base/s2-base-data';
+import { S2BaseData } from './element/base/s2-base-data';
 import { S2DataSetter } from './element/base/s2-data-setter';
 
 export class S2Scene extends S2BaseScene {
@@ -78,7 +78,7 @@ export class S2Scene extends S2BaseScene {
         return child;
     }
 
-    addGroup<Data extends S2LayerData, ChildType extends S2Element<Data>>(
+    addGroup<Data extends S2BaseData, ChildType extends S2Element<Data>>(
         data: Data,
         parent: S2BaseContainer = this.svg,
     ): S2Group<Data, ChildType> {

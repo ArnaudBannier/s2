@@ -10,6 +10,7 @@ export type S2LineJoin = 'miter' | 'round' | 'bevel';
 export type S2TextAnchor = 'start' | 'middle' | 'end';
 export type S2HorizontalAlign = 'left' | 'center' | 'right';
 export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
+export type S2FontStyle = 'normal' | 'italic' | 'oblique';
 
 export type S2Anchor =
     | 'north west'

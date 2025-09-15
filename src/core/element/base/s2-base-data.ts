@@ -1,8 +1,8 @@
-import { type S2LineCap, type S2LineJoin } from '../../s2-globals';
+import type { S2FontStyle, S2LineCap, S2LineJoin } from '../../s2-globals';
 import { S2BaseScene } from '../../s2-base-scene';
 import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../../s2-types';
 
-export class S2LayerData {
+export class S2BaseData {
     public readonly layer: S2Number;
     public isActive: boolean;
 
@@ -11,7 +11,7 @@ export class S2LayerData {
         this.isActive = true;
     }
 
-    setParent(parent: S2LayerData | null = null): void {
+    setParent(parent: S2BaseData | null = null): void {
         void parent;
     }
 
@@ -56,41 +56,6 @@ export class S2StrokeData {
         this.lineCap.copy(other.lineCap);
         this.lineJoin.copy(other.lineJoin);
     }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        if (this.opacity.state === S2TypeState.Inactive && this.color.state === S2TypeState.Inactive) return;
-
-        if (this.width.state === S2TypeState.Active) {
-            const width = this.width.toSpace('view', scene.getActiveCamera());
-            element.setAttribute('stroke-width', width.toString());
-        } else {
-            element.removeAttribute('stroke-width');
-        }
-
-        if (this.color.state === S2TypeState.Active) {
-            element.setAttribute('stroke', this.color.toRgb());
-        } else {
-            element.removeAttribute('stroke');
-        }
-
-        if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
-            element.setAttribute('stroke-opacity', this.opacity.toFixed());
-        } else {
-            element.removeAttribute('stroke-opacity');
-        }
-
-        if (this.lineCap.state === S2TypeState.Active) {
-            element.setAttribute('stroke-linecap', this.lineCap.value);
-        } else {
-            element.removeAttribute('stroke-linecap');
-        }
-
-        if (this.lineJoin.state === S2TypeState.Active) {
-            element.setAttribute('stroke-linejoin', this.lineJoin.value);
-        } else {
-            element.removeAttribute('stroke-linejoin');
-        }
-    }
 }
 
 export class S2FillData {
@@ -111,26 +76,7 @@ export class S2FillData {
         this.color.copy(other.color);
         this.opacity.copy(other.opacity);
     }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        void scene;
-        if (this.opacity.state === S2TypeState.Inactive && this.color.state === S2TypeState.Inactive) return;
-
-        if (this.color.state === S2TypeState.Active) {
-            element.setAttribute('fill', this.color.toRgb());
-        } else {
-            element.removeAttribute('fill');
-        }
-
-        if (this.opacity.state === S2TypeState.Active && this.opacity.value <= 1) {
-            element.setAttribute('fill-opacity', this.opacity.toFixed());
-        } else {
-            element.removeAttribute('fill-opacity');
-        }
-    }
 }
-
-export type S2FontStyle = 'normal' | 'italic' | 'oblique';
 
 export class S2FontData {
     public readonly size: S2Length;
@@ -165,32 +111,5 @@ export class S2FontData {
         this.relativeAscenderHeight.copy(other.relativeAscenderHeight);
         this.family.copy(other.family);
         this.style.copy(other.style);
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        if (this.size.state === S2TypeState.Active) {
-            const size = this.size.toSpace('view', scene.getActiveCamera());
-            element.setAttribute('font-size', size.toString());
-        } else {
-            element.removeAttribute('font-size');
-        }
-
-        if (this.weight.state === S2TypeState.Active) {
-            element.setAttribute('font-weight', this.weight.toFixed(0));
-        } else {
-            element.removeAttribute('font-weight');
-        }
-
-        if (this.family.state === S2TypeState.Active) {
-            element.setAttribute('font-family', this.family.toString());
-        } else {
-            element.removeAttribute('font-family');
-        }
-
-        if (this.style.state === S2TypeState.Active) {
-            element.setAttribute('font-style', this.style.value);
-        } else {
-            element.removeAttribute('font-style');
-        }
     }
 }

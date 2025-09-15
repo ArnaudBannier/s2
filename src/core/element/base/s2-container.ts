@@ -1,12 +1,12 @@
 import { type S2BaseScene } from '../../s2-base-scene';
-import type { S2LayerData } from './s2-base-data';
+import { S2BaseData } from './s2-base-data';
 import { S2Element, S2ElementUtils } from './s2-element';
 
-export type S2BaseContainer = S2Container<SVGElement, S2LayerData, S2Element<S2LayerData>>;
+export type S2BaseContainer = S2Container<SVGElement, S2BaseData, S2Element<S2BaseData>>;
 
 export class S2Container<
     SVGType extends SVGElement,
-    Data extends S2LayerData,
+    Data extends S2BaseData,
     ChildType extends S2Element<Data>,
 > extends S2Element<Data> {
     protected element: SVGType;

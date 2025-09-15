@@ -1,20 +1,35 @@
-import { type S2BaseScene } from '../s2-base-scene';
+import { S2BaseScene } from '../s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../s2-globals';
-import { type S2Space, S2Length } from '../s2-types';
-import { S2ShapeElement, S2ShapeElementData } from './base/s2-shape-element';
-import { S2DataUtils } from './base/s2-data-setter';
+import { type S2Space, S2Length, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
+import { S2DataUtils } from './base/s2-data-utils';
+import { S2FillData, S2BaseData, S2StrokeData } from './base/s2-base-data';
+import { S2Element } from './base/s2-element';
 
-export class S2CircleData extends S2ShapeElementData {
+export class S2CircleData extends S2BaseData {
+    public readonly fill: S2FillData;
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly transform: S2Transform;
+    public readonly position: S2Position;
     public readonly radius: S2Length;
 
     constructor() {
         super();
+        this.fill = new S2FillData();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.transform = new S2Transform();
+        this.position = new S2Position(0, 0, 'world');
         this.radius = new S2Length(1, 'world');
+
+        this.stroke.opacity.set(1, S2TypeState.Inactive);
+        this.transform.state = S2TypeState.Inactive;
+        this.fill.opacity.set(1, S2TypeState.Inactive);
     }
 }
 
-export class S2Circle extends S2ShapeElement<S2CircleData> {
+export class S2Circle extends S2Element<S2CircleData> {
     protected element: SVGCircleElement;
 
     constructor(scene: S2BaseScene) {

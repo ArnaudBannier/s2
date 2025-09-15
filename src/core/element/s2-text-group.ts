@@ -2,10 +2,10 @@ import { S2Vec2 } from '../math/s2-vec2';
 import { S2BaseScene } from '../s2-base-scene';
 import { type S2Anchor, type S2HorizontalAlign, type S2VerticalAlign, S2AnchorUtils, svgNS } from '../s2-globals';
 import { S2BaseText, S2TextData } from './s2-text';
-import { S2Enum, S2Extents, S2Length, S2TypeState, type S2Space } from '../s2-types';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, S2TypeState, type S2Space } from '../s2-types';
 import { S2Element, S2ElementUtils } from './base/s2-element';
-import { S2ShapeElementData } from './base/s2-shape-element';
-import { S2FontData } from './base/s2-base-data';
+import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from './base/s2-base-data';
+import { S2DataUtils } from './base/s2-data-utils';
 
 export class S2TextLineData extends S2TextData {
     public readonly skip: S2Length;
@@ -16,12 +16,6 @@ export class S2TextLineData extends S2TextData {
         this.skip = new S2Length(0, 'view');
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left', S2TypeState.Inactive);
     }
-
-    setParent(parent: S2TextLineData | null = null): void {
-        super.setParent(parent);
-        this.skip.setParent(parent ? parent.skip : null);
-        this.horizontalAlign.setParent(parent ? parent.horizontalAlign : null);
-    }
 }
 
 export class S2TextLine extends S2BaseText<S2TextLineData> {
@@ -30,7 +24,13 @@ export class S2TextLine extends S2BaseText<S2TextLineData> {
     }
 }
 
-export class S2TextGroupData extends S2ShapeElementData {
+export class S2TextGroupData extends S2BaseData {
+    public readonly fill: S2FillData;
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly transform: S2Transform;
+    public readonly position: S2Position;
+
     public readonly font: S2FontData;
     public readonly skip: S2Length;
     public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
@@ -40,27 +40,21 @@ export class S2TextGroupData extends S2ShapeElementData {
 
     constructor() {
         super();
+        this.fill = new S2FillData();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.transform = new S2Transform();
+        this.position = new S2Position(0, 0, 'world');
         this.font = new S2FontData();
         this.skip = new S2Length(0, 'view');
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left', S2TypeState.Inactive);
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.anchor = new S2Enum<S2Anchor>('center');
-    }
 
-    setParent(parent: S2TextGroupData | null = null): void {
-        super.setParent(parent);
-        this.font.setParent(parent ? parent.font : null);
-        this.skip.setParent(parent ? parent.skip : null);
-        this.horizontalAlign.setParent(parent ? parent.horizontalAlign : null);
-        this.verticalAlign.setParent(parent ? parent.verticalAlign : null);
-        this.minExtents.setParent(parent ? parent.minExtents : null);
-        this.anchor.setParent(parent ? parent.anchor : null);
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-        this.font.applyToElement(element, scene);
+        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
+        this.transform.state = S2TypeState.Inactive;
+        this.fill.opacity.set(1, S2TypeState.Inactive);
     }
 }
 
@@ -125,7 +119,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         const space = 'view';
 
         // Apply font to group element to ensure correct measurement of bounding boxes
-        this.data.font.applyToElement(this.element, this.scene);
+        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
         let maxWidth = 0;
         let totalHeight = 0;
@@ -150,7 +144,13 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         void updateId;
         if (this.children.length === 0) return;
         const camera = this.scene.getActiveCamera();
-        this.data.applyToElement(this.element, this.scene);
+
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
+        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+
         this.updateExtents();
 
         const textExtents = this.textExtents.toSpace('view', camera);
