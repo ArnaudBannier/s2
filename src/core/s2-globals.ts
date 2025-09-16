@@ -25,15 +25,15 @@ export interface S2Tipable {
 }
 
 export type S2Anchor =
-    | 'north west'
+    | 'north-west'
     | 'north'
-    | 'north east'
+    | 'north-east'
     | 'west'
     | 'center'
     | 'east'
-    | 'south west'
+    | 'south-west'
     | 'south'
-    | 'south east';
+    | 'south-east';
 
 export class S2AnchorUtils {
     static getCenter(
@@ -47,13 +47,13 @@ export class S2AnchorUtils {
         const ext = extents.toSpace(space, camera);
         const center = position.toSpace(space, camera);
         switch (anchor) {
-            case 'north west':
+            case 'north-west':
                 center.shiftY(-sign * ext.y).shiftX(+ext.x);
                 break;
             case 'north':
                 center.shiftY(-sign * ext.y);
                 break;
-            case 'north east':
+            case 'north-east':
                 center.shiftY(-sign * ext.y).shiftX(-ext.x);
                 break;
             case 'west':
@@ -64,13 +64,13 @@ export class S2AnchorUtils {
             case 'east':
                 center.shiftX(-ext.x);
                 break;
-            case 'south west':
+            case 'south-west':
                 center.shiftY(+sign * ext.y).shiftX(+ext.x);
                 break;
             case 'south':
                 center.shiftY(+sign * ext.y);
                 break;
-            case 'south east':
+            case 'south-east':
                 center.shiftY(+sign * ext.y).shiftX(-ext.x);
                 break;
         }
@@ -88,12 +88,12 @@ export class S2AnchorUtils {
         const ext = extents.toSpace(space, camera);
         const nw = position.toSpace(space, camera);
         switch (anchor) {
-            case 'north west':
+            case 'north-west':
                 break;
             case 'north':
                 nw.shiftX(-ext.x);
                 break;
-            case 'north east':
+            case 'north-east':
                 nw.shiftX(-2 * ext.x);
                 break;
             case 'west':
@@ -105,13 +105,13 @@ export class S2AnchorUtils {
             case 'east':
                 nw.shiftY(sign * ext.y).shiftX(-2 * ext.x);
                 break;
-            case 'south west':
+            case 'south-west':
                 nw.shiftY(2 * sign * ext.y);
                 break;
             case 'south':
                 nw.shiftY(2 * sign * ext.y).shiftX(-ext.x);
                 break;
-            case 'south east':
+            case 'south-east':
                 nw.shiftY(2 * sign * ext.y).shiftX(-2 * ext.x);
                 break;
         }

@@ -70,6 +70,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         this.element = document.createElementNS(svgNS, 'g');
         this.textExtents = new S2Extents(0, 0, 'view');
         this.extents = new S2Extents(0, 0, 'view');
+        this.element.dataset.role = 'text-group';
     }
 
     getSVGElement(): SVGElement {

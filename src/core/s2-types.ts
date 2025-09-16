@@ -275,6 +275,13 @@ export class S2Color extends S2BaseType {
         }
         return this.parent.getInherited();
     }
+
+    getInheritedRgb(): string {
+        if (this.state === S2TypeState.Active || this.parent === null) {
+            return this.toRgb();
+        }
+        return this.parent.getInheritedRgb();
+    }
 }
 
 export class S2Position extends S2BaseType {

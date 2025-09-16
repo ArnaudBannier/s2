@@ -71,10 +71,14 @@ class BTreeStyle {
     setEdgeEmphasized(edge: S2LineEdge): void {
         S2DataSetter.addTarget(edge.data)
             .setStrokeColor(MTL.WHITE)
-            .setStrokeWidth(6, 'view')
+            .setStrokeWidth(5, 'view')
             .setStrokeLineCap('round')
             .setEdgeStartDistance(0, 'view')
-            .setEdgeEndDistance(10, 'view');
+            .setEdgeEndDistance(11, 'view');
+
+        const arrowTip = edge.createArrowTip();
+        //arrowTip.setTipInset(-0.25);
+        arrowTip.data.pathStrokeFactor.set(0.3);
     }
 
     setEdgeSelected(edge: S2LineEdge): void {

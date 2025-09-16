@@ -15,80 +15,103 @@ import { S2BaseScene } from '../../s2-base-scene.ts';
 import type { S2PolyCurve } from '../../math/s2-curve.ts';
 import { S2PathUtils } from '../s2-path.ts';
 
-export class S2DataUtils {
-    static applyStroke(stroke: S2StrokeData, element: SVGElement, scene: S2BaseScene): void {
-        if (stroke.opacity.state === S2TypeState.Inactive && stroke.color.state === S2TypeState.Inactive) return;
+export type S2DataApplicationMode = 'always' | 'if-active';
 
-        if (stroke.width.state === S2TypeState.Active) {
-            const width = stroke.width.toSpace('view', scene.getActiveCamera());
+export class S2DataUtils {
+    static applyStroke(
+        stroke: S2StrokeData,
+        element: SVGElement,
+        scene: S2BaseScene,
+        mode: S2DataApplicationMode = 'if-active',
+    ): void {
+        if (stroke.width.state === S2TypeState.Active || mode === 'always') {
+            const width = stroke.width.getInherited('view', scene.getActiveCamera());
             element.setAttribute('stroke-width', width.toString());
         } else {
             element.removeAttribute('stroke-width');
         }
 
-        if (stroke.color.state === S2TypeState.Active) {
-            element.setAttribute('stroke', stroke.color.toRgb());
+        if (stroke.color.state === S2TypeState.Active || mode === 'always') {
+            element.setAttribute('stroke', stroke.color.getInheritedRgb());
         } else {
             element.removeAttribute('stroke');
         }
 
-        if (stroke.opacity.state === S2TypeState.Active && stroke.opacity.value <= 1) {
-            element.setAttribute('stroke-opacity', stroke.opacity.toFixed());
+        if ((stroke.opacity.state === S2TypeState.Active && stroke.opacity.value <= 1) || mode === 'always') {
+            element.setAttribute('stroke-opacity', stroke.opacity.getInherited().toFixed(2));
         } else {
             element.removeAttribute('stroke-opacity');
         }
 
-        if (stroke.lineCap.state === S2TypeState.Active) {
-            element.setAttribute('stroke-linecap', stroke.lineCap.value);
+        if (stroke.lineCap.state === S2TypeState.Active || mode === 'always') {
+            element.setAttribute('stroke-linecap', stroke.lineCap.getInherited());
         } else {
             element.removeAttribute('stroke-linecap');
         }
 
-        if (stroke.lineJoin.state === S2TypeState.Active) {
-            element.setAttribute('stroke-linejoin', stroke.lineJoin.value);
+        if (stroke.lineJoin.state === S2TypeState.Active || mode === 'always') {
+            element.setAttribute('stroke-linejoin', stroke.lineJoin.getInherited());
         } else {
             element.removeAttribute('stroke-linejoin');
         }
     }
 
-    static applyFill(fill: S2FillData, element: SVGElement, scene: S2BaseScene): void {
+    static applyFill(
+        fill: S2FillData,
+        element: SVGElement,
+        scene: S2BaseScene,
+        mode: S2DataApplicationMode = 'if-active',
+    ): void {
         void scene;
-        if (fill.opacity.state === S2TypeState.Inactive && fill.color.state === S2TypeState.Inactive) return;
-
-        if (fill.color.state === S2TypeState.Active) {
-            element.setAttribute('fill', fill.color.toRgb());
+        if (fill.color.state === S2TypeState.Active || mode === 'always') {
+            element.setAttribute('fill', fill.color.getInheritedRgb());
         } else {
             element.removeAttribute('fill');
         }
 
-        if (fill.opacity.state === S2TypeState.Active && fill.opacity.value <= 1) {
-            element.setAttribute('fill-opacity', fill.opacity.toFixed());
+        if ((fill.opacity.state === S2TypeState.Active && fill.opacity.value <= 1) || mode === 'always') {
+            element.setAttribute('fill-opacity', fill.opacity.getInherited().toFixed(2));
         } else {
             element.removeAttribute('fill-opacity');
         }
     }
 
-    static applyColor(color: S2Color, element: SVGElement, scene: S2BaseScene): void {
+    static applyColor(
+        color: S2Color,
+        element: SVGElement,
+        scene: S2BaseScene,
+        mode: S2DataApplicationMode = 'if-active',
+    ): void {
         void scene;
-        if (color.state === S2TypeState.Active) {
-            element.setAttribute('fill', color.toRgb());
+        if (color.state === S2TypeState.Active || mode === 'always') {
+            element.setAttribute('fill', color.getInheritedRgb());
         } else {
             element.removeAttribute('fill');
         }
     }
 
-    static applyOpacity(opacity: S2Number, element: SVGElement, scene: S2BaseScene): void {
+    static applyOpacity(
+        opacity: S2Number,
+        element: SVGElement,
+        scene: S2BaseScene,
+        mode: S2DataApplicationMode = 'if-active',
+    ): void {
         void scene;
-        if (opacity.state === S2TypeState.Active) {
-            element.setAttribute('opacity', opacity.toFixed(2));
+        if (opacity.state === S2TypeState.Active || mode === 'always') {
+            element.setAttribute('opacity', opacity.getInherited().toFixed(2));
         } else {
             element.removeAttribute('opacity');
         }
     }
 
-    static applyTransform(transform: S2Transform, element: SVGElement, scene: S2BaseScene): void {
+    static applyTransform(
+        transform: S2Transform,
+        element: SVGElement,
+        scene: S2BaseScene,
+        mode: S2DataApplicationMode = 'if-active',
+    ): void {
         void scene;
-        if (transform.state === S2TypeState.Active) {
+        if (transform.state === S2TypeState.Active || mode === 'always') {
             element.setAttribute('transform', transform.toFixed(2));
         } else {
             element.removeAttribute('transform');

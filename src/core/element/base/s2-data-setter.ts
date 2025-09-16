@@ -47,23 +47,23 @@ export class S2DataSetter {
         return this;
     }
 
-    setCornerRadius(radius: number, space: S2Space): this {
+    setCornerRadius(radius: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setCornerRadius(target, radius, space);
+            S2DataSetterUtils.setCornerRadius(target, radius, space, state);
         }
         return this;
     }
 
-    setExtents(x: number, y: number, space: S2Space): this {
+    setExtents(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setExtents(target, x, y, space);
+            S2DataSetterUtils.setExtents(target, x, y, space, state);
         }
         return this;
     }
 
-    setExtentsV(v: S2Vec2, space: S2Space): this {
+    setExtentsV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setExtentsV(target, v, space);
+            S2DataSetterUtils.setExtentsV(target, v, space, state);
         }
         return this;
     }

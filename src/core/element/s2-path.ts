@@ -102,7 +102,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         transform.space = this.data.space.getInherited();
         transform.position = this.data.polyCurve.getPointAt(t);
         transform.tangent = this.data.polyCurve.getTangentAt(t);
-        transform.pathLength = this.data.polyCurve.getLength() * t;
+        transform.pathLength = this.data.polyCurve.getLength() * (to - from);
         transform.strokeWidth = this.data.stroke.width.getInherited(transform.space, camera);
         return transform;
     }

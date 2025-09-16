@@ -76,6 +76,14 @@ function easeInOutSine(t: number): number {
     return 0.5 * (1 - Math.cos(Math.PI * t));
 }
 
+function easeSmoothStep(t: number): number {
+    return t * t * (3 - 2 * t);
+}
+
+function easeSmootherStep(t: number): number {
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
 export const ease: Record<string, S2EaseType> = {
     linear: easeLinear,
     in: easeInQuad,
@@ -93,6 +101,8 @@ export const ease: Record<string, S2EaseType> = {
     inOutQuad: easeInOutQuad,
     inOutCubic: easeInOutCubic,
     inOutQuart: easeInOutQuart,
+    smoothStep: easeSmoothStep,
+    smootherStep: easeSmootherStep,
 } as const;
 
 function easeInPower(power: number = 2): S2EaseType {

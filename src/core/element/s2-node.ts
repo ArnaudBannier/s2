@@ -240,6 +240,7 @@ export class S2Node extends S2Element<S2NodeData> {
         }
         this.nodeExtents = new S2Extents(0, 0, 'view');
         S2ElementUtils.updateSVGChildren(this.element, this.children);
+        this.element.dataset.role = 'node';
     }
 
     getPosition(space: S2Space): S2Vec2 {
@@ -369,7 +370,7 @@ export class S2Node extends S2Element<S2NodeData> {
         for (let i = 0; i < this.textGroups.length; i++) {
             this.textGroups[i].data.position.setV(textPosition, 'view');
             this.textGroups[i].data.minExtents.set(nodeExtents.x - padding.x, partHeights[i] / 2, 'view');
-            this.textGroups[i].data.anchor.set('north west');
+            this.textGroups[i].data.anchor.set('north-west');
             textPosition.y += partHeights[i] + 2 * partSep;
         }
 

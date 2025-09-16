@@ -52,21 +52,32 @@ export class S2DataSetterUtils {
         }
     }
 
-    static setCornerRadius(data: S2BaseData, radius: number, space: S2Space): void {
+    static setCornerRadius(
+        data: S2BaseData,
+        radius: number,
+        space?: S2Space,
+        state: S2TypeState = S2TypeState.Active,
+    ): void {
         if ('cornerRadius' in data && data.cornerRadius instanceof S2Length) {
-            data.cornerRadius.set(radius, space);
+            data.cornerRadius.set(radius, space, state);
         }
     }
 
-    static setExtents(data: S2BaseData, x: number, y: number, space: S2Space): void {
+    static setExtents(
+        data: S2BaseData,
+        x: number,
+        y: number,
+        space?: S2Space,
+        state: S2TypeState = S2TypeState.Active,
+    ): void {
         if ('extents' in data && data.extents instanceof S2Extents) {
-            data.extents.set(x, y, space);
+            data.extents.set(x, y, space, state);
         }
     }
 
-    static setExtentsV(data: S2BaseData, v: S2Vec2, space: S2Space): void {
+    static setExtentsV(data: S2BaseData, v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): void {
         if ('extents' in data && data.extents instanceof S2Extents) {
-            data.extents.setV(v, space);
+            data.extents.setV(v, space, state);
         }
     }
 

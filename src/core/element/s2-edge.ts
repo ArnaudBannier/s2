@@ -6,6 +6,8 @@ import { type S2Space, S2TypeState, S2Length, S2Number, S2Position } from '../s2
 import { S2Camera } from '../math/s2-camera';
 import { S2Element } from './base/s2-element';
 import { S2BaseData, S2StrokeData } from './base/s2-base-data';
+import { type S2Tipable, S2TipTransform, svgNS } from '../s2-globals';
+import { S2ArrowTip } from './s2-arrow-tip';
 
 // S2NodeArcManhattan
 
@@ -94,15 +96,37 @@ export class S2EdgeData extends S2BaseData {
     }
 }
 
-export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> {
+export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> implements S2Tipable {
+    protected element: SVGGElement;
     protected path: S2Path;
+    protected arrowTip: S2ArrowTip | null;
+
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
+        this.element = document.createElementNS(svgNS, 'g');
         this.path = new S2Path(scene);
+        this.arrowTip = null;
+        this.element.appendChild(this.path.getSVGElement());
+        this.element.dataset.role = 'edge';
+    }
+
+    createArrowTip(): S2ArrowTip {
+        if (!this.arrowTip) {
+            this.arrowTip = new S2ArrowTip(this.scene);
+            this.element.appendChild(this.arrowTip.getSVGElement());
+            this.arrowTip.setTipableReference(this);
+            this.arrowTip.data.pathPosition.set(1);
+            this.arrowTip.data.fill.color.setParent(this.path.data.stroke.color);
+        }
+        return this.arrowTip;
+    }
+
+    getTipTransformAt(t: number): S2TipTransform {
+        return this.path.getTipTransformAt(t);
     }
 
     getSVGElement(): SVGElement {
-        return this.path.getSVGElement();
+        return this.element;
     }
 
     protected getPointCenter(nodeOrPos: S2Node | S2Position, space: S2Space) {

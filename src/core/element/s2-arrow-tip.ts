@@ -1,7 +1,8 @@
+import { ease } from '../animation/s2-easing';
 import { S2Mat2x3Builder } from '../math/s2-mat2x3-builder';
 import { S2BaseScene } from '../s2-base-scene';
 import { S2TipTransform, svgNS } from '../s2-globals';
-import { S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
+import { S2Extents, S2Length, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
 import { S2BaseData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Element } from './base/s2-element';
@@ -11,15 +12,22 @@ export class S2ArrowTipData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly ratio: S2Number;
+    public readonly extents: S2Extents;
+    public readonly pathPosition: S2Number;
+    public readonly pathThreshold: S2Length;
+    public readonly pathStrokeFactor: S2Number;
 
     constructor() {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1, S2TypeState.Inactive);
-        this.ratio = new S2Number(1);
+        this.pathPosition = new S2Number(1);
+        this.pathThreshold = new S2Length(30, 'view');
+        this.extents = new S2Extents(5, 5, 'view');
+        this.pathStrokeFactor = new S2Number(1);
 
+        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
         this.stroke.opacity.set(1, S2TypeState.Inactive);
         this.fill.opacity.set(1, S2TypeState.Inactive);
     }
@@ -28,24 +36,56 @@ export class S2ArrowTipData extends S2BaseData {
 export class S2ArrowTip extends S2Element<S2ArrowTipData> {
     protected element: SVGPathElement;
     protected transform: S2Transform;
+    protected anchorAlignment: number;
     protected tipableReference: S2BaseTipable | null = null;
     protected tipTransform: S2TipTransform;
+    protected tipShape: string;
+    protected tipInset: number;
+    protected isReversed: boolean;
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2ArrowTipData());
         this.element = document.createElementNS(svgNS, 'path');
         this.transform = new S2Transform();
         this.tipTransform = new S2TipTransform();
+        this.isReversed = false;
+        this.tipInset = 0.25;
+        this.tipShape = '';
+        this.anchorAlignment = 0;
+        this.updateTipShape();
     }
 
-    setTipableReference(tipable: S2BaseTipable | null): void {
-        if (this.tipableReference === tipable) return;
+    setReversed(reversed: boolean = false): this {
+        this.isReversed = reversed;
+        return this;
+    }
+
+    setTipInset(inset: number = 0.25): this {
+        this.tipInset = inset;
+        this.updateTipShape();
+        return this;
+    }
+
+    /**
+     * Set the anchor alignment for the arrow tip.
+     * @param alignment The anchor alignment value. This value is typically between -1 and +1.
+     * +1 means the anchor is at the start of the tip shape,
+     * 0 means the anchor is at the center of the tip shape,
+     * -1 means the anchor is at the end of the tip shape.
+     * @returns The current instance for chaining.
+     */
+    setAnchorAlignment(alignment: number = 0): this {
+        this.anchorAlignment = alignment;
+        return this;
+    }
+
+    setTipableReference(tipable: S2BaseTipable | null): this {
+        if (this.tipableReference === tipable) return this;
         if (tipable === null) {
             if (this.tipableReference !== null) {
                 this.removeDependency(this.tipableReference);
             }
             this.tipableReference = null;
-            return;
         } else {
             if (this.tipableReference !== null) {
                 this.removeDependency(this.tipableReference);
@@ -53,34 +93,62 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
             this.addDependency(tipable);
             this.tipableReference = tipable;
         }
+        return this;
     }
 
     getSVGElement(): SVGElement {
         return this.element;
     }
 
+    protected updateTipShape(): void {
+        const x = -10 + this.tipInset * 20;
+        this.tipShape = `M ${x},0 L -10,10 L 10,0 L -10,-10 Z`;
+    }
+
     protected updateTipTransform(): void {
         if (this.tipableReference === null) return;
-        this.tipTransform = this.tipableReference.getTipTransformAt(this.data.ratio.getInherited());
+        this.tipTransform = this.tipableReference.getTipTransformAt(this.data.pathPosition.getInherited());
+        const extents = this.data.extents.getInherited('view', this.scene.getActiveCamera());
+        const strokeWidth = S2Length.toSpace(
+            this.tipTransform.strokeWidth,
+            this.tipTransform.space,
+            'view',
+            this.scene.getActiveCamera(),
+        );
+        extents.x += strokeWidth * this.data.pathStrokeFactor.getInherited();
+        extents.y += strokeWidth * this.data.pathStrokeFactor.getInherited();
+        const pathLength = S2Length.toSpace(
+            this.tipTransform.pathLength,
+            this.tipTransform.space,
+            'view',
+            this.scene.getActiveCamera(),
+        );
+        const pathThreshold = this.data.pathThreshold.getInherited('view', this.scene.getActiveCamera());
+        if (pathThreshold > 0 && pathLength < pathThreshold) {
+            extents.scale(ease.out(pathLength / pathThreshold));
+        }
+        const viewPosition = S2Position.toSpace(
+            this.tipTransform.position,
+            this.tipTransform.space,
+            'view',
+            this.scene.getActiveCamera(),
+        );
+
+        const xScaleSign = this.isReversed ? -1 : +1;
         S2Mat2x3Builder.setTarget(this.transform.value)
+            .translate(this.anchorAlignment * 10, 0)
+            .scale((xScaleSign * extents.x) / 10, extents.y / 10)
             .rotateRad(this.tipTransform.tangent.angle())
-            .translateV(
-                S2Position.toSpace(
-                    this.tipTransform.position,
-                    this.tipTransform.space,
-                    'view',
-                    this.scene.getActiveCamera(),
-                ),
-            );
+            .translateV(viewPosition);
     }
 
     protected updateImpl(updateId?: number): void {
         void updateId;
         this.updateTipTransform();
-        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
-        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
-        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
-        S2DataUtils.applyTransform(this.transform, this.element, this.scene);
-        this.element.setAttribute('d', 'M -5,0 L -10,10 L 10,0 L -10,-10 Z');
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene, 'always');
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene, 'always');
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene, 'always');
+        S2DataUtils.applyTransform(this.transform, this.element, this.scene, 'always');
+        this.element.setAttribute('d', this.tipShape);
     }
 }

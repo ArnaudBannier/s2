@@ -11,7 +11,7 @@ import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 import { S2BaseData } from './core/element/base/s2-base-data.ts';
-import { S2Position } from './core/s2-types.ts';
+import { S2Position, S2TypeState } from './core/s2-types.ts';
 import { S2ArrowTip } from './core/element/s2-arrow-tip.ts';
 
 const viewportScale = 1.5;
@@ -77,7 +77,7 @@ class SceneFigure extends S2Scene {
         this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0).update();
         S2DataSetter.addTarget(this.path.data)
             .setStrokeColor(MTL.CYAN_5)
-            .setStrokeWidth(4, 'view')
+            .setStrokeWidth(6, 'view')
             .setStrokeLineCap('round')
             .setSpace('world')
             .setPathFrom(0.0)
@@ -102,10 +102,14 @@ class SceneFigure extends S2Scene {
         S2DataSetter.addTarget(tip.data)
             .setFillColor(MTL.GREY_6)
             .setStrokeColor(MTL.GREY_4)
-            .setStrokeWidth(4, 'view')
+            .setStrokeWidth(0)
             .setOpacity(1.0);
+
         tip.setTipableReference(this.path);
-        tip.data.ratio.set(1);
+        tip.setTipInset(0).setReversed(false).setAnchorAlignment(1);
+        tip.data.pathPosition.set(1);
+        //tip.data.stroke.setParent(this.path.data.stroke);
+        tip.data.fill.color.setParent(this.path.data.stroke.color);
         tip.update();
 
         this.update();
