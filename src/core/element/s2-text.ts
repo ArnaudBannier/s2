@@ -96,6 +96,7 @@ export class S2TSpanData extends S2BaseData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
+    public readonly tabsize: S2Number;
 
     constructor() {
         super();
@@ -103,6 +104,7 @@ export class S2TSpanData extends S2BaseData {
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1, S2TypeState.Inactive);
         this.transform = new S2Transform();
+        this.tabsize = new S2Number(0);
 
         this.stroke.width.set(0, 'view', S2TypeState.Inactive);
         this.transform.state = S2TypeState.Inactive;
@@ -133,5 +135,9 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
+        const tabsize = this.data.tabsize.getInherited();
+        if (tabsize > 0) {
+            this.element.setAttribute('dx', `${tabsize * 2}em`); // assuming 8px per tab
+        }
     }
 }

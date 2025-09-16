@@ -11,7 +11,7 @@ import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 import { S2BaseData } from './core/element/base/s2-base-data.ts';
-import { S2Position, S2TypeState } from './core/s2-types.ts';
+import { S2Position } from './core/s2-types.ts';
 import { S2ArrowTip } from './core/element/s2-arrow-tip.ts';
 
 const viewportScale = 1.5;

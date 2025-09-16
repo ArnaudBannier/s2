@@ -1,148 +1,99 @@
 import './style.css';
 import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL, MTL_HEX } from './utils/mtl-colors.ts';
+import { MTL } from './utils/mtl-colors.ts';
 import { S2Circle } from './core/element/s2-circle.ts';
-import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
-import { ease } from './core/animation/s2-easing.ts';
 import { S2Scene } from './core/s2-scene.ts';
-import { S2Timeline } from './core/animation/s2-timeline.ts';
-import { S2PlayableAnimation } from './core/animation/s2-animation-manager.ts';
-import { S2Node } from './core/element/s2-node.ts';
+import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
+import { S2MathUtils } from './core/math/s2-utils.ts';
+import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
+import { S2BaseData, S2FontData } from './core/element/base/s2-base-data.ts';
+import { S2Position } from './core/s2-types.ts';
+
+const algorithm = `Tant que file non vide faire
+    Noeud n = Défiler()
+    Traiter(n)
+    Enfiler(fils gauche de n)
+    Enfiler(fils droit de n)`;
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
+export class TEST {
+    static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
+        for (const key of Object.keys(data) as (keyof Data)[]) {
+            if (data[key] instanceof S2Position) {
+                (data[key] as S2Position).setParent(parent[key] as S2Position);
+            }
+        }
+    }
+}
+
 class SceneFigure extends S2Scene {
-    protected circle: S2Circle;
-    protected anim: S2Timeline;
-    protected node1: S2Node;
+    public animator: S2StepAnimator;
+
+    setCircleDefaultStyle(circle: S2Circle): void {
+        S2DataSetter.addTarget(circle.data)
+            .setFillColor(MTL.GREY_6)
+            .setStrokeColor(MTL.GREY_4)
+            .setStrokeWidth(4, 'view')
+            .setFillOpacity(1.0)
+            .setRadius(1, 'world');
+    }
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
+        this.animator = new S2StepAnimator(this);
 
-        // Fill the background
-        this.addFillRect().setLayer(-1).setColorHex(MTL_HEX.GREY_8).update();
-        // Reference grid
-        this.addWorldGrid().setStrokeColorHex(MTL_HEX.GREY_6).update();
+        const fillRect = this.addFillRect();
+        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
 
-        this.anim = new S2Timeline(this);
+        const grid = this.addWorldGrid();
+        S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
 
-        this.circle = this.addCircle();
-        this.circle
-            .setPosition(0, 0, 'world')
-            .setFillOpacity(1.0)
-            .setRadius(1, 'world')
-            .setStrokeWidth(4, 'view')
-            .setFillColorHex(MTL_HEX.GREY_6)
-            .setStrokeColorHex(MTL_HEX.GREY_4)
-            .update();
+        const font = new S2FontData();
+        font.family.set('monospace');
 
-        const lerpAnim1 = new S2LerpAnim(this)
-            .addUpdateTarget(this.circle)
-            .bind(this.circle.fillColor)
-            .bind(this.circle.strokeColor)
-            .bind(this.circle.fillOpacity)
-            .setCycleDuration(500)
-            .setEasing(ease.inOut);
+        const node = this.addNode(1);
+        node.data.text.font.copy(font);
+        node.data.text.horizontalAlign.set('left');
+        node.data.text.fill.color.copy(MTL.GREY_1);
 
-        this.circle.setFillColorHex(MTL_HEX.BLUE_GREY_9).setStrokeColorHex(MTL_HEX.LIGHT_BLUE_5).setFillOpacity(0.5);
-
-        lerpAnim1.commitFinalStates();
-
-        const lerpAnim2 = new S2LerpAnim(this)
-            .addUpdateTarget(this.circle)
-            .bind(this.circle.fillColor)
-            .bind(this.circle.strokeColor)
-            .setCycleDuration(500)
-            .setEasing(ease.inOut);
-
-        this.circle.fillColor.copy(MTL.RED_8);
-        this.circle.strokeColor.copy(MTL.RED_1);
-        lerpAnim2.commitFinalStates();
-
-        const node1 = this.addNode(1);
-        node1.setPosition(-5, 0, 'world').setAnchor('center').setPadding(10, 8, 'view');
-        node1.data.background.fill.color.copy(MTL.GREY_6);
-        node1.data.background.stroke.color.copy(MTL.GREY_4);
-        node1.data.background.stroke.width.set(4, 'view');
-        node1.data.text.font.size.set(20, 'view');
-        node1.data.text.horizontalAlign.set('left');
-        node1.backCornerRadius.set(20, 'view');
-        node1.createRectBackground();
-        node1.addLine().addContent('Hello World');
-        const line = node1.addLine().addContent('potoo');
-        line.data.font.weight.set(700);
-        line.data.font.style.set('italic');
-        node1.setLayer(1);
-        node1.update();
-        this.node1 = node1;
-
-        const lerpAnim3 = new S2LerpAnim(this)
-            .addUpdateTarget(node1)
-            //.bind(node1.data.position)
-            .bind(node1.getTextGroup(0).data.font.size)
-            .setCycleDuration(500)
-            .setEasing(ease.InOut);
-
-        //node1.data.position.set(-5, 1, 'world');
-        node1.getTextGroup(0).data.font.size.set(40, 'view');
-        lerpAnim3.commitFinalStates();
-
-        this.anim.addAnimation(lerpAnim1);
-        this.anim.addAnimation(lerpAnim2, 'previous-end', 500);
-        this.anim.addAnimation(lerpAnim3, 'previous-start', 0);
-
-        this.anim.setCycleCount(1).setReversed(false).setAlternate(false);
-        //this.anim.setElapsed(0).refreshState();
-
-        const playable = new S2PlayableAnimation(this.anim);
-        playable.play(true).setSpeed(1);
-
-        const node2 = this.addNode().setPadding(10, 8, 'view');
-        node2.data.position.set(3, 1, 'world');
-        node2.data.anchor.set('center');
-        node2.data.background.fill.color.copy(MTL.GREY_6);
-        node2.data.background.stroke.color.copy(MTL.GREY_4);
-        node2.data.background.stroke.width.set(4, 'view');
-        node2.createRectBackground();
-        node2.addLine().addContent('Hello World');
-        node2.setLayer(1);
-        //node2.data.background.transform.matrix.set(1, 1, -300, 0, 1, 0);
-        node2.update();
-
-        const edge = this.addLineEdge(node1, node2);
-        edge.data.stroke.color.copy(MTL.RED_5);
-        edge.setStrokeLineCap('round').setStrokeWidth(8, 'view').setLayer(0);
-        edge.data.startDistance.set(20, 'view');
-        edge.data.endDistance.set(20, 'view');
-        //edge.setCurveBendAngle(30);
-        // edge.data.curveBendAngle.set(30);
-        // edge.setCurveTension(0.5);
-        // edge.data.startAngle.set(-90);
-        // edge.data.endAngle.set(180);
-        edge.update();
+        const lines = algorithm.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            const lineElement = node.addLine();
+            let line = lines[i];
+            let tabCount = 0;
+            while (line.indexOf('    ') === 0) {
+                line = line.slice(4);
+                tabCount++;
+                console.log('tab', tabCount);
+            }
+            const tspan = lineElement.addSpan(line);
+            tspan.data.tabsize.set(tabCount);
+            tspan.update();
+        }
 
         this.update();
     }
 
-    setAnimationValue(t: number): void {
-        // console.log('\n');
-        // console.log('Setting animation to', t);
-        // console.log(this.node1.getTextGroup(0).data.font.size);
-        this.anim.setElapsed(t * 5000);
-    }
+    createAnimation(): void {}
 }
 
 const appDiv = document.querySelector<HTMLDivElement>('#app');
 if (appDiv) {
     appDiv.innerHTML = `
         <div>
-            <h1>Test</h1>
+            <h1>My first SVG</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
                 <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
+                <button id="reset-button"><i class="fa-solid fa-backward-fast"></i></button>
+                <button id="prev-button"><i class="fa-solid fa-step-backward"></i></button>
+                <button id="play-button"><i class="fa-solid fa-redo"></i></button>
+                <button id="next-button"><i class="fa-solid fa-step-forward"></i></button>
+                <button id="full-button"><i class="fa-solid fa-play"></i></button>
             </div>
         </div>`;
 }
@@ -152,8 +103,34 @@ const slider = document.querySelector<HTMLInputElement>('#slider');
 
 if (svgElement && slider) {
     const scene = new SceneFigure(svgElement);
+    void scene;
+
+    let index = -1;
+    scene.animator.reset();
+
+    document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
+        index = -1;
+        scene.animator.stop();
+        scene.animator.reset();
+    });
+    document.querySelector<HTMLButtonElement>('#prev-button')?.addEventListener('click', () => {
+        index = S2MathUtils.clamp(index - 1, 0, scene.animator.getStepCount() - 1);
+        scene.animator.playStep(index);
+    });
+    document.querySelector<HTMLButtonElement>('#next-button')?.addEventListener('click', () => {
+        index = S2MathUtils.clamp(index + 1, 0, scene.animator.getStepCount() - 1);
+        scene.animator.playStep(index);
+    });
+    document.querySelector<HTMLButtonElement>('#play-button')?.addEventListener('click', () => {
+        scene.animator.playStep(index);
+    });
+    document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
+        scene.animator.playMaster();
+    });
 
     slider.addEventListener('input', () => {
-        scene.setAnimationValue(slider.valueAsNumber / 100);
+        const ratio = slider.valueAsNumber / 100;
+        scene.animator.stop();
+        scene.animator.setMasterElapsed(ratio * scene.animator.getMasterDuration());
     });
 }
