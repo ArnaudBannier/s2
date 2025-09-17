@@ -71,6 +71,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         this.textExtents = new S2Extents(0, 0, 'view');
         this.extents = new S2Extents(0, 0, 'view');
         this.element.dataset.role = 'text-group';
+        this.element.style.whiteSpaceCollapse = 'preserve';
     }
 
     getSVGElement(): SVGElement {
@@ -97,6 +98,14 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         return textLine;
     }
 
+    getLineCount(): number {
+        return this.children.length;
+    }
+
+    getLine(index: number): S2TextLine {
+        return this.children[index];
+    }
+
     getTextExtents(space: S2Space): S2Vec2 {
         return this.textExtents.toSpace(space, this.scene.getActiveCamera());
     }
@@ -115,7 +124,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         );
     }
 
-    updateExtents(): void {
+    updateExtents(updateId?: number): void {
         const camera = this.scene.getActiveCamera();
         const space = 'view';
 
@@ -126,6 +135,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         let totalHeight = 0;
         for (let i = 0; i < this.children.length; i++) {
             const line = this.children[i];
+            line.update(updateId);
             const bbox = line.getBBox();
             const font = line.data.font;
             const relativeHeight = font.relativeLineHeight.getInherited();
@@ -152,7 +162,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
-        this.updateExtents();
+        this.updateExtents(updateId);
 
         const textExtents = this.textExtents.toSpace('view', camera);
         const groupExtents = this.extents.toSpace('view', camera);

@@ -272,7 +272,7 @@ class BTreeNode {
     constructor(scene: S2Scene, data: number = 0) {
         this.data = data;
         this.node = scene.addNode();
-        this.node.addLine().addContent(data.toString());
+        this.node.addLine().setContent(data.toString());
         this.node.createRectBackground();
     }
 

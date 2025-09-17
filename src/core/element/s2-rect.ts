@@ -26,37 +26,12 @@ export class S2RectData extends S2BaseData {
         this.transform = new S2Transform();
         this.position = new S2Position(0, 0, 'world');
         this.extents = new S2Extents(1, 1, 'world');
-        this.anchor = new S2Enum<S2Anchor>('north');
+        this.anchor = new S2Enum<S2Anchor>('center');
         this.cornerRadius = new S2Length(0, 'view');
 
         this.stroke.opacity.set(1, S2TypeState.Inactive);
         this.transform.state = S2TypeState.Inactive;
         this.fill.opacity.set(1, S2TypeState.Inactive);
-    }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-        const camera = scene.getActiveCamera();
-        const radius = this.cornerRadius.toSpace('view', camera);
-        const extents = this.extents.toSpace('view', camera);
-        const northWest = S2AnchorUtils.getNorthWest(
-            this.anchor.getInherited(),
-            'view',
-            camera,
-            this.position,
-            this.extents,
-        );
-        element.setAttribute('x', northWest.x.toString());
-        element.setAttribute('y', northWest.y.toString());
-        element.setAttribute('width', (2 * extents.x).toString());
-        element.setAttribute('height', (2 * extents.y).toString());
-        if (radius > 0) {
-            element.setAttribute('rx', radius.toString());
-            element.setAttribute('ry', radius.toString());
-        } else {
-            element.removeAttribute('rx');
-            element.removeAttribute('ry');
-        }
     }
 }
 

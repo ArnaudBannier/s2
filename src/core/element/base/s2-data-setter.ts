@@ -96,6 +96,13 @@ export class S2DataSetter {
         return this;
     }
 
+    setLayer(layer: number, state: S2TypeState = S2TypeState.Active): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setLayer(target, layer, state);
+        }
+        return this;
+    }
+
     setOpacity(opacity: number, state: S2TypeState = S2TypeState.Active): this {
         for (const target of this.targets) {
             S2DataSetterUtils.setOpacity(target, opacity, state);

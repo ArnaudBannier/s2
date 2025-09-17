@@ -45,10 +45,10 @@ class SceneFigure extends S2Scene {
 
         for (let i = 0; i < 2; i++) {
             const node = this.addNode(3);
-            node.addLine({ partIndex: 0 }).addContent('Premier groupe');
-            node.addLine({ partIndex: 1, align: 'right' }).addContent('Seconde groupe, l1');
-            node.addLine({ partIndex: 1 }).addContent('Seconde groupe, l2');
-            node.addLine({ partIndex: 2 }).addContent('Dernier');
+            node.addLine({ partIndex: 0 }).setContent('Premier groupe');
+            node.addLine({ partIndex: 1, align: 'right' }).setContent('Seconde groupe, l1');
+            node.addLine({ partIndex: 1 }).setContent('Seconde groupe, l2');
+            node.addLine({ partIndex: 2 }).setContent('Dernier');
             node.setTextGrowFactor(1, 1);
             node.setTextAlign('center');
             if (i === 1) {

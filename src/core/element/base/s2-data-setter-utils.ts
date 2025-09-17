@@ -111,6 +111,12 @@ export class S2DataSetterUtils {
         }
     }
 
+    static setLayer(data: S2BaseData, layer: number, state: S2TypeState = S2TypeState.Active): void {
+        if ('layer' in data && data.layer instanceof S2Number) {
+            data.layer.set(layer, state);
+        }
+    }
+
     static setOpacity(data: S2BaseData, opacity: number, state: S2TypeState = S2TypeState.Active): void {
         if ('opacity' in data && data.opacity instanceof S2Number) {
             data.opacity.set(opacity, state);

@@ -32,27 +32,6 @@ class SceneFigure extends S2Scene {
     protected circle: S2Circle;
     protected path: S2Path;
     public animator: S2StepAnimator;
-    //protected node: S2Node;
-    // protected styles = {
-    //     backBase: new S2Attributes({
-    //         fillColor: MTL_COLORS.GREY_6,
-    //         strokeColor: MTL_COLORS.GREY_4,
-    //         strokeWidth: new S2Length(4, 'view'),
-    //         textFillColor: MTL_COLORS.GREY_1,
-    //     }),
-    //     backSlct: new S2Attributes({
-    //         fillColor: MTL_COLORS.BLUE_GREY_9,
-    //         strokeColor: MTL_COLORS.LIGHT_BLUE_5,
-    //         strokeWidth: new S2Length(4, 'view'),
-    //         textFillColor: MTL_COLORS.LIGHT_BLUE_1,
-    //     }),
-    //     path: new S2Attributes({
-    //         strokeColor: MTL_COLORS.CYAN_5,
-    //         strokeWidth: new S2Length(4, 'view'),
-    //         fillOpacity: 0,
-    //         lineCap: 'round',
-    //     }),
-    // };
 
     setCircleDefaultStyle(circle: S2Circle): void {
         S2DataSetter.addTarget(circle.data)
@@ -99,14 +78,10 @@ class SceneFigure extends S2Scene {
 
         const tip = new S2ArrowTip(this);
         this.getSVG().appendChild(tip);
-        S2DataSetter.addTarget(tip.data)
-            .setFillColor(MTL.GREY_6)
-            .setStrokeColor(MTL.GREY_4)
-            .setStrokeWidth(0)
-            .setOpacity(1.0);
+        S2DataSetter.addTarget(tip.data).setFillColor(MTL.GREY_6).setOpacity(1.0);
 
         tip.setTipableReference(this.path);
-        tip.setTipInset(0).setReversed(false).setAnchorAlignment(1);
+        tip.setTipInset(0.25).setReversed(false).setAnchorAlignment(0);
         tip.data.pathPosition.set(1);
         //tip.data.stroke.setParent(this.path.data.stroke);
         tip.data.fill.color.setParent(this.path.data.stroke.color);
