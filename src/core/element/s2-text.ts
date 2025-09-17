@@ -3,7 +3,7 @@ import { S2BaseScene } from '../s2-base-scene';
 import { svgNS, type S2TextAnchor } from '../s2-globals';
 import { S2Enum, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
 import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from './base/s2-base-data';
-import { S2Element, S2ElementUtils, type S2BaseElement } from './base/s2-element';
+import { S2Element, S2ElementUtils } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 
 export class S2TextData extends S2BaseData {
