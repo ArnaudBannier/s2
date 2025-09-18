@@ -5,8 +5,6 @@ import { S2BaseData } from './s2-base-data';
 export type S2BaseElement = S2Element<S2BaseData>;
 export type S2BaseTipable = S2Element<S2BaseData> & S2Tipable;
 
-// type S2ElementListener = (source: S2BaseElement, updateId: number) => void;
-
 export abstract class S2Element<Data extends S2BaseData> {
     public readonly data: Data;
     public readonly id: number;
@@ -22,9 +20,6 @@ export abstract class S2Element<Data extends S2BaseData> {
         this.parent = null;
         this.children = [];
     }
-
-    // private listeners: Set<S2ElementListener> = new Set();
-    // private dependencies: Set<S2BaseElement> = new Set();
 
     setIsActive(isActive: boolean): this {
         this.data.isActive = isActive;
@@ -63,51 +58,6 @@ export abstract class S2Element<Data extends S2BaseData> {
         return this.children[index];
     }
 
-    // addListener(listener: S2ElementListener): void {
-    //     this.listeners.add(listener);
-    // }
-
-    // removeListener(listener: S2ElementListener): void {
-    //     this.listeners.delete(listener);
-    // }
-
-    // addDependency(dep: S2BaseElement): void {
-    //     this.dependencies.add(dep);
-    //     dep.addListener(this.updateFromDependency.bind(this));
-    // }
-
-    // // TODO : Vérifier la fonctionnalité
-    // removeDependency(dep: S2BaseElement): void {
-    //     if (this.dependencies.delete(dep)) {
-    //         dep.removeListener(this.updateFromDependency.bind(this));
-    //     }
-    // }
-
-    // protected updateFromDependency(dep: S2BaseElement, updateId: number): void {
-    //     if (this.shouldSkipUpdate(updateId)) return;
-    //     this.updateFromDependencyImpl(dep, this.updateId);
-    //     this.emitUpdate(this.updateId);
-    // }
-
-    // protected updateFromDependencyImpl(dep: S2BaseElement, updateId: number): void {
-    //     void dep;
-    //     this.updateImpl(updateId);
-    // }
-
-    // protected emitUpdate(updateId: number): void {
-    //     for (const listener of this.listeners) {
-    //         listener(this, updateId);
-    //     }
-    // }
-
-    // update(updateId?: number): this {
-    //     if (this.shouldSkipUpdate(updateId)) return this;
-    //     this.updateImpl(this.updateId);
-    //     this.emitUpdate(this.updateId);
-    //     return this;
-    // }
-
-    // TODO : abstrait ?
     // Appel dans setParent et setIsActive et setLayer ?
     updateSVGChildren(): this {
         this.children.sort((a: S2BaseElement, b: S2BaseElement): number => {
@@ -121,40 +71,14 @@ export abstract class S2Element<Data extends S2BaseData> {
             }
         }
         const svgElement = this.getSVGElement();
-        svgElement.replaceChildren(...elements);
+        const childrenChanged =
+            svgElement.children.length !== elements.length || elements.some((el, i) => el !== svgElement.children[i]);
+        if (childrenChanged) {
+            svgElement.replaceChildren(...elements);
+        }
         return this;
     }
 
     abstract update(): void;
     abstract getSVGElement(): SVGElement;
 }
-
-// export class S2ElementUtils {
-//     static updateSVGChildren(svgElement: SVGElement, children: S2BaseElement[]): void {
-//         children.sort((a: S2BaseElement, b: S2BaseElement): number => {
-//             if (a.data.layer.value !== b.data.layer.value) return a.data.layer.value - b.data.layer.value;
-//             return a.id - b.id;
-//         });
-//         const elements: SVGElement[] = [];
-//         for (const child of children) {
-//             if (child.data.isActive) {
-//                 elements.push(child.getSVGElement());
-//             }
-//         }
-//         svgElement.replaceChildren(...elements);
-//     }
-
-//     static appendChild(element: S2BaseElement, children: S2BaseElement[], child: S2BaseElement): void {
-//         if (children.includes(child)) return;
-//         children.push(child);
-//         child.setParent(element);
-//     }
-
-//     static removeChild(children: S2BaseElement[], child: S2BaseElement): void {
-//         const index = children.indexOf(child);
-//         if (index !== -1) {
-//             children.splice(index, 1);
-//             child.setParent(null);
-//         }
-//     }
-// }

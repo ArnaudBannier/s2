@@ -9,7 +9,7 @@ import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 import { S2BaseData, S2FontData } from './core/element/base/s2-base-data.ts';
 import { S2Position } from './core/s2-types.ts';
-import { S2TextGroup } from './core/element/s2-text-group.ts';
+import { S2Code, tokenizeAlgorithm } from './core/element/s2-code.ts';
 
 const algorithm =
     '**kw:Tant que** **var:file** non vide **kw:faire**\n' +
@@ -17,38 +17,6 @@ const algorithm =
     '    **fn:Traiter**(**var:n**)\n' +
     '    **fn:Enfiler**(fils gauche de **var:n**)\n' +
     '    **fn:Enfiler**(fils droit de **var:n**)';
-
-type Token = {
-    type: string;
-    value: string;
-};
-
-function tokenizeAlgorithm(input: string): Token[] {
-    const tokens: Token[] = [];
-    // Regex qui capture :
-    // 1. Balises **tag:texte**
-    // 2. Espaces
-    // 3. Ponctuation ((),=,; etc.)
-    // 4. Tout le reste (mots)
-    const regex = /\*\*(\w+):(.*?)\*\*|(\s+)|([()=;,.])|([^\s()=;,.]+)/g;
-
-    for (const line of input.split('\n')) {
-        let match;
-        while ((match = regex.exec(line)) !== null) {
-            if (match[1]) {
-                tokens.push({ type: match[1], value: match[2] });
-            } else if (match[3]) {
-                tokens.push({ type: 'space', value: match[3] });
-            } else if (match[4]) {
-                tokens.push({ type: 'punct', value: match[4] });
-            } else if (match[5]) {
-                tokens.push({ type: 'plain', value: match[5] });
-            }
-        }
-        tokens.push({ type: 'newline', value: '\n' });
-    }
-    return tokens;
-}
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -88,83 +56,103 @@ class SceneFigure extends S2Scene {
 
         const font = new S2FontData();
         font.family.set('monospace');
+        font.relativeLineHeight.set(1.3);
 
-        const textGroup = new S2TextGroup(this);
-        textGroup.setParent(this.getSVG());
-        S2DataSetter.addTarget(textGroup.data).setLayer(1).setFillColor(MTL.GREY_1);
-        textGroup.data.horizontalAlign.set('left');
-        textGroup.data.font.copy(font);
+        const code = new S2Code(this);
+        code.setParent(this.getSVG());
+        code.data.text.font.copy(font);
+        code.data.text.fill.color.copy(MTL.WHITE);
+        code.data.anchor.set('west');
+        code.data.position.set(-5, 0, 'world');
+        code.data.padding.set(20, 10, 'view');
+        code.data.background.fill.color.copy(MTL.GREY_9);
+        code.data.currentLine.opacity.set(1);
+        code.data.currentLine.fill.color.copy(MTL.BLACK);
+        code.data.currentLine.fill.opacity.set(0.5);
+        code.data.currentLine.stroke.color.copy(MTL.WHITE);
+        code.data.currentLine.stroke.width.set(1, 'view');
+        code.data.currentLine.stroke.opacity.set(0.2);
+        code.data.currentLine.padding.set(-0.5, 2, 'view');
+        code.data.currentLine.index.set(2);
+        code.setContent(tokenizeAlgorithm(algorithm));
+        code.update();
 
-        const tokens = tokenizeAlgorithm(algorithm);
-        tokens.pop();
+        // const textGroup = new S2TextGroup(this);
+        // textGroup.setParent(this.getSVG());
+        // S2DataSetter.addTarget(textGroup.data).setLayer(1).setFillColor(MTL.GREY_1);
+        // textGroup.data.horizontalAlign.set('left');
+        // textGroup.data.font.copy(font);
 
-        let lineElement = textGroup.addLine();
-        for (const token of tokens) {
-            lineElement.setPreserveWhitespace(true);
-            if (token.type === 'plain') {
-                lineElement.addTSpan(token.value);
-            } else if (token.type === 'newline') {
-                lineElement.update();
-                lineElement = textGroup.addLine();
-            } else {
-                const span = lineElement.addTSpan(token.value, token.type);
-                switch (token.type) {
-                    case 'fn':
-                        span.data.fill.color.copy(MTL.ORANGE_2);
-                        break;
-                    case 'type':
-                        span.data.fill.color.copy(MTL.CYAN_3);
-                        break;
-                    case 'kw':
-                        span.data.fill.color.copy(MTL.PURPLE_3);
-                        span.data.font.weight.set(700);
-                        break;
-                    case 'var':
-                        span.data.fill.color.copy(MTL.LIGHT_BLUE_1);
-                        //span.data.font.style.set('italic');
-                        break;
-                    case 'punct':
-                        span.data.fill.color.copy(MTL.PURPLE_1);
-                        break;
-                }
-                span.update();
-            }
-        }
-        textGroup.update();
+        // const tokens = tokenizeAlgorithm(algorithm);
+        // tokens.pop();
 
-        const background = this.addRect();
-        S2DataSetter.addTarget(background.data)
-            .setLayer(0)
-            .setColor(MTL.GREY_9)
-            .setExtentsV(textGroup.getExtents('view').add(10, 10), 'view');
-        const codeExtents = textGroup.getExtents('view').add(10, 10);
+        // let lineElement = textGroup.addLine();
+        // for (const token of tokens) {
+        //     lineElement.setPreserveWhitespace(true);
+        //     if (token.type === 'plain') {
+        //         lineElement.addTSpan(token.value);
+        //     } else if (token.type === 'newline') {
+        //         lineElement.update();
+        //         lineElement = textGroup.addLine();
+        //     } else {
+        //         const span = lineElement.addTSpan(token.value, token.type);
+        //         switch (token.type) {
+        //             case 'fn':
+        //                 span.data.fill.color.copy(MTL.ORANGE_2);
+        //                 break;
+        //             case 'type':
+        //                 span.data.fill.color.copy(MTL.CYAN_3);
+        //                 break;
+        //             case 'kw':
+        //                 span.data.fill.color.copy(MTL.PURPLE_3);
+        //                 span.data.font.weight.set(700);
+        //                 break;
+        //             case 'var':
+        //                 span.data.fill.color.copy(MTL.LIGHT_BLUE_1);
+        //                 //span.data.font.style.set('italic');
+        //                 break;
+        //             case 'punct':
+        //                 span.data.fill.color.copy(MTL.PURPLE_1);
+        //                 break;
+        //         }
+        //         span.update();
+        //     }
+        // }
+        // textGroup.update();
 
-        const funcSpan = textGroup.getLine(0).findTSpan({ category: 'kw' });
-        if (funcSpan) {
-            console.log('funcSpan', funcSpan);
-            //funcSpan.data.fill.color.copy(MTL.WHITE);
-            const bbox = funcSpan.getBBox();
-            const rect = this.addRect();
-            S2DataSetter.addTarget(rect.data)
-                .setLayer(0)
-                .setStrokeColor(MTL.RED_5)
-                .setStrokeWidth(1, 'view')
-                .setFillOpacity(0.0)
-                .setExtents(bbox.width / 2 + 4, bbox.height / 2 + 2, 'view')
-                .setPosition(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, 'view');
-        }
-        const codeLine = textGroup.getLine(2);
-        {
-            const bbox = codeLine.getBBox();
-            const rect = this.addRect();
-            S2DataSetter.addTarget(rect.data)
-                .setLayer(0)
-                .setFillColor(MTL.LIGHT_BLUE_1)
-                .setFillOpacity(0.2)
-                .setExtents(codeExtents.x, bbox.height / 2, 'view')
-                .setPosition(bbox.x - 10, bbox.y + bbox.height / 2, 'view')
-                .setAnchor('west');
-        }
+        // const background = this.addRect();
+        // S2DataSetter.addTarget(background.data)
+        //     .setLayer(0)
+        //     .setColor(MTL.GREY_9)
+        //     .setExtentsV(textGroup.getExtents('view').add(10, 10), 'view');
+        // const codeExtents = textGroup.getExtents('view').add(10, 10);
+
+        // const funcSpan = textGroup.getLine(0).findTSpan({ category: 'kw' });
+        // if (funcSpan) {
+        //     console.log('funcSpan', funcSpan);
+        //     //funcSpan.data.fill.color.copy(MTL.WHITE);
+        //     const bbox = funcSpan.getBBox();
+        //     const rect = this.addRect();
+        //     S2DataSetter.addTarget(rect.data)
+        //         .setLayer(0)
+        //         .setStrokeColor(MTL.RED_5)
+        //         .setStrokeWidth(1, 'view')
+        //         .setFillOpacity(0.0)
+        //         .setExtents(bbox.width / 2 + 4, bbox.height / 2 + 2, 'view')
+        //         .setPosition(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, 'view');
+        // }
+        // const codeLine = textGroup.getLine(2);
+        // {
+        //     const bbox = codeLine.getBBox();
+        //     const rect = this.addRect();
+        //     S2DataSetter.addTarget(rect.data)
+        //         .setLayer(0)
+        //         .setFillColor(MTL.LIGHT_BLUE_1)
+        //         .setFillOpacity(0.2)
+        //         .setExtents(codeExtents.x, bbox.height / 2, 'view')
+        //         .setPosition(bbox.x - 10, bbox.y + bbox.height / 2, 'view')
+        //         .setAnchor('west');
+        // }
 
         this.update();
     }

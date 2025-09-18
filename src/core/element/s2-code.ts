@@ -2,11 +2,12 @@ import { S2BaseScene } from '../s2-base-scene';
 import { S2AnchorUtils, svgNS, type S2Anchor, type S2VerticalAlign } from '../s2-globals';
 import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './base/s2-base-data';
-import { S2Element, type S2BaseElement } from './base/s2-element';
+import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './s2-text-group';
 import { S2Rect } from './s2-rect';
 import { S2TSpan } from './s2-text';
 import { MTL } from '../../utils/mtl-colors';
+import { S2MathUtils } from '../math/s2-utils';
 
 export type S2CodeToken = {
     type: string;
@@ -37,6 +38,7 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
         }
         tokens.push({ type: 'newline', value: '\n' });
     }
+    tokens.pop(); // Remove the last newline
     return tokens;
 }
 
@@ -103,13 +105,15 @@ export class S2CodeCurrentLineData extends S2BaseData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly index: S2Number;
+    public readonly padding: S2Extents;
 
     constructor() {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(0);
         this.index = new S2Number(0);
+        this.padding = new S2Extents(0, 1, 'view');
 
         this.stroke.opacity.set(1, S2TypeState.Inactive);
         this.fill.opacity.set(1, S2TypeState.Inactive);
@@ -120,7 +124,6 @@ type S2TokenStyleSetter = (tspan: S2TSpan, type: string) => void;
 
 export class S2Code extends S2Element<S2CodeData> {
     protected element: SVGGElement;
-    protected children: Array<S2BaseElement>;
     protected textGroup: S2TextGroup;
     protected codeBackground: S2Rect;
     protected lineBackground: S2Rect;
@@ -136,13 +139,14 @@ export class S2Code extends S2Element<S2CodeData> {
         this.children = [];
         this.extents = new S2Extents(0, 0, 'view');
 
+        this.textGroup.setParent(this);
+        this.codeBackground.setParent(this);
+        this.lineBackground.setParent(this);
+
         this.textGroup.data.layer.set(2);
         this.codeBackground.data.layer.set(0);
         this.lineBackground.data.layer.set(0);
 
-        this.textGroup.setParent(this);
-        this.codeBackground.setParent(this);
-        this.lineBackground.setParent(this);
         this.element.dataset.role = 'code';
 
         this.updateSVGChildren();
@@ -167,7 +171,6 @@ export class S2Code extends S2Element<S2CodeData> {
                 break;
             case 'var':
                 tspan.data.fill.color.copy(MTL.LIGHT_BLUE_1);
-                //tspan.data.font.style.set('italic');
                 break;
             case 'punct':
                 tspan.data.fill.color.copy(MTL.PURPLE_1);
@@ -216,12 +219,43 @@ export class S2Code extends S2Element<S2CodeData> {
             this.extents,
         );
 
+        this.lineBackground.data.fill.copy(this.data.currentLine.fill);
+        this.lineBackground.data.stroke.copy(this.data.currentLine.stroke);
+        this.lineBackground.data.opacity.copy(this.data.currentLine.opacity);
+
+        this.textGroup.data.font.copy(this.data.text.font);
+        this.textGroup.data.horizontalAlign.set('left');
+        this.textGroup.data.verticalAlign.copy(this.data.text.verticalAlign);
+        this.textGroup.data.fill.copy(this.data.text.fill);
+        this.textGroup.data.opacity.copy(this.data.text.opacity);
+        this.textGroup.data.stroke.copy(this.data.text.stroke);
+        this.textGroup.data.position.setV(codeCenter, space);
+        this.textGroup.update();
+
         this.codeBackground.data.position.setV(codeCenter, 'view');
         this.codeBackground.data.extents.setV(extents, 'view');
-        // S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
-        // S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
-        // S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
-        // S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-        // S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');
+        this.codeBackground.data.cornerRadius.copy(this.data.background.cornerRadius);
+        this.codeBackground.data.fill.copy(this.data.background.fill);
+        this.codeBackground.data.stroke.copy(this.data.background.stroke);
+        this.codeBackground.data.opacity.copy(this.data.background.opacity);
+        this.codeBackground.update();
+
+        const lineCount = this.textGroup.getLineCount();
+        if (lineCount > 0) {
+            const linePadding = this.data.currentLine.padding.toSpace(space, camera);
+            const currIndex = S2MathUtils.clamp(this.data.currentLine.index.getInherited(), 0, lineCount - 1);
+            const index0 = S2MathUtils.clamp(Math.floor(currIndex), 0, lineCount - 1);
+            const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
+
+            const t = currIndex - index0;
+            const bbox0 = this.textGroup.getLine(index0).getBBox();
+            const bbox1 = this.textGroup.getLine(index1).getBBox();
+            const y = bbox0.y * (1 - t) + bbox1.y * t;
+            const height = bbox0.height * (1 - t) + bbox1.height * t;
+            this.lineBackground.data.position.set(codeCenter.x, y + height / 2, 'view');
+            this.lineBackground.data.extents.set(extents.x + linePadding.x, height / 2 + linePadding.y, 'view');
+            this.lineBackground.data.anchor.set('center');
+            this.lineBackground.update();
+        }
     }
 }
