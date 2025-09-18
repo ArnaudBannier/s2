@@ -78,8 +78,7 @@ export class S2Grid extends S2Element<S2GridData> {
         element.setAttribute('d', d.trimEnd());
     }
 
-    protected updateImpl(updateId?: number): void {
-        void updateId;
+    update(): void {
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);

@@ -174,7 +174,7 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         super(scene, new S2EdgeData());
     }
 
-    protected updateImpl(updateId?: number): void {
+    update(): void {
         const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
         const startDirection = this.getStartToEnd(space).normalize();
@@ -191,7 +191,10 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
 
         this.applyStyleToPath();
         this.path.data.space.set(space);
-        this.path.clear().moveToV(start).lineToV(end).update(updateId);
+        this.path.clear().moveToV(start).lineToV(end).update();
+        if (this.arrowTip) {
+            this.arrowTip.update();
+        }
     }
 }
 
@@ -213,7 +216,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         super(scene, new S2CubicEdgeData());
     }
 
-    protected updateImpl(updateId?: number): void {
+    update(): void {
         const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
         const sign = -1;
@@ -246,6 +249,9 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
 
         this.applyStyleToPath();
         this.path.data.space.set(space);
-        this.path.clear().moveToV(start).cubicToV(startDirection, endDirection, end).update(updateId);
+        this.path.clear().moveToV(start).cubicToV(startDirection, endDirection, end).update();
+        if (this.arrowTip) {
+            this.arrowTip.update();
+        }
     }
 }

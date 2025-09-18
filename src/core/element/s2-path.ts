@@ -261,8 +261,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         return this;
     }
 
-    protected updateImpl(updateId?: number): void {
-        void updateId;
+    update(): void {
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

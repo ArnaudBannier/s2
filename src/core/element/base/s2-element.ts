@@ -1,22 +1,30 @@
 import { type S2BaseScene } from '../../s2-base-scene';
-import type { S2Tipable } from '../../s2-globals';
+import { type S2Tipable } from '../../s2-globals';
 import { S2BaseData } from './s2-base-data';
 
 export type S2BaseElement = S2Element<S2BaseData>;
 export type S2BaseTipable = S2Element<S2BaseData> & S2Tipable;
 
-type S2ElementListener = (source: S2BaseElement, updateId?: number) => void;
+// type S2ElementListener = (source: S2BaseElement, updateId: number) => void;
 
 export abstract class S2Element<Data extends S2BaseData> {
     public readonly data: Data;
     public readonly id: number;
 
     protected scene: S2BaseScene;
-    protected parent: S2BaseElement | null = null;
-    protected prevUpdateId: number = -1;
+    protected parent: S2BaseElement | null;
+    protected children: S2BaseElement[];
 
-    private listeners: Set<S2ElementListener> = new Set();
-    private dependencies: Set<S2BaseElement> = new Set();
+    constructor(scene: S2BaseScene, data: Data) {
+        this.data = data;
+        this.scene = scene;
+        this.id = scene.getNextElementId();
+        this.parent = null;
+        this.children = [];
+    }
+
+    // private listeners: Set<S2ElementListener> = new Set();
+    // private dependencies: Set<S2BaseElement> = new Set();
 
     setIsActive(isActive: boolean): this {
         this.data.isActive = isActive;
@@ -29,10 +37,15 @@ export abstract class S2Element<Data extends S2BaseData> {
     setParent(parent: S2BaseElement | null): this {
         if (this.parent === parent) return this;
         if (this.parent !== null) {
-            this.parent.removeDependency(this);
+            const index = this.parent.children.indexOf(this);
+            if (index !== -1) {
+                this.parent.children.splice(index, 1);
+            }
+            this.parent.updateSVGChildren();
         }
         if (parent !== null) {
-            this.addDependency(parent);
+            parent.children.push(this);
+            parent.updateSVGChildren();
         }
         this.parent = parent;
         return this;
@@ -42,104 +55,106 @@ export abstract class S2Element<Data extends S2BaseData> {
         return this.parent;
     }
 
-    addListener(listener: S2ElementListener): void {
-        this.listeners.add(listener);
+    getChildCount(): number {
+        return this.children.length;
     }
 
-    removeListener(listener: S2ElementListener): void {
-        this.listeners.delete(listener);
+    getChild(index: number): S2BaseElement {
+        return this.children[index];
     }
 
-    addDependency(dep: S2BaseElement): void {
-        this.dependencies.add(dep);
-        dep.addListener(this.updateFromDependency.bind(this));
-    }
+    // addListener(listener: S2ElementListener): void {
+    //     this.listeners.add(listener);
+    // }
 
-    // TODO : Vérifier la fonctionnalité
-    removeDependency(dep: S2BaseElement): void {
-        if (this.dependencies.delete(dep)) {
-            dep.removeListener(this.updateFromDependency.bind(this));
-        }
-    }
+    // removeListener(listener: S2ElementListener): void {
+    //     this.listeners.delete(listener);
+    // }
 
-    protected updateFromDependency(dep: S2BaseElement, updateId?: number): void {
-        if (this.shouldSkipUpdate(updateId)) return;
-        this.updateFromDependencyImpl(dep, updateId);
-        this.emitUpdate(updateId);
-    }
+    // addDependency(dep: S2BaseElement): void {
+    //     this.dependencies.add(dep);
+    //     dep.addListener(this.updateFromDependency.bind(this));
+    // }
 
-    protected updateFromDependencyImpl(dep: S2BaseElement, updateId?: number): void {
-        void dep;
-        this.updateImpl(updateId);
-    }
+    // // TODO : Vérifier la fonctionnalité
+    // removeDependency(dep: S2BaseElement): void {
+    //     if (this.dependencies.delete(dep)) {
+    //         dep.removeListener(this.updateFromDependency.bind(this));
+    //     }
+    // }
 
-    protected emitUpdate(updateId?: number): void {
-        for (const listener of this.listeners) {
-            listener(this, updateId);
-        }
-    }
+    // protected updateFromDependency(dep: S2BaseElement, updateId: number): void {
+    //     if (this.shouldSkipUpdate(updateId)) return;
+    //     this.updateFromDependencyImpl(dep, this.updateId);
+    //     this.emitUpdate(this.updateId);
+    // }
 
-    update(updateId?: number): this {
-        if (this.shouldSkipUpdate(updateId)) return this;
-        this.updateImpl(updateId);
-        this.emitUpdate(updateId);
-        return this;
-    }
+    // protected updateFromDependencyImpl(dep: S2BaseElement, updateId: number): void {
+    //     void dep;
+    //     this.updateImpl(updateId);
+    // }
 
-    protected abstract updateImpl(updateId?: number): void;
+    // protected emitUpdate(updateId: number): void {
+    //     for (const listener of this.listeners) {
+    //         listener(this, updateId);
+    //     }
+    // }
 
-    protected shouldSkipUpdate(updateId?: number): boolean {
-        if (updateId === undefined) {
-            this.prevUpdateId = this.scene.getNextUpdateId();
-            return false;
-        } else if (this.prevUpdateId !== updateId) {
-            this.prevUpdateId = updateId;
-            return false;
-        }
-        return true;
-    }
-
-    constructor(scene: S2BaseScene, data: Data) {
-        this.data = data;
-        this.scene = scene;
-        this.id = scene.getNextElementId();
-    }
+    // update(updateId?: number): this {
+    //     if (this.shouldSkipUpdate(updateId)) return this;
+    //     this.updateImpl(this.updateId);
+    //     this.emitUpdate(this.updateId);
+    //     return this;
+    // }
 
     // TODO : abstrait ?
     // Appel dans setParent et setIsActive et setLayer ?
     updateSVGChildren(): this {
-        return this;
-    }
-
-    abstract getSVGElement(): SVGElement;
-}
-
-export class S2ElementUtils {
-    static updateSVGChildren(svgElement: SVGElement, children: S2BaseElement[]): void {
-        children.sort((a: S2BaseElement, b: S2BaseElement): number => {
+        this.children.sort((a: S2BaseElement, b: S2BaseElement): number => {
             if (a.data.layer.value !== b.data.layer.value) return a.data.layer.value - b.data.layer.value;
             return a.id - b.id;
         });
         const elements: SVGElement[] = [];
-        for (const child of children) {
+        for (const child of this.children) {
             if (child.data.isActive) {
                 elements.push(child.getSVGElement());
             }
         }
+        const svgElement = this.getSVGElement();
         svgElement.replaceChildren(...elements);
+        return this;
     }
 
-    static appendChild(element: S2BaseElement, children: S2BaseElement[], child: S2BaseElement): void {
-        if (children.includes(child)) return;
-        children.push(child);
-        child.setParent(element);
-    }
-
-    static removeChild(children: S2BaseElement[], child: S2BaseElement): void {
-        const index = children.indexOf(child);
-        if (index !== -1) {
-            children.splice(index, 1);
-            child.setParent(null);
-        }
-    }
+    abstract update(): void;
+    abstract getSVGElement(): SVGElement;
 }
+
+// export class S2ElementUtils {
+//     static updateSVGChildren(svgElement: SVGElement, children: S2BaseElement[]): void {
+//         children.sort((a: S2BaseElement, b: S2BaseElement): number => {
+//             if (a.data.layer.value !== b.data.layer.value) return a.data.layer.value - b.data.layer.value;
+//             return a.id - b.id;
+//         });
+//         const elements: SVGElement[] = [];
+//         for (const child of children) {
+//             if (child.data.isActive) {
+//                 elements.push(child.getSVGElement());
+//             }
+//         }
+//         svgElement.replaceChildren(...elements);
+//     }
+
+//     static appendChild(element: S2BaseElement, children: S2BaseElement[], child: S2BaseElement): void {
+//         if (children.includes(child)) return;
+//         children.push(child);
+//         child.setParent(element);
+//     }
+
+//     static removeChild(children: S2BaseElement[], child: S2BaseElement): void {
+//         const index = children.indexOf(child);
+//         if (index !== -1) {
+//             children.splice(index, 1);
+//             child.setParent(null);
+//         }
+//     }
+// }

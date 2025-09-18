@@ -77,7 +77,7 @@ class SceneFigure extends S2Scene {
         // line.update();
 
         const tip = new S2ArrowTip(this);
-        this.getSVG().appendChild(tip);
+        tip.setParent(this.getSVG());
         S2DataSetter.addTarget(tip.data).setFillColor(MTL.GREY_6).setOpacity(1.0);
 
         tip.setTipableReference(this.path);

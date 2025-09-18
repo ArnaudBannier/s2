@@ -90,7 +90,7 @@ class SceneFigure extends S2Scene {
         font.family.set('monospace');
 
         const textGroup = new S2TextGroup(this);
-        this.getSVG().appendChild(textGroup);
+        textGroup.setParent(this.getSVG());
         S2DataSetter.addTarget(textGroup.data).setLayer(1).setFillColor(MTL.GREY_1);
         textGroup.data.horizontalAlign.set('left');
         textGroup.data.font.copy(font);
@@ -102,11 +102,12 @@ class SceneFigure extends S2Scene {
         for (const token of tokens) {
             lineElement.setPreserveWhitespace(true);
             if (token.type === 'plain') {
-                lineElement.addSpan(token.value);
+                lineElement.addTSpan(token.value);
             } else if (token.type === 'newline') {
+                lineElement.update();
                 lineElement = textGroup.addLine();
             } else {
-                const span = lineElement.addSpan(token.value, token.type);
+                const span = lineElement.addTSpan(token.value, token.type);
                 switch (token.type) {
                     case 'fn':
                         span.data.fill.color.copy(MTL.ORANGE_2);
@@ -136,6 +137,7 @@ class SceneFigure extends S2Scene {
             .setLayer(0)
             .setColor(MTL.GREY_9)
             .setExtentsV(textGroup.getExtents('view').add(10, 10), 'view');
+        const codeExtents = textGroup.getExtents('view').add(10, 10);
 
         const funcSpan = textGroup.getLine(0).findTSpan({ category: 'kw' });
         if (funcSpan) {
@@ -150,6 +152,18 @@ class SceneFigure extends S2Scene {
                 .setFillOpacity(0.0)
                 .setExtents(bbox.width / 2 + 4, bbox.height / 2 + 2, 'view')
                 .setPosition(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, 'view');
+        }
+        const codeLine = textGroup.getLine(2);
+        {
+            const bbox = codeLine.getBBox();
+            const rect = this.addRect();
+            S2DataSetter.addTarget(rect.data)
+                .setLayer(0)
+                .setFillColor(MTL.LIGHT_BLUE_1)
+                .setFillOpacity(0.2)
+                .setExtents(codeExtents.x, bbox.height / 2, 'view')
+                .setPosition(bbox.x - 10, bbox.y + bbox.height / 2, 'view')
+                .setAnchor('west');
         }
 
         this.update();

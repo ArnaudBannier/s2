@@ -28,8 +28,7 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         return this.element;
     }
 
-    protected updateImpl(updateId?: number): void {
-        void updateId;
+    update(): void {
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('x', '0');
         this.element.setAttribute('y', '0');

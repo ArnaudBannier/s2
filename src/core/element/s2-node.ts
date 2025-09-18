@@ -18,7 +18,7 @@ import {
 import { S2TextGroup, S2TextLine } from './s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
-import { S2Element, S2ElementUtils, type S2BaseElement } from './base/s2-element';
+import { S2Element } from './base/s2-element';
 import { S2FontData, S2BaseData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 
@@ -200,17 +200,15 @@ export class S2NodeSeparatorData extends S2BaseData {
 
 export class S2Node extends S2Element<S2NodeData> {
     protected element: SVGGElement;
-    protected children: Array<S2BaseElement>;
     protected textGroups: S2TextGroup[];
     protected textGrows: number[];
     protected sepLines: S2Line[];
     protected background: S2Rect | S2Circle | null = null;
-    protected nodeExtents: S2Extents;
+    protected extents: S2Extents;
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
         super(scene, new S2NodeData());
         this.element = document.createElementNS(svgNS, 'g');
-        this.children = [];
         this.textGroups = [];
         this.textGrows = [];
         this.sepLines = [];
@@ -225,7 +223,7 @@ export class S2Node extends S2Element<S2NodeData> {
             textGroup.data.opacity.setParent(this.data.text.opacity);
             textGroup.data.stroke.setParent(this.data.text.stroke);
 
-            S2ElementUtils.appendChild(this, this.children, textGroup);
+            textGroup.setParent(this);
             this.textGroups.push(textGroup);
             this.textGrows.push(1);
         }
@@ -235,12 +233,12 @@ export class S2Node extends S2Element<S2NodeData> {
             line.data.opacity.setParent(this.data.separator.opacity);
             line.data.stroke.setParent(this.data.separator.stroke);
 
-            S2ElementUtils.appendChild(this, this.children, line);
+            line.setParent(this);
             this.sepLines.push(line);
         }
-        this.nodeExtents = new S2Extents(0, 0, 'view');
-        S2ElementUtils.updateSVGChildren(this.element, this.children);
+        this.extents = new S2Extents(0, 0, 'view');
         this.element.dataset.role = 'node';
+        this.updateSVGChildren();
     }
 
     getPosition(space: S2Space): S2Vec2 {
@@ -266,22 +264,22 @@ export class S2Node extends S2Element<S2NodeData> {
     }
 
     createRectBackground(): S2Rect {
-        if (this.background !== null) S2ElementUtils.removeChild(this.children, this.background);
+        if (this.background !== null) this.background.setParent(null);
         this.background = new S2Rect(this.scene);
         this.background.data.setLayer(0);
 
-        S2ElementUtils.appendChild(this, this.children, this.background);
-        S2ElementUtils.updateSVGChildren(this.element, this.children);
+        this.background.setParent(this);
+        this.updateSVGChildren();
         return this.background;
     }
 
     createCircleBackground(): S2Circle {
-        if (this.background !== null) S2ElementUtils.removeChild(this.children, this.background);
+        if (this.background !== null) this.background.setParent(null);
         this.background = new S2Circle(this.scene);
         this.background.data.setLayer(0);
 
-        S2ElementUtils.appendChild(this, this.children, this.background);
-        S2ElementUtils.updateSVGChildren(this.element, this.children);
+        this.background.setParent(this);
+        this.updateSVGChildren();
         return this.background;
     }
 
@@ -300,7 +298,7 @@ export class S2Node extends S2Element<S2NodeData> {
             space,
             this.scene.getActiveCamera(),
             this.data.position,
-            this.nodeExtents,
+            this.extents,
         );
     }
 
@@ -319,8 +317,7 @@ export class S2Node extends S2Element<S2NodeData> {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
-    protected updateImpl(updateId?: number): void {
-        void updateId;
+    update(): void {
         const camera = this.scene.getActiveCamera();
 
         if (this.background !== null) {
@@ -357,14 +354,14 @@ export class S2Node extends S2Element<S2NodeData> {
         );
 
         const nodeExtents = new S2Vec2(Math.max(maxPartWidth / 2 + padding.x, nodeMinExtents.x), height / 2);
-        this.nodeExtents.setValueFromSpace('view', camera, nodeExtents.x, nodeExtents.y);
+        this.extents.setValueFromSpace('view', camera, nodeExtents.x, nodeExtents.y);
 
         const nodeCenter = S2AnchorUtils.getCenter(
             this.data.anchor.getInherited(),
             'view',
             camera,
             this.data.position,
-            this.nodeExtents,
+            this.extents,
         );
         const textPosition = nodeCenter.clone().subV(nodeExtents).addV(padding);
         for (let i = 0; i < this.textGroups.length; i++) {
@@ -411,7 +408,7 @@ export class S2Node extends S2Element<S2NodeData> {
         S2DataUtils.applyTransform(this.data.text.transform, this.element, this.scene);
 
         for (const child of this.children) {
-            child.update(updateId);
+            child.update();
         }
     }
 }

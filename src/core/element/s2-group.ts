@@ -1,16 +1,24 @@
 import { S2BaseScene } from '../s2-base-scene';
-import { S2Container } from './base/s2-container';
 import { S2Element } from './base/s2-element';
 import { svgNS } from '../s2-globals';
 import { S2BaseData } from './base/s2-base-data';
 
-export class S2Group<DataType extends S2BaseData, ChildType extends S2Element<DataType>> extends S2Container<
-    SVGGElement,
-    DataType,
-    ChildType
-> {
+export class S2Group<DataType extends S2BaseData> extends S2Element<DataType> {
+    protected element: SVGGElement;
+
     constructor(scene: S2BaseScene, data: DataType) {
-        const element = document.createElementNS(svgNS, 'g');
-        super(scene, data, element);
+        super(scene, data);
+        this.element = document.createElementNS(svgNS, 'g');
+    }
+
+    getSVGElement(): SVGElement {
+        return this.element;
+    }
+
+    update(): void {
+        for (const child of this.children) {
+            child.update();
+        }
+        this.updateSVGChildren();
     }
 }

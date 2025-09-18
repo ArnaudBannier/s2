@@ -53,8 +53,7 @@ export class S2Circle extends S2Element<S2CircleData> {
         return point.addV(this.data.position.toSpace(space, camera));
     }
 
-    protected updateImpl(updateId?: number): void {
-        void updateId;
+    update(): void {
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

@@ -70,8 +70,7 @@ export class S2Rect extends S2Element<S2RectData> {
         return S2ShapeUtils.intersectDirectionRoundedRectangle(direction, extents, radius).addV(center);
     }
 
-    protected updateImpl(updateId?: number): void {
-        void updateId;
+    update(): void {
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

@@ -88,7 +88,7 @@ class SceneFigure extends S2Scene {
         void angle;
         void distance;
         this.nodes[0].setRadius(radius, 'world');
-        this.nodes[0].updateImpl();
+        this.nodes[0].update();
     }
 }
 

@@ -108,8 +108,8 @@ class BTree {
     public root: BTreeNode | null;
     protected style: BTreeStyle;
     protected scene: S2Scene;
-    protected edgeGroup: S2Group<S2BaseData, S2LineEdge>;
-    protected nodeGroup: S2Group<S2BaseData, S2Node>;
+    protected edgeGroup: S2Group<S2BaseData>;
+    protected nodeGroup: S2Group<S2BaseData>;
 
     levelDistance: number = 1.8;
     baseSep: number = 0.8;
@@ -131,12 +131,13 @@ class BTree {
 
         this.computeLayout(new S2Vec2(0, 0));
         this.createNodeLines(this.root, null);
+        this.update();
     }
 
     private createNodes(userTree: UserTreeNode<number>, depth: number = 0): BTreeNode {
         const node = new BTreeNode(this.scene, userTree.data);
         this.height = Math.max(this.height, depth);
-        this.nodeGroup.appendChild(node.node);
+        node.node.setParent(this.nodeGroup);
         this.style.setNodeDefault(node.node);
 
         if (userTree.left) {
@@ -153,8 +154,10 @@ class BTree {
     private createNodeLines(bTreeNode: BTreeNode | null, parent: BTreeNode | null) {
         if (bTreeNode === null) return;
         if (parent) {
-            bTreeNode.parentEdge = this.scene.addLineEdge(parent.node, bTreeNode.node, this.edgeGroup).update();
+            bTreeNode.parentEdge = this.scene.addLineEdge(parent.node, bTreeNode.node, this.edgeGroup);
             bTreeNode.parentEmphEdge = this.scene.addLineEdge(parent.node, bTreeNode.node, this.edgeGroup);
+            bTreeNode.parentEdge.update();
+            bTreeNode.parentEmphEdge.update();
 
             bTreeNode.parentEmphEdge.data.pathFrom.set(0.0);
 
