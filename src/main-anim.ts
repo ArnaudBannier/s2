@@ -12,7 +12,6 @@ import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 import { S2BaseData } from './core/element/base/s2-base-data.ts';
 import { S2Position } from './core/s2-types.ts';
-import { S2ArrowTip } from './core/element/s2-arrow-tip.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -76,15 +75,11 @@ class SceneFigure extends S2Scene {
         //     .setEndPosition(6, 2, 'world');
         // line.update();
 
-        const tip = new S2ArrowTip(this);
+        const tip = this.path.createArrowTip();
         tip.setParent(this.getSVG());
-        S2DataSetter.addTarget(tip.data).setFillColor(MTL.GREY_6).setOpacity(1.0);
 
-        tip.setTipableReference(this.path);
+        //tip.setTipableReference(this.path);
         tip.setTipInset(0.25).setReversed(false).setAnchorAlignment(0);
-        tip.data.pathPosition.set(1);
-        //tip.data.stroke.setParent(this.path.data.stroke);
-        tip.data.fill.color.setParent(this.path.data.stroke.color);
         tip.update();
 
         this.update();

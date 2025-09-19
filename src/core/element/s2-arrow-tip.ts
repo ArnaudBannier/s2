@@ -80,19 +80,6 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
     }
 
     setTipableReference(tipable: S2BaseTipable | null): this {
-        // if (this.tipableReference === tipable) return this;
-        // if (tipable === null) {
-        //     if (this.tipableReference !== null) {
-        //         this.removeDependency(this.tipableReference);
-        //     }
-        //     this.tipableReference = null;
-        // } else {
-        //     if (this.tipableReference !== null) {
-        //         this.removeDependency(this.tipableReference);
-        //     }
-        //     this.addDependency(tipable);
-        //     this.tipableReference = tipable;
-        // }
         this.tipableReference = tipable;
         return this;
     }

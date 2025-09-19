@@ -10,6 +10,8 @@ import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 import { S2BaseData, S2FontData } from './core/element/base/s2-base-data.ts';
 import { S2Position } from './core/s2-types.ts';
 import { S2Code, tokenizeAlgorithm } from './core/element/s2-code.ts';
+import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
+import { ease } from './core/animation/s2-easing.ts';
 
 const algorithm =
     '**kw:Tant que** **var:file** non vide **kw:faire**\n' +
@@ -51,20 +53,24 @@ class SceneFigure extends S2Scene {
         const fillRect = this.addFillRect();
         S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
 
-        const grid = this.addWorldGrid();
-        S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
+        // const grid = this.addWorldGrid();
+        // S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
 
         const font = new S2FontData();
         font.family.set('monospace');
+        font.size.set(20, 'view');
         font.relativeLineHeight.set(1.3);
 
         const code = new S2Code(this);
         code.setParent(this.getSVG());
+
+        this.update();
+
         code.data.text.font.copy(font);
         code.data.text.fill.color.copy(MTL.WHITE);
         code.data.anchor.set('west');
         code.data.position.set(-5, 0, 'world');
-        code.data.padding.set(20, 10, 'view');
+        code.data.padding.set(20, 5, 'view');
         code.data.background.fill.color.copy(MTL.GREY_9);
         code.data.currentLine.opacity.set(1);
         code.data.currentLine.fill.color.copy(MTL.BLACK);
@@ -73,88 +79,47 @@ class SceneFigure extends S2Scene {
         code.data.currentLine.stroke.width.set(1, 'view');
         code.data.currentLine.stroke.opacity.set(0.2);
         code.data.currentLine.padding.set(-0.5, 2, 'view');
-        code.data.currentLine.index.set(2);
+        code.data.currentLine.index.set(0);
         code.setContent(tokenizeAlgorithm(algorithm));
         code.update();
 
-        // const textGroup = new S2TextGroup(this);
-        // textGroup.setParent(this.getSVG());
-        // S2DataSetter.addTarget(textGroup.data).setLayer(1).setFillColor(MTL.GREY_1);
-        // textGroup.data.horizontalAlign.set('left');
-        // textGroup.data.font.copy(font);
+        let anim = new S2LerpAnim(this)
+            .addUpdateTarget(code)
+            .bind(code.data.currentLine.index)
+            .setCycleDuration(500)
+            .setEasing(ease.inOut);
+        code.data.currentLine.index.set(1);
 
-        // const tokens = tokenizeAlgorithm(algorithm);
-        // tokens.pop();
+        this.animator.addAnimation(anim.commitFinalStates());
+        this.animator.makeStep();
 
-        // let lineElement = textGroup.addLine();
-        // for (const token of tokens) {
-        //     lineElement.setPreserveWhitespace(true);
-        //     if (token.type === 'plain') {
-        //         lineElement.addTSpan(token.value);
-        //     } else if (token.type === 'newline') {
-        //         lineElement.update();
-        //         lineElement = textGroup.addLine();
-        //     } else {
-        //         const span = lineElement.addTSpan(token.value, token.type);
-        //         switch (token.type) {
-        //             case 'fn':
-        //                 span.data.fill.color.copy(MTL.ORANGE_2);
-        //                 break;
-        //             case 'type':
-        //                 span.data.fill.color.copy(MTL.CYAN_3);
-        //                 break;
-        //             case 'kw':
-        //                 span.data.fill.color.copy(MTL.PURPLE_3);
-        //                 span.data.font.weight.set(700);
-        //                 break;
-        //             case 'var':
-        //                 span.data.fill.color.copy(MTL.LIGHT_BLUE_1);
-        //                 //span.data.font.style.set('italic');
-        //                 break;
-        //             case 'punct':
-        //                 span.data.fill.color.copy(MTL.PURPLE_1);
-        //                 break;
-        //         }
-        //         span.update();
-        //     }
-        // }
-        // textGroup.update();
+        anim = new S2LerpAnim(this)
+            .addUpdateTarget(code)
+            .bind(code.data.currentLine.index)
+            .bind(code.data.position)
+            .setCycleDuration(500)
+            .setEasing(ease.inOut);
+        code.data.currentLine.index.set(2);
+        code.data.position.set(-2, -0.5, 'world');
 
-        // const background = this.addRect();
-        // S2DataSetter.addTarget(background.data)
-        //     .setLayer(0)
-        //     .setColor(MTL.GREY_9)
-        //     .setExtentsV(textGroup.getExtents('view').add(10, 10), 'view');
-        // const codeExtents = textGroup.getExtents('view').add(10, 10);
+        this.animator.addAnimation(anim.commitFinalStates());
+        this.animator.makeStep();
 
-        // const funcSpan = textGroup.getLine(0).findTSpan({ category: 'kw' });
-        // if (funcSpan) {
-        //     console.log('funcSpan', funcSpan);
-        //     //funcSpan.data.fill.color.copy(MTL.WHITE);
-        //     const bbox = funcSpan.getBBox();
-        //     const rect = this.addRect();
-        //     S2DataSetter.addTarget(rect.data)
-        //         .setLayer(0)
-        //         .setStrokeColor(MTL.RED_5)
-        //         .setStrokeWidth(1, 'view')
-        //         .setFillOpacity(0.0)
-        //         .setExtents(bbox.width / 2 + 4, bbox.height / 2 + 2, 'view')
-        //         .setPosition(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, 'view');
-        // }
-        // const codeLine = textGroup.getLine(2);
-        // {
-        //     const bbox = codeLine.getBBox();
-        //     const rect = this.addRect();
-        //     S2DataSetter.addTarget(rect.data)
-        //         .setLayer(0)
-        //         .setFillColor(MTL.LIGHT_BLUE_1)
-        //         .setFillOpacity(0.2)
-        //         .setExtents(codeExtents.x, bbox.height / 2, 'view')
-        //         .setPosition(bbox.x - 10, bbox.y + bbox.height / 2, 'view')
-        //         .setAnchor('west');
-        // }
+        const emph = code.createEmphasisForToken(2, { category: 'fn', content: 'Traiter' });
+        if (!emph) return;
 
-        this.update();
+        emph.data.opacity.set(0.0);
+        anim = new S2LerpAnim(this)
+            .addUpdateTarget(code)
+            .addUpdateTarget(emph)
+            .bind(emph.data.opacity)
+            .bind(code.data.position)
+            .setCycleDuration(500)
+            .setEasing(ease.inOut);
+        emph.data.opacity.set(1.0);
+        code.data.position.set(-2, 0.5, 'world');
+
+        this.animator.addAnimation(anim.commitFinalStates());
     }
 
     createAnimation(): void {}

@@ -27,4 +27,8 @@ export abstract class S2BaseScene {
     getActiveCamera(): S2Camera {
         return this.activeCamera;
     }
+
+    getSVG(): S2SVG {
+        return this.svg;
+    }
 }

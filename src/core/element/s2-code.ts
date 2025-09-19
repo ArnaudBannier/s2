@@ -129,6 +129,7 @@ export class S2Code extends S2Element<S2CodeData> {
     protected lineBackground: S2Rect;
     protected extents: S2Extents;
     protected tokenStyleSetter: S2TokenStyleSetter = S2Code.defaultTokenStyleSetter;
+    protected tokenRects: S2TextEmphasis[];
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2CodeData());
@@ -136,8 +137,8 @@ export class S2Code extends S2Element<S2CodeData> {
         this.textGroup = new S2TextGroup(scene);
         this.codeBackground = new S2Rect(scene);
         this.lineBackground = new S2Rect(scene);
-        this.children = [];
         this.extents = new S2Extents(0, 0, 'view');
+        this.tokenRects = [];
 
         this.textGroup.setParent(this);
         this.codeBackground.setParent(this);
@@ -182,6 +183,32 @@ export class S2Code extends S2Element<S2CodeData> {
         return this.textGroup.getLine(lineIndex).findTSpan(options);
     }
 
+    createEmphasisForToken(lineIndex: number, options: { content?: string; category?: string }): S2TextEmphasis | null {
+        const span = this.findTokenTSpan(lineIndex, options);
+        if (!span) return null;
+
+        const emph = new S2TextEmphasis(this.scene);
+        emph.data.fill.opacity.set(0.2);
+        emph.data.fill.color.copy(MTL.BLUE_9);
+        emph.data.stroke.color.copy(MTL.BLUE_5);
+        emph.data.stroke.width.set(1, 'view');
+        emph.data.layer.set(1);
+        emph.setParent(this);
+        emph.setTextReference(span);
+        emph.update();
+        this.tokenRects.push(emph);
+        return emph;
+    }
+
+    detachEmphasisRect(emph: S2TextEmphasis): this {
+        const index = this.tokenRects.indexOf(emph);
+        if (index !== -1) {
+            this.tokenRects.splice(index, 1);
+        }
+        emph.setParent(null);
+        return this;
+    }
+
     setContent(tokens: S2CodeToken[]): void {
         let lineElement = this.textGroup.addLine();
         for (const token of tokens) {
@@ -205,6 +232,15 @@ export class S2Code extends S2Element<S2CodeData> {
     update(): void {
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
+        this.updateSVGChildren();
+
+        this.textGroup.data.font.copy(this.data.text.font);
+        this.textGroup.data.horizontalAlign.set('left');
+        this.textGroup.data.verticalAlign.copy(this.data.text.verticalAlign);
+        this.textGroup.data.fill.copy(this.data.text.fill);
+        this.textGroup.data.opacity.copy(this.data.text.opacity);
+        this.textGroup.data.stroke.copy(this.data.text.stroke);
+
         this.textGroup.updateExtents();
         const textExtents = this.textGroup.getExtents(space);
         const padding = this.data.padding.toSpace(space, camera);
@@ -219,16 +255,6 @@ export class S2Code extends S2Element<S2CodeData> {
             this.extents,
         );
 
-        this.lineBackground.data.fill.copy(this.data.currentLine.fill);
-        this.lineBackground.data.stroke.copy(this.data.currentLine.stroke);
-        this.lineBackground.data.opacity.copy(this.data.currentLine.opacity);
-
-        this.textGroup.data.font.copy(this.data.text.font);
-        this.textGroup.data.horizontalAlign.set('left');
-        this.textGroup.data.verticalAlign.copy(this.data.text.verticalAlign);
-        this.textGroup.data.fill.copy(this.data.text.fill);
-        this.textGroup.data.opacity.copy(this.data.text.opacity);
-        this.textGroup.data.stroke.copy(this.data.text.stroke);
         this.textGroup.data.position.setV(codeCenter, space);
         this.textGroup.update();
 
@@ -239,6 +265,10 @@ export class S2Code extends S2Element<S2CodeData> {
         this.codeBackground.data.stroke.copy(this.data.background.stroke);
         this.codeBackground.data.opacity.copy(this.data.background.opacity);
         this.codeBackground.update();
+
+        this.lineBackground.data.fill.copy(this.data.currentLine.fill);
+        this.lineBackground.data.stroke.copy(this.data.currentLine.stroke);
+        this.lineBackground.data.opacity.copy(this.data.currentLine.opacity);
 
         const lineCount = this.textGroup.getLineCount();
         if (lineCount > 0) {
@@ -257,5 +287,66 @@ export class S2Code extends S2Element<S2CodeData> {
             this.lineBackground.data.anchor.set('center');
             this.lineBackground.update();
         }
+
+        for (const rect of this.tokenRects) {
+            rect.update();
+        }
+    }
+}
+
+export class S2TextEmphasisData extends S2BaseData {
+    public readonly fill: S2FillData;
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly cornerRadius: S2Length;
+    public readonly padding: S2Extents;
+
+    constructor() {
+        super();
+        this.fill = new S2FillData();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.cornerRadius = new S2Length(5, 'view');
+        this.padding = new S2Extents(4, 2, 'view');
+        this.stroke.opacity.set(1, S2TypeState.Inactive);
+        this.fill.opacity.set(1, S2TypeState.Inactive);
+    }
+}
+
+export class S2TextEmphasis extends S2Element<S2TextEmphasisData> {
+    protected rect: S2Rect;
+    protected textReference: S2TSpan | null;
+
+    constructor(scene: S2BaseScene) {
+        super(scene, new S2TextEmphasisData());
+        this.rect = new S2Rect(scene);
+        this.textReference = null;
+        this.children = [];
+    }
+
+    setTextReference(text: S2TSpan): this {
+        this.textReference = text;
+        return this;
+    }
+
+    getSVGElement(): SVGElement {
+        return this.rect.getSVGElement();
+    }
+
+    update(): void {
+        if (this.textReference === null) return;
+        const camera = this.scene.getActiveCamera();
+        const space: S2Space = 'view';
+        const bbox = this.textReference.getBBox();
+        const padding = this.data.padding.toSpace(space, camera);
+        this.rect.data.position.set(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, space);
+        this.rect.data.extents.set(bbox.width / 2 + padding.x, bbox.height / 2 + padding.y, space);
+        this.rect.data.anchor.set('center');
+
+        this.rect.data.fill.copy(this.data.fill);
+        this.rect.data.stroke.copy(this.data.stroke);
+        this.rect.data.opacity.copy(this.data.opacity);
+        this.rect.data.cornerRadius.copy(this.data.cornerRadius);
+        this.rect.update();
     }
 }

@@ -7,6 +7,7 @@ import { S2Camera } from '../math/s2-camera';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2BaseData, S2StrokeData } from './base/s2-base-data';
+import { S2ArrowTip } from './s2-arrow-tip';
 
 export class S2PathData extends S2BaseData {
     public readonly stroke: S2StrokeData;
@@ -92,6 +93,53 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     protected sampleCount: number = 0;
     protected currStart: S2Vec2;
     protected endPosition: S2Vec2;
+    protected arrowTips: Array<S2ArrowTip> = [];
+
+    constructor(scene: S2BaseScene) {
+        super(scene, new S2PathData());
+        this.element = document.createElementNS(svgNS, 'path');
+        this.endPosition = new S2Vec2(0, 0);
+        this.currStart = new S2Vec2(0, 0);
+    }
+
+    createArrowTip(): S2ArrowTip {
+        const arrowTip = new S2ArrowTip(this.scene);
+        arrowTip.setParent(this.scene.getSVG());
+        this.arrowTips.push(arrowTip);
+        arrowTip.data.fill.color.setParent(this.data.stroke.color);
+        arrowTip.data.fill.opacity.setParent(this.data.stroke.opacity);
+        arrowTip.data.pathPosition.set(1);
+        arrowTip.setTipableReference(this);
+        return arrowTip;
+    }
+
+    getTip(index: number): S2ArrowTip {
+        return this.arrowTips[index];
+    }
+
+    getTipCount(): number {
+        return this.arrowTips.length;
+    }
+
+    detachTip(index: number): this {
+        if (index >= 0 && index < this.arrowTips.length) {
+            this.arrowTips.splice(index, 1);
+        }
+        return this;
+    }
+
+    detachTipElement(arrowTip: S2ArrowTip): this {
+        const index = this.arrowTips.indexOf(arrowTip);
+        if (index >= 0) {
+            this.arrowTips.splice(index, 1);
+        }
+        return this;
+    }
+
+    detachTipElements(): this {
+        this.arrowTips.length = 0;
+        return this;
+    }
 
     getTipTransformAt(t: number): S2TipTransform {
         const from = this.data.pathFrom.getInherited();
@@ -105,13 +153,6 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         transform.pathLength = this.data.polyCurve.getLength() * (to - from);
         transform.strokeWidth = this.data.stroke.width.getInherited(transform.space, camera);
         return transform;
-    }
-
-    constructor(scene: S2BaseScene) {
-        super(scene, new S2PathData());
-        this.element = document.createElementNS(svgNS, 'path');
-        this.endPosition = new S2Vec2(0, 0);
-        this.currStart = new S2Vec2(0, 0);
     }
 
     setSampleCount(sampleCount: number): this {
@@ -274,5 +315,8 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
             this.element,
             this.scene,
         );
+        for (const arrowTip of this.arrowTips) {
+            arrowTip.update();
+        }
     }
 }

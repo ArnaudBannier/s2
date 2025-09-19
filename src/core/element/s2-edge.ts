@@ -99,26 +99,40 @@ export class S2EdgeData extends S2BaseData {
 export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> implements S2Tipable {
     protected element: SVGGElement;
     protected path: S2Path;
-    protected arrowTip: S2ArrowTip | null;
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
         this.element = document.createElementNS(svgNS, 'g');
         this.path = new S2Path(scene);
-        this.arrowTip = null;
         this.element.appendChild(this.path.getSVGElement());
         this.element.dataset.role = 'edge';
     }
 
     createArrowTip(): S2ArrowTip {
-        if (!this.arrowTip) {
-            this.arrowTip = new S2ArrowTip(this.scene);
-            this.element.appendChild(this.arrowTip.getSVGElement());
-            this.arrowTip.setTipableReference(this);
-            this.arrowTip.data.pathPosition.set(1);
-            this.arrowTip.data.fill.color.setParent(this.path.data.stroke.color);
-        }
-        return this.arrowTip;
+        return this.path.createArrowTip();
+    }
+
+    getTip(index: number): S2ArrowTip {
+        return this.path.getTip(index);
+    }
+
+    getTipCount(): number {
+        return this.path.getTipCount();
+    }
+
+    detachTip(index: number): this {
+        this.path.detachTip(index);
+        return this;
+    }
+
+    detachTipElement(tip: S2ArrowTip): this {
+        this.path.detachTipElement(tip);
+        return this;
+    }
+
+    detachTipElements(): this {
+        this.path.detachTipElements();
+        return this;
     }
 
     getTipTransformAt(t: number): S2TipTransform {
@@ -192,9 +206,6 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         this.applyStyleToPath();
         this.path.data.space.set(space);
         this.path.clear().moveToV(start).lineToV(end).update();
-        if (this.arrowTip) {
-            this.arrowTip.update();
-        }
     }
 }
 
@@ -250,8 +261,5 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         this.applyStyleToPath();
         this.path.data.space.set(space);
         this.path.clear().moveToV(start).cubicToV(startDirection, endDirection, end).update();
-        if (this.arrowTip) {
-            this.arrowTip.update();
-        }
     }
 }

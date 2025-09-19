@@ -105,10 +105,6 @@ export class S2Scene extends S2BaseScene {
         return child;
     }
 
-    getSVG(): S2SVG {
-        return this.svg;
-    }
-
     update(): this {
         this.svg.update();
         return this;

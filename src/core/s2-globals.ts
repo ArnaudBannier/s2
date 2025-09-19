@@ -1,3 +1,4 @@
+import type { S2ArrowTip } from './element/s2-arrow-tip';
 import type { S2Camera } from './math/s2-camera';
 import { S2Vec2 } from './math/s2-vec2';
 import { type S2Space, S2Position, S2Extents } from './s2-types';
@@ -21,6 +22,12 @@ export class S2TipTransform {
 }
 
 export interface S2Tipable {
+    createArrowTip(): S2ArrowTip;
+    getTip(index: number): S2ArrowTip;
+    getTipCount(): number;
+    detachTip(index: number): this;
+    detachTipElement(tip: S2ArrowTip): this;
+    detachTipElements(): this;
     getTipTransformAt(t: number): S2TipTransform;
 }
 
