@@ -12,6 +12,7 @@ export enum S2TypeState {
 export abstract class S2BaseType {
     abstract readonly kind: string;
     public state: S2TypeState = S2TypeState.Active;
+    public dirty: boolean = true;
 }
 
 export class S2Enum<T> extends S2BaseType {
@@ -28,6 +29,7 @@ export class S2Enum<T> extends S2BaseType {
     setParent(parent: S2Enum<T> | null = null): this {
         this.state = parent ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
+        this.dirty = true;
         return this;
     }
 
@@ -38,12 +40,14 @@ export class S2Enum<T> extends S2BaseType {
     copy(other: S2Enum<T>): this {
         this.value = other.value;
         this.state = other.state;
+        this.dirty = true;
         return this;
     }
 
     set(value: T, state: S2TypeState = S2TypeState.Active): this {
         this.value = value;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -76,6 +80,7 @@ export class S2String extends S2BaseType {
     setParent(parent: S2String | null = null): this {
         this.state = parent ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
+        this.dirty = true;
         return this;
     }
 
@@ -87,12 +92,14 @@ export class S2String extends S2BaseType {
         this.value = other.value;
         this.state = other.state;
         this.parent = other.parent;
+        this.dirty = true;
         return this;
     }
 
     set(value: string, state: S2TypeState = S2TypeState.Active): this {
         this.value = value;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -129,6 +136,7 @@ export class S2Number extends S2BaseType {
     setParent(parent: S2Number | null = null): this {
         this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
+        this.dirty = true;
         return this;
     }
 
@@ -140,6 +148,7 @@ export class S2Number extends S2BaseType {
         this.value = other.value;
         this.state = other.state;
         this.parent = other.parent;
+        this.dirty = true;
         return this;
     }
 
@@ -148,6 +157,7 @@ export class S2Number extends S2BaseType {
         const value1 = state1.getInherited();
         this.value = S2MathUtils.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
+        this.dirty = true;
         return this;
     }
 
@@ -158,6 +168,7 @@ export class S2Number extends S2BaseType {
     set(value: number, state: S2TypeState = S2TypeState.Active): this {
         this.value = value;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -204,6 +215,7 @@ export class S2Color extends S2BaseType {
     setParent(parent: S2Color | null = null): this {
         this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
+        this.dirty = true;
         return this;
     }
 
@@ -217,6 +229,7 @@ export class S2Color extends S2BaseType {
         this.b = color.b;
         this.state = color.state;
         this.parent = color.parent;
+        this.dirty = true;
         return this;
     }
 
@@ -227,6 +240,7 @@ export class S2Color extends S2BaseType {
         this.g = S2MathUtils.lerp(value0.g, value1.g, t);
         this.b = S2MathUtils.lerp(value0.b, value1.b, t);
         this.state = S2TypeState.Active;
+        this.dirty = true;
         return this;
     }
 
@@ -239,6 +253,7 @@ export class S2Color extends S2BaseType {
         this.g = g;
         this.b = b;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -248,6 +263,7 @@ export class S2Color extends S2BaseType {
         this.g = (num >> 8) & 0xff;
         this.b = num & 0xff;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -307,6 +323,7 @@ export class S2Position extends S2BaseType {
     setParent(parent: S2Position | null = null): this {
         this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
+        this.dirty = true;
         return this;
     }
 
@@ -319,6 +336,7 @@ export class S2Position extends S2BaseType {
         this.space = other.space;
         this.state = other.state;
         this.parent = other.parent;
+        this.dirty = true;
         return this;
     }
 
@@ -329,6 +347,7 @@ export class S2Position extends S2BaseType {
         this.value = S2Vec2.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
         this.space = space;
+        this.dirty = true;
         return this;
     }
 
@@ -340,6 +359,7 @@ export class S2Position extends S2BaseType {
         this.value.set(x, y);
         if (space) this.space = space;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -347,6 +367,7 @@ export class S2Position extends S2BaseType {
         this.value.copy(position);
         if (space) this.space = space;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -363,6 +384,7 @@ export class S2Position extends S2BaseType {
             this.value.x = camera.worldToViewX(x);
             this.value.y = camera.worldToViewY(y);
         }
+        this.dirty = true;
         return this;
     }
 
@@ -436,6 +458,7 @@ export class S2Length extends S2BaseType {
     setParent(parent: S2Length | null = null): this {
         this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
+        this.dirty = true;
         return this;
     }
 
@@ -448,6 +471,7 @@ export class S2Length extends S2BaseType {
         this.space = other.space;
         this.state = other.state;
         this.parent = other.parent;
+        this.dirty = true;
         return this;
     }
 
@@ -458,6 +482,7 @@ export class S2Length extends S2BaseType {
         this.value = S2MathUtils.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
         this.space = space;
+        this.dirty = true;
         return this;
     }
 
@@ -469,6 +494,7 @@ export class S2Length extends S2BaseType {
         this.value = value;
         if (space) this.space = space;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -483,6 +509,7 @@ export class S2Length extends S2BaseType {
             // this: view, other: world
             this.value = camera.worldToViewLength(value);
         }
+        this.dirty = true;
         return this;
     }
 
@@ -555,6 +582,7 @@ export class S2Extents extends S2BaseType {
     setParent(parent: S2Extents | null = null): this {
         this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
+        this.dirty = true;
         return this;
     }
 
@@ -567,6 +595,7 @@ export class S2Extents extends S2BaseType {
         this.space = other.space;
         this.state = other.state;
         this.parent = other.parent;
+        this.dirty = true;
         return this;
     }
 
@@ -577,6 +606,7 @@ export class S2Extents extends S2BaseType {
         this.value = S2Vec2.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
         this.space = space;
+        this.dirty = true;
         return this;
     }
 
@@ -588,6 +618,7 @@ export class S2Extents extends S2BaseType {
         this.value.set(x, y);
         if (space) this.space = space;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -595,6 +626,7 @@ export class S2Extents extends S2BaseType {
         this.value.copy(extents);
         if (space) this.space = space;
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -611,6 +643,7 @@ export class S2Extents extends S2BaseType {
             this.value.x = camera.worldToViewLength(x);
             this.value.y = camera.worldToViewLength(y);
         }
+        this.dirty = true;
         return this;
     }
 
@@ -635,6 +668,7 @@ export class S2Extents extends S2BaseType {
             this.value.y = camera.viewToWorldLength(this.value.y);
         }
         this.space = space;
+        this.dirty = true;
         return this;
     }
 
@@ -680,6 +714,7 @@ export class S2Transform extends S2BaseType {
     setParent(parent: S2Transform | null = null): this {
         this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
         this.parent = parent;
+        this.dirty = true;
         return this;
     }
 
@@ -691,6 +726,7 @@ export class S2Transform extends S2BaseType {
         this.value.copy(other.value);
         this.state = other.state;
         this.parent = other.parent;
+        this.dirty = true;
         return this;
     }
 
@@ -699,6 +735,7 @@ export class S2Transform extends S2BaseType {
         const value1 = state1.getInherited();
         this.value.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
+        this.dirty = true;
         return this;
     }
 
@@ -709,6 +746,7 @@ export class S2Transform extends S2BaseType {
     set(value: S2Mat2x3, state: S2TypeState = S2TypeState.Active): this {
         this.value.copy(value);
         this.state = state;
+        this.dirty = true;
         return this;
     }
 
@@ -728,4 +766,18 @@ export class S2Transform extends S2BaseType {
     toFixed(precision: number = 2): string {
         return 'matrix(' + this.value.elements.map((v) => v.toFixed(precision)).join(', ') + ')';
     }
+}
+
+export class S2LocalBBox {
+    protected position: S2Position;
+    protected extents: S2Extents;
+    protected dirty: boolean;
+
+    constructor() {
+        this.position = new S2Position(0, 0, 'view');
+        this.extents = new S2Extents(0, 0, 'view');
+        this.dirty = false;
+    }
+
+    // set()
 }

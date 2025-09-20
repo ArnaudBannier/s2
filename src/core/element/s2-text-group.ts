@@ -127,6 +127,39 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         );
     }
 
+    refreshExtents(): this {
+        this.textExtents.set(0, 0, 'view');
+        this.extents.set(0, 0, 'view');
+
+        const camera = this.scene.getActiveCamera();
+        const space = 'view';
+
+        // Apply font to group element to ensure correct measurement of bounding boxes
+        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+
+        let maxWidth = 0;
+        let totalHeight = 0;
+        for (let i = 0; i < this.textLines.length; i++) {
+            const line = this.textLines[i];
+            line.update();
+            line.updateExtents();
+            //
+            const lineExtents = line.getExtents('view');
+            const font = line.data.font;
+            const relativeHeight = font.relativeLineHeight.getInherited();
+            const size = font.size.getInherited(space, camera);
+            maxWidth = Math.max(lineExtents.x * 2, maxWidth);
+            totalHeight += line.data.skip.value + relativeHeight * size;
+        }
+        const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
+        const minExtents = this.data.minExtents.toSpace(space, camera);
+        const extents = minExtents.maxV(textExtents);
+
+        this.textExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
+        this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
+        return this;
+    }
+
     updateExtents(): void {
         const camera = this.scene.getActiveCamera();
         const space = 'view';
@@ -164,7 +197,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
-        this.updateExtents();
+        //this.updateExtents();
 
         const textExtents = this.textExtents.toSpace('view', camera);
         const groupExtents = this.extents.toSpace('view', camera);

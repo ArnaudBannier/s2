@@ -317,6 +317,13 @@ export class S2Node extends S2Element<S2NodeData> {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
+    refreshExtents(): void {
+        for (let i = 0; i < this.textGroups.length; i++) {
+            const textGroup = this.textGroups[i];
+            textGroup.updateExtents();
+        }
+    }
+
     update(): void {
         const camera = this.scene.getActiveCamera();
 
@@ -335,7 +342,7 @@ export class S2Node extends S2Element<S2NodeData> {
 
         for (let i = 0; i < this.textGroups.length; i++) {
             const textGroup = this.textGroups[i];
-            textGroup.updateExtents();
+            //textGroup.updateExtents();
             const extents = textGroup.getTextExtents('view');
             maxPartWidth = Math.max(maxPartWidth, 2 * extents.x);
             partHeights.push(2 * extents.y);

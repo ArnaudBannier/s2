@@ -63,11 +63,13 @@ export class S2DataUtils {
         mode: S2DataApplicationMode = 'if-active',
     ): void {
         void scene;
+        // if (fill.color.dirty) {
         if (fill.color.state === S2TypeState.Active || mode === 'always') {
             element.setAttribute('fill', fill.color.getInheritedRgb());
         } else {
             element.removeAttribute('fill');
         }
+        // }
 
         if ((fill.opacity.state === S2TypeState.Active && fill.opacity.value <= 1) || mode === 'always') {
             element.setAttribute('fill-opacity', fill.opacity.getInherited().toFixed(2));

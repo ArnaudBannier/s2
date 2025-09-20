@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2BaseScene } from '../s2-base-scene';
 import { svgNS, type S2TextAnchor } from '../s2-globals';
-import { S2Enum, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
+import { S2Enum, S2Extents, S2Number, S2Position, S2Transform, S2TypeState, type S2Space } from '../s2-types';
 import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -35,12 +35,14 @@ export class S2BaseText<Data extends S2TextData> extends S2Element<Data> {
     protected element: SVGTextElement;
     protected tspans: Array<S2TSpan>;
     protected preserveWhitespace: boolean;
+    protected extents: S2Extents;
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
         this.element = document.createElementNS(svgNS, 'text');
         this.tspans = [];
         this.preserveWhitespace = false;
+        this.extents = new S2Extents(0, 0, 'view');
     }
 
     getSVGElement(): SVGElement {
@@ -63,6 +65,16 @@ export class S2BaseText<Data extends S2TextData> extends S2Element<Data> {
         // S2ElementUtils.updateSVGChildren(this.element, this.children);
         this.updateSVGChildren();
         return tspan;
+    }
+
+    getExtents(space: S2Space): S2Vec2 {
+        return this.extents.toSpace(space, this.scene.getActiveCamera());
+    }
+
+    updateExtents(): this {
+        const bbox = this.element.getBBox();
+        this.extents.set(bbox.width / 2, bbox.height / 2, 'view');
+        return this;
     }
 
     setPreserveWhitespace(preserve: boolean): this {

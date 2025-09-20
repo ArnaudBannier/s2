@@ -8,6 +8,7 @@ import { S2Rect } from './s2-rect';
 import { S2TSpan } from './s2-text';
 import { MTL } from '../../utils/mtl-colors';
 import { S2MathUtils } from '../math/s2-utils';
+import { S2DataUtils } from './base/s2-data-utils';
 
 export type S2CodeToken = {
     type: string;
@@ -44,6 +45,7 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
 
 export class S2CodeData extends S2BaseData {
     public readonly position: S2Position;
+    public readonly opacity: S2Number;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly padding: S2Extents;
     public readonly text: S2CodeTextData;
@@ -58,6 +60,7 @@ export class S2CodeData extends S2BaseData {
         this.text = new S2CodeTextData();
         this.background = new S2CodeBackgroundData();
         this.currentLine = new S2CodeCurrentLineData();
+        this.opacity = new S2Number(1);
     }
 }
 
@@ -225,6 +228,11 @@ export class S2Code extends S2Element<S2CodeData> {
         }
     }
 
+    refreshExtents(): this {
+        this.textGroup.refreshExtents();
+        return this;
+    }
+
     getSVGElement(): SVGElement {
         return this.element;
     }
@@ -234,6 +242,8 @@ export class S2Code extends S2Element<S2CodeData> {
         const space: S2Space = 'view';
         this.updateSVGChildren();
 
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+
         this.textGroup.data.font.copy(this.data.text.font);
         this.textGroup.data.horizontalAlign.set('left');
         this.textGroup.data.verticalAlign.copy(this.data.text.verticalAlign);
@@ -241,7 +251,7 @@ export class S2Code extends S2Element<S2CodeData> {
         this.textGroup.data.opacity.copy(this.data.text.opacity);
         this.textGroup.data.stroke.copy(this.data.text.stroke);
 
-        this.textGroup.updateExtents();
+        //this.textGroup.updateExtents();
         const textExtents = this.textGroup.getExtents(space);
         const padding = this.data.padding.toSpace(space, camera);
         const extents = textExtents.addV(padding);
@@ -270,23 +280,23 @@ export class S2Code extends S2Element<S2CodeData> {
         this.lineBackground.data.stroke.copy(this.data.currentLine.stroke);
         this.lineBackground.data.opacity.copy(this.data.currentLine.opacity);
 
-        const lineCount = this.textGroup.getLineCount();
-        if (lineCount > 0) {
-            const linePadding = this.data.currentLine.padding.toSpace(space, camera);
-            const currIndex = S2MathUtils.clamp(this.data.currentLine.index.getInherited(), 0, lineCount - 1);
-            const index0 = S2MathUtils.clamp(Math.floor(currIndex), 0, lineCount - 1);
-            const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
+        // const lineCount = this.textGroup.getLineCount();
+        // if (lineCount > 0) {
+        //     const linePadding = this.data.currentLine.padding.toSpace(space, camera);
+        //     const currIndex = S2MathUtils.clamp(this.data.currentLine.index.getInherited(), 0, lineCount - 1);
+        //     const index0 = S2MathUtils.clamp(Math.floor(currIndex), 0, lineCount - 1);
+        //     const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
 
-            const t = currIndex - index0;
-            const bbox0 = this.textGroup.getLine(index0).getBBox();
-            const bbox1 = this.textGroup.getLine(index1).getBBox();
-            const y = bbox0.y * (1 - t) + bbox1.y * t;
-            const height = bbox0.height * (1 - t) + bbox1.height * t;
-            this.lineBackground.data.position.set(codeCenter.x, y + height / 2, 'view');
-            this.lineBackground.data.extents.set(extents.x + linePadding.x, height / 2 + linePadding.y, 'view');
-            this.lineBackground.data.anchor.set('center');
-            this.lineBackground.update();
-        }
+        //     const t = currIndex - index0;
+        //     const bbox0 = this.textGroup.getLine(index0).getBBox();
+        //     const bbox1 = this.textGroup.getLine(index1).getBBox();
+        //     const y = bbox0.y * (1 - t) + bbox1.y * t;
+        //     const height = bbox0.height * (1 - t) + bbox1.height * t;
+        //     this.lineBackground.data.position.set(codeCenter.x, y + height / 2, 'view');
+        //     this.lineBackground.data.extents.set(extents.x + linePadding.x, height / 2 + linePadding.y, 'view');
+        //     this.lineBackground.data.anchor.set('center');
+        //     this.lineBackground.update();
+        // }
 
         for (const rect of this.tokenRects) {
             rect.update();

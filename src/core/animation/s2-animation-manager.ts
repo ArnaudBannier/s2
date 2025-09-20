@@ -104,6 +104,7 @@ export class S2AnimationManager {
 
     private constructor() {
         this.timer = new S2Timer();
+        this.update = this.update.bind(this);
     }
 
     private firstFrame(timestamp: number): void {
@@ -128,7 +129,7 @@ export class S2AnimationManager {
         for (const anim of this.activeAnimations) {
             anim.update(delta);
         }
-        requestAnimationFrame(this.update.bind(this));
+        requestAnimationFrame(this.update);
     }
 
     addAnimation(animation: S2PlayableAnimation): this {

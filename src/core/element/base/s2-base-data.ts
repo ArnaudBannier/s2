@@ -5,6 +5,7 @@ import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../.
 export class S2BaseData {
     public readonly layer: S2Number;
     public isActive: boolean;
+    public dirty: boolean = true;
 
     constructor() {
         this.layer = new S2Number(0);
@@ -85,6 +86,7 @@ export class S2FontData {
     public readonly relativeAscenderHeight: S2Number;
     public readonly family: S2String;
     public readonly style: S2Enum<S2FontStyle>;
+    public dirty: boolean;
 
     constructor() {
         this.family = new S2String('system-ui');
@@ -93,6 +95,7 @@ export class S2FontData {
         this.style = new S2Enum<S2FontStyle>('normal');
         this.relativeLineHeight = new S2Number(21 / 16);
         this.relativeAscenderHeight = new S2Number(16 / 16);
+        this.dirty = true;
     }
 
     setParent(parent: S2FontData | null = null): void {

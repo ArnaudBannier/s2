@@ -10,11 +10,20 @@ import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
 import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
-import { S2BaseData } from './core/element/base/s2-base-data.ts';
+import { S2BaseData, S2FontData } from './core/element/base/s2-base-data.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
+import { S2Code, tokenizeAlgorithm } from './core/element/s2-code.ts';
 
-const viewport = new S2Vec2(640.0, 360.0);
+const viewport = new S2Vec2(640.0, 360.0).scale(1.5);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
+
+const algorithm =
+    '**kw:fonction** parcoursInfixe(**var:n**: **type:Noeud**):\n' +
+    '  **kw:si** **var:n**.**var:gauche** existe **kw:alors**\n' +
+    '    **fn:parcoursInfixe**(**var:n**.**var:gauche**)\n' +
+    '  **fn:traiter**(**var:n**)\n' +
+    '  **kw:si** **var:n**.**var:droit** existe **kw:alors**\n' +
+    '    **fn:parcoursInfixe**(**var:n**.**var:droit**)';
 
 class BTreeStyle {
     setNodeDefault(node: S2Node): void {
@@ -191,6 +200,10 @@ class BTree {
     }
 
     update(): this {
+        for (let i = 0; i < this.nodeGroup.getChildCount(); i++) {
+            const node = this.nodeGroup.getChild(i) as S2Node;
+            node.refreshExtents();
+        }
         this.nodeGroup.update();
         this.edgeGroup.update();
         return this;
@@ -293,6 +306,29 @@ class BTreeNode {
 class SceneFigure extends S2Scene {
     public tree: BTree;
     public animator: S2StepAnimator;
+    protected codeStack: S2Code[] = [];
+
+    setCodeStyle(code: S2Code): void {
+        const font = new S2FontData();
+        font.family.set('monospace');
+        font.size.set(16, 'view');
+        font.relativeLineHeight.set(1.3);
+
+        code.data.text.font.copy(font);
+        code.data.text.fill.color.copy(MTL.WHITE);
+        code.data.padding.set(20, 10, 'view');
+        code.data.background.fill.color.copy(MTL.GREY_9);
+        code.data.background.stroke.color.copy(MTL.GREY_7);
+        code.data.background.stroke.width.set(2, 'view');
+        code.data.currentLine.opacity.set(1);
+        code.data.currentLine.fill.color.copy(MTL.BLACK);
+        code.data.currentLine.fill.opacity.set(0.5);
+        code.data.currentLine.stroke.color.copy(MTL.WHITE);
+        code.data.currentLine.stroke.width.set(1, 'view');
+        code.data.currentLine.stroke.opacity.set(0.2);
+        code.data.currentLine.padding.set(-0.5, 2, 'view');
+        code.data.currentLine.index.set(0);
+    }
 
     constructor(
         svgElement: SVGSVGElement,
@@ -305,12 +341,28 @@ class SceneFigure extends S2Scene {
         const fillRect = this.addFillRect();
         S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
 
-        const grid = this.addWorldGrid();
-        S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
+        // const grid = this.addWorldGrid();
+        // S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
 
         // Tree
         this.tree = new BTree(this, userTree);
-        this.tree.computeLayout(new S2Vec2(0, 0));
+        this.tree.computeLayout(new S2Vec2(2, 0));
+
+        for (let i = 0; i <= this.tree.height; i++) {
+            const code = new S2Code(this);
+            code.setParent(this.getSVG());
+            this.codeStack.push(code);
+
+            this.setCodeStyle(code);
+            code.setContent(tokenizeAlgorithm(algorithm));
+            code.data.anchor.set('north-west');
+            code.data.position.set(-7 + 0.2 * i, 4 - 0.2 * i, 'world');
+            //code.data.opacity.set(0.25 + 0.25 * i);
+            code.refreshExtents();
+            code.update();
+            code.refreshExtents();
+            code.update();
+        }
 
         this.update();
 
@@ -327,49 +379,74 @@ class SceneFigure extends S2Scene {
         }
     }
 
-    createInOrderAnimation(bTreeNode: BTreeNode | null) {
+    createInOrderAnimation(bTreeNode: BTreeNode | null, depth: number = 0) {
         if (!bTreeNode) return;
+        const code = this.codeStack[depth];
+
+        code.data.currentLine.index.set(0);
+        code.data.opacity.set(0);
+        let anim = new S2LerpAnim(this)
+            .addUpdateTarget(code)
+            .bind(code.data.opacity)
+            .setCycleDuration(1000)
+            .setEasing(ease.linear);
+
+        code.data.opacity.set(1);
+        this.animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
+
+        this.codeStack[depth].update();
+
         // Select
         this.tree.animateSelectNode(this.animator, bTreeNode);
         this.animator.makeStep();
         // Left
-        this.createInOrderAnimation(bTreeNode.left);
+        this.createInOrderAnimation(bTreeNode.left, depth + 1);
         // Explore
         this.tree.animateExploreNode(this.animator, bTreeNode);
         this.animator.makeStep();
         // Right
-        this.createInOrderAnimation(bTreeNode.right);
+        this.createInOrderAnimation(bTreeNode.right, depth + 1);
+        // Quit
+        this.tree.animateExitParentEdge(this.animator, bTreeNode);
+
+        anim = new S2LerpAnim(this)
+            .addUpdateTarget(code)
+            .bind(code.data.opacity)
+            .setCycleDuration(500)
+            .setEasing(ease.out);
+
+        code.data.opacity.set(0);
+        this.animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
+
+        this.animator.makeStep();
+    }
+
+    createPreOrderAnimation(bTreeNode: BTreeNode | null, depth: number = 0) {
+        if (!bTreeNode) return;
+        // Select
+        this.tree.animateSelectNode(this.animator, bTreeNode);
+        this.animator.makeStep();
+        // Explore
+        this.tree.animateExploreNode(this.animator, bTreeNode);
+        this.animator.makeStep();
+        // Left
+        this.createPreOrderAnimation(bTreeNode.left, depth + 1);
+        // Right
+        this.createPreOrderAnimation(bTreeNode.right, depth + 1);
         // Quit
         this.tree.animateExitParentEdge(this.animator, bTreeNode);
         this.animator.makeStep();
     }
 
-    createPreOrderAnimation(bTreeNode: BTreeNode | null) {
-        if (!bTreeNode) return;
-        // Select
-        this.tree.animateSelectNode(this.animator, bTreeNode);
-        this.animator.makeStep();
-        // Explore
-        this.tree.animateExploreNode(this.animator, bTreeNode);
-        this.animator.makeStep();
-        // Left
-        this.createPreOrderAnimation(bTreeNode.left);
-        // Right
-        this.createPreOrderAnimation(bTreeNode.right);
-        // Quit
-        this.tree.animateExitParentEdge(this.animator, bTreeNode);
-        this.animator.makeStep();
-    }
-
-    createPostOrderAnimation(bTreeNode: BTreeNode | null) {
+    createPostOrderAnimation(bTreeNode: BTreeNode | null, depth: number = 0) {
         if (!bTreeNode) return;
         // Select
         this.tree.animateSelectNode(this.animator, bTreeNode);
         this.animator.makeStep();
         // Left
-        this.createPostOrderAnimation(bTreeNode.left);
+        this.createPostOrderAnimation(bTreeNode.left, depth + 1);
         // Right
-        this.createPostOrderAnimation(bTreeNode.right);
+        this.createPostOrderAnimation(bTreeNode.right, depth + 1);
         // Explore
         this.tree.animateExploreNode(this.animator, bTreeNode);
         this.animator.makeStep();
