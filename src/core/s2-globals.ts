@@ -14,6 +14,7 @@ export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 export type S2FontStyle = 'normal' | 'italic' | 'oblique';
 
 export interface S2Dirtyable {
+    isDirty(): boolean;
     setDirty(): void;
     resetDirtyFlags(): void;
 }

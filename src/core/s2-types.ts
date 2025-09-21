@@ -20,6 +20,10 @@ export abstract class S2BaseType implements S2Dirtyable {
         this.owner = owner;
     }
 
+    isDirty(): boolean {
+        return this.dirty;
+    }
+
     setDirty(): void {
         this.dirty = true;
         this.owner?.setDirty();
@@ -109,6 +113,49 @@ export class S2String extends S2BaseType {
 
     toString(): string {
         return this.value;
+    }
+}
+
+export class S2Boolean extends S2BaseType {
+    readonly kind = 'boolean' as const;
+    public value: boolean;
+
+    constructor(value: boolean = false, state: S2TypeState = S2TypeState.Active) {
+        super();
+        this.value = value;
+        this.state = state;
+    }
+
+    clone(): S2Boolean {
+        return new S2Boolean(this.value, this.state);
+    }
+
+    copy(other: S2Boolean): this {
+        if (this.value === other.value && this.state === other.state) return this;
+        this.value = other.value;
+        this.state = other.state;
+        this.setDirty();
+        return this;
+    }
+
+    set(value: boolean, state: S2TypeState = S2TypeState.Active): this {
+        if (this.value === value && this.state === state) return this;
+        this.value = value;
+        this.state = state;
+        this.setDirty();
+        return this;
+    }
+
+    hasActiveHierarchy(): boolean {
+        return this.state === S2TypeState.Active;
+    }
+
+    getInherited(): boolean {
+        return this.value;
+    }
+
+    toString(): string {
+        return this.value.toString();
     }
 }
 
@@ -664,16 +711,31 @@ export class S2Transform extends S2BaseType {
     }
 }
 
-export class S2LocalBBox {
-    protected position: S2Position;
+export class S2LocalBBox extends S2BaseType {
+    readonly kind = 'local-bbox' as const;
+    protected localPosition: S2Position;
     protected extents: S2Extents;
-    protected dirty: boolean;
 
     constructor() {
-        this.position = new S2Position(0, 0, 'view');
+        super();
+        this.localPosition = new S2Position(0, 0, 'view');
         this.extents = new S2Extents(0, 0, 'view');
-        this.dirty = false;
     }
 
-    // set()
+    set(graphics: SVGGraphicsElement, parentPosition: S2Position | null, camera: S2Camera): void {
+        const bbox = graphics.getBBox();
+        const parentPos = parentPosition ? parentPosition.toSpace('view', camera) : new S2Vec2(0, 0);
+        const center = new S2Vec2(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2).subV(parentPos);
+        this.localPosition.setV(center, 'view');
+        this.extents.set(bbox.width / 2, bbox.height / 2, 'view');
+        this.dirty = true;
+    }
+
+    getLocalPosition(space: S2Space, camera: S2Camera): S2Vec2 {
+        return this.localPosition.toSpace(space, camera);
+    }
+
+    getExtents(space: S2Space, camera: S2Camera): S2Vec2 {
+        return this.extents.toSpace(space, camera);
+    }
 }

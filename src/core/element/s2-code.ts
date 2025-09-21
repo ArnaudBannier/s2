@@ -1,5 +1,5 @@
 import { S2BaseScene } from '../s2-base-scene';
-import { S2AnchorUtils, svgNS, type S2Anchor, type S2VerticalAlign } from '../s2-globals';
+import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../s2-globals';
 import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
@@ -7,8 +7,8 @@ import { S2TextGroup } from './s2-text-group';
 import { S2Rect } from './s2-rect';
 import { S2TSpan } from './s2-text';
 import { MTL } from '../../utils/mtl-colors';
-import { S2MathUtils } from '../math/s2-utils';
 import { S2DataUtils } from './base/s2-data-utils';
+import { S2MathUtils } from '../math/s2-utils';
 
 export type S2CodeToken = {
     type: string;
@@ -62,6 +62,27 @@ export class S2CodeData extends S2BaseData {
         this.currentLine = new S2CodeCurrentLineData();
         this.opacity = new S2Number(1);
     }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.position.setOwner(owner);
+        this.anchor.setOwner(owner);
+        this.padding.setOwner(owner);
+        this.text.setOwner(owner);
+        this.background.setOwner(owner);
+        this.currentLine.setOwner(owner);
+        this.opacity.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.position.resetDirtyFlags();
+        this.anchor.resetDirtyFlags();
+        this.padding.resetDirtyFlags();
+        this.text.resetDirtyFlags();
+        this.background.resetDirtyFlags();
+        this.currentLine.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+    }
 }
 
 export class S2CodeTextData extends S2BaseData {
@@ -83,6 +104,23 @@ export class S2CodeTextData extends S2BaseData {
         this.stroke.width.set(0, 'view', S2TypeState.Inactive);
         this.fill.opacity.set(1, S2TypeState.Inactive);
     }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.fill.setOwner(owner);
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.font.setOwner(owner);
+        this.verticalAlign.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.fill.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.font.resetDirtyFlags();
+        this.verticalAlign.resetDirtyFlags();
+    }
 }
 
 export class S2CodeBackgroundData extends S2BaseData {
@@ -100,6 +138,21 @@ export class S2CodeBackgroundData extends S2BaseData {
 
         this.stroke.opacity.set(1, S2TypeState.Inactive);
         this.fill.opacity.set(1, S2TypeState.Inactive);
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.fill.setOwner(owner);
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.cornerRadius.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.fill.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.cornerRadius.resetDirtyFlags();
     }
 }
 
@@ -120,6 +173,23 @@ export class S2CodeCurrentLineData extends S2BaseData {
 
         this.stroke.opacity.set(1, S2TypeState.Inactive);
         this.fill.opacity.set(1, S2TypeState.Inactive);
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.fill.setOwner(owner);
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.index.setOwner(owner);
+        this.padding.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.fill.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.index.resetDirtyFlags();
+        this.padding.resetDirtyFlags();
     }
 }
 
@@ -215,7 +285,7 @@ export class S2Code extends S2Element<S2CodeData> {
     setContent(tokens: S2CodeToken[]): void {
         let lineElement = this.textGroup.addLine();
         for (const token of tokens) {
-            lineElement.setPreserveWhitespace(true);
+            lineElement.data.preserveWhitespace.set(true);
             if (token.type === 'plain') {
                 lineElement.addTSpan(token.value);
             } else if (token.type === 'newline') {
@@ -238,6 +308,8 @@ export class S2Code extends S2Element<S2CodeData> {
     }
 
     update(): void {
+        if (this.isDirty() === false) return;
+
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
         this.updateSVGChildren();
@@ -250,6 +322,7 @@ export class S2Code extends S2Element<S2CodeData> {
         this.textGroup.data.fill.copy(this.data.text.fill);
         this.textGroup.data.opacity.copy(this.data.text.opacity);
         this.textGroup.data.stroke.copy(this.data.text.stroke);
+        this.textGroup.update();
 
         //this.textGroup.updateExtents();
         const textExtents = this.textGroup.getExtents(space);
@@ -280,27 +353,31 @@ export class S2Code extends S2Element<S2CodeData> {
         this.lineBackground.data.stroke.copy(this.data.currentLine.stroke);
         this.lineBackground.data.opacity.copy(this.data.currentLine.opacity);
 
-        // const lineCount = this.textGroup.getLineCount();
-        // if (lineCount > 0) {
-        //     const linePadding = this.data.currentLine.padding.toSpace(space, camera);
-        //     const currIndex = S2MathUtils.clamp(this.data.currentLine.index.getInherited(), 0, lineCount - 1);
-        //     const index0 = S2MathUtils.clamp(Math.floor(currIndex), 0, lineCount - 1);
-        //     const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
+        const lineCount = this.textGroup.getLineCount();
+        if (lineCount > 0) {
+            const linePadding = this.data.currentLine.padding.toSpace(space, camera);
+            const currIndex = S2MathUtils.clamp(this.data.currentLine.index.getInherited(), 0, lineCount - 1);
+            const index0 = S2MathUtils.clamp(Math.floor(currIndex), 0, lineCount - 1);
+            const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
 
-        //     const t = currIndex - index0;
-        //     const bbox0 = this.textGroup.getLine(index0).getBBox();
-        //     const bbox1 = this.textGroup.getLine(index1).getBBox();
-        //     const y = bbox0.y * (1 - t) + bbox1.y * t;
-        //     const height = bbox0.height * (1 - t) + bbox1.height * t;
-        //     this.lineBackground.data.position.set(codeCenter.x, y + height / 2, 'view');
-        //     this.lineBackground.data.extents.set(extents.x + linePadding.x, height / 2 + linePadding.y, 'view');
-        //     this.lineBackground.data.anchor.set('center');
-        //     this.lineBackground.update();
-        // }
+            const t = currIndex - index0;
+            const extents0 = this.textGroup.getLine(index0).getExtents(space);
+            const extents1 = this.textGroup.getLine(index1).getExtents(space);
+            const position0 = this.textGroup.getLine(index0).getPosition(space);
+            const position1 = this.textGroup.getLine(index1).getPosition(space);
+            const extentsY = extents0.y * (1 - t) + extents1.y * t;
+            const y = position0.y * (1 - t) + position1.y * t;
+            this.lineBackground.data.position.set(codeCenter.x, y, 'view');
+            this.lineBackground.data.extents.set(extents.x + linePadding.x, extentsY + linePadding.y, 'view');
+            this.lineBackground.data.anchor.set('center');
+            this.lineBackground.update();
+        }
 
         for (const rect of this.tokenRects) {
             rect.update();
         }
+
+        this.resetDirtyFlags();
     }
 }
 
@@ -320,6 +397,23 @@ export class S2TextEmphasisData extends S2BaseData {
         this.padding = new S2Extents(4, 2, 'view');
         this.stroke.opacity.set(1, S2TypeState.Inactive);
         this.fill.opacity.set(1, S2TypeState.Inactive);
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.fill.setOwner(owner);
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.cornerRadius.setOwner(owner);
+        this.padding.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.fill.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.cornerRadius.resetDirtyFlags();
+        this.padding.resetDirtyFlags();
     }
 }
 
@@ -344,19 +438,22 @@ export class S2TextEmphasis extends S2Element<S2TextEmphasisData> {
     }
 
     update(): void {
+        if (this.isDirty() === false) return;
         if (this.textReference === null) return;
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
-        const bbox = this.textReference.getBBox();
+        const position = this.textReference.getPosition(space);
+        const textExtents = this.textReference.getExtents(space);
         const padding = this.data.padding.toSpace(space, camera);
-        this.rect.data.position.set(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2, space);
-        this.rect.data.extents.set(bbox.width / 2 + padding.x, bbox.height / 2 + padding.y, space);
+        this.rect.data.position.setV(position, space);
+        this.rect.data.extents.set(textExtents.x + padding.x, textExtents.y + padding.y, space);
         this.rect.data.anchor.set('center');
-
         this.rect.data.fill.copy(this.data.fill);
         this.rect.data.stroke.copy(this.data.stroke);
         this.rect.data.opacity.copy(this.data.opacity);
         this.rect.data.cornerRadius.copy(this.data.cornerRadius);
         this.rect.update();
+
+        this.resetDirtyFlags();
     }
 }

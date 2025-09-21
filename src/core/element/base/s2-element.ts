@@ -13,6 +13,7 @@ export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable 
     protected scene: S2BaseScene;
     protected parent: S2BaseElement | null;
     protected children: S2BaseElement[];
+    protected childrenChanged: boolean;
 
     constructor(scene: S2BaseScene, data: Data) {
         this.data = data;
@@ -20,8 +21,13 @@ export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable 
         this.id = scene.getNextElementId();
         this.parent = null;
         this.children = [];
+        this.childrenChanged = false;
         this.dirty = true;
         this.data.setOwner(this);
+    }
+
+    isDirty(): boolean {
+        return this.dirty;
     }
 
     setDirty(): void {
@@ -50,12 +56,14 @@ export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable 
             const index = this.parent.children.indexOf(this);
             if (index !== -1) {
                 this.parent.children.splice(index, 1);
+                this.parent.childrenChanged = true;
             }
-            this.parent.updateSVGChildren();
+            this.parent.updateSVGChildren(); // TODO REMOVE
         }
         if (parent !== null) {
             parent.children.push(this);
-            parent.updateSVGChildren();
+            parent.childrenChanged = true;
+            parent.updateSVGChildren(); // TODO REMOVE
         }
         this.parent = parent;
         return this;
@@ -91,6 +99,7 @@ export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable 
         if (childrenChanged) {
             svgElement.replaceChildren(...elements);
         }
+        this.childrenChanged = false;
         return this;
     }
 

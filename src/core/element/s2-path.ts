@@ -131,6 +131,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         this.arrowTips.push(arrowTip);
         arrowTip.data.pathPosition.set(1);
         arrowTip.setTipableReference(this);
+        this.setDirty();
         return arrowTip;
     }
 
@@ -178,6 +179,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
 
     setSampleCount(sampleCount: number): this {
         this.sampleCount = sampleCount;
+        this.setDirty();
         return this;
     }
 
@@ -251,6 +253,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     clear(): this {
         this.data.polyCurve.clear();
         this.endPosition.set(0, 0);
+        this.setDirty();
         return this;
     }
 
@@ -261,6 +264,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     moveToV(v: S2Vec2): this {
         this.currStart.copy(v);
         this.endPosition.copy(v);
+        this.setDirty();
         return this;
     }
 
@@ -271,6 +275,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     lineToV(v: S2Vec2): this {
         this.data.polyCurve.addLine(this.endPosition, v);
         this.endPosition.copy(v);
+        this.setDirty();
         return this;
     }
 
@@ -295,6 +300,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
             sampleCount,
         );
         this.endPosition.copy(v);
+        this.setDirty();
         return this;
     }
 
@@ -314,12 +320,14 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
             sampleCount,
         );
         this.endPosition.copy(v);
+        this.setDirty();
         return this;
     }
 
     close(): this {
         if (S2Vec2.eq(this.currStart, this.endPosition)) return this;
         this.data.polyCurve.addLine(this.endPosition, this.currStart);
+        this.setDirty();
         return this;
     }
 
