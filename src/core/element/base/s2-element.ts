@@ -1,14 +1,15 @@
 import { type S2BaseScene } from '../../s2-base-scene';
-import { type S2Tipable } from '../../s2-globals';
+import { type S2Dirtyable, type S2Tipable } from '../../s2-globals';
 import { S2BaseData } from './s2-base-data';
 
 export type S2BaseElement = S2Element<S2BaseData>;
 export type S2BaseTipable = S2Element<S2BaseData> & S2Tipable;
 
-export abstract class S2Element<Data extends S2BaseData> {
+export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable {
     public readonly data: Data;
     public readonly id: number;
 
+    protected dirty: boolean;
     protected scene: S2BaseScene;
     protected parent: S2BaseElement | null;
     protected children: S2BaseElement[];
@@ -19,6 +20,20 @@ export abstract class S2Element<Data extends S2BaseData> {
         this.id = scene.getNextElementId();
         this.parent = null;
         this.children = [];
+        this.dirty = true;
+        this.data.setOwner(this);
+    }
+
+    setDirty(): void {
+        this.dirty = true;
+        if (this.parent) {
+            this.parent.setDirty();
+        }
+    }
+
+    resetDirtyFlags(): void {
+        this.dirty = false;
+        this.data.resetDirtyFlags();
     }
 
     setIsActive(isActive: boolean): this {

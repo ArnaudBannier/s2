@@ -58,7 +58,6 @@ export class S2BaseText<Data extends S2TextData> extends S2Element<Data> {
         const tspan = new S2TSpan(this.scene);
         tspan.setParent(this);
         tspan.setContent(content);
-        tspan.data.font.setParent(this.data.font);
         tspan.category = category ?? '';
         this.tspans.push(tspan);
         // S2ElementUtils.appendChild(this, this.children, tspan);
@@ -135,6 +134,7 @@ export class S2BaseText<Data extends S2TextData> extends S2Element<Data> {
             this.element.style.whiteSpace = '';
         }
         for (const tspan of this.tspans) {
+            tspan.data.font.copy(this.data.font);
             tspan.update();
         }
     }

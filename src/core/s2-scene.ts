@@ -1,5 +1,4 @@
 import { S2Camera } from './math/s2-camera';
-import { S2SVG } from './element/s2-svg';
 import { S2Circle } from './element/s2-circle';
 import { S2Rect } from './element/s2-rect';
 import { S2Grid } from './element/s2-grid';
@@ -73,7 +72,6 @@ export class S2Scene extends S2BaseScene {
     addPath(parent: S2BaseElement = this.svg): S2Path {
         const child = new S2Path(this);
         child.setParent(parent);
-        child.data.fill.opacity.setParent(null);
         return child;
     }
 

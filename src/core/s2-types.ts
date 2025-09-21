@@ -2,6 +2,7 @@ import { S2Vec2 } from './math/s2-vec2';
 import { S2Camera } from './math/s2-camera';
 import { S2MathUtils } from './math/s2-utils';
 import { S2Mat2x3 } from './math/s2-mat2x3';
+import type { S2Dirtyable } from './s2-globals';
 
 export type S2Space = 'world' | 'view';
 export enum S2TypeState {
@@ -9,15 +10,28 @@ export enum S2TypeState {
     Active = 'active',
 }
 
-export abstract class S2BaseType {
+export abstract class S2BaseType implements S2Dirtyable {
     abstract readonly kind: string;
     public state: S2TypeState = S2TypeState.Active;
     public dirty: boolean = true;
+    public owner: S2Dirtyable | null = null;
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.owner = owner;
+    }
+
+    setDirty(): void {
+        this.dirty = true;
+        this.owner?.setDirty();
+    }
+
+    resetDirtyFlags(): void {
+        this.dirty = false;
+    }
 }
 
 export class S2Enum<T> extends S2BaseType {
     readonly kind = 'enum' as const;
-    public parent: S2Enum<T> | null = null;
     public value: T;
 
     constructor(value: T, state: S2TypeState = S2TypeState.Active) {
@@ -26,94 +40,71 @@ export class S2Enum<T> extends S2BaseType {
         this.state = state;
     }
 
-    setParent(parent: S2Enum<T> | null = null): this {
-        this.state = parent ? S2TypeState.Inactive : S2TypeState.Active;
-        this.parent = parent;
-        this.dirty = true;
-        return this;
-    }
-
     clone(): S2Enum<T> {
         return new S2Enum(this.value, this.state);
     }
 
     copy(other: S2Enum<T>): this {
+        if (this.value === other.value && this.state === other.state) return this;
         this.value = other.value;
         this.state = other.state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     set(value: T, state: S2TypeState = S2TypeState.Active): this {
+        if (this.value === value && this.state === state) return this;
         this.value = value;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        if (this.state === S2TypeState.Active) return true;
-        if (this.parent === null) return false;
-        return this.parent.hasActiveHierarchy();
+        return this.state === S2TypeState.Active;
     }
 
     getInherited(): T {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return this.value;
-        }
-        return this.parent.getInherited();
+        return this.value;
     }
 }
 
 export class S2String extends S2BaseType {
     readonly kind = 'string' as const;
-    public parent: S2String | null = null;
     public value: string;
 
-    constructor(value: string = '', state: S2TypeState = S2TypeState.Active, parent: S2String | null = null) {
+    constructor(value: string = '', state: S2TypeState = S2TypeState.Active) {
         super();
         this.value = value;
         this.state = state;
-        this.parent = parent;
-    }
-
-    setParent(parent: S2String | null = null): this {
-        this.state = parent ? S2TypeState.Inactive : S2TypeState.Active;
-        this.parent = parent;
-        this.dirty = true;
-        return this;
     }
 
     clone(): S2String {
-        return new S2String(this.value, this.state, this.parent);
+        return new S2String(this.value, this.state);
     }
 
     copy(other: S2String): this {
+        if (this.value === other.value && this.state === other.state) return this;
         this.value = other.value;
         this.state = other.state;
-        this.parent = other.parent;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     set(value: string, state: S2TypeState = S2TypeState.Active): this {
+        if (this.value === value && this.state === state) return this;
         this.value = value;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        if (this.state === S2TypeState.Active) return true;
-        if (this.parent === null) return false;
-        return this.parent.hasActiveHierarchy();
+        return this.state === S2TypeState.Active;
     }
 
     getInherited(): string {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return this.value;
-        }
-        return this.parent.getInherited();
+        return this.value;
     }
 
     toString(): string {
@@ -123,32 +114,23 @@ export class S2String extends S2BaseType {
 
 export class S2Number extends S2BaseType {
     readonly kind = 'number' as const;
-    public parent: S2Number | null = null;
     public value: number;
 
-    constructor(value: number, state: S2TypeState = S2TypeState.Active, parent: S2Number | null = null) {
+    constructor(value: number, state: S2TypeState = S2TypeState.Active) {
         super();
         this.value = value;
         this.state = state;
-        this.parent = parent;
-    }
-
-    setParent(parent: S2Number | null = null): this {
-        this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
-        this.parent = parent;
-        this.dirty = true;
-        return this;
     }
 
     clone(): S2Number {
-        return new S2Number(this.value, this.state, this.parent);
+        return new S2Number(this.value, this.state);
     }
 
     copy(other: S2Number): this {
+        if (this.value === other.value && this.state === other.state) return this;
         this.value = other.value;
         this.state = other.state;
-        this.parent = other.parent;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -157,7 +139,7 @@ export class S2Number extends S2BaseType {
         const value1 = state1.getInherited();
         this.value = S2MathUtils.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -166,23 +148,19 @@ export class S2Number extends S2BaseType {
     }
 
     set(value: number, state: S2TypeState = S2TypeState.Active): this {
+        if (this.value === value && this.state === state) return this;
         this.value = value;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        if (this.state === S2TypeState.Active) return true;
-        if (this.parent === null) return false;
-        return this.parent.hasActiveHierarchy();
+        return this.state === S2TypeState.Active;
     }
 
     getInherited(): number {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return this.value;
-        }
-        return this.parent.getInherited();
+        return this.value;
     }
 
     toFixed(precision: number = 2): string {
@@ -192,44 +170,29 @@ export class S2Number extends S2BaseType {
 
 export class S2Color extends S2BaseType {
     readonly kind = 'color' as const;
-    public parent: S2Color | null = null;
     public r: number;
     public g: number;
     public b: number;
 
-    constructor(
-        r: number = 0,
-        g: number = 0,
-        b: number = 0,
-        state: S2TypeState = S2TypeState.Active,
-        parent: S2Color | null = null,
-    ) {
+    constructor(r: number = 0, g: number = 0, b: number = 0, state: S2TypeState = S2TypeState.Active) {
         super();
         this.r = r;
         this.g = g;
         this.b = b;
         this.state = state;
-        this.parent = parent;
-    }
-
-    setParent(parent: S2Color | null = null): this {
-        this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
-        this.parent = parent;
-        this.dirty = true;
-        return this;
     }
 
     clone(): S2Color {
-        return new S2Color(this.r, this.g, this.b, this.state, this.parent);
+        return new S2Color(this.r, this.g, this.b, this.state);
     }
 
     copy(color: S2Color): this {
+        if (this.r === color.r && this.g === color.g && this.b === color.b && this.state === color.state) return this;
         this.r = color.r;
         this.g = color.g;
         this.b = color.b;
         this.state = color.state;
-        this.parent = color.parent;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -240,7 +203,7 @@ export class S2Color extends S2BaseType {
         this.g = S2MathUtils.lerp(value0.g, value1.g, t);
         this.b = S2MathUtils.lerp(value0.b, value1.b, t);
         this.state = S2TypeState.Active;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -249,21 +212,25 @@ export class S2Color extends S2BaseType {
     }
 
     set(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
+        if (this.r === r && this.g === g && this.b === b && this.state === state) return this;
         this.r = r;
         this.g = g;
         this.b = b;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     setFromHex(hex: string, state: S2TypeState = S2TypeState.Active): this {
+        if (!/^#([0-9A-Fa-f]{6})$/.test(hex)) {
+            throw new Error(`Invalid hex color: ${hex}`);
+        }
         const num = parseInt(hex.substring(1), 16);
         this.r = (num >> 16) & 0xff;
         this.g = (num >> 8) & 0xff;
         this.b = num & 0xff;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -280,63 +247,40 @@ export class S2Color extends S2BaseType {
     }
 
     hasActiveHierarchy(): boolean {
-        if (this.state === S2TypeState.Active) return true;
-        if (this.parent === null) return false;
-        return this.parent.hasActiveHierarchy();
+        return this.state === S2TypeState.Active;
     }
 
     getInherited(): { r: number; g: number; b: number } {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return { r: this.r, g: this.g, b: this.b };
-        }
-        return this.parent.getInherited();
+        return { r: this.r, g: this.g, b: this.b };
     }
 
     getInheritedRgb(): string {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return this.toRgb();
-        }
-        return this.parent.getInheritedRgb();
+        return this.toRgb();
     }
 }
 
 export class S2Position extends S2BaseType {
     readonly kind = 'position' as const;
-    public parent: S2Position | null = null;
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(
-        x: number = 0,
-        y: number = 0,
-        space: S2Space = 'world',
-        state: S2TypeState = S2TypeState.Active,
-        parent: S2Position | null = null,
-    ) {
+    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', state: S2TypeState = S2TypeState.Active) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
         this.state = state;
-        this.parent = parent;
-    }
-
-    setParent(parent: S2Position | null = null): this {
-        this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
-        this.parent = parent;
-        this.dirty = true;
-        return this;
     }
 
     clone(): S2Position {
-        return new S2Position(this.value.x, this.value.y, this.space, this.state, this.parent);
+        return new S2Position(this.value.x, this.value.y, this.space, this.state);
     }
 
     copy(other: S2Position): this {
+        if (S2Vec2.eq(this.value, other.value) && this.space === other.space && this.state === other.state) return this;
         this.value.copy(other.value);
         this.space = other.space;
         this.state = other.state;
-        this.parent = other.parent;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -347,7 +291,7 @@ export class S2Position extends S2BaseType {
         this.value = S2Vec2.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
         this.space = space;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -356,22 +300,25 @@ export class S2Position extends S2BaseType {
     }
 
     set(x: number = 0, y: number = 0, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        if (this.value.x === x && this.value.y === y && this.space === space && this.state === state) return this;
         this.value.set(x, y);
         if (space) this.space = space;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     setV(position: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        if (S2Vec2.eq(this.value, position) && this.space === space && this.state === state) return this;
         this.value.copy(position);
         if (space) this.space = space;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {
+        if (this.value.x === x && this.value.y === y && this.space === space) return this;
         if (this.space === space) {
             // this = other
             this.value.set(x, y);
@@ -384,21 +331,16 @@ export class S2Position extends S2BaseType {
             this.value.x = camera.worldToViewX(x);
             this.value.y = camera.worldToViewY(y);
         }
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        if (this.state === S2TypeState.Active) return true;
-        if (this.parent === null) return false;
-        return this.parent.hasActiveHierarchy();
+        return this.state === S2TypeState.Active;
     }
 
     getInherited(space: S2Space, camera: S2Camera): S2Vec2 {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return this.toSpace(space, camera);
-        }
-        return this.parent.getInherited(space, camera);
+        return this.toSpace(space, camera);
     }
 
     changeSpace(space: S2Space, camera: S2Camera): this {
@@ -438,40 +380,26 @@ export class S2Position extends S2BaseType {
 
 export class S2Length extends S2BaseType {
     readonly kind = 'length' as const;
-    public parent: S2Length | null = null;
     public value: number;
     public space: S2Space;
 
-    constructor(
-        value: number = 0,
-        space: S2Space = 'world',
-        state: S2TypeState = S2TypeState.Active,
-        parent: S2Length | null = null,
-    ) {
+    constructor(value: number = 0, space: S2Space = 'world', state: S2TypeState = S2TypeState.Active) {
         super();
         this.value = value;
         this.space = space;
         this.state = state;
-        this.parent = parent;
-    }
-
-    setParent(parent: S2Length | null = null): this {
-        this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
-        this.parent = parent;
-        this.dirty = true;
-        return this;
     }
 
     clone(): S2Length {
-        return new S2Length(this.value, this.space, this.state, this.parent);
+        return new S2Length(this.value, this.space, this.state);
     }
 
     copy(other: S2Length): this {
+        if (this.value === other.value && this.space === other.space && this.state === other.state) return this;
         this.value = other.value;
         this.space = other.space;
         this.state = other.state;
-        this.parent = other.parent;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -482,7 +410,7 @@ export class S2Length extends S2BaseType {
         this.value = S2MathUtils.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
         this.space = space;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -491,14 +419,16 @@ export class S2Length extends S2BaseType {
     }
 
     set(value: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        if (this.value === value && this.space === space && this.state === state) return this;
         this.value = value;
         if (space) this.space = space;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, value: number): this {
+        if (this.value === value && this.space === space) return this;
         if (this.space === space) {
             // this = other
             this.value = value;
@@ -509,21 +439,16 @@ export class S2Length extends S2BaseType {
             // this: view, other: world
             this.value = camera.worldToViewLength(value);
         }
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        if (this.state === S2TypeState.Active) return true;
-        if (this.parent === null) return false;
-        return this.parent.hasActiveHierarchy();
+        return this.state === S2TypeState.Active;
     }
 
     getInherited(space: S2Space, camera: S2Camera): number {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return this.toSpace(space, camera);
-        }
-        return this.parent.getInherited(space, camera);
+        return this.toSpace(space, camera);
     }
 
     changeSpace(space: S2Space, camera: S2Camera): this {
@@ -561,41 +486,26 @@ export class S2Length extends S2BaseType {
 
 export class S2Extents extends S2BaseType {
     readonly kind = 'extents' as const;
-    public parent: S2Extents | null = null;
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(
-        x: number = 0,
-        y: number = 0,
-        space: S2Space = 'world',
-        state: S2TypeState = S2TypeState.Active,
-        parent: S2Extents | null = null,
-    ) {
+    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', state: S2TypeState = S2TypeState.Active) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
         this.state = state;
-        this.parent = parent;
-    }
-
-    setParent(parent: S2Extents | null = null): this {
-        this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
-        this.parent = parent;
-        this.dirty = true;
-        return this;
     }
 
     clone(): S2Extents {
-        return new S2Extents(this.value.x, this.value.y, this.space, this.state, this.parent);
+        return new S2Extents(this.value.x, this.value.y, this.space, this.state);
     }
 
     copy(other: S2Extents): this {
+        if (S2Vec2.eq(this.value, other.value) && this.space === other.space && this.state === other.state) return this;
         this.value.copy(other.value);
         this.space = other.space;
         this.state = other.state;
-        this.parent = other.parent;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -606,7 +516,7 @@ export class S2Extents extends S2BaseType {
         this.value = S2Vec2.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
         this.space = space;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -615,22 +525,25 @@ export class S2Extents extends S2BaseType {
     }
 
     set(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        if (this.value.x === x && this.value.y === y && this.space === space && this.state === state) return this;
         this.value.set(x, y);
         if (space) this.space = space;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     setV(extents: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
+        if (S2Vec2.eq(this.value, extents) && this.space === space && this.state === state) return this;
         this.value.copy(extents);
         if (space) this.space = space;
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {
+        if (this.value.x === x && this.value.y === y && this.space === space) return this;
         if (this.space === space) {
             // this = other
             this.value.set(x, y);
@@ -643,15 +556,12 @@ export class S2Extents extends S2BaseType {
             this.value.x = camera.worldToViewLength(x);
             this.value.y = camera.worldToViewLength(y);
         }
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     getInherited(space: S2Space, camera: S2Camera): S2Vec2 {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return this.toSpace(space, camera);
-        }
-        return this.parent.getInherited(space, camera);
+        return this.toSpace(space, camera);
     }
 
     changeSpace(space: S2Space, camera: S2Camera): this {
@@ -668,7 +578,7 @@ export class S2Extents extends S2BaseType {
             this.value.y = camera.viewToWorldLength(this.value.y);
         }
         this.space = space;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -692,7 +602,6 @@ export class S2Extents extends S2BaseType {
 
 export class S2Transform extends S2BaseType {
     readonly kind = 'transform' as const;
-    public parent: S2Transform | null = null;
     public value: S2Mat2x3;
 
     constructor(
@@ -703,19 +612,10 @@ export class S2Transform extends S2BaseType {
         a11: number = 1,
         a12: number = 0,
         state: S2TypeState = S2TypeState.Active,
-        parent: S2Transform | null = null,
     ) {
         super();
         this.value = new S2Mat2x3(a00, a01, a02, a10, a11, a12);
         this.state = state;
-        this.parent = parent;
-    }
-
-    setParent(parent: S2Transform | null = null): this {
-        this.state = parent !== null ? S2TypeState.Inactive : S2TypeState.Active;
-        this.parent = parent;
-        this.dirty = true;
-        return this;
     }
 
     clone(): S2Transform {
@@ -723,10 +623,10 @@ export class S2Transform extends S2BaseType {
     }
 
     copy(other: S2Transform): this {
+        if (S2Mat2x3.eq(this.value, other.value) && this.state === other.state) return this;
         this.value.copy(other.value);
         this.state = other.state;
-        this.parent = other.parent;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -735,7 +635,7 @@ export class S2Transform extends S2BaseType {
         const value1 = state1.getInherited();
         this.value.lerp(value0, value1, t);
         this.state = S2TypeState.Active;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
@@ -744,23 +644,19 @@ export class S2Transform extends S2BaseType {
     }
 
     set(value: S2Mat2x3, state: S2TypeState = S2TypeState.Active): this {
+        if (S2Mat2x3.eq(this.value, value) && this.state === state) return this;
         this.value.copy(value);
         this.state = state;
-        this.dirty = true;
+        this.setDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        if (this.state === S2TypeState.Active) return true;
-        if (this.parent === null) return false;
-        return this.parent.hasActiveHierarchy();
+        return this.state === S2TypeState.Active;
     }
 
     getInherited(): S2Mat2x3 {
-        if (this.state === S2TypeState.Active || this.parent === null) {
-            return this.value;
-        }
-        return this.parent.getInherited();
+        return this.value;
     }
 
     toFixed(precision: number = 2): string {

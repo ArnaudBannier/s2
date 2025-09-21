@@ -24,15 +24,15 @@ const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
-export class TEST {
-    static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
-        for (const key of Object.keys(data) as (keyof Data)[]) {
-            if (data[key] instanceof S2Position) {
-                (data[key] as S2Position).setParent(parent[key] as S2Position);
-            }
-        }
-    }
-}
+// export class TEST {
+//     static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
+//         for (const key of Object.keys(data) as (keyof Data)[]) {
+//             if (data[key] instanceof S2Position) {
+//                 (data[key] as S2Position).setParent(parent[key] as S2Position);
+//             }
+//         }
+//     }
+// }
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;

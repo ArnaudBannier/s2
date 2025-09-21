@@ -1,6 +1,6 @@
 import { S2BaseScene } from '../s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
-import { svgNS } from '../s2-globals';
+import { svgNS, type S2Dirtyable } from '../s2-globals';
 import { type S2Space, S2Length, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2BaseData, S2StrokeData } from './base/s2-base-data';
@@ -26,6 +26,24 @@ export class S2CircleData extends S2BaseData {
         this.stroke.opacity.set(1, S2TypeState.Inactive);
         this.transform.state = S2TypeState.Inactive;
         this.fill.opacity.set(1, S2TypeState.Inactive);
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.fill.setOwner(owner);
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.position.setOwner(owner);
+        this.radius.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.fill.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.transform.resetDirtyFlags();
+        this.position.resetDirtyFlags();
+        this.radius.resetDirtyFlags();
     }
 }
 
@@ -54,11 +72,15 @@ export class S2Circle extends S2Element<S2CircleData> {
     }
 
     update(): void {
+        if (this.dirty === false) return;
+
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');
         S2DataUtils.applyRadius(this.data.radius, this.element, this.scene);
+
+        this.resetDirtyFlags();
     }
 }

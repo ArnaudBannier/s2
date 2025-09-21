@@ -13,6 +13,11 @@ export type S2HorizontalAlign = 'left' | 'center' | 'right';
 export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 export type S2FontStyle = 'normal' | 'italic' | 'oblique';
 
+export interface S2Dirtyable {
+    setDirty(): void;
+    resetDirtyFlags(): void;
+}
+
 export class S2TipTransform {
     public space: S2Space = 'world';
     public position: S2Vec2 = new S2Vec2();

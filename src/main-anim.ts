@@ -10,22 +10,22 @@ import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
-import { S2BaseData } from './core/element/base/s2-base-data.ts';
-import { S2Position } from './core/s2-types.ts';
+// import { S2BaseData } from './core/element/base/s2-base-data.ts';
+// import { S2Position } from './core/s2-types.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
-export class TEST {
-    static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
-        for (const key of Object.keys(data) as (keyof Data)[]) {
-            if (data[key] instanceof S2Position) {
-                (data[key] as S2Position).setParent(parent[key] as S2Position);
-            }
-        }
-    }
-}
+// export class TEST {
+//     static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
+//         for (const key of Object.keys(data) as (keyof Data)[]) {
+//             if (data[key] instanceof S2Position) {
+//                 (data[key] as S2Position).setParent(parent[key] as S2Position);
+//             }
+//         }
+//     }
+// }
 
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;

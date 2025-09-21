@@ -14,6 +14,15 @@ export class S2Mat2x3 {
         return new S2Mat2x3().lerp(matrix0, matrix1, t);
     }
 
+    static eq(m1: S2Mat2x3, m2: S2Mat2x3, epsilon: number = 1e-4): boolean {
+        for (let i = 0; i < 6; i++) {
+            if (Math.abs(m1.elements[i] - m2.elements[i]) >= epsilon) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     lerp(matrix0: S2Mat2x3, matrix1: S2Mat2x3, t: number): this {
         const s = 1 - t;
         for (let i = 0; i < 6; i++) {

@@ -1,5 +1,5 @@
 import { S2BaseScene } from '../s2-base-scene';
-import { svgNS } from '../s2-globals';
+import { svgNS, type S2Dirtyable } from '../s2-globals';
 import { S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
 import { S2Element } from './base/s2-element';
 import { S2BaseData, S2StrokeData } from './base/s2-base-data';
@@ -20,6 +20,23 @@ export class S2LineData extends S2BaseData {
         this.startPosition = new S2Position();
         this.endPosition = new S2Position();
     }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.transform.setOwner(owner);
+        this.startPosition.setOwner(owner);
+        this.endPosition.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.transform.resetDirtyFlags();
+        this.startPosition.resetDirtyFlags();
+        this.endPosition.resetDirtyFlags();
+    }
 }
 
 export class S2Line extends S2Element<S2LineData> {
@@ -35,10 +52,14 @@ export class S2Line extends S2Element<S2LineData> {
     }
 
     update(): void {
+        if (this.dirty === false) return;
+
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyPosition(this.data.startPosition, this.element, this.scene, 'x1', 'y1');
         S2DataUtils.applyPosition(this.data.endPosition, this.element, this.scene, 'x2', 'y2');
+
+        this.resetDirtyFlags();
     }
 }

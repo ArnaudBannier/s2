@@ -216,12 +216,6 @@ export class S2Node extends S2Element<S2NodeData> {
         for (let i = 0; i < partCount; i++) {
             const textGroup = new S2TextGroup(this.scene);
             textGroup.data.setLayer(2);
-            textGroup.data.font.setParent(this.data.text.font);
-            textGroup.data.horizontalAlign.setParent(this.data.text.horizontalAlign);
-            textGroup.data.verticalAlign.setParent(this.data.text.verticalAlign);
-            textGroup.data.fill.setParent(this.data.text.fill);
-            textGroup.data.opacity.setParent(this.data.text.opacity);
-            textGroup.data.stroke.setParent(this.data.text.stroke);
 
             textGroup.setParent(this);
             this.textGroups.push(textGroup);
@@ -230,8 +224,6 @@ export class S2Node extends S2Element<S2NodeData> {
         for (let i = 0; i < partCount - 1; i++) {
             const line = new S2Line(this.scene);
             line.data.setLayer(1);
-            line.data.opacity.setParent(this.data.separator.opacity);
-            line.data.stroke.setParent(this.data.separator.stroke);
 
             line.setParent(this);
             this.sepLines.push(line);
@@ -335,6 +327,20 @@ export class S2Node extends S2Element<S2NodeData> {
             if (this.background instanceof S2Rect) {
                 this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
             }
+        }
+
+        for (const textGroup of this.textGroups) {
+            textGroup.data.font.copy(this.data.text.font);
+            textGroup.data.horizontalAlign.copy(this.data.text.horizontalAlign);
+            textGroup.data.verticalAlign.copy(this.data.text.verticalAlign);
+            textGroup.data.fill.copy(this.data.text.fill);
+            textGroup.data.opacity.copy(this.data.text.opacity);
+            textGroup.data.stroke.copy(this.data.text.stroke);
+        }
+
+        for (const line of this.sepLines) {
+            line.data.opacity.copy(this.data.separator.opacity);
+            line.data.stroke.copy(this.data.separator.stroke);
         }
 
         const partHeights: Array<number> = [];

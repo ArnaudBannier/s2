@@ -1,6 +1,6 @@
 import { S2BaseScene } from '../s2-base-scene';
 import { S2Extents, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
-import { svgNS } from '../s2-globals';
+import { svgNS, type S2Dirtyable } from '../s2-globals';
 import { S2Element } from './base/s2-element';
 import { S2BaseData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -21,6 +21,21 @@ export class S2GridData extends S2BaseData {
         this.stroke.opacity.set(1, S2TypeState.Inactive);
         this.transform.state = S2TypeState.Inactive;
     }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.transform.setOwner(owner);
+        this.geometry.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.transform.resetDirtyFlags();
+        this.geometry.resetDirtyFlags();
+    }
 }
 
 export class S2GridGeometryData {
@@ -34,6 +49,20 @@ export class S2GridGeometryData {
         this.boundB = new S2Position(+8, +4.5, 'world');
         this.steps = new S2Extents(1, 1, 'world');
         this.referencePoint = new S2Position(0, 0, 'world');
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.boundA.setOwner(owner);
+        this.boundB.setOwner(owner);
+        this.steps.setOwner(owner);
+        this.referencePoint.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        this.boundA.resetDirtyFlags();
+        this.boundB.resetDirtyFlags();
+        this.steps.resetDirtyFlags();
+        this.referencePoint.resetDirtyFlags();
     }
 }
 
@@ -79,9 +108,13 @@ export class S2Grid extends S2Element<S2GridData> {
     }
 
     update(): void {
+        if (this.dirty === false) return;
+
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         this.applyGeometry();
+
+        this.resetDirtyFlags();
     }
 }

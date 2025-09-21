@@ -24,35 +24,41 @@ export class S2DataUtils {
         scene: S2BaseScene,
         mode: S2DataApplicationMode = 'if-active',
     ): void {
-        if (stroke.width.state === S2TypeState.Active || mode === 'always') {
-            const width = stroke.width.getInherited('view', scene.getActiveCamera());
-            element.setAttribute('stroke-width', width.toString());
-        } else {
-            element.removeAttribute('stroke-width');
+        if (stroke.width.dirty) {
+            if (stroke.width.state === S2TypeState.Active || mode === 'always') {
+                const width = stroke.width.getInherited('view', scene.getActiveCamera());
+                element.setAttribute('stroke-width', width.toString());
+            } else {
+                element.removeAttribute('stroke-width');
+            }
         }
-
-        if (stroke.color.state === S2TypeState.Active || mode === 'always') {
-            element.setAttribute('stroke', stroke.color.getInheritedRgb());
-        } else {
-            element.removeAttribute('stroke');
+        if (stroke.color.dirty) {
+            if (stroke.color.state === S2TypeState.Active || mode === 'always') {
+                element.setAttribute('stroke', stroke.color.getInheritedRgb());
+            } else {
+                element.removeAttribute('stroke');
+            }
         }
-
-        if ((stroke.opacity.state === S2TypeState.Active && stroke.opacity.value <= 1) || mode === 'always') {
-            element.setAttribute('stroke-opacity', stroke.opacity.getInherited().toFixed(2));
-        } else {
-            element.removeAttribute('stroke-opacity');
+        if (stroke.opacity.dirty) {
+            if ((stroke.opacity.state === S2TypeState.Active && stroke.opacity.value <= 1) || mode === 'always') {
+                element.setAttribute('stroke-opacity', stroke.opacity.getInherited().toFixed(2));
+            } else {
+                element.removeAttribute('stroke-opacity');
+            }
         }
-
-        if (stroke.lineCap.state === S2TypeState.Active || mode === 'always') {
-            element.setAttribute('stroke-linecap', stroke.lineCap.getInherited());
-        } else {
-            element.removeAttribute('stroke-linecap');
+        if (stroke.lineCap.dirty) {
+            if (stroke.lineCap.state === S2TypeState.Active || mode === 'always') {
+                element.setAttribute('stroke-linecap', stroke.lineCap.getInherited());
+            } else {
+                element.removeAttribute('stroke-linecap');
+            }
         }
-
-        if (stroke.lineJoin.state === S2TypeState.Active || mode === 'always') {
-            element.setAttribute('stroke-linejoin', stroke.lineJoin.getInherited());
-        } else {
-            element.removeAttribute('stroke-linejoin');
+        if (stroke.lineJoin.dirty) {
+            if (stroke.lineJoin.state === S2TypeState.Active || mode === 'always') {
+                element.setAttribute('stroke-linejoin', stroke.lineJoin.getInherited());
+            } else {
+                element.removeAttribute('stroke-linejoin');
+            }
         }
     }
 
@@ -63,18 +69,19 @@ export class S2DataUtils {
         mode: S2DataApplicationMode = 'if-active',
     ): void {
         void scene;
-        // if (fill.color.dirty) {
-        if (fill.color.state === S2TypeState.Active || mode === 'always') {
-            element.setAttribute('fill', fill.color.getInheritedRgb());
-        } else {
-            element.removeAttribute('fill');
+        if (fill.color.dirty) {
+            if (fill.color.state === S2TypeState.Active || mode === 'always') {
+                element.setAttribute('fill', fill.color.getInheritedRgb());
+            } else {
+                element.removeAttribute('fill');
+            }
         }
-        // }
-
-        if ((fill.opacity.state === S2TypeState.Active && fill.opacity.value <= 1) || mode === 'always') {
-            element.setAttribute('fill-opacity', fill.opacity.getInherited().toFixed(2));
-        } else {
-            element.removeAttribute('fill-opacity');
+        if (fill.opacity.dirty) {
+            if ((fill.opacity.state === S2TypeState.Active && fill.opacity.value <= 1) || mode === 'always') {
+                element.setAttribute('fill-opacity', fill.opacity.getInherited().toFixed(2));
+            } else {
+                element.removeAttribute('fill-opacity');
+            }
         }
     }
 
@@ -99,10 +106,12 @@ export class S2DataUtils {
         mode: S2DataApplicationMode = 'if-active',
     ): void {
         void scene;
-        if (opacity.state === S2TypeState.Active || mode === 'always') {
-            element.setAttribute('opacity', opacity.getInherited().toFixed(2));
-        } else {
-            element.removeAttribute('opacity');
+        if (opacity.dirty) {
+            if (opacity.state === S2TypeState.Active || mode === 'always') {
+                element.setAttribute('opacity', opacity.getInherited().toFixed(2));
+            } else {
+                element.removeAttribute('opacity');
+            }
         }
     }
 
@@ -113,10 +122,12 @@ export class S2DataUtils {
         mode: S2DataApplicationMode = 'if-active',
     ): void {
         void scene;
-        if (transform.state === S2TypeState.Active || mode === 'always') {
-            element.setAttribute('transform', transform.toFixed(2));
-        } else {
-            element.removeAttribute('transform');
+        if (transform.dirty) {
+            if (transform.state === S2TypeState.Active || mode === 'always') {
+                element.setAttribute('transform', transform.toFixed(2));
+            } else {
+                element.removeAttribute('transform');
+            }
         }
     }
 
@@ -154,13 +165,15 @@ export class S2DataUtils {
         xAttribute: string = 'x',
         yAttribute: string = 'y',
     ): void {
-        if (position.state === S2TypeState.Active) {
-            const p = position.toSpace('view', scene.getActiveCamera());
-            element.setAttribute(xAttribute, p.x.toFixed(2));
-            element.setAttribute(yAttribute, p.y.toFixed(2));
-        } else {
-            element.removeAttribute(xAttribute);
-            element.removeAttribute(yAttribute);
+        if (position.dirty) {
+            if (position.state === S2TypeState.Active) {
+                const p = position.toSpace('view', scene.getActiveCamera());
+                element.setAttribute(xAttribute, p.x.toFixed(2));
+                element.setAttribute(yAttribute, p.y.toFixed(2));
+            } else {
+                element.removeAttribute(xAttribute);
+                element.removeAttribute(yAttribute);
+            }
         }
     }
 
@@ -199,22 +212,26 @@ export class S2DataUtils {
     }
 
     static applyRadius(radius: S2Length, element: SVGElement, scene: S2BaseScene): void {
-        if (radius.state === S2TypeState.Active) {
-            const r = radius.toSpace('view', scene.getActiveCamera());
-            element.setAttribute('r', r.toFixed(2));
-        } else {
-            element.removeAttribute('r');
+        if (radius.dirty) {
+            if (radius.state === S2TypeState.Active) {
+                const r = radius.toSpace('view', scene.getActiveCamera());
+                element.setAttribute('r', r.toFixed(2));
+            } else {
+                element.removeAttribute('r');
+            }
         }
     }
 
     static applyCornerRadius(radius: S2Length, element: SVGElement, scene: S2BaseScene): void {
-        if (radius.state === S2TypeState.Active) {
-            const r = radius.toSpace('view', scene.getActiveCamera());
-            element.setAttribute('rx', r.toFixed(2));
-            element.setAttribute('ry', r.toFixed(2));
-        } else {
-            element.removeAttribute('rx');
-            element.removeAttribute('ry');
+        if (radius.dirty) {
+            if (radius.state === S2TypeState.Active) {
+                const r = radius.toSpace('view', scene.getActiveCamera());
+                element.setAttribute('rx', r.toFixed(2));
+                element.setAttribute('ry', r.toFixed(2));
+            } else {
+                element.removeAttribute('rx');
+                element.removeAttribute('ry');
+            }
         }
     }
 

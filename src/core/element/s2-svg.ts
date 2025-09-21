@@ -16,11 +16,15 @@ export class S2SVG extends S2Element<S2BaseData> {
     }
 
     update(): void {
+        if (this.dirty === false) return;
+
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('viewBox', `0 0 ${camera.viewport.width} ${camera.viewport.height}`);
         for (const child of this.children) {
             child.update();
         }
         this.updateSVGChildren();
+
+        this.resetDirtyFlags();
     }
 }

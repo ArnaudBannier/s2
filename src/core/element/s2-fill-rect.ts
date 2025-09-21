@@ -1,5 +1,5 @@
 import { S2BaseScene } from '../s2-base-scene';
-import { svgNS } from '../s2-globals';
+import { svgNS, type S2Dirtyable } from '../s2-globals';
 import { S2Element } from './base/s2-element';
 import { S2Color, S2Number } from '../s2-types';
 import { S2BaseData } from './base/s2-base-data';
@@ -13,6 +13,17 @@ export class S2FillRectData extends S2BaseData {
         super();
         this.color = new S2Color();
         this.opacity = new S2Number(1);
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.opacity.setOwner(owner);
+        this.color.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.color.resetDirtyFlags();
     }
 }
 
@@ -29,6 +40,8 @@ export class S2FillRect extends S2Element<S2FillRectData> {
     }
 
     update(): void {
+        if (this.dirty === false) return;
+
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('x', '0');
         this.element.setAttribute('y', '0');
@@ -36,5 +49,7 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         this.element.setAttribute('height', camera.viewport.y.toString());
         S2DataUtils.applyColor(this.data.color, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+
+        this.resetDirtyFlags();
     }
 }

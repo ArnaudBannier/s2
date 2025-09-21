@@ -81,12 +81,6 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
     addLine(options?: { align?: S2HorizontalAlign; skip?: number }): S2TextLine {
         const textLine = new S2TextLine(this.scene);
         textLine.setParent(this);
-        textLine.data.font.setParent(this.data.font);
-        textLine.data.fill.setParent(this.data.fill);
-        textLine.data.stroke.setParent(this.data.stroke);
-        textLine.data.opacity.setParent(this.data.opacity);
-        textLine.data.horizontalAlign.setParent(this.data.horizontalAlign);
-        textLine.data.skip.setParent(this.data.skip);
 
         if (options?.align) {
             textLine.data.horizontalAlign.set(options.align);
@@ -198,6 +192,15 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
         //this.updateExtents();
+
+        for (const textLine of this.textLines) {
+            textLine.data.font.copy(this.data.font);
+            textLine.data.fill.copy(this.data.fill);
+            textLine.data.stroke.copy(this.data.stroke);
+            textLine.data.opacity.copy(this.data.opacity);
+            textLine.data.horizontalAlign.copy(this.data.horizontalAlign);
+            textLine.data.skip.copy(this.data.skip);
+        }
 
         const textExtents = this.textExtents.toSpace('view', camera);
         const groupExtents = this.extents.toSpace('view', camera);

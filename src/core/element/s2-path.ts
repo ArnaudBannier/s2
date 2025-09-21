@@ -1,6 +1,6 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-base-scene';
-import { S2TipTransform, svgNS, type S2Tipable } from '../s2-globals';
+import { S2TipTransform, svgNS, type S2Dirtyable, type S2Tipable } from '../s2-globals';
 import { S2Enum, S2Length, S2Number, S2Position, S2Transform, S2TypeState, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
@@ -32,6 +32,29 @@ export class S2PathData extends S2BaseData {
 
         this.transform.state = S2TypeState.Inactive;
         this.fill.opacity.set(0, S2TypeState.Active);
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.fill.setOwner(owner);
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.transform.setOwner(owner);
+        this.space.setOwner(owner);
+        //this.polyCurve.setOwner(owner);
+        this.pathFrom.setOwner(owner);
+        this.pathTo.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.fill.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.transform.resetDirtyFlags();
+        this.space.resetDirtyFlags();
+        //this.polyCurve.resetDirtyFlags();
+        this.pathFrom.resetDirtyFlags();
+        this.pathTo.resetDirtyFlags();
     }
 }
 
@@ -106,8 +129,6 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         const arrowTip = new S2ArrowTip(this.scene);
         arrowTip.setParent(this.scene.getSVG());
         this.arrowTips.push(arrowTip);
-        arrowTip.data.fill.color.setParent(this.data.stroke.color);
-        arrowTip.data.fill.opacity.setParent(this.data.stroke.opacity);
         arrowTip.data.pathPosition.set(1);
         arrowTip.setTipableReference(this);
         return arrowTip;
@@ -303,6 +324,8 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     update(): void {
+        if (this.dirty === false) return;
+
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
@@ -316,7 +339,12 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
             this.scene,
         );
         for (const arrowTip of this.arrowTips) {
+            arrowTip.data.fill.color.copy(this.data.stroke.color);
+            arrowTip.data.fill.opacity.copy(this.data.stroke.opacity);
+            arrowTip.setDirty();
             arrowTip.update();
         }
+
+        this.resetDirtyFlags();
     }
 }
