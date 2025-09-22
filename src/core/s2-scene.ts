@@ -2,7 +2,7 @@ import { S2Camera } from './math/s2-camera';
 import { S2Circle } from './element/s2-circle';
 import { S2Rect } from './element/s2-rect';
 import { S2Grid } from './element/s2-grid';
-import { S2Text } from './element/s2-text';
+import { S2RichText } from './element/text/s2-rich-text';
 import { S2Node } from './element/s2-node';
 import { S2Path } from './element/s2-path';
 import { S2FillRect } from './element/s2-fill-rect';
@@ -57,8 +57,8 @@ export class S2Scene extends S2BaseScene {
         return child;
     }
 
-    addText(parent: S2BaseElement = this.svg): S2Text {
-        const child = new S2Text(this);
+    addText(parent: S2BaseElement = this.svg): S2RichText {
+        const child = new S2RichText(this);
         child.setParent(parent);
         return child;
     }

@@ -15,7 +15,7 @@ import {
     S2TypeState,
     type S2Space,
 } from '../s2-types';
-import { S2TextGroup, S2TextLine } from './s2-text-group';
+import { S2TextGroup, S2TextLine } from './text/s2-text-group';
 import { clamp } from '../math/s2-utils';
 import { S2Line } from './s2-line';
 import { S2Element } from './base/s2-element';
@@ -309,12 +309,12 @@ export class S2Node extends S2Element<S2NodeData> {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
-    refreshExtents(): void {
-        for (let i = 0; i < this.textGroups.length; i++) {
-            const textGroup = this.textGroups[i];
-            textGroup.updateExtents();
-        }
-    }
+    // refreshExtents(): void {
+    //     for (let i = 0; i < this.textGroups.length; i++) {
+    //         const textGroup = this.textGroups[i];
+    //         textGroup.updateExtents();
+    //     }
+    // }
 
     update(): void {
         const camera = this.scene.getActiveCamera();

@@ -1,5 +1,5 @@
-import { S2Vec2 } from '../math/s2-vec2';
-import { S2BaseScene } from '../s2-base-scene';
+import { S2Vec2 } from '../../math/s2-vec2';
+import { S2BaseScene } from '../../s2-base-scene';
 import {
     type S2Anchor,
     type S2Dirtyable,
@@ -7,13 +7,22 @@ import {
     type S2VerticalAlign,
     S2AnchorUtils,
     svgNS,
-} from '../s2-globals';
-import { S2BaseText, S2TextData } from './s2-text';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, S2TypeState, type S2Space } from '../s2-types';
-import { S2Element } from './base/s2-element';
-import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from './base/s2-base-data';
-import { S2DataUtils } from './base/s2-data-utils';
-import { text } from 'animejs';
+} from '../../s2-globals';
+import { S2BaseRichText } from './s2-rich-text';
+import {
+    S2Enum,
+    S2Extents,
+    S2Length,
+    S2Number,
+    S2Position,
+    S2Transform,
+    S2TypeState,
+    type S2Space,
+} from '../../s2-types';
+import { S2Element } from '../base/s2-element';
+import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
+import { S2DataUtils } from '../base/s2-data-utils';
+import { S2TextData } from './s2-text-data';
 
 export class S2TextLineData extends S2TextData {
     public readonly skip: S2Length;
@@ -38,7 +47,7 @@ export class S2TextLineData extends S2TextData {
     }
 }
 
-export class S2TextLine extends S2BaseText<S2TextLineData> {
+export class S2TextLine extends S2BaseRichText<S2TextLineData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2TextLineData());
     }
@@ -203,32 +212,32 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         return this;
     }
 
-    updateExtents(): void {
-        const camera = this.scene.getActiveCamera();
-        const space = 'view';
+    // updateExtents(): void {
+    //     const camera = this.scene.getActiveCamera();
+    //     const space = 'view';
 
-        // Apply font to group element to ensure correct measurement of bounding boxes
-        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+    //     // Apply font to group element to ensure correct measurement of bounding boxes
+    //     S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
-        let maxWidth = 0;
-        let totalHeight = 0;
-        for (let i = 0; i < this.textLines.length; i++) {
-            const line = this.textLines[i];
-            line.update();
-            const bbox = line.getBBox();
-            const font = line.data.font;
-            const relativeHeight = font.relativeLineHeight.getInherited();
-            const size = font.size.getInherited(space, camera);
-            maxWidth = Math.max(bbox.width, maxWidth);
-            totalHeight += line.data.skip.value + relativeHeight * size;
-        }
-        const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
-        const minExtents = this.data.minExtents.toSpace(space, camera);
-        const extents = minExtents.maxV(textExtents);
+    //     let maxWidth = 0;
+    //     let totalHeight = 0;
+    //     for (let i = 0; i < this.textLines.length; i++) {
+    //         const line = this.textLines[i];
+    //         line.update();
+    //         const bbox = line.getBBox();
+    //         const font = line.data.font;
+    //         const relativeHeight = font.relativeLineHeight.getInherited();
+    //         const size = font.size.getInherited(space, camera);
+    //         maxWidth = Math.max(bbox.width, maxWidth);
+    //         totalHeight += line.data.skip.value + relativeHeight * size;
+    //     }
+    //     const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
+    //     const minExtents = this.data.minExtents.toSpace(space, camera);
+    //     const extents = minExtents.maxV(textExtents);
 
-        this.contentExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
-        this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
-    }
+    //     this.contentExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
+    //     this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
+    // }
 
     update(): void {
         if (this.dirty === false) return;

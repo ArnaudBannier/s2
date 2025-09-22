@@ -202,7 +202,7 @@ class BTree {
     update(): this {
         for (let i = 0; i < this.nodeGroup.getChildCount(); i++) {
             const node = this.nodeGroup.getChild(i) as S2Node;
-            node.refreshExtents();
+            node.update(); //refreshExtents();
         }
         this.nodeGroup.update();
         this.edgeGroup.update();

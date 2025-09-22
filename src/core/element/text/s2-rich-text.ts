@@ -1,0 +1,153 @@
+import { S2Vec2 } from '../../math/s2-vec2';
+import { S2BaseScene } from '../../s2-base-scene';
+import { svgNS } from '../../s2-globals';
+import { S2Extents, S2Position, type S2Space } from '../../s2-types';
+import { S2Element } from '../base/s2-element';
+import { S2DataUtils } from '../base/s2-data-utils';
+import { S2TSpan } from './s2-tspan';
+import { S2TextData } from './s2-text-data';
+
+export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
+    protected element: SVGTextElement;
+    protected tspans: Array<S2TSpan>;
+    protected extents: S2Extents;
+    protected localCenter: S2Position;
+
+    constructor(scene: S2BaseScene, data: Data) {
+        super(scene, data);
+        this.element = document.createElementNS(svgNS, 'text');
+        this.tspans = [];
+        this.extents = new S2Extents(0, 0, 'view');
+        this.localCenter = new S2Position(0, 0, 'view');
+    }
+
+    getSVGElement(): SVGElement {
+        return this.element;
+    }
+
+    getPosition(space: S2Space): S2Vec2 {
+        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+    }
+
+    setContent(content: string): this {
+        //throw new Error('Use addTSpan() to add text content with S2TSpan elements.');
+        this.addTSpan(content);
+        return this;
+    }
+
+    addTSpan(content: string, category?: string): S2TSpan {
+        const tspan = new S2TSpan(this.scene, this);
+        tspan.setParent(this);
+        tspan.setContent(content);
+        tspan.category = category ?? '';
+
+        this.tspans.push(tspan);
+        this.setDirty();
+        this.extents.setDirty();
+        this.localCenter.setDirty();
+        return tspan;
+    }
+
+    getExtents(space: S2Space): S2Vec2 {
+        return this.extents.toSpace(space, this.scene.getActiveCamera());
+    }
+
+    getCenter(space: S2Space): S2Vec2 {
+        const localCenter = this.localCenter.toSpace(space, this.scene.getActiveCamera());
+        const position = this.getPosition(space);
+        return localCenter.addV(position);
+    }
+
+    getTSpans(): Array<S2TSpan> {
+        return this.tspans;
+    }
+
+    getTSpanCount(): number {
+        return this.tspans.length;
+    }
+
+    getTSpan(index: number): S2TSpan {
+        return this.tspans[index];
+    }
+
+    findTSpan(options: { content?: string; category?: string }): S2TSpan | undefined {
+        return this.tspans.find((tspan) => {
+            return (
+                (options.content ? tspan.getContent() === options.content : true) &&
+                (options.category ? tspan.category === options.category : true)
+            );
+        });
+    }
+
+    clearText(): this {
+        this.children.length = 0;
+        this.tspans.length = 0;
+        this.element.replaceChildren();
+        this.updateSVGChildren();
+        this.setDirty();
+        return this;
+    }
+
+    // getBBox(): DOMRect {
+    //     return this.element.getBBox();
+    // }
+
+    getDimensions(): S2Vec2 {
+        const bbox = this.element.getBBox();
+        return new S2Vec2(bbox.width, bbox.height);
+    }
+
+    updateExtents(): this {
+        const lowerBound = new S2Vec2(Infinity, Infinity);
+        const upperBound = new S2Vec2(-Infinity, -Infinity);
+        for (const tspan of this.tspans) {
+            const pos = tspan.getLocalCenter('view');
+            const ext = tspan.getExtents('view');
+            lowerBound.x = Math.min(lowerBound.x, pos.x - ext.x);
+            lowerBound.y = Math.min(lowerBound.y, pos.y - ext.y);
+            upperBound.x = Math.max(upperBound.x, pos.x + ext.x);
+            upperBound.y = Math.max(upperBound.y, pos.y + ext.y);
+        }
+        this.extents.set((upperBound.x - lowerBound.x) / 2, (upperBound.y - lowerBound.y) / 2, 'view');
+        this.localCenter.set((upperBound.x + lowerBound.x) / 2, (upperBound.y + lowerBound.y) / 2, 'view');
+        this.extents.resetDirtyFlags();
+        this.localCenter.resetDirtyFlags();
+        return this;
+    }
+
+    update(): void {
+        if (this.dirty === false) return;
+
+        this.updateSVGChildren();
+
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
+        S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'x', 'y');
+        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+        S2DataUtils.applyPreserveWhitespace(this.data.preserveWhitespace, this.element, this.scene);
+        S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
+
+        if (this.data.font.isDirty() || this.data.preserveWhitespace.isDirty() || this.data.textAnchor.isDirty()) {
+            for (const tspan of this.tspans) {
+                tspan.data.font.copy(this.data.font);
+                tspan.updateLocalBBox(this.data.position);
+                tspan.update();
+            }
+            this.extents.setDirty();
+        }
+
+        if (this.extents.isDirty()) {
+            this.updateExtents();
+        }
+
+        this.resetDirtyFlags();
+    }
+}
+
+export class S2RichText extends S2BaseRichText<S2TextData> {
+    constructor(scene: S2BaseScene) {
+        super(scene, new S2TextData());
+    }
+}

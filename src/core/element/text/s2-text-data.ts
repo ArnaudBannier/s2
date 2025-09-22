@@ -1,0 +1,52 @@
+import { type S2Dirtyable, type S2TextAnchor } from '../../s2-globals';
+import { S2Boolean, S2Enum, S2Number, S2Position, S2Transform, S2TypeState } from '../../s2-types';
+import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
+
+export class S2TextData extends S2BaseData {
+    public readonly fill: S2FillData;
+    public readonly stroke: S2StrokeData;
+    public readonly opacity: S2Number;
+    public readonly transform: S2Transform;
+    public readonly position: S2Position;
+    public readonly font: S2FontData;
+    public readonly textAnchor: S2Enum<S2TextAnchor>;
+    public readonly preserveWhitespace: S2Boolean;
+
+    constructor() {
+        super();
+        this.fill = new S2FillData();
+        this.stroke = new S2StrokeData();
+        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.transform = new S2Transform();
+        this.position = new S2Position(0, 0, 'world');
+        this.font = new S2FontData();
+        this.textAnchor = new S2Enum<S2TextAnchor>('start');
+        this.preserveWhitespace = new S2Boolean(false, S2TypeState.Inactive);
+
+        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
+        this.transform.state = S2TypeState.Inactive;
+        this.fill.opacity.set(1, S2TypeState.Inactive);
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.fill.setOwner(owner);
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.position.setOwner(owner);
+        this.font.setOwner(owner);
+        this.textAnchor.setOwner(owner);
+        this.preserveWhitespace.setOwner(owner);
+    }
+
+    resetDirtyFlags(): void {
+        super.resetDirtyFlags();
+        this.fill.resetDirtyFlags();
+        this.stroke.resetDirtyFlags();
+        this.opacity.resetDirtyFlags();
+        this.transform.resetDirtyFlags();
+        this.position.resetDirtyFlags();
+        this.font.resetDirtyFlags();
+        this.textAnchor.resetDirtyFlags();
+        this.preserveWhitespace.resetDirtyFlags();
+    }
+}

@@ -3,9 +3,9 @@ import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalA
 import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
 import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
-import { S2TextGroup } from './s2-text-group';
+import { S2TextGroup } from './text/s2-text-group';
 import { S2Rect } from './s2-rect';
-import { S2TSpan } from './s2-text';
+import { S2TSpan } from './text/s2-rich-text';
 import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-utils';
@@ -363,8 +363,8 @@ export class S2Code extends S2Element<S2CodeData> {
             const t = currIndex - index0;
             const extents0 = this.textGroup.getLine(index0).getExtents(space);
             const extents1 = this.textGroup.getLine(index1).getExtents(space);
-            const position0 = this.textGroup.getLine(index0).getPosition(space);
-            const position1 = this.textGroup.getLine(index1).getPosition(space);
+            const position0 = this.textGroup.getLine(index0).getCenter(space);
+            const position1 = this.textGroup.getLine(index1).getCenter(space);
             const extentsY = extents0.y * (1 - t) + extents1.y * t;
             const y = position0.y * (1 - t) + position1.y * t;
             this.lineBackground.data.position.set(codeCenter.x, y, 'view');

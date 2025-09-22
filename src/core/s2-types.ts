@@ -711,14 +711,14 @@ export class S2Transform extends S2BaseType {
     }
 }
 
-export class S2LocalBBox extends S2BaseType {
+export class S2BBox extends S2BaseType {
     readonly kind = 'local-bbox' as const;
-    protected localPosition: S2Position;
+    protected center: S2Position;
     protected extents: S2Extents;
 
     constructor() {
         super();
-        this.localPosition = new S2Position(0, 0, 'view');
+        this.center = new S2Position(0, 0, 'view');
         this.extents = new S2Extents(0, 0, 'view');
     }
 
@@ -726,16 +726,28 @@ export class S2LocalBBox extends S2BaseType {
         const bbox = graphics.getBBox();
         const parentPos = parentPosition ? parentPosition.toSpace('view', camera) : new S2Vec2(0, 0);
         const center = new S2Vec2(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2).subV(parentPos);
-        this.localPosition.setV(center, 'view');
+        this.center.setV(center, 'view');
         this.extents.set(bbox.width / 2, bbox.height / 2, 'view');
-        this.dirty = true;
+        this.setDirty();
     }
 
-    getLocalPosition(space: S2Space, camera: S2Camera): S2Vec2 {
-        return this.localPosition.toSpace(space, camera);
+    getCenter(space: S2Space, camera: S2Camera): S2Vec2 {
+        return this.center.toSpace(space, camera);
     }
 
     getExtents(space: S2Space, camera: S2Camera): S2Vec2 {
         return this.extents.toSpace(space, camera);
+    }
+
+    getLower(space: S2Space, camera: S2Camera): S2Vec2 {
+        const center = this.getCenter(space, camera);
+        const extents = this.getExtents(space, camera);
+        return center.subV(extents);
+    }
+
+    getUpper(space: S2Space, camera: S2Camera): S2Vec2 {
+        const center = this.getCenter(space, camera);
+        const extents = this.getExtents(space, camera);
+        return center.addV(extents);
     }
 }
