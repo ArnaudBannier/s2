@@ -1,14 +1,5 @@
 import { S2FillData, S2BaseData, S2StrokeData } from './s2-base-data.ts';
-import {
-    S2Color,
-    S2Enum,
-    S2Extents,
-    S2Length,
-    S2Number,
-    S2Position,
-    S2TypePriority,
-    type S2Space,
-} from '../../s2-types';
+import { S2Color, S2Enum, S2Extents, S2Length, S2Number, S2Position, type S2Space } from '../../s2-types';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { type S2Anchor, type S2LineCap, type S2LineJoin } from '../../s2-globals.ts';
 
@@ -31,67 +22,45 @@ export class S2DataSetterUtils {
         }
     }
 
-    static setColorRGB(
-        data: S2BaseData,
-        r: number,
-        g: number,
-        b: number,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setColorRGB(data: S2BaseData, r: number, g: number, b: number): void {
         if ('color' in data && data.color instanceof S2Color) {
-            data.color.set(r, g, b, state);
+            data.color.set(r, g, b);
         }
         if ('fill' in data && data.fill instanceof S2FillData) {
-            data.fill.color.set(r, g, b, state);
+            data.fill.color.set(r, g, b);
         }
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.color.set(r, g, b, state);
+            data.stroke.color.set(r, g, b);
         }
     }
 
-    static setColorHex(data: S2BaseData, hex: string, state: S2TypePriority = S2TypePriority.Important): void {
+    static setColorHex(data: S2BaseData, hex: string): void {
         if ('color' in data && data.color instanceof S2Color) {
-            data.color.setFromHex(hex, state);
+            data.color.setFromHex(hex);
         }
         if ('fill' in data && data.fill instanceof S2FillData) {
-            data.fill.color.setFromHex(hex, state);
+            data.fill.color.setFromHex(hex);
         }
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.color.setFromHex(hex, state);
+            data.stroke.color.setFromHex(hex);
         }
     }
 
-    static setCornerRadius(
-        data: S2BaseData,
-        radius: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setCornerRadius(data: S2BaseData, radius: number, space?: S2Space): void {
         if ('cornerRadius' in data && data.cornerRadius instanceof S2Length) {
-            data.cornerRadius.set(radius, space, state);
+            data.cornerRadius.set(radius, space);
         }
     }
 
-    static setExtents(
-        data: S2BaseData,
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setExtents(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('extents' in data && data.extents instanceof S2Extents) {
-            data.extents.set(x, y, space, state);
+            data.extents.set(x, y, space);
         }
     }
 
-    static setExtentsV(
-        data: S2BaseData,
-        v: S2Vec2,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setExtentsV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
         if ('extents' in data && data.extents instanceof S2Extents) {
-            data.extents.setV(v, space, state);
+            data.extents.setV(v, space);
         }
     }
 
@@ -101,131 +70,87 @@ export class S2DataSetterUtils {
         }
     }
 
-    static setFillColorRGB(
-        data: S2BaseData,
-        r: number,
-        g: number,
-        b: number,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setFillColorRGB(data: S2BaseData, r: number, g: number, b: number): void {
         if ('fill' in data && data.fill instanceof S2FillData) {
-            data.fill.color.set(r, g, b, state);
+            data.fill.color.set(r, g, b);
         }
     }
 
-    static setFillColorHex(data: S2BaseData, hex: string, state: S2TypePriority = S2TypePriority.Important): void {
+    static setFillColorHex(data: S2BaseData, hex: string): void {
         if ('fill' in data && data.fill instanceof S2FillData) {
-            data.fill.color.setFromHex(hex, state);
+            data.fill.color.setFromHex(hex);
         }
     }
 
-    static setFillOpacity(data: S2BaseData, opacity: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setFillOpacity(data: S2BaseData, opacity: number): void {
         if ('fill' in data && data.fill instanceof S2FillData) {
-            data.fill.opacity.set(opacity, state);
+            data.fill.opacity.set(opacity);
         }
     }
 
-    static setLayer(data: S2BaseData, layer: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setLayer(data: S2BaseData, layer: number): void {
         if ('layer' in data && data.layer instanceof S2Number) {
-            data.layer.set(layer, state);
+            data.layer.set(layer);
         }
     }
 
-    static setOpacity(data: S2BaseData, opacity: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setOpacity(data: S2BaseData, opacity: number): void {
         if ('opacity' in data && data.opacity instanceof S2Number) {
-            data.opacity.set(opacity, state);
+            data.opacity.set(opacity);
         }
     }
 
-    static setPathFrom(data: S2BaseData, pathFrom: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setPathFrom(data: S2BaseData, pathFrom: number): void {
         if ('pathFrom' in data && data.pathFrom instanceof S2Number) {
-            data.pathFrom.set(pathFrom, state);
+            data.pathFrom.set(pathFrom);
         }
     }
 
-    static setPathTo(data: S2BaseData, pathTo: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setPathTo(data: S2BaseData, pathTo: number): void {
         if ('pathTo' in data && data.pathTo instanceof S2Number) {
-            data.pathTo.set(pathTo, state);
+            data.pathTo.set(pathTo);
         }
     }
 
-    static setPosition(
-        data: S2BaseData,
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setPosition(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('position' in data && data.position instanceof S2Position) {
-            data.position.set(x, y, space, state);
+            data.position.set(x, y, space);
         }
     }
 
-    static setPositionV(
-        data: S2BaseData,
-        v: S2Vec2,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
         if ('position' in data && data.position instanceof S2Position) {
-            data.position.setV(v, space, state);
+            data.position.setV(v, space);
         }
     }
 
-    static setStartPosition(
-        data: S2BaseData,
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setStartPosition(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('startPosition' in data && data.startPosition instanceof S2Position) {
-            data.startPosition.set(x, y, space, state);
+            data.startPosition.set(x, y, space);
         }
     }
 
-    static setStartPositionV(
-        data: S2BaseData,
-        v: S2Vec2,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setStartPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
         if ('startPosition' in data && data.startPosition instanceof S2Position) {
-            data.startPosition.setV(v, space, state);
+            data.startPosition.setV(v, space);
         }
     }
 
-    static setEndPosition(
-        data: S2BaseData,
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setEndPosition(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('endPosition' in data && data.endPosition instanceof S2Position) {
-            data.endPosition.set(x, y, space, state);
+            data.endPosition.set(x, y, space);
         }
     }
 
-    static setEndPositionV(
-        data: S2BaseData,
-        v: S2Vec2,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setEndPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
         if ('endPosition' in data && data.endPosition instanceof S2Position) {
-            data.endPosition.setV(v, space, state);
+            data.endPosition.setV(v, space);
         }
     }
 
-    static setRadius(
-        data: S2BaseData,
-        radius: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setRadius(data: S2BaseData, radius: number, space?: S2Space): void {
         if ('radius' in data && data.radius instanceof S2Length) {
-            data.radius.set(radius, space, state);
+            data.radius.set(radius, space);
         }
     }
 
@@ -235,181 +160,120 @@ export class S2DataSetterUtils {
         }
     }
 
-    static setSpace(data: S2BaseData, space: S2Space, state: S2TypePriority = S2TypePriority.Important): void {
+    static setSpace(data: S2BaseData, space: S2Space): void {
         if ('space' in data && data.space instanceof S2Enum) {
-            data.space.set(space, state);
+            data.space.set(space);
         }
     }
 
-    static setStrokeColorRGB(
-        data: S2BaseData,
-        r: number,
-        g: number,
-        b: number,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setStrokeColorRGB(data: S2BaseData, r: number, g: number, b: number): void {
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.color.set(r, g, b, state);
+            data.stroke.color.set(r, g, b);
         }
     }
 
-    static setStrokeColorHex(data: S2BaseData, hex: string, state: S2TypePriority = S2TypePriority.Important): void {
+    static setStrokeColorHex(data: S2BaseData, hex: string): void {
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.color.setFromHex(hex, state);
+            data.stroke.color.setFromHex(hex);
         }
     }
 
-    static setStrokeLineCap(
-        data: S2BaseData,
-        lineCap: S2LineCap,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setStrokeLineCap(data: S2BaseData, lineCap: S2LineCap): void {
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.lineCap.set(lineCap, state);
+            data.stroke.lineCap.set(lineCap);
         }
     }
 
-    static setStrokeLineJoin(
-        data: S2BaseData,
-        lineJoin: S2LineJoin,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setStrokeLineJoin(data: S2BaseData, lineJoin: S2LineJoin): void {
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.lineJoin.set(lineJoin, state);
+            data.stroke.lineJoin.set(lineJoin);
         }
     }
 
-    static setStrokeOpacity(data: S2BaseData, opacity: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setStrokeOpacity(data: S2BaseData, opacity: number): void {
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.opacity.set(opacity, state);
+            data.stroke.opacity.set(opacity);
         }
     }
 
-    static setStrokeWidth(
-        data: S2BaseData,
-        width: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setStrokeWidth(data: S2BaseData, width: number, space?: S2Space): void {
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.width.set(width, space, state);
+            data.stroke.width.set(width, space);
         }
     }
 
-    static setEdgeStartDistance(
-        data: S2BaseData,
-        distance: number,
-        space: S2Space = 'view',
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setEdgeStartDistance(data: S2BaseData, distance: number, space: S2Space = 'view'): void {
         if ('startDistance' in data && data.startDistance instanceof S2Length) {
-            data.startDistance.set(distance, space, state);
+            data.startDistance.set(distance, space);
         }
     }
 
-    static setEdgeEndDistance(
-        data: S2BaseData,
-        distance: number,
-        space: S2Space = 'view',
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setEdgeEndDistance(data: S2BaseData, distance: number, space: S2Space = 'view'): void {
         if ('endDistance' in data && data.endDistance instanceof S2Length) {
-            data.endDistance.set(distance, space, state);
+            data.endDistance.set(distance, space);
         }
     }
 
-    static setEdgeStartAngle(data: S2BaseData, angle: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setEdgeStartAngle(data: S2BaseData, angle: number): void {
         if ('startAngle' in data && data.startAngle instanceof S2Number) {
-            data.startAngle.set(angle, state);
+            data.startAngle.set(angle);
         }
     }
 
-    static setEdgeEndAngle(data: S2BaseData, angle: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setEdgeEndAngle(data: S2BaseData, angle: number): void {
         if ('endAngle' in data && data.endAngle instanceof S2Number) {
-            data.endAngle.set(angle, state);
+            data.endAngle.set(angle);
         }
     }
 
-    static setEdgeBendAngle(data: S2BaseData, angle: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setEdgeBendAngle(data: S2BaseData, angle: number): void {
         if ('curveBendAngle' in data && data.curveBendAngle instanceof S2Number) {
-            data.curveBendAngle.set(angle, state);
+            data.curveBendAngle.set(angle);
         }
     }
 
-    static setEdgeTension(data: S2BaseData, tension: number, state: S2TypePriority = S2TypePriority.Important): void {
+    static setEdgeTension(data: S2BaseData, tension: number): void {
         if ('curveStartTension' in data && data.curveStartTension instanceof S2Number) {
-            data.curveStartTension.set(tension, state);
+            data.curveStartTension.set(tension);
         }
         if ('curveEndTension' in data && data.curveEndTension instanceof S2Number) {
-            data.curveEndTension.set(tension, state);
+            data.curveEndTension.set(tension);
         }
     }
 
-    static setEdgeStartTension(
-        data: S2BaseData,
-        tension: number,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setEdgeStartTension(data: S2BaseData, tension: number): void {
         if ('curveStartTension' in data && data.curveStartTension instanceof S2Number) {
-            data.curveStartTension.set(tension, state);
+            data.curveStartTension.set(tension);
         }
     }
 
-    static setEdgeEndTension(
-        data: S2BaseData,
-        tension: number,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setEdgeEndTension(data: S2BaseData, tension: number): void {
         if ('curveEndTension' in data && data.curveEndTension instanceof S2Number) {
-            data.curveEndTension.set(tension, state);
+            data.curveEndTension.set(tension);
         }
     }
 
-    static setGridBoundA(
-        data: S2BaseData,
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setGridBoundA(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('boundA' in data && data.boundA instanceof S2Position) {
-            data.boundA.set(x, y, space, state);
+            data.boundA.set(x, y, space);
         }
     }
 
-    static setGridBoundB(
-        data: S2BaseData,
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setGridBoundB(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('boundB' in data && data.boundB instanceof S2Position) {
-            data.boundB.set(x, y, space, state);
+            data.boundB.set(x, y, space);
         }
     }
 
-    static setGridReferencePoint(
-        data: S2BaseData,
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setGridReferencePoint(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('referencePoint' in data && data.referencePoint instanceof S2Position) {
-            data.referencePoint.set(x, y, space, state);
+            data.referencePoint.set(x, y, space);
         }
     }
 
-    static setGridSteps(
-        data: S2BaseData,
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): void {
+    static setGridSteps(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('steps' in data && data.steps instanceof S2Extents) {
-            data.steps.set(x, y, space, state);
+            data.steps.set(x, y, space);
         }
     }
 }

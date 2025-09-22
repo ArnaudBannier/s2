@@ -1,5 +1,5 @@
 import { S2BaseData } from './s2-base-data.ts';
-import { S2Color, S2TypePriority, type S2Space } from '../../s2-types';
+import { S2Color, type S2Space } from '../../s2-types';
 import { S2Vec2 } from '../../math/s2-vec2';
 import type { S2Anchor, S2LineCap, S2LineJoin } from '../../s2-globals.ts';
 import { S2DataSetterUtils } from './s2-data-setter-utils.ts';
@@ -33,37 +33,37 @@ export class S2DataSetter {
         return this;
     }
 
-    setColorRGB(r: number, g: number, b: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setColorRGB(r: number, g: number, b: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setColorRGB(target, r, g, b, state);
+            S2DataSetterUtils.setColorRGB(target, r, g, b);
         }
         return this;
     }
 
-    setColorHex(hex: string, state: S2TypePriority = S2TypePriority.Important): this {
+    setColorHex(hex: string): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setColorHex(target, hex, state);
+            S2DataSetterUtils.setColorHex(target, hex);
         }
         return this;
     }
 
-    setCornerRadius(radius: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setCornerRadius(radius: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setCornerRadius(target, radius, space, state);
+            S2DataSetterUtils.setCornerRadius(target, radius, space);
         }
         return this;
     }
 
-    setExtents(x: number, y: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setExtents(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setExtents(target, x, y, space, state);
+            S2DataSetterUtils.setExtents(target, x, y, space);
         }
         return this;
     }
 
-    setExtentsV(v: S2Vec2, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setExtentsV(v: S2Vec2, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setExtentsV(target, v, space, state);
+            S2DataSetterUtils.setExtentsV(target, v, space);
         }
         return this;
     }
@@ -75,100 +75,100 @@ export class S2DataSetter {
         return this;
     }
 
-    setFillColorRGB(r: number, g: number, b: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setFillColorRGB(r: number, g: number, b: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setFillColorRGB(target, r, g, b, state);
+            S2DataSetterUtils.setFillColorRGB(target, r, g, b);
         }
         return this;
     }
 
-    setFillColorHex(hex: string, state: S2TypePriority = S2TypePriority.Important): this {
+    setFillColorHex(hex: string): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setFillColorHex(target, hex, state);
+            S2DataSetterUtils.setFillColorHex(target, hex);
         }
         return this;
     }
 
-    setFillOpacity(opacity: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setFillOpacity(opacity: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setFillOpacity(target, opacity, state);
+            S2DataSetterUtils.setFillOpacity(target, opacity);
         }
         return this;
     }
 
-    setLayer(layer: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setLayer(layer: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setLayer(target, layer, state);
+            S2DataSetterUtils.setLayer(target, layer);
         }
         return this;
     }
 
-    setOpacity(opacity: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setOpacity(opacity: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setOpacity(target, opacity, state);
+            S2DataSetterUtils.setOpacity(target, opacity);
         }
         return this;
     }
 
-    setPathFrom(pathFrom: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setPathFrom(pathFrom: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setPathFrom(target, pathFrom, state);
+            S2DataSetterUtils.setPathFrom(target, pathFrom);
         }
         return this;
     }
 
-    setPathTo(pathTo: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setPathTo(pathTo: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setPathTo(target, pathTo, state);
+            S2DataSetterUtils.setPathTo(target, pathTo);
         }
         return this;
     }
 
-    setPosition(x: number, y: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setPosition(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setPosition(target, x, y, space, state);
+            S2DataSetterUtils.setPosition(target, x, y, space);
         }
         return this;
     }
 
-    setPositionV(v: S2Vec2, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setPositionV(v: S2Vec2, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setPositionV(target, v, space, state);
+            S2DataSetterUtils.setPositionV(target, v, space);
         }
         return this;
     }
 
-    setStartPosition(x: number, y: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setStartPosition(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setStartPosition(target, x, y, space, state);
+            S2DataSetterUtils.setStartPosition(target, x, y, space);
         }
         return this;
     }
 
-    setStartPositionV(v: S2Vec2, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setStartPositionV(v: S2Vec2, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setStartPositionV(target, v, space, state);
+            S2DataSetterUtils.setStartPositionV(target, v, space);
         }
         return this;
     }
 
-    setEndPosition(x: number, y: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setEndPosition(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEndPosition(target, x, y, space, state);
+            S2DataSetterUtils.setEndPosition(target, x, y, space);
         }
         return this;
     }
 
-    setEndPositionV(v: S2Vec2, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setEndPositionV(v: S2Vec2, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEndPositionV(target, v, space, state);
+            S2DataSetterUtils.setEndPositionV(target, v, space);
         }
         return this;
     }
 
-    setRadius(radius: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setRadius(radius: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setRadius(target, radius, space, state);
+            S2DataSetterUtils.setRadius(target, radius, space);
         }
         return this;
     }
@@ -180,148 +180,135 @@ export class S2DataSetter {
         return this;
     }
 
-    setSpace(space: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setSpace(space: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setSpace(target, space, state);
+            S2DataSetterUtils.setSpace(target, space);
         }
         return this;
     }
 
-    setStrokeColorRGB(r: number, g: number, b: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setStrokeColorRGB(r: number, g: number, b: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setStrokeColorRGB(target, r, g, b, state);
+            S2DataSetterUtils.setStrokeColorRGB(target, r, g, b);
         }
         return this;
     }
 
-    setStrokeColorHex(hex: string, state: S2TypePriority = S2TypePriority.Important): this {
+    setStrokeColorHex(hex: string): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setStrokeColorHex(target, hex, state);
+            S2DataSetterUtils.setStrokeColorHex(target, hex);
         }
         return this;
     }
 
-    setStrokeLineCap(lineCap: S2LineCap, state: S2TypePriority = S2TypePriority.Important): this {
+    setStrokeLineCap(lineCap: S2LineCap): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setStrokeLineCap(target, lineCap, state);
+            S2DataSetterUtils.setStrokeLineCap(target, lineCap);
         }
         return this;
     }
 
-    setStrokeLineJoin(lineJoin: S2LineJoin, state: S2TypePriority = S2TypePriority.Important): this {
+    setStrokeLineJoin(lineJoin: S2LineJoin): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setStrokeLineJoin(target, lineJoin, state);
+            S2DataSetterUtils.setStrokeLineJoin(target, lineJoin);
         }
         return this;
     }
 
-    setStrokeOpacity(opacity: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setStrokeOpacity(opacity: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setStrokeOpacity(target, opacity, state);
+            S2DataSetterUtils.setStrokeOpacity(target, opacity);
         }
         return this;
     }
 
-    setStrokeWidth(width: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setStrokeWidth(width: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setStrokeWidth(target, width, space, state);
+            S2DataSetterUtils.setStrokeWidth(target, width, space);
         }
         return this;
     }
 
-    setEdgeStartDistance(
-        distance: number,
-        space: S2Space = 'view',
-        state: S2TypePriority = S2TypePriority.Important,
-    ): this {
+    setEdgeStartDistance(distance: number, space: S2Space = 'view'): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeStartDistance(target, distance, space, state);
+            S2DataSetterUtils.setEdgeStartDistance(target, distance, space);
         }
         return this;
     }
 
-    setEdgeEndDistance(
-        distance: number,
-        space: S2Space = 'view',
-        state: S2TypePriority = S2TypePriority.Important,
-    ): this {
+    setEdgeEndDistance(distance: number, space: S2Space = 'view'): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeEndDistance(target, distance, space, state);
+            S2DataSetterUtils.setEdgeEndDistance(target, distance, space);
         }
         return this;
     }
 
-    setEdgeStartAngle(angle: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setEdgeStartAngle(angle: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeStartAngle(target, angle, state);
+            S2DataSetterUtils.setEdgeStartAngle(target, angle);
         }
         return this;
     }
 
-    setEdgeEndAngle(angle: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setEdgeEndAngle(angle: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeEndAngle(target, angle, state);
+            S2DataSetterUtils.setEdgeEndAngle(target, angle);
         }
         return this;
     }
 
-    setEdgeBendAngle(angle: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setEdgeBendAngle(angle: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeBendAngle(target, angle, state);
+            S2DataSetterUtils.setEdgeBendAngle(target, angle);
         }
         return this;
     }
 
-    setEdgeTension(tension: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setEdgeTension(tension: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeTension(target, tension, state);
+            S2DataSetterUtils.setEdgeTension(target, tension);
         }
         return this;
     }
 
-    setEdgeStartTension(tension: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setEdgeStartTension(tension: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeStartTension(target, tension, state);
+            S2DataSetterUtils.setEdgeStartTension(target, tension);
         }
         return this;
     }
 
-    setEdgeEndTension(tension: number, state: S2TypePriority = S2TypePriority.Important): this {
+    setEdgeEndTension(tension: number): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeEndTension(target, tension, state);
+            S2DataSetterUtils.setEdgeEndTension(target, tension);
         }
         return this;
     }
 
-    setGridBoundA(x: number, y: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setGridBoundA(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setGridBoundA(target, x, y, space, state);
+            S2DataSetterUtils.setGridBoundA(target, x, y, space);
         }
         return this;
     }
 
-    setGridBoundB(x: number, y: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setGridBoundB(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setGridBoundB(target, x, y, space, state);
+            S2DataSetterUtils.setGridBoundB(target, x, y, space);
         }
         return this;
     }
 
-    setGridReferencePoint(
-        x: number,
-        y: number,
-        space?: S2Space,
-        state: S2TypePriority = S2TypePriority.Important,
-    ): this {
+    setGridReferencePoint(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setGridReferencePoint(target, x, y, space, state);
+            S2DataSetterUtils.setGridReferencePoint(target, x, y, space);
         }
         return this;
     }
 
-    setGridSteps(x: number, y: number, space?: S2Space, state: S2TypePriority = S2TypePriority.Important): this {
+    setGridSteps(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
-            S2DataSetterUtils.setGridSteps(target, x, y, space, state);
+            S2DataSetterUtils.setGridSteps(target, x, y, space);
         }
         return this;
     }
@@ -376,42 +363,42 @@ export class S2DataSetter {
 //     }
 
 //     setPosition(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-//         this.position.set(x, y, space, state);
+//         this.position.set(x, y, space);
 //         return this;
 //     }
 
 //     setPositionV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-//         this.position.setV(v, space, state);
+//         this.position.setV(v, space);
 //         return this;
 //     }
 
 //     setMinExtents(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-//         this.minExtents.set(x, y, space, state);
+//         this.minExtents.set(x, y, space);
 //         return this;
 //     }
 
 //     setMinExtentsV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-//         this.minExtents.setV(v, space, state);
+//         this.minExtents.setV(v, space);
 //         return this;
 //     }
 
 //     setPadding(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-//         this.padding.set(x, y, space, state);
+//         this.padding.set(x, y, space);
 //         return this;
 //     }
 
 //     setPaddingV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-//         this.padding.setV(v, space, state);
+//         this.padding.setV(v, space);
 //         return this;
 //     }
 
 //     setPartSep(sep: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-//         this.partSep.set(sep, space, state);
+//         this.partSep.set(sep, space);
 //         return this;
 //     }
 
 //     setAnchor(anchor: S2Anchor, state: S2TypeState = S2TypeState.Active): this {
-//         this.anchor.set(anchor, state);
+//         this.anchor.set(anchor);
 //         return this;
 //     }
 
