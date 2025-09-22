@@ -41,6 +41,7 @@ export class S2FillRect extends S2Element<S2FillRectData> {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
 
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('x', '0');

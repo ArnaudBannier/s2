@@ -161,6 +161,7 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
 
         this.updateTipTransform();
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);

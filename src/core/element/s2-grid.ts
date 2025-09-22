@@ -108,6 +108,7 @@ export class S2Grid extends S2Element<S2GridData> {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
 
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

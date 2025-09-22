@@ -335,6 +335,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
 
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);

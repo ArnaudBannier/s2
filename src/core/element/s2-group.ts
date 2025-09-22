@@ -16,9 +16,14 @@ export class S2Group<DataType extends S2BaseData> extends S2Element<DataType> {
     }
 
     update(): void {
+        if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
+
         for (const child of this.children) {
             child.update();
         }
         this.updateSVGChildren();
+
+        this.clearDirty();
     }
 }

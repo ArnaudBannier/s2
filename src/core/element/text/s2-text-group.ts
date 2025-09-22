@@ -174,7 +174,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
             space,
             this.scene.getActiveCamera(),
             this.data.position,
-            this.data.minExtents,
+            this.extents, // this.data.minExtents,
         );
     }
 
@@ -240,9 +240,11 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
         if (this.textLines.length === 0) return;
+
         const camera = this.scene.getActiveCamera();
-        const space = 'view';
+        const space: S2Space = 'view';
         this.updateSVGChildren();
 
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
@@ -307,7 +309,6 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
             lineY += line.data.skip.value + lineHeight;
         }
 
-        this.updateSVGChildren();
         for (const line of this.textLines) {
             line.update();
         }

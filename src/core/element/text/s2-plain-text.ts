@@ -54,6 +54,7 @@ export class S2PlainText extends S2Element<S2TextData> {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
 
         this.updateSVGChildren();
 

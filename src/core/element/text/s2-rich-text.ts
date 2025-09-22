@@ -111,6 +111,7 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
 
         this.updateSVGChildren();
 

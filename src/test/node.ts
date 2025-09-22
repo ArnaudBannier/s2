@@ -10,35 +10,29 @@ import { S2LerpAnim } from '../core/animation/s2-lerp-anim.ts';
 import { ease } from '../core/animation/s2-easing.ts';
 import { S2MathUtils } from '../core/math/s2-utils.ts';
 import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
-// import { S2BaseData } from './core/element/base/s2-base-data.ts';
-// import { S2Position } from './core/s2-types.ts';
+import { S2PlainNode } from '../core/element/node/s2-plain-node.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
 
-// export class TEST {
-//     static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
-//         for (const key of Object.keys(data) as (keyof Data)[]) {
-//             if (data[key] instanceof S2Position) {
-//                 (data[key] as S2Position).setParent(parent[key] as S2Position);
-//             }
-//         }
-//     }
-// }
-
 class SceneFigure extends S2Scene {
-    protected circle: S2Circle;
-    protected path: S2Path;
     public animator: S2StepAnimator;
+    protected node1: S2PlainNode;
+    protected node2: S2PlainNode;
 
-    setCircleDefaultStyle(circle: S2Circle): void {
-        S2DataSetter.addTarget(circle.data)
-            .setFillColor(MTL.GREY_6)
-            .setStrokeColor(MTL.GREY_4)
-            .setStrokeWidth(4, 'view')
-            .setFillOpacity(1.0)
-            .setRadius(1, 'world');
+    setNodeDefaultStyle(node: S2PlainNode): void {
+        const data = node.data;
+        data.background.fill.color.copy(MTL.GREY_9);
+        data.background.stroke.color.copy(MTL.GREY_5);
+        data.background.stroke.width.set(2, 'view');
+        data.text.fill.color.copy(MTL.WHITE);
+        data.text.horizontalAlign.set('center');
+        data.text.verticalAlign.set('middle');
+        data.text.font.weight.set(700);
+        data.padding.set(10, 5, 'view');
+        data.minExtents.set(1, 0.5, 'world');
+        data.background.cornerRadius.set(10, 'view');
     }
 
     constructor(svgElement: SVGSVGElement) {
@@ -51,36 +45,21 @@ class SceneFigure extends S2Scene {
         const grid = this.addWorldGrid();
         S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
 
-        this.path = this.addPath();
-        this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0).update();
-        S2DataSetter.addTarget(this.path.data)
-            .setStrokeColor(MTL.CYAN_5)
-            .setStrokeWidth(6, 'view')
-            .setStrokeLineCap('round')
-            .setSpace('world')
-            .setPathFrom(0.0)
-            .setPathTo(0.0);
+        this.node1 = new S2PlainNode(this);
+        this.node1.setParent(this.getSVG());
+        this.setNodeDefaultStyle(this.node1);
+        this.node1.setContent('Node 1');
+        this.node1.createRectBackground();
+        this.node1.data.anchor.set('north');
 
-        this.circle = this.addCircle();
-        this.setCircleDefaultStyle(this.circle);
-        this.circle.data.position.set(0, 0, 'world');
-        this.circle.data.opacity.set(0.0);
-        this.circle.update();
+        this.node2 = new S2PlainNode(this);
+        this.node2.setParent(this.getSVG());
+        this.setNodeDefaultStyle(this.node2);
+        this.node2.setContent('Node 2');
+        this.node2.createRectBackground();
 
-        // const line = this.addLine();
-        // S2DataSetter.addTarget(line.data)
-        //     .setStrokeColor(MTL.RED_5)
-        //     .setStrokeWidth(4, 'view')
-        //     .setStartPosition(-6, -2, 'world')
-        //     .setEndPosition(6, 2, 'world');
-        // line.update();
-
-        const tip = this.path.createArrowTip();
-        tip.setParent(this.getSVG());
-
-        //tip.setTipableReference(this.path);
-        tip.setTipInset(0.25).setReversed(false).setAnchorAlignment(0);
-        //tip.update();
+        this.node1.data.position.set(-2, 0, 'world');
+        this.node2.data.position.set(+2, 0, 'world');
 
         this.update();
 
@@ -89,64 +68,42 @@ class SceneFigure extends S2Scene {
 
     createAnimation(): void {
         let anim = new S2LerpAnim(this)
-            .addUpdateTarget(this.path)
-            .bind(this.path.data.pathTo)
-            .setCycleDuration(2000)
-            .setEasing(ease.inOut);
-
-        this.path.data.pathTo.set(1.0);
-        anim.commitFinalStates();
-        this.animator.addAnimation(anim);
-
-        anim = new S2LerpAnim(this)
-            .addUpdateTarget(this.path)
-            .bind(this.path.data.pathFrom)
+            .addUpdateTarget(this.getSVG())
+            .bind(this.node1.data.position)
             .setCycleDuration(1000)
             .setEasing(ease.inOut);
 
-        this.path.data.pathFrom.set(0.8);
-
-        this.animator.addAnimation(anim.commitFinalStates(), 'previous-start', 1000);
-
+        this.node1.data.position.set(-5, 3, 'world');
+        this.animator.addAnimation(anim.commitFinalStates());
         this.animator.makeStep();
 
         anim = new S2LerpAnim(this)
-            .addUpdateTarget(this.circle)
-            .bind(this.circle.data.opacity)
-            .setCycleDuration(500)
+            .addUpdateTarget(this.getSVG())
+            .bind(this.node2.data.position)
+            .setCycleDuration(1000)
             .setEasing(ease.inOut);
 
-        this.circle.data.opacity.set(1.0);
+        this.node2.data.position.set(+5, -3, 'world');
         this.animator.addAnimation(anim.commitFinalStates());
-
         this.animator.makeStep();
+
         anim = new S2LerpAnim(this)
-            .addUpdateTarget(this.circle)
-            .addUpdateTarget(this.path)
-            .bind(this.circle.data.position)
-            .bind(this.circle.data.fill.color);
-        anim.bind(this.circle.data.stroke.color)
-            .bind(this.path.data.stroke.color)
-            .setCycleDuration(600)
-            .setCycleCount(3)
-            .setAlternate(true)
+            .addUpdateTarget(this.getSVG())
+            .bind(this.node1.data.position)
+            .bind(this.node1.data.background.cornerRadius)
+            .bind(this.node1.data.background.fill.color)
+            .bind(this.node1.data.text.fill.color)
+            .bind(this.node2.data.position)
+            .setCycleDuration(1000)
             .setEasing(ease.inOut);
 
-        const anim2 = new S2LerpAnim(this)
-            .addUpdateTarget(this.circle)
-            .bind(this.circle.data.radius)
-            .setCycleDuration(1800)
-            .setEasing(ease.inOut);
-
-        S2DataSetter.addTarget(this.circle.data)
-            .setPosition(-2, 0, 'world')
-            .setFillColor(MTL.LIGHT_GREEN_9)
-            .setStrokeColor(MTL.LIGHT_GREEN_5)
-            .setRadius(20, 'view');
-        S2DataSetter.addTarget(this.path.data).setStrokeColor(MTL.LIGHT_GREEN_5);
-
+        this.node1.data.position.set(-2, 0, 'world');
+        this.node1.data.background.cornerRadius.set(0.5, 'world');
+        this.node1.data.background.fill.color.copy(MTL.GREY_5);
+        this.node1.data.text.fill.color.copy(MTL.BLACK);
+        this.node2.data.position.set(+2, 0, 'world');
         this.animator.addAnimation(anim.commitFinalStates());
-        this.animator.addAnimation(anim2.commitFinalStates(), 'previous-start', 0);
+        this.animator.makeStep();
     }
 }
 

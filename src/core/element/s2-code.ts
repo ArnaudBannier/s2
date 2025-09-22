@@ -315,6 +315,7 @@ export class S2Code extends S2Element<S2CodeData> {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
 
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
@@ -445,6 +446,7 @@ export class S2TextEmphasis extends S2Element<S2TextEmphasisData> {
     update(): void {
         if (!this.isDirty()) return;
         if (this.textReference === null) return;
+
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
         const position = this.textReference.getPosition(space);

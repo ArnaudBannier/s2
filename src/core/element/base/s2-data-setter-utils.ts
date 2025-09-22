@@ -10,6 +10,12 @@ export class S2DataSetterUtils {
         }
     }
 
+    // static setBackgroundColor(data: S2BaseData, color: S2Color): void {
+    //     if ('background' in data && data.background instanceof S2FillData) {
+    //         data.background.color.copy(color);
+    //     }
+    // }
+
     static setColor(data: S2BaseData, color: S2Color): void {
         if ('color' in data && data.color instanceof S2Color) {
             data.color.copy(color);

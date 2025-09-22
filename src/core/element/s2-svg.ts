@@ -17,6 +17,7 @@ export class S2SVG extends S2Element<S2BaseData> {
 
     update(): void {
         if (!this.isDirty()) return;
+        if (!this.element.isConnected) return;
 
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('viewBox', `0 0 ${camera.viewport.width} ${camera.viewport.height}`);
