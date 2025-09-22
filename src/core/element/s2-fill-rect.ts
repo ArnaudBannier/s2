@@ -20,10 +20,10 @@ export class S2FillRectData extends S2BaseData {
         this.color.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.color.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.opacity.clearDirty();
+        this.color.clearDirty();
     }
 }
 
@@ -40,7 +40,7 @@ export class S2FillRect extends S2Element<S2FillRectData> {
     }
 
     update(): void {
-        if (this.dirty === false) return;
+        if (!this.isDirty()) return;
 
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('x', '0');
@@ -50,6 +50,6 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         S2DataUtils.applyColor(this.data.color, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
 
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }

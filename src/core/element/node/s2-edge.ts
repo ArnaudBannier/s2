@@ -1,13 +1,13 @@
-import { S2Vec2 } from '../math/s2-vec2';
-import { S2BaseScene } from '../s2-base-scene';
+import { S2Vec2 } from '../../math/s2-vec2';
+import { S2BaseScene } from '../../s2-base-scene';
 import { S2Node } from './s2-node';
-import { S2Path } from './s2-path';
-import { type S2Space, S2TypeState, S2Length, S2Number, S2Position } from '../s2-types';
-import { S2Camera } from '../math/s2-camera';
-import { S2Element } from './base/s2-element';
-import { S2BaseData, S2StrokeData } from './base/s2-base-data';
-import { type S2Tipable, S2TipTransform, svgNS } from '../s2-globals';
-import { S2ArrowTip } from './s2-arrow-tip';
+import { S2Path } from '../s2-path';
+import { type S2Space, S2TypePriority, S2Length, S2Number, S2Position } from '../../s2-types';
+import { S2Camera } from '../../math/s2-camera';
+import { S2Element } from '../base/s2-element';
+import { S2BaseData, S2StrokeData } from '../base/s2-base-data';
+import { type S2Tipable, S2TipTransform, svgNS } from '../../s2-globals';
+import { S2ArrowTip } from '../s2-arrow-tip';
 
 // S2NodeArcManhattan
 
@@ -80,19 +80,19 @@ export class S2EdgeData extends S2BaseData {
     constructor() {
         super();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Active);
+        this.opacity = new S2Number(1);
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
-        this.startDistance = new S2Length(0, 'view', S2TypeState.Inactive);
-        this.endDistance = new S2Length(0, 'view', S2TypeState.Inactive);
-        this.startAngle = new S2Number(0, S2TypeState.Inactive);
-        this.endAngle = new S2Number(0, S2TypeState.Inactive);
+        this.startDistance = new S2Length(0, 'view');
+        this.endDistance = new S2Length(0, 'view');
+        this.startAngle = new S2Number(0);
+        this.endAngle = new S2Number(0);
         this.start = new S2EdgeEndpoint();
         this.end = new S2EdgeEndpoint();
 
-        this.stroke.width.set(4, 'view', S2TypeState.Active);
-        this.stroke.color.set(0, 0, 0, S2TypeState.Active);
-        this.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.width.set(4, 'view');
+        this.stroke.color.set(0, 0, 0);
+        this.opacity.set(1);
     }
 }
 
@@ -189,6 +189,8 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
     }
 
     update(): void {
+        if (!this.isDirty()) return;
+
         const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
         const startDirection = this.getStartToEnd(space).normalize();
@@ -206,6 +208,8 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         this.applyStyleToPath();
         this.path.data.space.set(space);
         this.path.clear().moveToV(start).lineToV(end).update();
+
+        this.clearDirty();
     }
 }
 
@@ -216,9 +220,9 @@ export class S2CubicEdgeData extends S2EdgeData {
 
     constructor() {
         super();
-        this.curveStartTension = new S2Number(0.3, S2TypeState.Inactive);
-        this.curveEndTension = new S2Number(0.3, S2TypeState.Inactive);
-        this.curveBendAngle = new S2Number(0, S2TypeState.Inactive);
+        this.curveStartTension = new S2Number(0.3, S2TypePriority.Normal);
+        this.curveEndTension = new S2Number(0.3, S2TypePriority.Normal);
+        this.curveBendAngle = new S2Number(0, S2TypePriority.Normal);
     }
 }
 
@@ -228,6 +232,8 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
     }
 
     update(): void {
+        if (!this.isDirty()) return;
+
         const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
         const sign = -1;
@@ -261,5 +267,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         this.applyStyleToPath();
         this.path.data.space.set(space);
         this.path.clear().moveToV(start).cubicToV(startDirection, endDirection, end).update();
+
+        this.clearDirty();
     }
 }

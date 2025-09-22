@@ -1,7 +1,7 @@
 import { S2BaseScene } from '../s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Dirtyable } from '../s2-globals';
-import { type S2Space, S2Length, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
+import { type S2Space, S2Length, S2Number, S2Position, S2Transform } from '../s2-types';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2BaseData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
@@ -18,14 +18,13 @@ export class S2CircleData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.position = new S2Position(0, 0, 'world');
         this.radius = new S2Length(1, 'world');
 
-        this.stroke.opacity.set(1, S2TypeState.Inactive);
-        this.transform.state = S2TypeState.Inactive;
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.opacity.set(1);
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -36,14 +35,14 @@ export class S2CircleData extends S2BaseData {
         this.radius.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.transform.resetDirtyFlags();
-        this.position.resetDirtyFlags();
-        this.radius.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.transform.clearDirty();
+        this.position.clearDirty();
+        this.radius.clearDirty();
     }
 }
 
@@ -72,7 +71,7 @@ export class S2Circle extends S2Element<S2CircleData> {
     }
 
     update(): void {
-        if (this.dirty === false) return;
+        if (!this.isDirty()) return;
 
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
@@ -81,6 +80,6 @@ export class S2Circle extends S2Element<S2CircleData> {
         S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');
         S2DataUtils.applyRadius(this.data.radius, this.element, this.scene);
 
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }

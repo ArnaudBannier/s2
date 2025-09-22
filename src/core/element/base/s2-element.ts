@@ -30,16 +30,17 @@ export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable 
         return this.dirty;
     }
 
-    setDirty(): void {
+    markDirty(): void {
+        if (this.isDirty()) return;
         this.dirty = true;
         if (this.parent) {
-            this.parent.setDirty();
+            this.parent.markDirty();
         }
     }
 
-    resetDirtyFlags(): void {
+    clearDirty(): void {
         this.dirty = false;
-        this.data.resetDirtyFlags();
+        this.data.clearDirty();
     }
 
     setIsActive(isActive: boolean): this {
@@ -58,12 +59,12 @@ export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable 
                 this.parent.children.splice(index, 1);
                 this.parent.childrenChanged = true;
             }
-            this.parent.updateSVGChildren(); // TODO REMOVE
+            this.parent.markDirty();
         }
         if (parent !== null) {
             parent.children.push(this);
             parent.childrenChanged = true;
-            parent.updateSVGChildren(); // TODO REMOVE
+            parent.markDirty();
         }
         this.parent = parent;
         return this;
@@ -83,6 +84,9 @@ export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable 
 
     // Appel dans setParent et setIsActive et setLayer ?
     updateSVGChildren(): this {
+        if (this.childrenChanged === false) return this;
+
+        // Sort by layer, then by id to ensure stable order
         this.children.sort((a: S2BaseElement, b: S2BaseElement): number => {
             if (a.data.layer.value !== b.data.layer.value) return a.data.layer.value - b.data.layer.value;
             return a.id - b.id;

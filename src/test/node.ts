@@ -1,15 +1,15 @@
 import './style.css';
-import { S2Vec2 } from './core/math/s2-vec2.ts';
-import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL } from './utils/mtl-colors.ts';
-import { S2Circle } from './core/element/s2-circle.ts';
-import { S2Path } from './core/element/s2-path.ts';
-import { S2Scene } from './core/s2-scene.ts';
-import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
-import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
-import { ease } from './core/animation/s2-easing.ts';
-import { S2MathUtils } from './core/math/s2-utils.ts';
-import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
+import { S2Vec2 } from '../core/math/s2-vec2.ts';
+import { S2Camera } from '../core/math/s2-camera.ts';
+import { MTL } from '../utils/mtl-colors.ts';
+import { S2Circle } from '../core/element/s2-circle.ts';
+import { S2Path } from '../core/element/s2-path.ts';
+import { S2Scene } from '../core/s2-scene.ts';
+import { S2StepAnimator } from '../core/animation/s2-step-animator.ts';
+import { S2LerpAnim } from '../core/animation/s2-lerp-anim.ts';
+import { ease } from '../core/animation/s2-easing.ts';
+import { S2MathUtils } from '../core/math/s2-utils.ts';
+import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
 // import { S2BaseData } from './core/element/base/s2-base-data.ts';
 // import { S2Position } from './core/s2-types.ts';
 

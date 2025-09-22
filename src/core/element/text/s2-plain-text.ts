@@ -8,13 +8,13 @@ import { S2TextData } from './s2-text-data';
 
 export class S2PlainText extends S2Element<S2TextData> {
     protected element: SVGTextElement;
-    protected bBox: S2BBox;
+    protected localBBox: S2BBox;
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2TextData());
         this.element = document.createElementNS(svgNS, 'text');
-        this.bBox = new S2BBox();
-        this.bBox.setOwner(this);
+        this.localBBox = new S2BBox();
+        this.localBBox.setOwner(this);
     }
 
     getSVGElement(): SVGElement {
@@ -23,7 +23,7 @@ export class S2PlainText extends S2Element<S2TextData> {
 
     setContent(content: string): this {
         this.element.textContent = content;
-        this.bBox.setDirty();
+        this.localBBox.markDirty();
         return this;
     }
 
@@ -32,26 +32,28 @@ export class S2PlainText extends S2Element<S2TextData> {
     }
 
     getExtents(space: S2Space): S2Vec2 {
-        return this.bBox.getExtents(space, this.scene.getActiveCamera());
+        return this.localBBox.getExtents(space, this.scene.getActiveCamera());
     }
 
     getCenter(space: S2Space): S2Vec2 {
-        return this.bBox.getCenter(space, this.scene.getActiveCamera());
+        const localCenter = this.localBBox.getCenter(space, this.scene.getActiveCamera());
+        const position = this.getPosition(space);
+        return localCenter.addV(position);
     }
 
     clearText(): this {
         this.element.replaceChildren();
-        this.bBox.setDirty();
+        this.localBBox.markDirty();
         return this;
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.bBox.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.localBBox.clearDirty();
     }
 
     update(): void {
-        if (this.dirty === false) return;
+        if (!this.isDirty()) return;
 
         this.updateSVGChildren();
 
@@ -65,15 +67,12 @@ export class S2PlainText extends S2Element<S2TextData> {
         S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
 
         const isBBoxDirty =
-            this.bBox.isDirty() ||
-            this.data.font.isDirty() ||
-            this.data.preserveWhitespace.isDirty() ||
-            this.data.textAnchor.isDirty();
+            this.localBBox.isDirty() || this.data.font.isDirty() || this.data.preserveWhitespace.isDirty();
 
         if (isBBoxDirty) {
-            this.bBox.set(this.element, null, this.scene.getActiveCamera());
+            this.localBBox.set(this.element, this.data.position, this.scene.getActiveCamera());
         }
 
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }

@@ -1,5 +1,5 @@
 import { type S2Dirtyable, type S2TextAnchor } from '../../s2-globals';
-import { S2Boolean, S2Enum, S2Number, S2Position, S2Transform, S2TypeState } from '../../s2-types';
+import { S2Boolean, S2Enum, S2Number, S2Position, S2Transform } from '../../s2-types';
 import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 
 export class S2TextData extends S2BaseData {
@@ -16,16 +16,15 @@ export class S2TextData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.position = new S2Position(0, 0, 'world');
         this.font = new S2FontData();
         this.textAnchor = new S2Enum<S2TextAnchor>('start');
-        this.preserveWhitespace = new S2Boolean(false, S2TypeState.Inactive);
+        this.preserveWhitespace = new S2Boolean(false);
 
-        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
-        this.transform.state = S2TypeState.Inactive;
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.width.set(0, 'view');
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -38,15 +37,15 @@ export class S2TextData extends S2BaseData {
         this.preserveWhitespace.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.transform.resetDirtyFlags();
-        this.position.resetDirtyFlags();
-        this.font.resetDirtyFlags();
-        this.textAnchor.resetDirtyFlags();
-        this.preserveWhitespace.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.transform.clearDirty();
+        this.position.clearDirty();
+        this.font.clearDirty();
+        this.textAnchor.clearDirty();
+        this.preserveWhitespace.clearDirty();
     }
 }

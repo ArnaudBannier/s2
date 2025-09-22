@@ -16,7 +16,7 @@ import {
     S2Number,
     S2Position,
     S2Transform,
-    S2TypeState,
+    S2TypePriority,
     type S2Space,
 } from '../../s2-types';
 import { S2Element } from '../base/s2-element';
@@ -31,7 +31,7 @@ export class S2TextLineData extends S2TextData {
     constructor() {
         super();
         this.skip = new S2Length(0, 'view');
-        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left', S2TypeState.Inactive);
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left', S2TypePriority.Normal);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -40,10 +40,10 @@ export class S2TextLineData extends S2TextData {
         this.horizontalAlign.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.skip.resetDirtyFlags();
-        this.horizontalAlign.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.skip.clearDirty();
+        this.horizontalAlign.clearDirty();
     }
 }
 
@@ -71,19 +71,18 @@ export class S2TextGroupData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.position = new S2Position(0, 0, 'world');
         this.font = new S2FontData();
         this.skip = new S2Length(0, 'view');
-        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left', S2TypeState.Inactive);
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left');
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.anchor = new S2Enum<S2Anchor>('center');
 
-        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
-        this.transform.state = S2TypeState.Inactive;
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.width.set(0, 'view');
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -100,19 +99,19 @@ export class S2TextGroupData extends S2BaseData {
         this.anchor.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.transform.resetDirtyFlags();
-        this.position.resetDirtyFlags();
-        this.font.resetDirtyFlags();
-        this.skip.resetDirtyFlags();
-        this.horizontalAlign.resetDirtyFlags();
-        this.verticalAlign.resetDirtyFlags();
-        this.minExtents.resetDirtyFlags();
-        this.anchor.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.transform.clearDirty();
+        this.position.clearDirty();
+        this.font.clearDirty();
+        this.skip.clearDirty();
+        this.horizontalAlign.clearDirty();
+        this.verticalAlign.clearDirty();
+        this.minExtents.clearDirty();
+        this.anchor.clearDirty();
     }
 }
 
@@ -179,38 +178,38 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         );
     }
 
-    refreshExtents(): this {
-        this.contentExtents.set(0, 0, 'view');
-        this.extents.set(0, 0, 'view');
+    // refreshExtents(): this {
+    //     this.contentExtents.set(0, 0, 'view');
+    //     this.extents.set(0, 0, 'view');
 
-        const camera = this.scene.getActiveCamera();
-        const space = 'view';
+    //     const camera = this.scene.getActiveCamera();
+    //     const space = 'view';
 
-        // Apply font to group element to ensure correct measurement of bounding boxes
-        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+    //     // Apply font to group element to ensure correct measurement of bounding boxes
+    //     S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
-        let maxWidth = 0;
-        let totalHeight = 0;
-        for (let i = 0; i < this.textLines.length; i++) {
-            const line = this.textLines[i];
-            line.update();
-            line.updateExtents();
-            //
-            const lineExtents = line.getExtents('view');
-            const font = line.data.font;
-            const relativeHeight = font.relativeLineHeight.getInherited();
-            const size = font.size.getInherited(space, camera);
-            maxWidth = Math.max(lineExtents.x * 2, maxWidth);
-            totalHeight += line.data.skip.value + relativeHeight * size;
-        }
-        const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
-        const minExtents = this.data.minExtents.toSpace(space, camera);
-        const extents = minExtents.maxV(textExtents);
+    //     let maxWidth = 0;
+    //     let totalHeight = 0;
+    //     for (let i = 0; i < this.textLines.length; i++) {
+    //         const line = this.textLines[i];
+    //         line.update();
+    //         line.updateExtents();
+    //         //
+    //         const lineExtents = line.getExtents('view');
+    //         const font = line.data.font;
+    //         const relativeHeight = font.relativeLineHeight.getInherited();
+    //         const size = font.size.getInherited(space, camera);
+    //         maxWidth = Math.max(lineExtents.x * 2, maxWidth);
+    //         totalHeight += line.data.skip.value + relativeHeight * size;
+    //     }
+    //     const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
+    //     const minExtents = this.data.minExtents.toSpace(space, camera);
+    //     const extents = minExtents.maxV(textExtents);
 
-        this.contentExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
-        this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
-        return this;
-    }
+    //     this.contentExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
+    //     this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
+    //     return this;
+    // }
 
     // updateExtents(): void {
     //     const camera = this.scene.getActiveCamera();
@@ -240,16 +239,13 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
     // }
 
     update(): void {
-        if (this.dirty === false) return;
+        if (!this.isDirty()) return;
         if (this.textLines.length === 0) return;
         const camera = this.scene.getActiveCamera();
         const space = 'view';
+        this.updateSVGChildren();
 
-        // S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
-        // S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
-        // S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-        //S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
         const font = this.data.font;
         const ascenderHeight = font.relativeAscenderHeight.value * font.size.value;
@@ -316,6 +312,6 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
             line.update();
         }
 
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }

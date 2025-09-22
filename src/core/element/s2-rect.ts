@@ -2,7 +2,7 @@ import { S2ShapeUtils } from '../math/s2-shape-utils';
 import { S2BaseScene } from '../s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils, type S2Dirtyable } from '../s2-globals';
-import { type S2Space, S2Length, S2Extents, S2Enum, S2Number, S2Transform, S2Position, S2TypeState } from '../s2-types';
+import { type S2Space, S2Length, S2Extents, S2Enum, S2Number, S2Transform, S2Position } from '../s2-types';
 import { S2BaseData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -22,16 +22,15 @@ export class S2RectData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.position = new S2Position(0, 0, 'world');
         this.extents = new S2Extents(1, 1, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.cornerRadius = new S2Length(0, 'view');
 
-        this.stroke.opacity.set(1, S2TypeState.Inactive);
-        this.transform.state = S2TypeState.Inactive;
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.opacity.set(1);
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -45,16 +44,16 @@ export class S2RectData extends S2BaseData {
         this.cornerRadius.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.transform.resetDirtyFlags();
-        this.position.resetDirtyFlags();
-        this.extents.resetDirtyFlags();
-        this.anchor.resetDirtyFlags();
-        this.cornerRadius.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.transform.clearDirty();
+        this.position.clearDirty();
+        this.extents.clearDirty();
+        this.anchor.clearDirty();
+        this.cornerRadius.clearDirty();
     }
 }
 
@@ -94,7 +93,8 @@ export class S2Rect extends S2Element<S2RectData> {
     }
 
     update(): void {
-        if (this.dirty === false) return;
+        if (!this.isDirty()) return;
+
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
@@ -108,6 +108,7 @@ export class S2Rect extends S2Element<S2RectData> {
         );
         S2DataUtils.applyExtents(this.data.extents, this.element, this.scene);
         S2DataUtils.applyCornerRadius(this.data.cornerRadius, this.element, this.scene);
-        this.resetDirtyFlags();
+
+        this.clearDirty();
     }
 }

@@ -1,26 +1,16 @@
-import { S2Vec2 } from '../math/s2-vec2';
-import { S2BaseScene } from '../s2-base-scene';
-import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../s2-globals';
-import { S2AnchorUtils, S2FlexUtils, svgNS } from '../s2-globals';
-import { S2Rect } from './s2-rect';
-import { S2Circle } from './s2-circle';
-import {
-    S2Color,
-    S2Enum,
-    S2Extents,
-    S2Length,
-    S2Number,
-    S2Position,
-    S2Transform,
-    S2TypeState,
-    type S2Space,
-} from '../s2-types';
-import { S2TextGroup, S2TextLine } from './text/s2-text-group';
-import { clamp } from '../math/s2-utils';
-import { S2Line } from './s2-line';
-import { S2Element } from './base/s2-element';
-import { S2FontData, S2BaseData, S2FillData, S2StrokeData } from './base/s2-base-data';
-import { S2DataUtils } from './base/s2-data-utils';
+import { S2Vec2 } from '../../math/s2-vec2';
+import { S2BaseScene } from '../../s2-base-scene';
+import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../../s2-globals';
+import { S2AnchorUtils, S2FlexUtils, svgNS } from '../../s2-globals';
+import { S2Rect } from '../s2-rect';
+import { S2Circle } from '../s2-circle';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../../s2-types';
+import { S2TextGroup, S2TextLine } from '../text/s2-text-group';
+import { clamp } from '../../math/s2-utils';
+import { S2Line } from '../s2-line';
+import { S2Element } from '../base/s2-element';
+import { S2FontData, S2BaseData, S2FillData, S2StrokeData } from '../base/s2-base-data';
+import { S2DataUtils } from '../base/s2-data-utils';
 
 export class S2NodeData extends S2BaseData {
     public readonly position: S2Position;
@@ -43,98 +33,6 @@ export class S2NodeData extends S2BaseData {
         this.padding = new S2Extents(10, 5, 'view');
         this.partSep = new S2Length(5, 'view');
     }
-
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        super.applyToElement(element, scene);
-    }
-
-    get textHorizontalAlign(): S2Enum<S2HorizontalAlign> {
-        return this.text.horizontalAlign;
-    }
-
-    get textVerticalAlign(): S2Enum<S2VerticalAlign> {
-        return this.text.verticalAlign;
-    }
-
-    get textFillColor(): S2Color {
-        return this.text.fill.color;
-    }
-
-    get textOpacity(): S2Number {
-        return this.text.opacity;
-    }
-
-    get textFont(): S2FontData {
-        return this.text.font;
-    }
-
-    get backFillColor(): S2Color {
-        return this.background.fill.color;
-    }
-
-    get backFillOpacity(): S2Number {
-        return this.background.fill.opacity;
-    }
-
-    get backStrokeColor(): S2Color {
-        return this.background.stroke.color;
-    }
-
-    get backStrokeOpacity(): S2Number {
-        return this.background.stroke.opacity;
-    }
-
-    get backStrokeWidth(): S2Length {
-        return this.background.stroke.width;
-    }
-
-    get backCornerRadius(): S2Length {
-        return this.background.cornerRadius;
-    }
-
-    get backOpacity(): S2Number {
-        return this.background.opacity;
-    }
-
-    setPosition(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.position.set(x, y, space, state);
-        return this;
-    }
-
-    setPositionV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.position.setV(v, space, state);
-        return this;
-    }
-
-    setMinExtents(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.minExtents.set(x, y, space, state);
-        return this;
-    }
-
-    setMinExtentsV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.minExtents.setV(v, space, state);
-        return this;
-    }
-
-    setPadding(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.padding.set(x, y, space, state);
-        return this;
-    }
-
-    setPaddingV(v: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.padding.setV(v, space, state);
-        return this;
-    }
-
-    setPartSep(sep: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        this.partSep.set(sep, space, state);
-        return this;
-    }
-
-    setAnchor(anchor: S2Anchor, state: S2TypeState = S2TypeState.Active): this {
-        this.anchor.set(anchor, state);
-        return this;
-    }
 }
 
 export class S2NodeBackgroundData extends S2BaseData {
@@ -148,13 +46,12 @@ export class S2NodeBackgroundData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.cornerRadius = new S2Length(5, 'view');
 
-        this.stroke.opacity.set(1, S2TypeState.Inactive);
-        this.transform.state = S2TypeState.Inactive;
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.opacity.set(1);
+        this.fill.opacity.set(1);
     }
 }
 
@@ -172,15 +69,14 @@ export class S2NodeTextData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.font = new S2FontData();
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
 
-        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
-        this.transform.state = S2TypeState.Inactive;
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.width.set(0, 'view');
+        this.fill.opacity.set(1);
     }
 }
 
@@ -191,10 +87,10 @@ export class S2NodeSeparatorData extends S2BaseData {
     constructor() {
         super();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
 
-        this.stroke.width.set(2, 'view', S2TypeState.Inactive);
-        this.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.width.set(2, 'view');
+        this.opacity.set(1);
     }
 }
 
@@ -317,6 +213,8 @@ export class S2Node extends S2Element<S2NodeData> {
     // }
 
     update(): void {
+        if (!this.isDirty()) return;
+
         const camera = this.scene.getActiveCamera();
 
         if (this.background !== null) {
@@ -423,5 +321,7 @@ export class S2Node extends S2Element<S2NodeData> {
         for (const child of this.children) {
             child.update();
         }
+
+        this.clearDirty();
     }
 }

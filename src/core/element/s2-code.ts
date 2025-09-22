@@ -1,14 +1,14 @@
 import { S2BaseScene } from '../s2-base-scene';
 import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypeState, type S2Space } from '../s2-types';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypePriority, type S2Space } from '../s2-types';
 import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
 import { S2Rect } from './s2-rect';
-import { S2TSpan } from './text/s2-rich-text';
 import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-utils';
+import type { S2TSpan } from './text/s2-tspan';
 
 export type S2CodeToken = {
     type: string;
@@ -73,15 +73,15 @@ export class S2CodeData extends S2BaseData {
         this.opacity.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.position.resetDirtyFlags();
-        this.anchor.resetDirtyFlags();
-        this.padding.resetDirtyFlags();
-        this.text.resetDirtyFlags();
-        this.background.resetDirtyFlags();
-        this.currentLine.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.position.clearDirty();
+        this.anchor.clearDirty();
+        this.padding.clearDirty();
+        this.text.clearDirty();
+        this.background.clearDirty();
+        this.currentLine.clearDirty();
+        this.opacity.clearDirty();
     }
 }
 
@@ -97,12 +97,12 @@ export class S2CodeTextData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.font = new S2FontData();
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
 
-        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.width.set(0, 'view');
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -113,13 +113,13 @@ export class S2CodeTextData extends S2BaseData {
         this.verticalAlign.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.font.resetDirtyFlags();
-        this.verticalAlign.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.font.clearDirty();
+        this.verticalAlign.clearDirty();
     }
 }
 
@@ -133,11 +133,11 @@ export class S2CodeBackgroundData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.cornerRadius = new S2Length(5, 'view');
 
-        this.stroke.opacity.set(1, S2TypeState.Inactive);
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.opacity.set(1);
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -147,12 +147,12 @@ export class S2CodeBackgroundData extends S2BaseData {
         this.cornerRadius.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.cornerRadius.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.cornerRadius.clearDirty();
     }
 }
 
@@ -171,8 +171,8 @@ export class S2CodeCurrentLineData extends S2BaseData {
         this.index = new S2Number(0);
         this.padding = new S2Extents(0, 1, 'view');
 
-        this.stroke.opacity.set(1, S2TypeState.Inactive);
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.opacity.set(1);
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -183,13 +183,13 @@ export class S2CodeCurrentLineData extends S2BaseData {
         this.padding.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.index.resetDirtyFlags();
-        this.padding.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.index.clearDirty();
+        this.padding.clearDirty();
     }
 }
 
@@ -235,19 +235,25 @@ export class S2Code extends S2Element<S2CodeData> {
         switch (type) {
             case 'fn':
                 tspan.data.fill.color.copy(MTL.ORANGE_2);
+                tspan.data.fill.color.setPriority(S2TypePriority.Important);
                 break;
             case 'type':
                 tspan.data.fill.color.copy(MTL.CYAN_3);
+                tspan.data.fill.color.setPriority(S2TypePriority.Important);
                 break;
             case 'kw':
                 tspan.data.fill.color.copy(MTL.PURPLE_3);
+                tspan.data.fill.color.setPriority(S2TypePriority.Important);
                 tspan.data.font.weight.set(700);
+                tspan.data.font.weight.setPriority(S2TypePriority.Important);
                 break;
             case 'var':
                 tspan.data.fill.color.copy(MTL.LIGHT_BLUE_1);
+                tspan.data.fill.color.setPriority(S2TypePriority.Important);
                 break;
             case 'punct':
                 tspan.data.fill.color.copy(MTL.PURPLE_1);
+                tspan.data.fill.color.setPriority(S2TypePriority.Important);
                 break;
         }
     }
@@ -293,22 +299,22 @@ export class S2Code extends S2Element<S2CodeData> {
             } else {
                 const span = lineElement.addTSpan(token.value, token.type);
                 this.tokenStyleSetter(span, token.type);
-                span.update();
+                //span.update();
             }
         }
     }
 
-    refreshExtents(): this {
-        this.textGroup.refreshExtents();
-        return this;
-    }
+    // refreshExtents(): this {
+    //     this.textGroup.refreshExtents();
+    //     return this;
+    // }
 
     getSVGElement(): SVGElement {
         return this.element;
     }
 
     update(): void {
-        if (this.isDirty() === false) return;
+        if (!this.isDirty()) return;
 
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
@@ -324,7 +330,6 @@ export class S2Code extends S2Element<S2CodeData> {
         this.textGroup.data.stroke.copy(this.data.text.stroke);
         this.textGroup.update();
 
-        //this.textGroup.updateExtents();
         const textExtents = this.textGroup.getExtents(space);
         const padding = this.data.padding.toSpace(space, camera);
         const extents = textExtents.addV(padding);
@@ -377,7 +382,7 @@ export class S2Code extends S2Element<S2CodeData> {
             rect.update();
         }
 
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }
 
@@ -392,11 +397,11 @@ export class S2TextEmphasisData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.cornerRadius = new S2Length(5, 'view');
         this.padding = new S2Extents(4, 2, 'view');
-        this.stroke.opacity.set(1, S2TypeState.Inactive);
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.opacity.set(1);
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -407,13 +412,13 @@ export class S2TextEmphasisData extends S2BaseData {
         this.padding.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.cornerRadius.resetDirtyFlags();
-        this.padding.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.cornerRadius.clearDirty();
+        this.padding.clearDirty();
     }
 }
 
@@ -438,7 +443,7 @@ export class S2TextEmphasis extends S2Element<S2TextEmphasisData> {
     }
 
     update(): void {
-        if (this.isDirty() === false) return;
+        if (!this.isDirty()) return;
         if (this.textReference === null) return;
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
@@ -454,6 +459,6 @@ export class S2TextEmphasis extends S2Element<S2TextEmphasisData> {
         this.rect.data.cornerRadius.copy(this.data.cornerRadius);
         this.rect.update();
 
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }

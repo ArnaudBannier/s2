@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../s2-base-scene';
 import { S2TipTransform, svgNS, type S2Dirtyable, type S2Tipable } from '../s2-globals';
-import { S2Enum, S2Length, S2Number, S2Position, S2Transform, S2TypeState, type S2Space } from '../s2-types';
+import { S2Enum, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
 import { S2Element } from './base/s2-element';
@@ -22,7 +22,7 @@ export class S2PathData extends S2BaseData {
     constructor() {
         super();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.fill = new S2FillData();
         this.transform = new S2Transform();
         this.space = new S2Enum<S2Space>('world');
@@ -30,8 +30,7 @@ export class S2PathData extends S2BaseData {
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
 
-        this.transform.state = S2TypeState.Inactive;
-        this.fill.opacity.set(0, S2TypeState.Active);
+        this.fill.opacity.set(0);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -45,16 +44,16 @@ export class S2PathData extends S2BaseData {
         this.pathTo.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.transform.resetDirtyFlags();
-        this.space.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.transform.clearDirty();
+        this.space.clearDirty();
         //this.polyCurve.resetDirtyFlags();
-        this.pathFrom.resetDirtyFlags();
-        this.pathTo.resetDirtyFlags();
+        this.pathFrom.clearDirty();
+        this.pathTo.clearDirty();
     }
 }
 
@@ -131,7 +130,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         this.arrowTips.push(arrowTip);
         arrowTip.data.pathPosition.set(1);
         arrowTip.setTipableReference(this);
-        this.setDirty();
+        this.markDirty();
         return arrowTip;
     }
 
@@ -147,6 +146,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         if (index >= 0 && index < this.arrowTips.length) {
             this.arrowTips.splice(index, 1);
         }
+        this.markDirty();
         return this;
     }
 
@@ -155,11 +155,13 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         if (index >= 0) {
             this.arrowTips.splice(index, 1);
         }
+        this.markDirty();
         return this;
     }
 
     detachTipElements(): this {
         this.arrowTips.length = 0;
+        this.markDirty();
         return this;
     }
 
@@ -179,7 +181,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
 
     setSampleCount(sampleCount: number): this {
         this.sampleCount = sampleCount;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -253,7 +255,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     clear(): this {
         this.data.polyCurve.clear();
         this.endPosition.set(0, 0);
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -264,7 +266,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     moveToV(v: S2Vec2): this {
         this.currStart.copy(v);
         this.endPosition.copy(v);
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -275,7 +277,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     lineToV(v: S2Vec2): this {
         this.data.polyCurve.addLine(this.endPosition, v);
         this.endPosition.copy(v);
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -300,7 +302,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
             sampleCount,
         );
         this.endPosition.copy(v);
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -320,19 +322,19 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
             sampleCount,
         );
         this.endPosition.copy(v);
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     close(): this {
         if (S2Vec2.eq(this.currStart, this.endPosition)) return this;
         this.data.polyCurve.addLine(this.endPosition, this.currStart);
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     update(): void {
-        if (this.dirty === false) return;
+        if (!this.isDirty()) return;
 
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
@@ -346,13 +348,14 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
             this.element,
             this.scene,
         );
+
         for (const arrowTip of this.arrowTips) {
             arrowTip.data.fill.color.copy(this.data.stroke.color);
             arrowTip.data.fill.opacity.copy(this.data.stroke.opacity);
-            arrowTip.setDirty();
+            arrowTip.markDirty();
             arrowTip.update();
         }
 
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }

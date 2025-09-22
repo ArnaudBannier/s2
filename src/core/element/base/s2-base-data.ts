@@ -1,6 +1,5 @@
 import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin } from '../../s2-globals';
-import { S2BaseScene } from '../../s2-base-scene';
-import { S2Color, S2TypeState, S2Length, S2Number, S2Enum, S2String } from '../../s2-types';
+import { S2Color, S2TypePriority, S2Length, S2Number, S2Enum, S2String } from '../../s2-types';
 
 export class S2BaseData {
     public readonly layer: S2Number;
@@ -15,13 +14,8 @@ export class S2BaseData {
         void parent;
     }
 
-    applyToElement(element: SVGElement, scene: S2BaseScene): void {
-        void element;
-        void scene;
-    }
-
-    setLayer(layer: number, state: S2TypeState = S2TypeState.Active): this {
-        this.layer.set(layer, state);
+    setLayer(layer: number): this {
+        this.layer.set(layer);
         return this;
     }
 
@@ -29,8 +23,8 @@ export class S2BaseData {
         this.layer.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        this.layer.resetDirtyFlags();
+    clearDirty(): void {
+        this.layer.clearDirty();
     }
 }
 
@@ -44,11 +38,11 @@ export class S2StrokeData implements S2Dirtyable {
     private owner: S2Dirtyable | null;
 
     constructor() {
-        this.color = new S2Color(0, 0, 0, S2TypeState.Inactive);
+        this.color = new S2Color(0, 0, 0, S2TypePriority.Normal);
         this.width = new S2Length(0, 'view');
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
-        this.lineCap = new S2Enum<S2LineCap>('round', S2TypeState.Inactive);
-        this.lineJoin = new S2Enum<S2LineJoin>('miter', S2TypeState.Inactive);
+        this.opacity = new S2Number(1, S2TypePriority.Normal);
+        this.lineCap = new S2Enum<S2LineCap>('round', S2TypePriority.Normal);
+        this.lineJoin = new S2Enum<S2LineJoin>('miter', S2TypePriority.Normal);
 
         this.dirty = true;
         this.owner = null;
@@ -64,9 +58,10 @@ export class S2StrokeData implements S2Dirtyable {
         return this.dirty;
     }
 
-    setDirty(): void {
+    markDirty(): void {
+        if (this.isDirty()) return;
         this.dirty = true;
-        this.owner?.setDirty();
+        this.owner?.markDirty();
     }
 
     copy(other: S2StrokeData): void {
@@ -82,13 +77,13 @@ export class S2StrokeData implements S2Dirtyable {
         this.owner = owner;
     }
 
-    resetDirtyFlags(): void {
+    clearDirty(): void {
         this.dirty = false;
-        this.color.resetDirtyFlags();
-        this.width.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.lineCap.resetDirtyFlags();
-        this.lineJoin.resetDirtyFlags();
+        this.color.clearDirty();
+        this.width.clearDirty();
+        this.opacity.clearDirty();
+        this.lineCap.clearDirty();
+        this.lineJoin.clearDirty();
     }
 }
 
@@ -99,8 +94,8 @@ export class S2FillData implements S2Dirtyable {
     private owner: S2Dirtyable | null;
 
     constructor() {
-        this.color = new S2Color(255, 255, 255, S2TypeState.Inactive);
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.color = new S2Color(255, 255, 255, S2TypePriority.Normal);
+        this.opacity = new S2Number(1, S2TypePriority.Normal);
         this.dirty = true;
         this.owner = null;
 
@@ -112,9 +107,10 @@ export class S2FillData implements S2Dirtyable {
         return this.dirty;
     }
 
-    setDirty(): void {
+    markDirty(): void {
+        if (this.isDirty()) return;
         this.dirty = true;
-        this.owner?.setDirty();
+        this.owner?.markDirty();
     }
 
     copy(other: S2FillData): void {
@@ -127,14 +123,14 @@ export class S2FillData implements S2Dirtyable {
         this.owner = owner;
     }
 
-    resetDirtyFlags(): void {
+    clearDirty(): void {
         this.dirty = false;
-        this.color.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
+        this.color.clearDirty();
+        this.opacity.clearDirty();
     }
 }
 
-export class S2FontData {
+export class S2FontData implements S2Dirtyable {
     public readonly size: S2Length;
     public readonly weight: S2Number;
     public readonly relativeLineHeight: S2Number;
@@ -166,9 +162,10 @@ export class S2FontData {
         return this.dirty;
     }
 
-    setDirty(): void {
+    markDirty(): void {
+        if (this.isDirty()) return;
         this.dirty = true;
-        this.owner?.setDirty();
+        this.owner?.markDirty();
     }
 
     copy(other: S2FontData): void {
@@ -185,13 +182,13 @@ export class S2FontData {
         this.owner = owner;
     }
 
-    resetDirtyFlags(): void {
+    clearDirty(): void {
         this.dirty = false;
-        this.size.resetDirtyFlags();
-        this.weight.resetDirtyFlags();
-        this.relativeLineHeight.resetDirtyFlags();
-        this.relativeAscenderHeight.resetDirtyFlags();
-        this.family.resetDirtyFlags();
-        this.style.resetDirtyFlags();
+        this.size.clearDirty();
+        this.weight.clearDirty();
+        this.relativeLineHeight.clearDirty();
+        this.relativeAscenderHeight.clearDirty();
+        this.family.clearDirty();
+        this.style.clearDirty();
     }
 }

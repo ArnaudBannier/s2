@@ -19,6 +19,9 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         this.tspans = [];
         this.extents = new S2Extents(0, 0, 'view');
         this.localCenter = new S2Position(0, 0, 'view');
+
+        this.extents.setOwner(this);
+        this.localCenter.setOwner(this);
     }
 
     getSVGElement(): SVGElement {
@@ -42,9 +45,8 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         tspan.category = category ?? '';
 
         this.tspans.push(tspan);
-        this.setDirty();
-        this.extents.setDirty();
-        this.localCenter.setDirty();
+        this.extents.markDirty();
+        this.localCenter.markDirty();
         return tspan;
     }
 
@@ -84,17 +86,9 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         this.tspans.length = 0;
         this.element.replaceChildren();
         this.updateSVGChildren();
-        this.setDirty();
+        this.extents.markDirty();
+        this.localCenter.markDirty();
         return this;
-    }
-
-    // getBBox(): DOMRect {
-    //     return this.element.getBBox();
-    // }
-
-    getDimensions(): S2Vec2 {
-        const bbox = this.element.getBBox();
-        return new S2Vec2(bbox.width, bbox.height);
     }
 
     updateExtents(): this {
@@ -110,39 +104,39 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         }
         this.extents.set((upperBound.x - lowerBound.x) / 2, (upperBound.y - lowerBound.y) / 2, 'view');
         this.localCenter.set((upperBound.x + lowerBound.x) / 2, (upperBound.y + lowerBound.y) / 2, 'view');
-        this.extents.resetDirtyFlags();
-        this.localCenter.resetDirtyFlags();
+        this.extents.clearDirty();
+        this.localCenter.clearDirty();
         return this;
     }
 
     update(): void {
-        if (this.dirty === false) return;
+        if (!this.isDirty()) return;
 
         this.updateSVGChildren();
 
-        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
-        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        // S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        // S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'x', 'y');
-        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
         S2DataUtils.applyPreserveWhitespace(this.data.preserveWhitespace, this.element, this.scene);
         S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
 
-        if (this.data.font.isDirty() || this.data.preserveWhitespace.isDirty() || this.data.textAnchor.isDirty()) {
-            for (const tspan of this.tspans) {
-                tspan.data.font.copy(this.data.font);
-                tspan.updateLocalBBox(this.data.position);
-                tspan.update();
+        for (const tspan of this.tspans) {
+            if (this.data.fill.isDirty() || tspan.isDirty()) {
+                tspan.data.fill.copy(this.data.fill);
             }
-            this.extents.setDirty();
+            if (this.data.stroke.isDirty() || tspan.isDirty()) {
+                tspan.data.stroke.copy(this.data.stroke);
+            }
+            if (this.data.font.isDirty() || tspan.isDirty()) {
+                tspan.data.font.copy(this.data.font);
+            }
+            tspan.update();
         }
+        this.updateExtents();
 
-        if (this.extents.isDirty()) {
-            this.updateExtents();
-        }
-
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }
 

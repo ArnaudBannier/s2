@@ -15,8 +15,8 @@ export type S2FontStyle = 'normal' | 'italic' | 'oblique';
 
 export interface S2Dirtyable {
     isDirty(): boolean;
-    setDirty(): void;
-    resetDirtyFlags(): void;
+    markDirty(): void;
+    clearDirty(): void;
 }
 
 export class S2TipTransform {

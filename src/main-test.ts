@@ -7,8 +7,7 @@ import { S2Scene } from './core/s2-scene.ts';
 import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
-import { S2BaseData, S2FontData } from './core/element/base/s2-base-data.ts';
-import { S2Position } from './core/s2-types.ts';
+import { S2FontData } from './core/element/base/s2-base-data.ts';
 import { S2Code, tokenizeAlgorithm } from './core/element/s2-code.ts';
 import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
@@ -51,10 +50,10 @@ class SceneFigure extends S2Scene {
         this.animator = new S2StepAnimator(this);
 
         const fillRect = this.addFillRect();
-        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
+        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_5);
 
-        // const grid = this.addWorldGrid();
-        // S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
+        const grid = this.addWorldGrid();
+        S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
 
         const font = new S2FontData();
         font.family.set('monospace');
@@ -63,8 +62,6 @@ class SceneFigure extends S2Scene {
 
         const code = new S2Code(this);
         code.setParent(this.getSVG());
-
-        this.update();
 
         code.data.text.font.copy(font);
         code.data.text.fill.color.copy(MTL.WHITE);
@@ -81,7 +78,9 @@ class SceneFigure extends S2Scene {
         code.data.currentLine.padding.set(-0.5, 2, 'view');
         code.data.currentLine.index.set(0);
         code.setContent(tokenizeAlgorithm(algorithm));
-        code.update();
+        //code.update();
+
+        this.update();
 
         let anim = new S2LerpAnim(this)
             .addUpdateTarget(code)

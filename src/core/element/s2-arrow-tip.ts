@@ -2,7 +2,7 @@ import { ease } from '../animation/s2-easing';
 import { S2Mat2x3Builder } from '../math/s2-mat2x3-builder';
 import { S2BaseScene } from '../s2-base-scene';
 import { S2TipTransform, svgNS, type S2Dirtyable } from '../s2-globals';
-import { S2Extents, S2Length, S2Number, S2Position, S2Transform, S2TypeState } from '../s2-types';
+import { S2Extents, S2Length, S2Number, S2Position, S2Transform } from '../s2-types';
 import { S2BaseData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Element } from './base/s2-element';
@@ -21,15 +21,15 @@ export class S2ArrowTipData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.pathPosition = new S2Number(1);
         this.pathThreshold = new S2Length(30, 'view');
         this.extents = new S2Extents(5, 5, 'view');
         this.pathStrokeFactor = new S2Number(1);
 
-        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
-        this.stroke.opacity.set(1, S2TypeState.Inactive);
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.width.set(0, 'view');
+        this.stroke.opacity.set(1);
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -42,15 +42,15 @@ export class S2ArrowTipData extends S2BaseData {
         this.pathStrokeFactor.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.extents.resetDirtyFlags();
-        this.pathPosition.resetDirtyFlags();
-        this.pathThreshold.resetDirtyFlags();
-        this.pathStrokeFactor.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.extents.clearDirty();
+        this.pathPosition.clearDirty();
+        this.pathThreshold.clearDirty();
+        this.pathStrokeFactor.clearDirty();
     }
 }
 
@@ -76,10 +76,11 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
         this.updateTipShape();
     }
 
-    setDirty(): void {
+    markDirty(): void {
+        if (this.isDirty()) return;
         this.dirty = true;
         if (this.tipableReference) {
-            this.tipableReference.setDirty();
+            this.tipableReference.markDirty();
         }
     }
 
@@ -159,15 +160,15 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
     }
 
     update(): void {
-        if (this.dirty === false) return;
+        if (!this.isDirty()) return;
 
         this.updateTipTransform();
-        S2DataUtils.applyFill(this.data.fill, this.element, this.scene, 'always');
-        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene, 'always');
-        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene, 'always');
-        S2DataUtils.applyTransform(this.transform, this.element, this.scene, 'always');
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.transform, this.element, this.scene);
         this.element.setAttribute('d', this.tipShape);
 
-        this.resetDirtyFlags();
+        this.clearDirty();
     }
 }

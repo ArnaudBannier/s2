@@ -3,8 +3,8 @@ import { S2Vec2 } from './core/math/s2-vec2.ts';
 import { S2Camera } from './core/math/s2-camera.ts';
 import { MTL } from './utils/mtl-colors.ts';
 import { S2Scene } from './core/s2-scene.ts';
-import { S2Node } from './core/element/s2-node.ts';
-import { S2LineEdge } from './core/element/s2-edge.ts';
+import { S2Node } from './core/element/node/s2-node.ts';
+import { S2LineEdge } from './core/element/node/s2-edge.ts';
 import { S2Group } from './core/element/s2-group.ts';
 import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
 import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
@@ -140,7 +140,7 @@ class BTree {
 
         this.computeLayout(new S2Vec2(0, 0));
         this.createNodeLines(this.root, null);
-        this.update();
+        //this.update();
     }
 
     private createNodes(userTree: UserTreeNode<number>, depth: number = 0): BTreeNode {
@@ -165,8 +165,8 @@ class BTree {
         if (parent) {
             bTreeNode.parentEdge = this.scene.addLineEdge(parent.node, bTreeNode.node, this.edgeGroup);
             bTreeNode.parentEmphEdge = this.scene.addLineEdge(parent.node, bTreeNode.node, this.edgeGroup);
-            bTreeNode.parentEdge.update();
-            bTreeNode.parentEmphEdge.update();
+            // bTreeNode.parentEdge.update();
+            // bTreeNode.parentEmphEdge.update();
 
             bTreeNode.parentEmphEdge.data.pathFrom.set(0.0);
 
@@ -189,7 +189,7 @@ class BTree {
     private computeLayoutRec(bTreeNode: BTreeNode | null, index: number, depth: number): number {
         if (bTreeNode === null) return index;
         index = this.computeLayoutRec(bTreeNode.left, index, depth + 1);
-        bTreeNode.node.data.setPosition(
+        bTreeNode.node.data.position.set(
             this.center.x - this.extents.x + index * this.baseSep,
             this.center.y + this.extents.y - depth * this.levelDistance,
             'world',
@@ -220,7 +220,7 @@ class BTree {
                 .setEasing(ease.inOut);
 
             bTreeNode.parentEmphEdge.data.pathTo.set(1.0);
-            bTreeNode.parentEmphEdge.update();
+            //bTreeNode.parentEmphEdge.update();
             animator.addAnimation(anim.commitFinalStates());
         }
 
@@ -264,7 +264,7 @@ class BTree {
             .setEasing(ease.inOut);
 
         bTreeNode.parentEmphEdge.data.pathTo.set(0.0);
-        bTreeNode.parentEmphEdge.update();
+        //bTreeNode.parentEmphEdge.update();
         animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
 
         anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
@@ -358,10 +358,10 @@ class SceneFigure extends S2Scene {
             code.data.anchor.set('north-west');
             code.data.position.set(-7 + 0.2 * i, 4 - 0.2 * i, 'world');
             //code.data.opacity.set(0.25 + 0.25 * i);
-            code.refreshExtents();
-            code.update();
-            code.refreshExtents();
-            code.update();
+            // code.refreshExtents();
+            // code.update();
+            // code.refreshExtents();
+            // code.update();
         }
 
         this.update();
@@ -394,7 +394,7 @@ class SceneFigure extends S2Scene {
         code.data.opacity.set(1);
         this.animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
 
-        this.codeStack[depth].update();
+        //this.codeStack[depth].update();
 
         // Select
         this.tree.animateSelectNode(this.animator, bTreeNode);

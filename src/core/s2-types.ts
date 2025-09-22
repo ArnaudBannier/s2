@@ -5,14 +5,14 @@ import { S2Mat2x3 } from './math/s2-mat2x3';
 import type { S2Dirtyable } from './s2-globals';
 
 export type S2Space = 'world' | 'view';
-export enum S2TypeState {
-    Inactive = 'inactive',
-    Active = 'active',
+export enum S2TypePriority {
+    Normal = 'normal',
+    Important = 'important',
 }
 
 export abstract class S2BaseType implements S2Dirtyable {
     abstract readonly kind: string;
-    public state: S2TypeState = S2TypeState.Active;
+    public priority: S2TypePriority = S2TypePriority.Normal;
     public dirty: boolean = true;
     public owner: S2Dirtyable | null = null;
 
@@ -24,13 +24,21 @@ export abstract class S2BaseType implements S2Dirtyable {
         return this.dirty;
     }
 
-    setDirty(): void {
+    markDirty(): void {
+        if (this.isDirty()) return;
         this.dirty = true;
-        this.owner?.setDirty();
+        this.owner?.markDirty();
     }
 
-    resetDirtyFlags(): void {
+    clearDirty(): void {
         this.dirty = false;
+    }
+
+    setPriority(priority: S2TypePriority): this {
+        if (this.priority === priority) return this;
+        this.priority = priority;
+        this.markDirty();
+        return this;
     }
 }
 
@@ -38,34 +46,33 @@ export class S2Enum<T> extends S2BaseType {
     readonly kind = 'enum' as const;
     public value: T;
 
-    constructor(value: T, state: S2TypeState = S2TypeState.Active) {
+    constructor(value: T, priority: S2TypePriority = S2TypePriority.Normal) {
         super();
         this.value = value;
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2Enum<T> {
-        return new S2Enum(this.value, this.state);
+        return new S2Enum(this.value, this.priority);
     }
 
     copy(other: S2Enum<T>): this {
-        if (this.value === other.value && this.state === other.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (this.value === other.value) return this;
         this.value = other.value;
-        this.state = other.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
-    set(value: T, state: S2TypeState = S2TypeState.Active): this {
-        if (this.value === value && this.state === state) return this;
+    set(value: T): this {
+        if (this.value === value) return this;
         this.value = value;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        return this.state === S2TypeState.Active;
+        return this.priority === S2TypePriority.Normal;
     }
 
     getInherited(): T {
@@ -77,34 +84,33 @@ export class S2String extends S2BaseType {
     readonly kind = 'string' as const;
     public value: string;
 
-    constructor(value: string = '', state: S2TypeState = S2TypeState.Active) {
+    constructor(value: string = '', priority: S2TypePriority = S2TypePriority.Normal) {
         super();
         this.value = value;
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2String {
-        return new S2String(this.value, this.state);
+        return new S2String(this.value, this.priority);
     }
 
     copy(other: S2String): this {
-        if (this.value === other.value && this.state === other.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (this.value === other.value) return this;
         this.value = other.value;
-        this.state = other.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
-    set(value: string, state: S2TypeState = S2TypeState.Active): this {
-        if (this.value === value && this.state === state) return this;
+    set(value: string): this {
+        if (this.value === value) return this;
         this.value = value;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        return this.state === S2TypeState.Active;
+        return this.priority === S2TypePriority.Normal;
     }
 
     getInherited(): string {
@@ -120,34 +126,33 @@ export class S2Boolean extends S2BaseType {
     readonly kind = 'boolean' as const;
     public value: boolean;
 
-    constructor(value: boolean = false, state: S2TypeState = S2TypeState.Active) {
+    constructor(value: boolean = false, priority: S2TypePriority = S2TypePriority.Normal) {
         super();
         this.value = value;
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2Boolean {
-        return new S2Boolean(this.value, this.state);
+        return new S2Boolean(this.value, this.priority);
     }
 
     copy(other: S2Boolean): this {
-        if (this.value === other.value && this.state === other.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (this.value === other.value) return this;
         this.value = other.value;
-        this.state = other.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
-    set(value: boolean, state: S2TypeState = S2TypeState.Active): this {
-        if (this.value === value && this.state === state) return this;
+    set(value: boolean): this {
+        if (this.value === value) return this;
         this.value = value;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        return this.state === S2TypeState.Active;
+        return this.priority === S2TypePriority.Normal;
     }
 
     getInherited(): boolean {
@@ -163,21 +168,21 @@ export class S2Number extends S2BaseType {
     readonly kind = 'number' as const;
     public value: number;
 
-    constructor(value: number, state: S2TypeState = S2TypeState.Active) {
+    constructor(value: number, priority: S2TypePriority = S2TypePriority.Normal) {
         super();
         this.value = value;
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2Number {
-        return new S2Number(this.value, this.state);
+        return new S2Number(this.value, this.priority);
     }
 
     copy(other: S2Number): this {
-        if (this.value === other.value && this.state === other.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (this.value === other.value) return this;
         this.value = other.value;
-        this.state = other.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -185,8 +190,7 @@ export class S2Number extends S2BaseType {
         const value0 = state0.getInherited();
         const value1 = state1.getInherited();
         this.value = S2MathUtils.lerp(value0, value1, t);
-        this.state = S2TypeState.Active;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -194,16 +198,15 @@ export class S2Number extends S2BaseType {
         return new S2Number(0).lerp(state0, state1, t);
     }
 
-    set(value: number, state: S2TypeState = S2TypeState.Active): this {
-        if (this.value === value && this.state === state) return this;
+    set(value: number): this {
+        if (this.value === value) return this;
         this.value = value;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        return this.state === S2TypeState.Active;
+        return this.priority === S2TypePriority.Normal;
     }
 
     getInherited(): number {
@@ -221,25 +224,25 @@ export class S2Color extends S2BaseType {
     public g: number;
     public b: number;
 
-    constructor(r: number = 0, g: number = 0, b: number = 0, state: S2TypeState = S2TypeState.Active) {
+    constructor(r: number = 0, g: number = 0, b: number = 0, priority: S2TypePriority = S2TypePriority.Normal) {
         super();
         this.r = r;
         this.g = g;
         this.b = b;
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2Color {
-        return new S2Color(this.r, this.g, this.b, this.state);
+        return new S2Color(this.r, this.g, this.b, this.priority);
     }
 
     copy(color: S2Color): this {
-        if (this.r === color.r && this.g === color.g && this.b === color.b && this.state === color.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (this.r === color.r && this.g === color.g && this.b === color.b) return this;
         this.r = color.r;
         this.g = color.g;
         this.b = color.b;
-        this.state = color.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -249,8 +252,7 @@ export class S2Color extends S2BaseType {
         this.r = S2MathUtils.lerp(value0.r, value1.r, t);
         this.g = S2MathUtils.lerp(value0.g, value1.g, t);
         this.b = S2MathUtils.lerp(value0.b, value1.b, t);
-        this.state = S2TypeState.Active;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -258,17 +260,16 @@ export class S2Color extends S2BaseType {
         return new S2Color().lerp(color0, color1, t);
     }
 
-    set(r: number, g: number, b: number, state: S2TypeState = S2TypeState.Active): this {
-        if (this.r === r && this.g === g && this.b === b && this.state === state) return this;
+    set(r: number, g: number, b: number): this {
+        if (this.r === r && this.g === g && this.b === b) return this;
         this.r = r;
         this.g = g;
         this.b = b;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
-    setFromHex(hex: string, state: S2TypeState = S2TypeState.Active): this {
+    setFromHex(hex: string): this {
         if (!/^#([0-9A-Fa-f]{6})$/.test(hex)) {
             throw new Error(`Invalid hex color: ${hex}`);
         }
@@ -276,13 +277,12 @@ export class S2Color extends S2BaseType {
         this.r = (num >> 16) & 0xff;
         this.g = (num >> 8) & 0xff;
         this.b = num & 0xff;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
-    static fromHex(hex: string, state: S2TypeState = S2TypeState.Active): S2Color {
-        return new S2Color().setFromHex(hex, state);
+    static fromHex(hex: string): S2Color {
+        return new S2Color().setFromHex(hex);
     }
 
     toHex(): string {
@@ -294,7 +294,7 @@ export class S2Color extends S2BaseType {
     }
 
     hasActiveHierarchy(): boolean {
-        return this.state === S2TypeState.Active;
+        return this.priority === S2TypePriority.Normal;
     }
 
     getInherited(): { r: number; g: number; b: number } {
@@ -311,23 +311,28 @@ export class S2Position extends S2BaseType {
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', state: S2TypeState = S2TypeState.Active) {
+    constructor(
+        x: number = 0,
+        y: number = 0,
+        space: S2Space = 'world',
+        priority: S2TypePriority = S2TypePriority.Normal,
+    ) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2Position {
-        return new S2Position(this.value.x, this.value.y, this.space, this.state);
+        return new S2Position(this.value.x, this.value.y, this.space, this.priority);
     }
 
     copy(other: S2Position): this {
-        if (S2Vec2.eq(this.value, other.value) && this.space === other.space && this.state === other.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (S2Vec2.eq(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
-        this.state = other.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -336,9 +341,8 @@ export class S2Position extends S2BaseType {
         const value0 = state0.getInherited(space, camera);
         const value1 = state1.getInherited(space, camera);
         this.value = S2Vec2.lerp(value0, value1, t);
-        this.state = S2TypeState.Active;
         this.space = space;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -346,21 +350,19 @@ export class S2Position extends S2BaseType {
         return new S2Position().lerp(state0, state1, t, camera);
     }
 
-    set(x: number = 0, y: number = 0, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        if (this.value.x === x && this.value.y === y && this.space === space && this.state === state) return this;
+    set(x: number = 0, y: number = 0, space?: S2Space): this {
+        if (this.value.x === x && this.value.y === y && this.space === space) return this;
         this.value.set(x, y);
         if (space) this.space = space;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
-    setV(position: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        if (S2Vec2.eq(this.value, position) && this.space === space && this.state === state) return this;
+    setV(position: S2Vec2, space?: S2Space): this {
+        if (S2Vec2.eq(this.value, position) && this.space === space) return this;
         this.value.copy(position);
         if (space) this.space = space;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -378,12 +380,12 @@ export class S2Position extends S2BaseType {
             this.value.x = camera.worldToViewX(x);
             this.value.y = camera.worldToViewY(y);
         }
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        return this.state === S2TypeState.Active;
+        return this.priority === S2TypePriority.Normal;
     }
 
     getInherited(space: S2Space, camera: S2Camera): S2Vec2 {
@@ -430,23 +432,23 @@ export class S2Length extends S2BaseType {
     public value: number;
     public space: S2Space;
 
-    constructor(value: number = 0, space: S2Space = 'world', state: S2TypeState = S2TypeState.Active) {
+    constructor(value: number = 0, space: S2Space = 'world', priority: S2TypePriority = S2TypePriority.Normal) {
         super();
         this.value = value;
         this.space = space;
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2Length {
-        return new S2Length(this.value, this.space, this.state);
+        return new S2Length(this.value, this.space, this.priority);
     }
 
     copy(other: S2Length): this {
-        if (this.value === other.value && this.space === other.space && this.state === other.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (this.value === other.value && this.space === other.space) return this;
         this.value = other.value;
         this.space = other.space;
-        this.state = other.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -455,9 +457,8 @@ export class S2Length extends S2BaseType {
         const value0 = state0.getInherited(space, camera);
         const value1 = state1.getInherited(space, camera);
         this.value = S2MathUtils.lerp(value0, value1, t);
-        this.state = S2TypeState.Active;
         this.space = space;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -465,12 +466,11 @@ export class S2Length extends S2BaseType {
         return new S2Length().lerp(state0, state1, t, camera);
     }
 
-    set(value: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        if (this.value === value && this.space === space && this.state === state) return this;
+    set(value: number, space?: S2Space): this {
+        if (this.value === value && this.space === space) return this;
         this.value = value;
         if (space) this.space = space;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -486,12 +486,12 @@ export class S2Length extends S2BaseType {
             // this: view, other: world
             this.value = camera.worldToViewLength(value);
         }
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        return this.state === S2TypeState.Active;
+        return this.priority === S2TypePriority.Normal;
     }
 
     getInherited(space: S2Space, camera: S2Camera): number {
@@ -536,23 +536,28 @@ export class S2Extents extends S2BaseType {
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', state: S2TypeState = S2TypeState.Active) {
+    constructor(
+        x: number = 0,
+        y: number = 0,
+        space: S2Space = 'world',
+        priority: S2TypePriority = S2TypePriority.Normal,
+    ) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2Extents {
-        return new S2Extents(this.value.x, this.value.y, this.space, this.state);
+        return new S2Extents(this.value.x, this.value.y, this.space, this.priority);
     }
 
     copy(other: S2Extents): this {
-        if (S2Vec2.eq(this.value, other.value) && this.space === other.space && this.state === other.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (S2Vec2.eq(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
-        this.state = other.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -561,9 +566,8 @@ export class S2Extents extends S2BaseType {
         const value0 = state0.getInherited(space, camera);
         const value1 = state1.getInherited(space, camera);
         this.value = S2Vec2.lerp(value0, value1, t);
-        this.state = S2TypeState.Active;
         this.space = space;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -571,21 +575,19 @@ export class S2Extents extends S2BaseType {
         return new S2Extents().lerp(state0, state1, t, camera);
     }
 
-    set(x: number, y: number, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        if (this.value.x === x && this.value.y === y && this.space === space && this.state === state) return this;
+    set(x: number, y: number, space?: S2Space): this {
+        if (this.value.x === x && this.value.y === y && this.space === space) return this;
         this.value.set(x, y);
         if (space) this.space = space;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
-    setV(extents: S2Vec2, space?: S2Space, state: S2TypeState = S2TypeState.Active): this {
-        if (S2Vec2.eq(this.value, extents) && this.space === space && this.state === state) return this;
+    setV(extents: S2Vec2, space?: S2Space): this {
+        if (S2Vec2.eq(this.value, extents) && this.space === space) return this;
         this.value.copy(extents);
         if (space) this.space = space;
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -603,7 +605,7 @@ export class S2Extents extends S2BaseType {
             this.value.x = camera.worldToViewLength(x);
             this.value.y = camera.worldToViewLength(y);
         }
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -625,7 +627,7 @@ export class S2Extents extends S2BaseType {
             this.value.y = camera.viewToWorldLength(this.value.y);
         }
         this.space = space;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -658,11 +660,11 @@ export class S2Transform extends S2BaseType {
         a10: number = 0,
         a11: number = 1,
         a12: number = 0,
-        state: S2TypeState = S2TypeState.Active,
+        priority: S2TypePriority = S2TypePriority.Normal,
     ) {
         super();
         this.value = new S2Mat2x3(a00, a01, a02, a10, a11, a12);
-        this.state = state;
+        this.priority = priority;
     }
 
     clone(): S2Transform {
@@ -670,10 +672,10 @@ export class S2Transform extends S2BaseType {
     }
 
     copy(other: S2Transform): this {
-        if (S2Mat2x3.eq(this.value, other.value) && this.state === other.state) return this;
+        if (this.priority === S2TypePriority.Important) return this;
+        if (S2Mat2x3.eq(this.value, other.value)) return this;
         this.value.copy(other.value);
-        this.state = other.state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -681,8 +683,7 @@ export class S2Transform extends S2BaseType {
         const value0 = state0.getInherited();
         const value1 = state1.getInherited();
         this.value.lerp(value0, value1, t);
-        this.state = S2TypeState.Active;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
@@ -690,16 +691,15 @@ export class S2Transform extends S2BaseType {
         return new S2Transform().lerp(state0, state1, t);
     }
 
-    set(value: S2Mat2x3, state: S2TypeState = S2TypeState.Active): this {
-        if (S2Mat2x3.eq(this.value, value) && this.state === state) return this;
+    set(value: S2Mat2x3): this {
+        if (S2Mat2x3.eq(this.value, value)) return this;
         this.value.copy(value);
-        this.state = state;
-        this.setDirty();
+        this.markDirty();
         return this;
     }
 
     hasActiveHierarchy(): boolean {
-        return this.state === S2TypeState.Active;
+        return this.priority === S2TypePriority.Normal;
     }
 
     getInherited(): S2Mat2x3 {
@@ -712,7 +712,7 @@ export class S2Transform extends S2BaseType {
 }
 
 export class S2BBox extends S2BaseType {
-    readonly kind = 'local-bbox' as const;
+    readonly kind = 'bbox' as const;
     protected center: S2Position;
     protected extents: S2Extents;
 
@@ -723,12 +723,17 @@ export class S2BBox extends S2BaseType {
     }
 
     set(graphics: SVGGraphicsElement, parentPosition: S2Position | null, camera: S2Camera): void {
+        if (!graphics.isConnected) {
+            console.warn('Element is not connected to DOM, cannot compute bbox', graphics.isConnected);
+            return;
+        }
+
         const bbox = graphics.getBBox();
         const parentPos = parentPosition ? parentPosition.toSpace('view', camera) : new S2Vec2(0, 0);
         const center = new S2Vec2(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2).subV(parentPos);
         this.center.setV(center, 'view');
         this.extents.set(bbox.width / 2, bbox.height / 2, 'view');
-        this.setDirty();
+        this.markDirty();
     }
 
     getCenter(space: S2Space, camera: S2Camera): S2Vec2 {

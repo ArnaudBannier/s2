@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2BaseScene } from '../../s2-base-scene';
 import { svgNS, type S2Dirtyable } from '../../s2-globals';
-import { S2BBox, S2Number, S2Position, S2Transform, S2TypeState, type S2Space } from '../../s2-types';
+import { S2BBox, S2Number, S2Transform, type S2Space } from '../../s2-types';
 import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
@@ -19,13 +19,12 @@ export class S2TSpanData extends S2BaseData {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypeState.Inactive);
+        this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.font = new S2FontData();
 
-        this.stroke.width.set(0, 'view', S2TypeState.Inactive);
-        this.transform.state = S2TypeState.Inactive;
-        this.fill.opacity.set(1, S2TypeState.Inactive);
+        this.stroke.width.set(0, 'view');
+        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -35,13 +34,13 @@ export class S2TSpanData extends S2BaseData {
         this.font.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
-        super.resetDirtyFlags();
-        this.fill.resetDirtyFlags();
-        this.stroke.resetDirtyFlags();
-        this.opacity.resetDirtyFlags();
-        this.transform.resetDirtyFlags();
-        this.font.resetDirtyFlags();
+    clearDirty(): void {
+        super.clearDirty();
+        this.fill.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.transform.clearDirty();
+        this.font.clearDirty();
     }
 }
 
@@ -63,6 +62,11 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         this.localBBox.setOwner(this);
     }
 
+    clearDirty(): void {
+        super.clearDirty();
+        this.localBBox.clearDirty();
+    }
+
     getSVGElement(): SVGTextElement {
         return this.element;
     }
@@ -70,7 +74,7 @@ export class S2TSpan extends S2Element<S2TSpanData> {
     setContent(content: string): this {
         this.element.textContent = content;
         this.content = content;
-        this.setDirty();
+        this.localBBox.markDirty();
         return this;
     }
 
@@ -92,16 +96,16 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         return this.localBBox.getExtents(space, this.scene.getActiveCamera());
     }
 
-    updateLocalBBox(parentPosition: S2Position | null): this {
-        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
-        this.localBBox.set(this.element, parentPosition, this.scene.getActiveCamera());
-        this.localBBox.resetDirtyFlags();
-        this.data.font.resetDirtyFlags();
-        return this;
-    }
+    // updateLocalBBox(parentPosition: S2Position | null): this {
+    //     S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+    //     this.localBBox.set(this.element, parentPosition, this.scene.getActiveCamera());
+    //     this.localBBox.resetDirtyFlags();
+    //     this.data.font.resetDirtyFlags();
+    //     return this;
+    // }
 
     update(): void {
-        if (this.isDirty() === false) return;
+        if (!this.isDirty()) return;
 
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
@@ -109,6 +113,13 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
-        this.resetDirtyFlags();
+        const isBBoxDirty =
+            this.localBBox.isDirty() || this.data.font.isDirty() || this.parentText.data.preserveWhitespace.isDirty();
+
+        if (isBBoxDirty) {
+            this.localBBox.set(this.element, this.parentText.data.position, this.scene.getActiveCamera());
+        }
+
+        this.clearDirty();
     }
 }
