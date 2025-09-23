@@ -116,7 +116,7 @@ export class S2FillData implements S2Dirtyable {
     copy(other: S2FillData): void {
         this.color.copy(other.color);
         this.opacity.copy(other.opacity);
-        this.dirty = other.dirty;
+        //this.dirty = other.dirty;
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -137,16 +137,17 @@ export class S2FontData implements S2Dirtyable {
     public readonly relativeAscenderHeight: S2Number;
     public readonly family: S2String;
     public readonly style: S2Enum<S2FontStyle>;
+
     private dirty: boolean;
     private owner: S2Dirtyable | null;
 
     constructor() {
-        this.family = new S2String('system-ui');
         this.size = new S2Length(16, 'view');
         this.weight = new S2Number(400);
-        this.style = new S2Enum<S2FontStyle>('normal');
         this.relativeLineHeight = new S2Number(21 / 16);
         this.relativeAscenderHeight = new S2Number(16 / 16);
+        this.family = new S2String('system-ui');
+        this.style = new S2Enum<S2FontStyle>('normal');
         this.dirty = true;
         this.owner = null;
 
@@ -175,7 +176,7 @@ export class S2FontData implements S2Dirtyable {
         this.relativeAscenderHeight.copy(other.relativeAscenderHeight);
         this.family.copy(other.family);
         this.style.copy(other.style);
-        this.dirty = other.dirty;
+        //this.dirty = other.dirty;
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {

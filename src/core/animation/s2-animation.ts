@@ -4,7 +4,7 @@ import { S2BaseScene } from '../s2-base-scene';
 import { ease, type S2EaseType } from './s2-easing';
 
 interface S2AnimationCallbacks {
-    onSetElapsed?: (source: S2Animation, elapsed: number, updateId?: number) => void;
+    onSetElapsed?: (source: S2Animation, elapsed: number) => void;
     onApplyInitial?: (source: S2Animation) => void;
     onApplyFinal?: (source: S2Animation) => void;
 }
@@ -30,7 +30,7 @@ export abstract class S2Animation {
         this.elementsToUpdate = new Set();
     }
 
-    onSetElapsed(cb: (source: S2Animation, updateId?: number) => void): this {
+    onSetElapsed(cb: (source: S2Animation) => void): this {
         this.callbacks.onSetElapsed = cb;
         return this;
     }
@@ -50,9 +50,9 @@ export abstract class S2Animation {
         return this;
     }
 
-    updateTargets(updateId?: number): this {
+    updateTargets(): this {
         for (const target of this.elementsToUpdate) {
-            target.update(updateId);
+            target.update();
         }
         return this;
     }
@@ -71,7 +71,7 @@ export abstract class S2Animation {
         }
     }
 
-    setElapsed(elapsed: number, updateId?: number): this {
+    setElapsed(elapsed: number): this {
         this.rawElapsed = elapsed;
         this.cycleIndex = S2MathUtils.clamp(Math.floor(this.rawElapsed / this.cycleDuration), 0, this.cycleCount - 1);
 
@@ -85,11 +85,11 @@ export abstract class S2Animation {
         this.wrapedCycleAlpha = this.ease(this.wrapedCycleAlpha);
         this.wrapedCycleElapsed = S2MathUtils.clamp(this.wrapedCycleAlpha, 0, 1) * this.cycleDuration;
 
-        this.setElapsedImpl(updateId);
+        this.setElapsedImpl();
         if (this.callbacks.onSetElapsed) {
-            this.callbacks.onSetElapsed(this, elapsed, updateId);
+            this.callbacks.onSetElapsed(this, elapsed);
         }
-        this.updateTargets(updateId);
+        this.updateTargets();
 
         return this;
     }
@@ -149,9 +149,7 @@ export abstract class S2Animation {
 
     protected applyInitialStateImpl(): void {}
     protected applyFinalStateImpl(): void {}
-    protected setElapsedImpl(updateId?: number): void {
-        void updateId;
-    }
+    protected setElapsedImpl(): void {}
 
     protected updateRawDuration(): void {
         this.rawDuration = this.cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);

@@ -64,10 +64,10 @@ export class S2Timeline extends S2Animation {
         return this;
     }
 
-    updateTargets(updateId?: number): this {
-        super.updateTargets(updateId);
+    updateTargets(): this {
+        super.updateTargets();
         for (const part of this.parts) {
-            part.animation.updateTargets(updateId);
+            part.animation.updateTargets();
         }
         return this;
     }
@@ -93,7 +93,7 @@ export class S2Timeline extends S2Animation {
         }
     }
 
-    protected setElapsedImpl(updateId?: number): void {
+    protected setElapsedImpl(): void {
         for (let i = this.sortedStart.length - 1; i >= 0; i--) {
             const part = this.sortedStart[i];
             if (part.start >= this.wrapedCycleElapsed) {
@@ -110,9 +110,9 @@ export class S2Timeline extends S2Animation {
         for (const part of this.parts) {
             const localElapsed = this.wrapedCycleElapsed - part.start;
             if (localElapsed >= 0 && localElapsed <= part.animation.getDuration()) {
-                part.animation.setElapsed(localElapsed, updateId);
+                part.animation.setElapsed(localElapsed);
             } else {
-                part.animation.updateTargets(updateId);
+                part.animation.updateTargets();
             }
         }
     }

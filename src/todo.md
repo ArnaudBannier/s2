@@ -1,6 +1,8 @@
 # TODO
 
-- Possibilité d'ajouter des label sur un edge (qui devient un groupe)
+- Améliorer les timelines pour appliquer uniquement les changements depuis le dernier elapsed
+    - Très important pour les performances et le markDirty
+- Possibilité d'ajouter des labels sur un edge (qui devient un groupe)
 - Tracer une fonction
 - Ajouter un système d'event au S2Element
 - Coder une interaction avec la souris dans le monde
@@ -26,5 +28,4 @@
 
 # Tests
 
-- Vérifier removeDependancy
 - isActive à tester.
