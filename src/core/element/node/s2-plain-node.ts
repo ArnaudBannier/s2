@@ -1,211 +1,24 @@
-import { S2Vec2 } from '../../math/s2-vec2';
 import { S2BaseScene } from '../../s2-base-scene';
-import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../s2-globals';
-import { S2AnchorUtils, svgNS } from '../../s2-globals';
 import { S2Rect } from '../s2-rect';
 import { S2Circle } from '../s2-circle';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../../s2-types';
-import { S2Element } from '../base/s2-element';
-import { S2FontData, S2BaseData, S2FillData, S2StrokeData } from '../base/s2-base-data';
+import { type S2Space } from '../../s2-types';
 import { S2PlainText } from '../text/s2-plain-text';
+import { S2BaseNode } from './s2-base-node';
 
-export class S2NodeData extends S2BaseData {
-    public readonly position: S2Position;
-    public readonly anchor: S2Enum<S2Anchor>;
-    public readonly background: S2NodeBackgroundData;
-    public readonly text: S2NodeTextData;
-    public readonly padding: S2Extents;
-    public readonly minExtents: S2Extents;
-
-    constructor() {
-        super();
-        this.position = new S2Position(0, 0, 'world');
-        this.anchor = new S2Enum<S2Anchor>('center');
-        this.minExtents = new S2Extents(0, 0, 'view');
-        this.background = new S2NodeBackgroundData();
-        this.text = new S2NodeTextData();
-        this.padding = new S2Extents(10, 5, 'view');
-    }
-
-    setOwner(owner: S2Dirtyable | null = null): void {
-        this.position.setOwner(owner);
-        this.anchor.setOwner(owner);
-        this.minExtents.setOwner(owner);
-        this.background.setOwner(owner);
-        this.text.setOwner(owner);
-        this.padding.setOwner(owner);
-    }
-
-    clearDirty(): void {
-        super.clearDirty();
-        this.position.clearDirty();
-        this.anchor.clearDirty();
-        this.minExtents.clearDirty();
-        this.background.clearDirty();
-        this.text.clearDirty();
-        this.padding.clearDirty();
-    }
-}
-
-export class S2NodeBackgroundData extends S2BaseData {
-    public readonly fill: S2FillData;
-    public readonly stroke: S2StrokeData;
-    public readonly opacity: S2Number;
-    public readonly transform: S2Transform;
-    public readonly cornerRadius: S2Length;
-
-    constructor() {
-        super();
-        this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1);
-        this.transform = new S2Transform();
-        this.cornerRadius = new S2Length(5, 'view');
-
-        this.stroke.opacity.set(1);
-        this.fill.opacity.set(1);
-    }
-
-    setOwner(owner: S2Dirtyable | null = null): void {
-        this.fill.setOwner(owner);
-        this.stroke.setOwner(owner);
-        this.opacity.setOwner(owner);
-        this.transform.setOwner(owner);
-        this.cornerRadius.setOwner(owner);
-    }
-
-    clearDirty(): void {
-        super.clearDirty();
-        this.fill.clearDirty();
-        this.stroke.clearDirty();
-        this.opacity.clearDirty();
-        this.transform.clearDirty();
-        this.cornerRadius.clearDirty();
-    }
-}
-
-export class S2NodeTextData extends S2BaseData {
-    public readonly fill: S2FillData;
-    public readonly stroke: S2StrokeData;
-    public readonly opacity: S2Number;
-    public readonly transform: S2Transform;
-
-    public readonly font: S2FontData;
-    public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
-    public readonly verticalAlign: S2Enum<S2VerticalAlign>;
-
-    constructor() {
-        super();
-        this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1);
-        this.transform = new S2Transform();
-        this.font = new S2FontData();
-        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
-        this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
-
-        this.stroke.width.set(0, 'view');
-        this.fill.opacity.set(1);
-    }
-
-    setOwner(owner: S2Dirtyable | null = null): void {
-        this.fill.setOwner(owner);
-        this.stroke.setOwner(owner);
-        this.opacity.setOwner(owner);
-        this.transform.setOwner(owner);
-        this.font.setOwner(owner);
-        this.horizontalAlign.setOwner(owner);
-        this.verticalAlign.setOwner(owner);
-    }
-
-    clearDirty(): void {
-        super.clearDirty();
-        this.fill.clearDirty();
-        this.stroke.clearDirty();
-        this.opacity.clearDirty();
-        this.transform.clearDirty();
-        this.font.clearDirty();
-        this.horizontalAlign.clearDirty();
-        this.verticalAlign.clearDirty();
-    }
-}
-
-export class S2PlainNode extends S2Element<S2NodeData> {
-    protected element: SVGGElement;
+export class S2PlainNode extends S2BaseNode {
     protected text: S2PlainText;
-    protected background: S2Rect | S2Circle | null = null;
-    protected extents: S2Extents;
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2NodeData());
-        this.element = document.createElementNS(svgNS, 'g');
+        super(scene);
         this.text = new S2PlainText(this.scene);
         this.text.data.setLayer(2);
         this.text.setParent(this);
-        this.extents = new S2Extents(0, 0, 'view');
         this.element.dataset.role = 'plain-node';
-    }
-
-    getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
-    }
-
-    getMinExtents(space: S2Space): S2Vec2 {
-        return this.data.minExtents.toSpace(space, this.scene.getActiveCamera());
-    }
-
-    getPadding(space: S2Space): S2Vec2 {
-        return this.data.padding.toSpace(space, this.scene.getActiveCamera());
-    }
-
-    getSVGElement(): SVGElement {
-        return this.element;
     }
 
     setContent(content: string): this {
         this.text.setContent(content);
         return this;
-    }
-
-    createRectBackground(): S2Rect {
-        if (this.background !== null) this.background.setParent(null);
-        this.background = new S2Rect(this.scene);
-        this.background.data.setLayer(0);
-
-        this.background.setParent(this);
-        this.updateSVGChildren();
-        return this.background;
-    }
-
-    createCircleBackground(): S2Circle {
-        if (this.background !== null) this.background.setParent(null);
-        this.background = new S2Circle(this.scene);
-        this.background.data.setLayer(0);
-
-        this.background.setParent(this);
-        this.updateSVGChildren();
-        return this.background;
-    }
-
-    getBackground(): S2Circle | S2Rect | null {
-        return this.background;
-    }
-
-    getCenter(space: S2Space): S2Vec2 {
-        return S2AnchorUtils.getCenter(
-            this.data.anchor.getInherited(),
-            space,
-            this.scene.getActiveCamera(),
-            this.data.position,
-            this.extents,
-        );
-    }
-
-    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
-        if (this.background) {
-            return this.background.getPointInDirection(direction, space, distance);
-        }
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
     update(): void {
@@ -289,6 +102,10 @@ export class S2PlainNode extends S2Element<S2NodeData> {
             }
 
             this.background.update();
+        }
+
+        for (const endpoint of this.endPoints) {
+            endpoint.markDirty();
         }
 
         this.clearDirty();

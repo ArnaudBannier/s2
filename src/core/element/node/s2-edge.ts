@@ -6,27 +6,53 @@ import { type S2Space, S2TypePriority, S2Length, S2Number, S2Position } from '..
 import { S2Camera } from '../../math/s2-camera';
 import { S2Element } from '../base/s2-element';
 import { S2BaseData, S2StrokeData } from '../base/s2-base-data';
-import { type S2Tipable, S2TipTransform, svgNS } from '../../s2-globals';
+import { type S2Dirtyable, type S2Tipable, S2TipTransform, svgNS } from '../../s2-globals';
 import { S2ArrowTip } from '../s2-arrow-tip';
+import { S2BaseNode } from './s2-base-node';
 
 // S2NodeArcManhattan
 
-export class S2EdgeEndpoint {
+export class S2EdgeEndpoint implements S2Dirtyable {
     protected mode: 'node' | 'position';
-    public node: S2Node | null;
+    public node: S2BaseNode | null;
     public position: S2Position;
+    private owner: S2Dirtyable | null;
+    public dirty: boolean = true;
 
     constructor() {
         this.mode = 'position';
         this.node = null;
+        this.owner = null;
         this.position = new S2Position(0, 0, 'world');
+
+        this.position.setOwner(this);
     }
 
-    set(endpoint: S2Node | S2Position): this {
-        if (endpoint instanceof S2Node) {
+    isDirty(): boolean {
+        return this.dirty;
+    }
+
+    markDirty(): void {
+        if (this.isDirty()) return;
+        this.dirty = true;
+        this.owner?.markDirty();
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.owner = owner;
+    }
+
+    clearDirty(): void {
+        this.dirty = false;
+        this.position.clearDirty();
+    }
+
+    set(endpoint: S2BaseNode | S2Position): this {
+        if (endpoint instanceof S2BaseNode) {
             this.mode = 'node';
             this.node = endpoint;
             this.position.copy(this.node.data.position);
+            this.node.attachEndPoint(this);
         } else {
             this.mode = 'position';
             this.node = null;
@@ -83,16 +109,43 @@ export class S2EdgeData extends S2BaseData {
         this.opacity = new S2Number(1);
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
-        this.startDistance = new S2Length(0, 'view');
-        this.endDistance = new S2Length(0, 'view');
-        this.startAngle = new S2Number(0);
-        this.endAngle = new S2Number(0);
+        this.startDistance = new S2Length(-Infinity, 'view');
+        this.endDistance = new S2Length(-Infinity, 'view');
+        this.startAngle = new S2Number(-Infinity);
+        this.endAngle = new S2Number(-Infinity);
         this.start = new S2EdgeEndpoint();
         this.end = new S2EdgeEndpoint();
 
         this.stroke.width.set(4, 'view');
         this.stroke.color.set(0, 0, 0);
         this.opacity.set(1);
+    }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        this.stroke.setOwner(owner);
+        this.opacity.setOwner(owner);
+        this.pathFrom.setOwner(owner);
+        this.pathTo.setOwner(owner);
+        this.startDistance.setOwner(owner);
+        this.endDistance.setOwner(owner);
+        this.startAngle.setOwner(owner);
+        this.endAngle.setOwner(owner);
+        this.start.setOwner(owner);
+        this.end.setOwner(owner);
+    }
+
+    clearDirty(): void {
+        super.clearDirty();
+        this.stroke.clearDirty();
+        this.opacity.clearDirty();
+        this.pathFrom.clearDirty();
+        this.pathTo.clearDirty();
+        this.startDistance.clearDirty();
+        this.endDistance.clearDirty();
+        this.startAngle.clearDirty();
+        this.endAngle.clearDirty();
+        this.start.clearDirty();
+        this.end.clearDirty();
     }
 }
 
@@ -196,10 +249,10 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         const camera = this.scene.getActiveCamera();
         const startDirection = this.getStartToEnd(space).normalize();
         const endDirection = startDirection.clone().negate();
-        if (this.data.startAngle.hasActiveHierarchy()) {
+        if (this.data.startAngle.value !== -Infinity) {
             startDirection.setFromPolarDeg(this.data.startAngle.value);
         }
-        if (this.data.endAngle.hasActiveHierarchy()) {
+        if (this.data.endAngle.value !== -Infinity) {
             endDirection.setFromPolarDeg(this.data.endAngle.value);
         }
 
@@ -225,6 +278,20 @@ export class S2CubicEdgeData extends S2EdgeData {
         this.curveEndTension = new S2Number(0.3, S2TypePriority.Normal);
         this.curveBendAngle = new S2Number(0, S2TypePriority.Normal);
     }
+
+    setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
+        this.curveStartTension.setOwner(owner);
+        this.curveEndTension.setOwner(owner);
+        this.curveBendAngle.setOwner(owner);
+    }
+
+    clearDirty(): void {
+        super.clearDirty();
+        this.curveStartTension.clearDirty();
+        this.curveEndTension.clearDirty();
+        this.curveBendAngle.clearDirty();
+    }
 }
 
 export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
@@ -241,10 +308,10 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         const sign = -1;
         const startDirection = this.getStartToEnd(space).normalize();
         const endDirection = startDirection.clone().negate();
-        if (this.data.startAngle.hasActiveHierarchy()) {
+        if (this.data.startAngle.value !== -Infinity) {
             startDirection.setFromPolarDeg(this.data.startAngle.value);
         }
-        if (this.data.endAngle.hasActiveHierarchy()) {
+        if (this.data.endAngle.value !== -Infinity) {
             endDirection.setFromPolarDeg(this.data.endAngle.value);
         }
         const curveBendAngle = this.data.curveBendAngle.hasActiveHierarchy()
@@ -257,12 +324,10 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         const end = this.data.end.getPointInDirection(endDirection, space, camera, this.data.endDistance);
 
         const distance = start.distance(end);
-        const startTension = this.data.curveStartTension.hasActiveHierarchy()
-            ? this.data.curveStartTension.getInherited()
-            : 0.3;
-        const endTension = this.data.curveEndTension.hasActiveHierarchy()
-            ? this.data.curveEndTension.getInherited()
-            : 0.3;
+        const startTension =
+            this.data.curveStartTension.value !== -Infinity ? this.data.curveStartTension.getInherited() : 0.3;
+        const endTension =
+            this.data.curveEndTension.value !== -Infinity ? this.data.curveEndTension.getInherited() : 0.3;
         startDirection.scale(startTension * distance);
         endDirection.scale(endTension * distance);
 

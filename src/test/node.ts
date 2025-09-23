@@ -10,6 +10,7 @@ import { S2MathUtils } from '../core/math/s2-utils.ts';
 import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
 import { S2PlainNode } from '../core/element/node/s2-plain-node.ts';
 import type { S2Anchor } from '../core/s2-globals.ts';
+import { S2CubicEdge, S2LineEdge } from '../core/element/node/s2-edge.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -65,6 +66,19 @@ class SceneFigure extends S2Scene {
 
             this.nodes.push(node);
         }
+
+        for (let i = 0; i < this.nodes.length; i++) {
+            for (let j = -1; j < 2; j += 2) {
+                const edge = new S2CubicEdge(this);
+                edge.setParent(this.getSVG());
+                edge.data.stroke.color.copy(MTL.GREY_5);
+                edge.data.start.set(this.nodes[i]);
+                edge.data.end.set(this.nodes[(i + 1) % this.nodes.length]);
+                edge.data.startDistance.set(10, 'view');
+                edge.data.endDistance.set(10, 'view');
+                edge.data.curveBendAngle.set(j * 20);
+            }
+        }
         this.update();
 
         this.createAnimation();
@@ -79,7 +93,7 @@ class SceneFigure extends S2Scene {
                 .setCycleDuration(500)
                 .setEasing(ease.out);
 
-            node.data.position.setV(S2Vec2.fromPolarDeg(i * 45, 2), 'world');
+            node.data.position.setV(S2Vec2.fromPolarDeg(i * 45, 2.5), 'world');
             if (i === 0) {
                 this.animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
             } else {
