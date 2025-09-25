@@ -7,7 +7,7 @@ import { S2Node } from './core/element/node/s2-node.ts';
 import { S2LineEdge } from './core/element/node/s2-edge.ts';
 import { S2Group } from './core/element/s2-group.ts';
 import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
-import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
+import { S2LerpAnimFactory } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2BaseData, S2FontData } from './core/element/base/s2-base-data.ts';
@@ -47,7 +47,7 @@ class BTreeStyle {
         data.text.fill.color.copy(MTL.BLUE_2);
     }
 
-    bindNodeSelected(anim: S2LerpAnim, node: S2Node): void {
+    bindNodeSelected(anim: S2LerpAnimFactory, node: S2Node): void {
         anim.addUpdateTarget(node)
             .bind(node.data.background.fill.color)
             .bind(node.data.background.stroke.color)
@@ -61,7 +61,7 @@ class BTreeStyle {
         data.text.fill.color.copy(MTL.WHITE);
     }
 
-    bindNodeExplored(anim: S2LerpAnim, node: S2Node): void {
+    bindNodeExplored(anim: S2LerpAnimFactory, node: S2Node): void {
         anim.addUpdateTarget(node)
             .bind(node.data.background.fill.color)
             .bind(node.data.background.stroke.color)
@@ -94,7 +94,7 @@ class BTreeStyle {
         edge.data.stroke.color.copy(MTL.BLUE_5);
     }
 
-    bindEdgeSelected(anim: S2LerpAnim, edge: S2LineEdge): void {
+    bindEdgeSelected(anim: S2LerpAnimFactory, edge: S2LineEdge): void {
         anim.addUpdateTarget(edge).bind(edge.data.stroke.color);
     }
 
@@ -102,7 +102,7 @@ class BTreeStyle {
         edge.data.stroke.color.copy(MTL.GREY_7);
     }
 
-    bindEdgeExplored(anim: S2LerpAnim, edge: S2LineEdge): void {
+    bindEdgeExplored(anim: S2LerpAnimFactory, edge: S2LineEdge): void {
         anim.addUpdateTarget(edge).bind(edge.data.stroke.color);
     }
 }
@@ -210,10 +210,10 @@ class BTree {
     }
 
     animateSelectNode(animator: S2StepAnimator, bTreeNode: BTreeNode) {
-        let anim: S2LerpAnim | null = null;
+        let anim: S2LerpAnimFactory | null = null;
         if (bTreeNode.parentEmphEdge) {
             bTreeNode.parentEmphEdge.data.pathTo.set(0.0);
-            anim = new S2LerpAnim(this.scene)
+            anim = new S2LerpAnimFactory(this.scene)
                 .addUpdateTarget(bTreeNode.parentEmphEdge)
                 .bind(bTreeNode.parentEmphEdge.data.pathTo)
                 .setCycleDuration(500)
@@ -224,21 +224,21 @@ class BTree {
             animator.addAnimation(anim.commitFinalStates());
         }
 
-        anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
+        anim = new S2LerpAnimFactory(this.scene).setCycleDuration(300).setEasing(ease.inOut);
 
         this.style.bindNodeSelected(anim, bTreeNode.node);
         this.style.setNodeSelected(bTreeNode.node);
         animator.addAnimation(anim.commitFinalStates(), 'previous-start', bTreeNode.parentEdge ? 100 : 0);
 
         if (bTreeNode.left && bTreeNode.left.parentEdge) {
-            anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
+            anim = new S2LerpAnimFactory(this.scene).setCycleDuration(300).setEasing(ease.inOut);
 
             this.style.bindEdgeSelected(anim, bTreeNode.left.parentEdge);
             this.style.setEdgeSelected(bTreeNode.left.parentEdge);
             animator.addAnimation(anim.commitFinalStates(), 'previous-start', 0);
         }
         if (bTreeNode.right && bTreeNode.right.parentEdge) {
-            anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
+            anim = new S2LerpAnimFactory(this.scene).setCycleDuration(300).setEasing(ease.inOut);
 
             this.style.bindEdgeSelected(anim, bTreeNode.right.parentEdge);
             this.style.setEdgeSelected(bTreeNode.right.parentEdge);
@@ -247,7 +247,7 @@ class BTree {
     }
 
     animateExploreNode(animator: S2StepAnimator, bTreeNode: BTreeNode) {
-        const anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
+        const anim = new S2LerpAnimFactory(this.scene).setCycleDuration(300).setEasing(ease.inOut);
 
         this.style.bindNodeExplored(anim, bTreeNode.node);
         this.style.setNodeExplored(bTreeNode.node);
@@ -257,7 +257,7 @@ class BTree {
     animateExitParentEdge(animator: S2StepAnimator, bTreeNode: BTreeNode) {
         if (!bTreeNode.parentEdge || !bTreeNode.parentEmphEdge) return;
 
-        let anim = new S2LerpAnim(this.scene)
+        let anim = new S2LerpAnimFactory(this.scene)
             .addUpdateTarget(bTreeNode.parentEmphEdge)
             .bind(bTreeNode.parentEmphEdge.data.pathTo)
             .setCycleDuration(500)
@@ -267,7 +267,7 @@ class BTree {
         //bTreeNode.parentEmphEdge.update();
         animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
 
-        anim = new S2LerpAnim(this.scene).setCycleDuration(300).setEasing(ease.inOut);
+        anim = new S2LerpAnimFactory(this.scene).setCycleDuration(300).setEasing(ease.inOut);
 
         this.style.bindEdgeExplored(anim, bTreeNode.parentEdge);
         this.style.setEdgeExplored(bTreeNode.parentEdge);
@@ -385,7 +385,7 @@ class SceneFigure extends S2Scene {
 
         code.data.currentLine.index.set(0);
         code.data.opacity.set(0);
-        let anim = new S2LerpAnim(this)
+        let anim = new S2LerpAnimFactory(this)
             .addUpdateTarget(code)
             .bind(code.data.opacity)
             .setCycleDuration(1000)
@@ -409,7 +409,7 @@ class SceneFigure extends S2Scene {
         // Quit
         this.tree.animateExitParentEdge(this.animator, bTreeNode);
 
-        anim = new S2LerpAnim(this)
+        anim = new S2LerpAnimFactory(this)
             .addUpdateTarget(code)
             .bind(code.data.opacity)
             .setCycleDuration(500)

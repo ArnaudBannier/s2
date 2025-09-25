@@ -4,13 +4,13 @@ import { S2Camera } from '../core/math/s2-camera.ts';
 import { MTL } from '../utils/mtl-colors.ts';
 import { S2Scene } from '../core/s2-scene.ts';
 import { S2StepAnimator } from '../core/animation/s2-step-animator.ts';
-import { S2LerpAnim } from '../core/animation/s2-lerp-anim.ts';
+import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim.ts';
 import { ease } from '../core/animation/s2-easing.ts';
 import { S2MathUtils } from '../core/math/s2-utils.ts';
 import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
 import { S2PlainNode } from '../core/element/node/s2-plain-node.ts';
 import type { S2Anchor } from '../core/s2-globals.ts';
-import { S2CubicEdge, S2LineEdge } from '../core/element/node/s2-edge.ts';
+import { S2CubicEdge } from '../core/element/node/s2-edge.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -87,40 +87,55 @@ class SceneFigure extends S2Scene {
     createAnimation(): void {
         for (let i = 0; i < this.nodes.length; i++) {
             const node = this.nodes[i];
-            const anim = new S2LerpAnim(this)
-                .addUpdateTarget(this.getSVG())
-                .bind(node.data.position)
-                .setCycleDuration(500)
-                .setEasing(ease.out);
+            const anim = S2LerpAnimFactory.create(this, node.data.position).setCycleDuration(500).setEasing(ease.out);
 
             node.data.position.setV(S2Vec2.fromPolarDeg(i * 45, 2.5), 'world');
+            anim.commitFinalState();
             if (i === 0) {
-                this.animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
+                this.animator.addAnimation(anim, 'previous-end', 0);
             } else {
-                this.animator.addAnimation(anim.commitFinalStates(), 'previous-start', 50);
+                this.animator.addAnimation(anim, 'previous-start', 50);
             }
         }
+        this.animator.makeStep();
+        let first = true;
         for (let i = 0; i < this.nodes.length; i++) {
             const node = this.nodes[i];
-            const anim = new S2LerpAnim(this)
-                .addUpdateTarget(this.getSVG())
-                .bind(node.data.background.cornerRadius)
-                .bind(node.data.background.fill.color)
-                .bind(node.data.text.fill.color)
-                .bind(node.data.minExtents)
-                .setCycleDuration(500)
-                .setEasing(ease.inOut);
+            const animations = [
+                S2LerpAnimFactory.create(this, node.data.background.cornerRadius),
+                S2LerpAnimFactory.create(this, node.data.background.fill.color),
+                S2LerpAnimFactory.create(this, node.data.text.fill.color),
+                S2LerpAnimFactory.create(this, node.data.minExtents),
+            ];
 
             node.data.background.cornerRadius.set(0.5, 'world');
             node.data.background.fill.color.copy(MTL.GREY_5);
             node.data.text.fill.color.copy(MTL.BLACK);
             node.data.minExtents.set(0.75, 0.5, 'world');
-            if (i === 0) {
-                this.animator.addAnimation(anim.commitFinalStates(), 'previous-end', 0);
-            } else {
-                this.animator.addAnimation(anim.commitFinalStates(), 'previous-start', 50);
+
+            for (const anim of animations) {
+                anim.commitFinalState().setCycleDuration(500).setEasing(ease.inOut);
+                if (first) {
+                    this.animator.addAnimation(anim, 'previous-end', 0);
+                    first = false;
+                } else {
+                    this.animator.addAnimation(anim, 'previous-start', 50);
+                }
             }
         }
+
+        this.animator.makeStep();
+
+        for (let i = 0; i < this.nodes.length; i++) {
+            const node = this.nodes[i];
+            const anim = S2LerpAnimFactory.create(this, node.data.position).setCycleDuration(500).setEasing(ease.inOut);
+
+            node.data.position.setV(S2Vec2.fromPolarDeg(i * 45, 3), 'world');
+            anim.commitFinalState();
+            this.animator.addAnimation(anim, 'previous-start', 0);
+        }
+        this.animator.makeStep();
+
         // let anim = new S2LerpAnim(this)
         //     .addUpdateTarget(this.getSVG())
         //     .bind(this.node1.data.position)
@@ -207,5 +222,6 @@ if (svgElement && slider) {
         const ratio = slider.valueAsNumber / 100;
         scene.animator.stop();
         scene.animator.setMasterElapsed(ratio * scene.animator.getMasterDuration());
+        scene.getSVG().update();
     });
 }

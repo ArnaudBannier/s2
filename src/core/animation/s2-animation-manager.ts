@@ -1,19 +1,19 @@
 import { S2Timer } from './s2-timer';
-import { S2Animation } from './s2-animation';
+import { S2BaseAnimation } from './s2-base-animation';
 
 export class S2PlayableAnimation {
     protected manager: S2AnimationManager;
-    protected animation: S2Animation;
+    protected animation: S2BaseAnimation;
     protected state: 'playing' | 'paused' | 'stopped' = 'stopped';
     protected repeat: boolean = false;
     protected speed: number = 1;
 
-    constructor(animation: S2Animation) {
+    constructor(animation: S2BaseAnimation) {
         this.animation = animation;
         this.manager = S2AnimationManager.getInstance();
     }
 
-    getAnimation(): S2Animation {
+    getAnimation(): S2BaseAnimation {
         return this.animation;
     }
 
@@ -26,8 +26,8 @@ export class S2PlayableAnimation {
         return this.speed;
     }
 
-    setElapsed(elapsed: number, updateId?: number): this {
-        this.animation.setElapsed(elapsed, updateId);
+    setElapsed(elapsed: number): this {
+        this.animation.setElapsed(elapsed);
         return this;
     }
 
@@ -46,7 +46,6 @@ export class S2PlayableAnimation {
     play(repeat: boolean = false): this {
         this.state = 'playing';
         this.animation.setElapsed(0);
-        this.animation.applyInitialState();
         this.manager.addAnimation(this);
         this.repeat = repeat;
         return this;
@@ -82,17 +81,16 @@ export class S2PlayableAnimation {
             if (this.repeat) {
                 this.animation.setElapsed(rawElapsed % rawDuration);
             } else {
-                this.state = 'stopped';
                 this.animation.setElapsed(rawDuration);
-                this.animation.applyFinalState();
+                this.stop();
             }
         } else if (rawElapsed < 0) {
-            this.state = 'stopped';
             this.animation.setElapsed(0);
-            this.animation.applyInitialState();
+            this.stop();
         } else {
             this.animation.setElapsed(rawElapsed);
         }
+        this.animation.getScene().getSVG().update();
         return this;
     }
 }

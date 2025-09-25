@@ -1,15 +1,12 @@
 import { type S2BaseElement } from '../element/base/s2-element';
 import { S2MathUtils } from '../math/s2-utils';
 import { S2BaseScene } from '../s2-base-scene';
+import type { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../s2-types';
 import { ease, type S2EaseType } from './s2-easing';
 
-interface S2AnimationCallbacks {
-    onSetElapsed?: (source: S2Animation, elapsed: number) => void;
-    onApplyInitial?: (source: S2Animation) => void;
-    onApplyFinal?: (source: S2Animation) => void;
-}
+export type S2AnimProperty = S2Number | S2Color | S2Position | S2Length | S2Extents;
 
-export abstract class S2Animation {
+export abstract class S2BaseAnimation {
     protected scene: S2BaseScene;
     protected cycleIndex: number = 0;
     protected cycleCount: number = 1;
@@ -22,56 +19,23 @@ export abstract class S2Animation {
     protected ease: S2EaseType = ease.linear;
     protected reversed: boolean = false;
     protected alternate: boolean = false;
-    protected elementsToUpdate: Set<S2BaseElement>;
-    protected callbacks: S2AnimationCallbacks = {};
+    protected properties: Set<S2AnimProperty>;
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
-        this.elementsToUpdate = new Set();
+        this.properties = new Set();
     }
 
-    onSetElapsed(cb: (source: S2Animation) => void): this {
-        this.callbacks.onSetElapsed = cb;
-        return this;
+    getScene(): S2BaseScene {
+        return this.scene;
     }
 
-    onApplyInitial(cb: (source: S2Animation) => void): this {
-        this.callbacks.onApplyInitial = cb;
-        return this;
+    getProperties(): Set<S2AnimProperty> {
+        return this.properties;
     }
 
-    onApplyFinal(cb: (source: S2Animation) => void): this {
-        this.callbacks.onApplyFinal = cb;
-        return this;
-    }
-
-    addUpdateTarget(target: S2BaseElement): this {
-        this.elementsToUpdate.add(target);
-        return this;
-    }
-
-    updateTargets(): this {
-        for (const target of this.elementsToUpdate) {
-            target.update();
-        }
-        return this;
-    }
-
-    applyInitialState(): void {
-        this.applyInitialStateImpl();
-        if (this.callbacks.onApplyInitial) {
-            this.callbacks.onApplyInitial(this);
-        }
-    }
-
-    applyFinalState(): void {
-        this.applyFinalStateImpl();
-        if (this.callbacks.onApplyFinal) {
-            this.callbacks.onApplyFinal(this);
-        }
-    }
-
-    setElapsed(elapsed: number): this {
+    private setRawElapsed(elapsed: number): void {
+        if (this.rawElapsed === elapsed) return;
         this.rawElapsed = elapsed;
         this.cycleIndex = S2MathUtils.clamp(Math.floor(this.rawElapsed / this.cycleDuration), 0, this.cycleCount - 1);
 
@@ -84,14 +48,24 @@ export abstract class S2Animation {
         if (this.alternate && this.cycleIndex % 2 === 1) this.wrapedCycleAlpha = 1 - this.wrapedCycleAlpha;
         this.wrapedCycleAlpha = this.ease(this.wrapedCycleAlpha);
         this.wrapedCycleElapsed = S2MathUtils.clamp(this.wrapedCycleAlpha, 0, 1) * this.cycleDuration;
+    }
 
-        this.setElapsedImpl();
-        if (this.callbacks.onSetElapsed) {
-            this.callbacks.onSetElapsed(this, elapsed);
+    setElapsed(elapsed: number): this {
+        this.setRawElapsed(elapsed);
+        for (const target of this.properties) {
+            this.setElapsedPropertyImpl(target);
         }
-        this.updateTargets();
-
         return this;
+    }
+
+    setElapsedProperty(property: S2AnimProperty, elapsed: number): this {
+        this.setRawElapsed(elapsed);
+        this.setElapsedPropertyImpl(property);
+        return this;
+    }
+
+    protected setElapsedPropertyImpl(target: S2AnimProperty): void {
+        void target; // to avoid unused variable warning
     }
 
     getElapsed(): number {
@@ -104,12 +78,6 @@ export abstract class S2Animation {
 
     setCycleCount(cycleCount: number): this {
         this.cycleCount = cycleCount;
-        this.updateRawDuration();
-        return this;
-    }
-
-    setCycleDuration(cycleDuration: number): this {
-        this.cycleDuration = cycleDuration;
         this.updateRawDuration();
         return this;
     }
@@ -147,13 +115,7 @@ export abstract class S2Animation {
         return this.cycleCount;
     }
 
-    protected applyInitialStateImpl(): void {}
-    protected applyFinalStateImpl(): void {}
-    protected setElapsedImpl(): void {}
-
     protected updateRawDuration(): void {
         this.rawDuration = this.cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);
     }
-
-    abstract refreshState(): this;
 }

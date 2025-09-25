@@ -9,7 +9,7 @@ import { S2MathUtils } from './core/math/s2-utils.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 import { S2FontData } from './core/element/base/s2-base-data.ts';
 import { S2Code, tokenizeAlgorithm } from './core/element/s2-code.ts';
-import { S2LerpAnim } from './core/animation/s2-lerp-anim.ts';
+import { S2LerpAnimFactory } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 
 const algorithm =
@@ -82,7 +82,7 @@ class SceneFigure extends S2Scene {
 
         this.update();
 
-        let anim = new S2LerpAnim(this)
+        let anim = new S2LerpAnimFactory(this)
             .addUpdateTarget(code)
             .bind(code.data.currentLine.index)
             .setCycleDuration(500)
@@ -92,7 +92,7 @@ class SceneFigure extends S2Scene {
         this.animator.addAnimation(anim.commitFinalStates());
         this.animator.makeStep();
 
-        anim = new S2LerpAnim(this)
+        anim = new S2LerpAnimFactory(this)
             .addUpdateTarget(code)
             .bind(code.data.currentLine.index)
             .bind(code.data.position)
@@ -108,7 +108,7 @@ class SceneFigure extends S2Scene {
         if (!emph) return;
 
         emph.data.opacity.set(0.0);
-        anim = new S2LerpAnim(this)
+        anim = new S2LerpAnimFactory(this)
             .addUpdateTarget(code)
             .addUpdateTarget(emph)
             .bind(emph.data.opacity)

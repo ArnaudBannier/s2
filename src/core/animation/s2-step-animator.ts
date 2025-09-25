@@ -1,6 +1,6 @@
 import { S2MathUtils } from '../math/s2-utils';
 import { S2BaseScene } from '../s2-base-scene';
-import { S2Animation } from './s2-animation';
+import { S2BaseAnimation } from './s2-base-animation';
 import { S2PlayableAnimation } from './s2-animation-manager';
 import { S2Timeline, type S2TimelinePosition } from './s2-timeline';
 
@@ -90,8 +90,8 @@ export class S2StepAnimator {
         return this;
     }
 
-    setMasterElapsed(elapsed: number, updateId?: number): this {
-        this.masterTimeline.setElapsed(elapsed, updateId);
+    setMasterElapsed(elapsed: number): this {
+        this.masterTimeline.setElapsed(elapsed);
         return this;
     }
 
@@ -109,11 +109,17 @@ export class S2StepAnimator {
     }
 
     makeStep(): this {
+        if (this.shouldAddNewStep) return this;
+        if (this.stepTimelines.length === 0) return this;
+
+        const currTimeline = this.stepTimelines[this.stepTimelines.length - 1];
+        this.masterTimeline.addAnimation(currTimeline, 'previous-end', 0);
+
         this.shouldAddNewStep = true;
         return this;
     }
 
-    addAnimation(animation: S2Animation, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
+    addAnimation(animation: S2BaseAnimation, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
         if (this.shouldAddNewStep) {
             const timeline = new S2Timeline(this.scene);
             const playable = new S2PlayableAnimation(timeline);
@@ -121,7 +127,7 @@ export class S2StepAnimator {
             this.stepTimelines.push(timeline);
             this.stepPlayables.push(playable);
             this.stepTimes.push(0);
-            this.masterTimeline.addAnimation(timeline, 'previous-end', 0);
+            //this.masterTimeline.addAnimation(timeline, 'previous-end', 0);
             this.shouldAddNewStep = false;
         }
         const currTimeline = this.stepTimelines[this.stepTimelines.length - 1];
@@ -135,10 +141,9 @@ export class S2StepAnimator {
         this.stepTimes[0] = 0;
         for (let i = 0; i < this.stepTimelines.length; i++) {
             const step = this.stepTimelines[i];
-            stepTime += step.refreshState().getDuration();
+            stepTime += step.getDuration();
             this.stepTimes[i + 1] = stepTime;
         }
-        this.masterTimeline.refreshState();
     }
 
     getMasterTimeline(): S2Timeline {
