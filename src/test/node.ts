@@ -11,6 +11,7 @@ import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
 import { S2PlainNode } from '../core/element/node/s2-plain-node.ts';
 import type { S2Anchor } from '../core/s2-globals.ts';
 import { S2CubicEdge } from '../core/element/node/s2-edge.ts';
+import { S2AnimGroup } from '../core/animation/s2-anim-group.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -21,17 +22,21 @@ class SceneFigure extends S2Scene {
     protected nodes: S2PlainNode[] = [];
 
     setNodeDefaultStyle(node: S2PlainNode): void {
-        const data = node.data;
-        data.background.fill.color.copy(MTL.GREY_9);
-        data.background.stroke.color.copy(MTL.GREY_5);
-        data.background.stroke.width.set(2, 'view');
-        data.text.fill.color.copy(MTL.WHITE);
-        data.text.horizontalAlign.set('center');
-        data.text.verticalAlign.set('middle');
-        data.text.font.weight.set(700);
-        data.padding.set(10, 5, 'view');
-        data.minExtents.set(1, 0.5, 'world');
-        data.background.cornerRadius.set(10, 'view');
+        S2DataSetter.setTargets(node.data)
+            .setPadding(10, 5, 'view')
+            .setMinExtents(0.5, 0.5, 'world')
+            // Background
+            .setTargets(node.data.background)
+            .setFillColor(MTL.GREY_9)
+            .setStrokeColor(MTL.GREY_5)
+            .setStrokeWidth(2, 'view')
+            .setCornerRadius(10, 'view')
+            // Text
+            .setTargets(node.data.text)
+            .setColor(MTL.WHITE)
+            .setHorizontalAlign('center')
+            .setVerticalAlign('middle')
+            .setFontWeight(700);
     }
 
     constructor(svgElement: SVGSVGElement) {
@@ -39,10 +44,17 @@ class SceneFigure extends S2Scene {
         this.animator = new S2StepAnimator(this);
 
         const fillRect = this.addFillRect();
-        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
+        S2DataSetter.setTargets(fillRect.data).setColor(MTL.GREY_8);
 
         const grid = this.addWorldGrid();
-        S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
+        S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);
+
+        const circle = this.addCircle();
+        S2DataSetter.setTargets(circle.data)
+            .setRadius(3, 'world')
+            .setFillOpacity(0)
+            .setStrokeColor(MTL.BLUE_9)
+            .setStrokeWidth(2, 'view');
 
         const anchors: S2Anchor[] = [
             'west',
@@ -59,7 +71,7 @@ class SceneFigure extends S2Scene {
             const node = new S2PlainNode(this);
             node.setParent(this.getSVG());
             this.setNodeDefaultStyle(node);
-            node.setContent(`Node ${i + 1}`);
+            node.setContent(i.toString());
             node.createRectBackground();
             node.data.position.setV(S2Vec2.fromPolarDeg(i * 45, 3), 'world');
             node.data.anchor.set(anchors[i]);
@@ -76,7 +88,7 @@ class SceneFigure extends S2Scene {
                 edge.data.end.set(this.nodes[(i + 1) % this.nodes.length]);
                 edge.data.startDistance.set(10, 'view');
                 edge.data.endDistance.set(10, 'view');
-                edge.data.curveBendAngle.set(j * 20);
+                edge.data.curveBendAngle.set(j * 15);
             }
         }
         this.update();
@@ -94,33 +106,41 @@ class SceneFigure extends S2Scene {
             if (i === 0) {
                 this.animator.addAnimation(anim, 'previous-end', 0);
             } else {
-                this.animator.addAnimation(anim, 'previous-start', 50);
+                this.animator.addAnimation(anim, 'previous-start', 40);
             }
         }
         this.animator.makeStep();
         let first = true;
         for (let i = 0; i < this.nodes.length; i++) {
             const node = this.nodes[i];
-            const animations = [
-                S2LerpAnimFactory.create(this, node.data.background.cornerRadius),
-                S2LerpAnimFactory.create(this, node.data.background.fill.color),
-                S2LerpAnimFactory.create(this, node.data.text.fill.color),
-                S2LerpAnimFactory.create(this, node.data.minExtents),
-            ];
+            const group = new S2AnimGroup(this).addLerpProperties(
+                [
+                    node.data.background.cornerRadius,
+                    node.data.background.fill.color,
+                    node.data.text.fill.color,
+                    node.data.minExtents,
+                ],
+                500,
+                ease.inOut,
+            );
 
-            node.data.background.cornerRadius.set(0.5, 'world');
-            node.data.background.fill.color.copy(MTL.GREY_5);
-            node.data.text.fill.color.copy(MTL.BLACK);
-            node.data.minExtents.set(0.75, 0.5, 'world');
+            S2DataSetter.setTargets(node.data)
+                .setMinExtents(0.35, 0.35, 'world')
+                // Background
+                .setTargets(node.data.background)
+                .setFillColor(MTL.GREY_5)
+                .setCornerRadius(0.35, 'world')
+                // Text
+                .setTargets(node.data.text)
+                .setColor(MTL.BLACK);
 
-            for (const anim of animations) {
-                anim.commitFinalState().setCycleDuration(500).setEasing(ease.inOut);
-                if (first) {
-                    this.animator.addAnimation(anim, 'previous-end', 0);
-                    first = false;
-                } else {
-                    this.animator.addAnimation(anim, 'previous-start', 50);
-                }
+            group.commitLerpFinalStates();
+
+            if (first) {
+                this.animator.addAnimation(group, 'previous-end', 0);
+                first = false;
+            } else {
+                this.animator.addAnimation(group, 'previous-start', 40);
             }
         }
 
@@ -135,39 +155,6 @@ class SceneFigure extends S2Scene {
             this.animator.addAnimation(anim, 'previous-start', 0);
         }
         this.animator.makeStep();
-
-        // let anim = new S2LerpAnim(this)
-        //     .addUpdateTarget(this.getSVG())
-        //     .bind(this.node1.data.position)
-        //     .setCycleDuration(1000)
-        //     .setEasing(ease.inOut);
-        // this.node1.data.position.set(-5, 3, 'world');
-        // this.animator.addAnimation(anim.commitFinalStates());
-        // this.animator.makeStep();
-        // anim = new S2LerpAnim(this)
-        //     .addUpdateTarget(this.getSVG())
-        //     .bind(this.node2.data.position)
-        //     .setCycleDuration(1000)
-        //     .setEasing(ease.inOut);
-        // this.node2.data.position.set(+5, -3, 'world');
-        // this.animator.addAnimation(anim.commitFinalStates());
-        // this.animator.makeStep();
-        // anim = new S2LerpAnim(this)
-        //     .addUpdateTarget(this.getSVG())
-        //     .bind(this.node1.data.position)
-        //     .bind(this.node1.data.background.cornerRadius)
-        //     .bind(this.node1.data.background.fill.color)
-        //     .bind(this.node1.data.text.fill.color)
-        //     .bind(this.node2.data.position)
-        //     .setCycleDuration(1000)
-        //     .setEasing(ease.inOut);
-        // this.node1.data.position.set(-2, 0, 'world');
-        // this.node1.data.background.cornerRadius.set(0.5, 'world');
-        // this.node1.data.background.fill.color.copy(MTL.GREY_5);
-        // this.node1.data.text.fill.color.copy(MTL.BLACK);
-        // this.node2.data.position.set(+2, 0, 'world');
-        // this.animator.addAnimation(anim.commitFinalStates());
-        // this.animator.makeStep();
     }
 }
 

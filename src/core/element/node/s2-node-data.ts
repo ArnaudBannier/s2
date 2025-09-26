@@ -1,8 +1,8 @@
 import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../s2-globals';
 import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform } from '../../s2-types';
-import { S2FontData, S2BaseData, S2FillData, S2StrokeData } from '../base/s2-base-data';
+import { S2FontData, S2ElementData, S2FillData, S2StrokeData } from '../base/s2-base-data';
 
-export class S2NodeData extends S2BaseData {
+export class S2NodeData extends S2ElementData {
     public readonly position: S2Position;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly background: S2NodeBackgroundData;
@@ -40,7 +40,7 @@ export class S2NodeData extends S2BaseData {
     }
 }
 
-export class S2NodeBackgroundData extends S2BaseData {
+export class S2NodeBackgroundData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -77,7 +77,7 @@ export class S2NodeBackgroundData extends S2BaseData {
     }
 }
 
-export class S2NodeTextData extends S2BaseData {
+export class S2NodeTextData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;

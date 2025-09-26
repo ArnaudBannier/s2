@@ -6,10 +6,10 @@ import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
-import { S2FillData, S2BaseData, S2StrokeData } from './base/s2-base-data';
+import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2ArrowTip } from './s2-arrow-tip';
 
-export class S2PathData extends S2BaseData {
+export class S2PathData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly fill: S2FillData;

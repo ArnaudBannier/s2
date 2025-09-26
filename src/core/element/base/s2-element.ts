@@ -1,11 +1,11 @@
 import { type S2BaseScene } from '../../s2-base-scene';
 import { type S2Dirtyable, type S2Tipable } from '../../s2-globals';
-import { S2BaseData } from './s2-base-data';
+import { S2ElementData } from './s2-base-data';
 
-export type S2BaseElement = S2Element<S2BaseData>;
-export type S2BaseTipable = S2Element<S2BaseData> & S2Tipable;
+export type S2BaseElement = S2Element<S2ElementData>;
+export type S2BaseTipable = S2Element<S2ElementData> & S2Tipable;
 
-export abstract class S2Element<Data extends S2BaseData> implements S2Dirtyable {
+export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyable {
     public readonly data: Data;
     public readonly id: number;
 

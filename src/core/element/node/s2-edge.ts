@@ -5,7 +5,7 @@ import { S2Path } from '../s2-path';
 import { type S2Space, S2TypePriority, S2Length, S2Number, S2Position } from '../../s2-types';
 import { S2Camera } from '../../math/s2-camera';
 import { S2Element } from '../base/s2-element';
-import { S2BaseData, S2StrokeData } from '../base/s2-base-data';
+import { S2ElementData, S2StrokeData } from '../base/s2-base-data';
 import { type S2Dirtyable, type S2Tipable, S2TipTransform, svgNS } from '../../s2-globals';
 import { S2ArrowTip } from '../s2-arrow-tip';
 import { S2BaseNode } from './s2-base-node';
@@ -90,7 +90,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
     }
 }
 
-export class S2EdgeData extends S2BaseData {
+export class S2EdgeData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly pathFrom: S2Number;

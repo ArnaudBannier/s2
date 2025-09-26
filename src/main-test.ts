@@ -37,7 +37,7 @@ class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
 
     setCircleDefaultStyle(circle: S2Circle): void {
-        S2DataSetter.addTarget(circle.data)
+        S2DataSetter.setTargets(circle.data)
             .setFillColor(MTL.GREY_6)
             .setStrokeColor(MTL.GREY_4)
             .setStrokeWidth(4, 'view')
@@ -50,10 +50,10 @@ class SceneFigure extends S2Scene {
         this.animator = new S2StepAnimator(this);
 
         const fillRect = this.addFillRect();
-        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_5);
+        S2DataSetter.setTargets(fillRect.data).setColor(MTL.GREY_5);
 
         const grid = this.addWorldGrid();
-        S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);
+        S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);
 
         const font = new S2FontData();
         font.family.set('monospace');

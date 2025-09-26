@@ -5,15 +5,7 @@ import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 
 // Factory class
 export class S2LerpAnimFactory {
-    static create(scene: S2BaseScene, property: S2Number): S2LerpAnimNumber;
-    static create(scene: S2BaseScene, property: S2Color): S2LerpAnimColor;
-    static create(scene: S2BaseScene, property: S2Position): S2LerpAnimPosition;
-    static create(scene: S2BaseScene, property: S2Length): S2LerpAnimLength;
-    static create(scene: S2BaseScene, property: S2Extents): S2LerpAnimExtents;
-    static create(
-        scene: S2BaseScene,
-        property: S2Number | S2Color | S2Position | S2Length | S2Extents,
-    ): S2BaseDurationAnimation {
+    static create(scene: S2BaseScene, property: S2AnimProperty): S2LerpAnim {
         switch (property.kind) {
             case 'number':
                 return new S2LerpAnimNumber(scene, property as S2Number);
@@ -31,7 +23,12 @@ export class S2LerpAnimFactory {
     }
 }
 
-export class S2LerpAnimNumber extends S2BaseDurationAnimation {
+export abstract class S2LerpAnim extends S2BaseDurationAnimation {
+    abstract commitInitialState(): this;
+    abstract commitFinalState(): this;
+}
+
+export class S2LerpAnimNumber extends S2LerpAnim {
     protected property: S2Number;
     protected state0: S2Number;
     protected state1: S2Number;
@@ -44,6 +41,11 @@ export class S2LerpAnimNumber extends S2BaseDurationAnimation {
         this.properties.add(property);
     }
 
+    commitInitialState(): this {
+        this.state0.copy(this.property);
+        return this;
+    }
+
     commitFinalState(): this {
         this.state1.copy(this.property);
         return this;
@@ -56,7 +58,7 @@ export class S2LerpAnimNumber extends S2BaseDurationAnimation {
     }
 }
 
-export class S2LerpAnimColor extends S2BaseDurationAnimation {
+export class S2LerpAnimColor extends S2LerpAnim {
     protected property: S2Color;
     protected state0: S2Color;
     protected state1: S2Color;
@@ -69,6 +71,11 @@ export class S2LerpAnimColor extends S2BaseDurationAnimation {
         this.properties.add(property);
     }
 
+    commitInitialState(): this {
+        this.state0.copy(this.property);
+        return this;
+    }
+
     commitFinalState(): this {
         this.state1.copy(this.property);
         return this;
@@ -81,7 +88,7 @@ export class S2LerpAnimColor extends S2BaseDurationAnimation {
     }
 }
 
-export class S2LerpAnimLength extends S2BaseDurationAnimation {
+export class S2LerpAnimLength extends S2LerpAnim {
     protected property: S2Length;
     protected state0: S2Length;
     protected state1: S2Length;
@@ -94,6 +101,11 @@ export class S2LerpAnimLength extends S2BaseDurationAnimation {
         this.properties.add(property);
     }
 
+    commitInitialState(): this {
+        this.state0.copy(this.property);
+        return this;
+    }
+
     commitFinalState(): this {
         this.state1.copy(this.property);
         return this;
@@ -107,7 +119,7 @@ export class S2LerpAnimLength extends S2BaseDurationAnimation {
     }
 }
 
-export class S2LerpAnimPosition extends S2BaseDurationAnimation {
+export class S2LerpAnimPosition extends S2LerpAnim {
     protected property: S2Position;
     protected state0: S2Position;
     protected state1: S2Position;
@@ -120,6 +132,11 @@ export class S2LerpAnimPosition extends S2BaseDurationAnimation {
         this.properties.add(property);
     }
 
+    commitInitialState(): this {
+        this.state0.copy(this.property);
+        return this;
+    }
+
     commitFinalState(): this {
         this.state1.copy(this.property);
         return this;
@@ -133,7 +150,7 @@ export class S2LerpAnimPosition extends S2BaseDurationAnimation {
     }
 }
 
-export class S2LerpAnimExtents extends S2BaseDurationAnimation {
+export class S2LerpAnimExtents extends S2LerpAnim {
     protected property: S2Extents;
     protected state0: S2Extents;
     protected state1: S2Extents;
@@ -144,6 +161,11 @@ export class S2LerpAnimExtents extends S2BaseDurationAnimation {
         this.state0 = property.clone();
         this.state1 = property.clone();
         this.properties.add(property);
+    }
+
+    commitInitialState(): this {
+        this.state0.copy(this.property);
+        return this;
     }
 
     commitFinalState(): this {

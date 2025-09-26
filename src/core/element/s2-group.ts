@@ -1,9 +1,9 @@
 import { S2BaseScene } from '../s2-base-scene';
 import { S2Element } from './base/s2-element';
 import { svgNS } from '../s2-globals';
-import { S2BaseData } from './base/s2-base-data';
+import { S2ElementData } from './base/s2-base-data';
 
-export class S2Group<DataType extends S2BaseData> extends S2Element<DataType> {
+export class S2Group<DataType extends S2ElementData> extends S2Element<DataType> {
     protected element: SVGGElement;
 
     constructor(scene: S2BaseScene, data: DataType) {

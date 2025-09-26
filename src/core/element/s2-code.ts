@@ -1,7 +1,7 @@
 import { S2BaseScene } from '../s2-base-scene';
 import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../s2-globals';
 import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypePriority, type S2Space } from '../s2-types';
-import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './base/s2-base-data';
+import { S2FillData, S2ElementData, S2StrokeData, S2FontData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
 import { S2Rect } from './s2-rect';
@@ -43,7 +43,7 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
     return tokens;
 }
 
-export class S2CodeData extends S2BaseData {
+export class S2CodeData extends S2ElementData {
     public readonly position: S2Position;
     public readonly opacity: S2Number;
     public readonly anchor: S2Enum<S2Anchor>;
@@ -85,7 +85,7 @@ export class S2CodeData extends S2BaseData {
     }
 }
 
-export class S2CodeTextData extends S2BaseData {
+export class S2CodeTextData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -123,7 +123,7 @@ export class S2CodeTextData extends S2BaseData {
     }
 }
 
-export class S2CodeBackgroundData extends S2BaseData {
+export class S2CodeBackgroundData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -156,7 +156,7 @@ export class S2CodeBackgroundData extends S2BaseData {
     }
 }
 
-export class S2CodeCurrentLineData extends S2BaseData {
+export class S2CodeCurrentLineData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -387,7 +387,7 @@ export class S2Code extends S2Element<S2CodeData> {
     }
 }
 
-export class S2TextEmphasisData extends S2BaseData {
+export class S2TextEmphasisData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;

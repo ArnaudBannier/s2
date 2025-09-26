@@ -1,13 +1,13 @@
 import { S2BaseScene } from '../s2-base-scene';
-import { S2BaseData } from './base/s2-base-data';
+import { S2ElementData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 //import { S2TransformableElementData } from './base/s2-transformable-element';
 
-export class S2SVG extends S2Element<S2BaseData> {
+export class S2SVG extends S2Element<S2ElementData> {
     protected element: SVGGElement;
 
     constructor(scene: S2BaseScene, element: SVGSVGElement) {
-        super(scene, new S2BaseData());
+        super(scene, new S2ElementData());
         this.element = element;
     }
 

@@ -21,7 +21,7 @@ class SceneFigure extends S2Scene {
         super(svgElement, camera);
 
         const fillRect = this.addFillRect();
-        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
+        S2DataSetter.setTargets(fillRect.data).setColor(MTL.GREY_8);
 
         const style = this.addStyle();
         style.addRule('.s2-node-background', { fill: MTL_HEX.BLUE_3, stroke: MTL_HEX.BLUE_8 });

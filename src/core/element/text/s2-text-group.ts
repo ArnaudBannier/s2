@@ -20,7 +20,7 @@ import {
     type S2Space,
 } from '../../s2-types';
 import { S2Element } from '../base/s2-element';
-import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
+import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TextData } from './s2-text-data';
 
@@ -53,7 +53,7 @@ export class S2TextLine extends S2BaseRichText<S2TextLineData> {
     }
 }
 
-export class S2TextGroupData extends S2BaseData {
+export class S2TextGroupData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;

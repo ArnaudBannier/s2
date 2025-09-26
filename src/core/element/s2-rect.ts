@@ -3,11 +3,11 @@ import { S2BaseScene } from '../s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils, type S2Dirtyable } from '../s2-globals';
 import { type S2Space, S2Length, S2Extents, S2Enum, S2Number, S2Transform, S2Position } from '../s2-types';
-import { S2BaseData, S2FillData, S2StrokeData } from './base/s2-base-data';
+import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 
-export class S2RectData extends S2BaseData {
+export class S2RectData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;

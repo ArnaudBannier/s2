@@ -1,8 +1,8 @@
 import { type S2Dirtyable, type S2TextAnchor } from '../../s2-globals';
 import { S2Boolean, S2Enum, S2Number, S2Position, S2Transform } from '../../s2-types';
-import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
+import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 
-export class S2TextData extends S2BaseData {
+export class S2TextData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;

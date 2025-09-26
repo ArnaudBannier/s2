@@ -9,10 +9,10 @@ import { S2TextGroup, S2TextLine } from '../text/s2-text-group';
 import { clamp } from '../../math/s2-utils';
 import { S2Line } from '../s2-line';
 import { S2Element } from '../base/s2-element';
-import { S2FontData, S2BaseData, S2FillData, S2StrokeData } from '../base/s2-base-data';
+import { S2FontData, S2ElementData, S2FillData, S2StrokeData } from '../base/s2-base-data';
 import { S2DataUtils } from '../base/s2-data-utils';
 
-export class S2NodeData extends S2BaseData {
+export class S2NodeData extends S2ElementData {
     public readonly position: S2Position;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly background: S2NodeBackgroundData;
@@ -35,7 +35,7 @@ export class S2NodeData extends S2BaseData {
     }
 }
 
-export class S2NodeBackgroundData extends S2BaseData {
+export class S2NodeBackgroundData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -55,7 +55,7 @@ export class S2NodeBackgroundData extends S2BaseData {
     }
 }
 
-export class S2NodeTextData extends S2BaseData {
+export class S2NodeTextData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -80,7 +80,7 @@ export class S2NodeTextData extends S2BaseData {
     }
 }
 
-export class S2NodeSeparatorData extends S2BaseData {
+export class S2NodeSeparatorData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
 
@@ -111,7 +111,7 @@ export class S2Node extends S2Element<S2NodeData> {
 
         for (let i = 0; i < partCount; i++) {
             const textGroup = new S2TextGroup(this.scene);
-            textGroup.data.setLayer(2);
+            textGroup.data.layer.set(2);
 
             textGroup.setParent(this);
             this.textGroups.push(textGroup);
@@ -119,7 +119,7 @@ export class S2Node extends S2Element<S2NodeData> {
         }
         for (let i = 0; i < partCount - 1; i++) {
             const line = new S2Line(this.scene);
-            line.data.setLayer(1);
+            line.data.layer.set(1);
 
             line.setParent(this);
             this.sepLines.push(line);
@@ -154,7 +154,7 @@ export class S2Node extends S2Element<S2NodeData> {
     createRectBackground(): S2Rect {
         if (this.background !== null) this.background.setParent(null);
         this.background = new S2Rect(this.scene);
-        this.background.data.setLayer(0);
+        this.background.data.layer.set(0);
 
         this.background.setParent(this);
         this.updateSVGChildren();
@@ -164,7 +164,7 @@ export class S2Node extends S2Element<S2NodeData> {
     createCircleBackground(): S2Circle {
         if (this.background !== null) this.background.setParent(null);
         this.background = new S2Circle(this.scene);
-        this.background.data.setLayer(0);
+        this.background.data.layer.set(0);
 
         this.background.setParent(this);
         this.updateSVGChildren();

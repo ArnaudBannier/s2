@@ -1,7 +1,14 @@
-import { S2FillData, S2BaseData, S2StrokeData } from './s2-base-data.ts';
+import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './s2-base-data.ts';
 import { S2Color, S2Enum, S2Extents, S2Length, S2Number, S2Position, type S2Space } from '../../s2-types';
 import { S2Vec2 } from '../../math/s2-vec2';
-import { type S2Anchor, type S2LineCap, type S2LineJoin } from '../../s2-globals.ts';
+import {
+    type S2Anchor,
+    type S2FontStyle,
+    type S2HorizontalAlign,
+    type S2LineCap,
+    type S2LineJoin,
+    type S2VerticalAlign,
+} from '../../s2-globals.ts';
 
 export class S2DataSetterUtils {
     static setAnchor(data: S2BaseData, anchor: S2Anchor): void {
@@ -10,11 +17,16 @@ export class S2DataSetterUtils {
         }
     }
 
-    // static setBackgroundColor(data: S2BaseData, color: S2Color): void {
-    //     if ('background' in data && data.background instanceof S2FillData) {
-    //         data.background.color.copy(color);
-    //     }
-    // }
+    static setBackgroundFillColor(data: S2BaseData, color: S2Color): void {
+        if (
+            'background' in data &&
+            data.background instanceof S2BaseData &&
+            'fill' in data.background &&
+            data.background.fill instanceof S2FillData
+        ) {
+            data.background.fill.color.copy(color);
+        }
+    }
 
     static setColor(data: S2BaseData, color: S2Color): void {
         if ('color' in data && data.color instanceof S2Color) {
@@ -58,6 +70,69 @@ export class S2DataSetterUtils {
         }
     }
 
+    static setEdgeStartDistance(data: S2BaseData, distance: number, space: S2Space = 'view'): void {
+        if ('startDistance' in data && data.startDistance instanceof S2Length) {
+            data.startDistance.set(distance, space);
+        }
+    }
+
+    static setEdgeEndDistance(data: S2BaseData, distance: number, space: S2Space = 'view'): void {
+        if ('endDistance' in data && data.endDistance instanceof S2Length) {
+            data.endDistance.set(distance, space);
+        }
+    }
+
+    static setEdgeStartAngle(data: S2BaseData, angle: number): void {
+        if ('startAngle' in data && data.startAngle instanceof S2Number) {
+            data.startAngle.set(angle);
+        }
+    }
+
+    static setEdgeEndAngle(data: S2BaseData, angle: number): void {
+        if ('endAngle' in data && data.endAngle instanceof S2Number) {
+            data.endAngle.set(angle);
+        }
+    }
+
+    static setEdgeBendAngle(data: S2BaseData, angle: number): void {
+        if ('curveBendAngle' in data && data.curveBendAngle instanceof S2Number) {
+            data.curveBendAngle.set(angle);
+        }
+    }
+
+    static setEdgeTension(data: S2BaseData, tension: number): void {
+        if ('curveStartTension' in data && data.curveStartTension instanceof S2Number) {
+            data.curveStartTension.set(tension);
+        }
+        if ('curveEndTension' in data && data.curveEndTension instanceof S2Number) {
+            data.curveEndTension.set(tension);
+        }
+    }
+
+    static setEdgeStartTension(data: S2BaseData, tension: number): void {
+        if ('curveStartTension' in data && data.curveStartTension instanceof S2Number) {
+            data.curveStartTension.set(tension);
+        }
+    }
+
+    static setEdgeEndTension(data: S2BaseData, tension: number): void {
+        if ('curveEndTension' in data && data.curveEndTension instanceof S2Number) {
+            data.curveEndTension.set(tension);
+        }
+    }
+
+    static setEndPosition(data: S2BaseData, x: number, y: number, space?: S2Space): void {
+        if ('endPosition' in data && data.endPosition instanceof S2Position) {
+            data.endPosition.set(x, y, space);
+        }
+    }
+
+    static setEndPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
+        if ('endPosition' in data && data.endPosition instanceof S2Position) {
+            data.endPosition.setV(v, space);
+        }
+    }
+
     static setExtents(data: S2BaseData, x: number, y: number, space?: S2Space): void {
         if ('extents' in data && data.extents instanceof S2Extents) {
             data.extents.set(x, y, space);
@@ -94,15 +169,93 @@ export class S2DataSetterUtils {
         }
     }
 
+    static setFont(data: S2BaseData, font: S2FontData): void {
+        if ('font' in data && data.font instanceof S2FontData) {
+            data.font.copy(font);
+        }
+    }
+
+    static setFontSize(data: S2BaseData, size: number, space?: S2Space): void {
+        if ('font' in data && data.font instanceof S2FontData) {
+            data.font.size.set(size, space);
+        }
+    }
+
+    static setFontWeight(data: S2BaseData, weight: number): void {
+        if ('font' in data && data.font instanceof S2FontData) {
+            data.font.weight.set(weight);
+        }
+    }
+
+    static setFontStyle(data: S2BaseData, style: S2FontStyle): void {
+        if ('font' in data && data.font instanceof S2FontData) {
+            data.font.style.set(style);
+        }
+    }
+
+    static setFontFamily(data: S2BaseData, family: string): void {
+        if ('font' in data && data.font instanceof S2FontData) {
+            data.font.family.set(family);
+        }
+    }
+
+    static setFontRelativeLineHeight(data: S2BaseData, lineHeight: number): void {
+        if ('font' in data && data.font instanceof S2FontData) {
+            data.font.relativeLineHeight.set(lineHeight);
+        }
+    }
+
+    static setFontRelativeAscenderHeight(data: S2BaseData, ascenderHeight: number): void {
+        if ('font' in data && data.font instanceof S2FontData) {
+            data.font.relativeAscenderHeight.set(ascenderHeight);
+        }
+    }
+
+    static setHorizontalAlign(data: S2BaseData, align: S2HorizontalAlign): void {
+        if ('horizontalAlign' in data && data.horizontalAlign instanceof S2Enum) {
+            data.horizontalAlign.set(align);
+        }
+    }
+
+    static setVerticalAlign(data: S2BaseData, align: S2VerticalAlign): void {
+        if ('verticalAlign' in data && data.verticalAlign instanceof S2Enum) {
+            data.verticalAlign.set(align);
+        }
+    }
+
     static setLayer(data: S2BaseData, layer: number): void {
         if ('layer' in data && data.layer instanceof S2Number) {
             data.layer.set(layer);
         }
     }
 
+    static setMinExtents(data: S2BaseData, x: number, y: number, space?: S2Space): void {
+        if ('minExtents' in data && data.minExtents instanceof S2Extents) {
+            data.minExtents.set(x, y, space);
+        }
+    }
+
+    static setMinExtentsV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
+        if ('minExtents' in data && data.minExtents instanceof S2Extents) {
+            data.minExtents.setV(v, space);
+        }
+    }
+
     static setOpacity(data: S2BaseData, opacity: number): void {
         if ('opacity' in data && data.opacity instanceof S2Number) {
             data.opacity.set(opacity);
+        }
+    }
+
+    static setPadding(data: S2BaseData, x: number, y: number, space?: S2Space): void {
+        if ('padding' in data && data.padding instanceof S2Extents) {
+            data.padding.set(x, y, space);
+        }
+    }
+
+    static setPaddingV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
+        if ('padding' in data && data.padding instanceof S2Extents) {
+            data.padding.setV(v, space);
         }
     }
 
@@ -139,18 +292,6 @@ export class S2DataSetterUtils {
     static setStartPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
         if ('startPosition' in data && data.startPosition instanceof S2Position) {
             data.startPosition.setV(v, space);
-        }
-    }
-
-    static setEndPosition(data: S2BaseData, x: number, y: number, space?: S2Space): void {
-        if ('endPosition' in data && data.endPosition instanceof S2Position) {
-            data.endPosition.set(x, y, space);
-        }
-    }
-
-    static setEndPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
-        if ('endPosition' in data && data.endPosition instanceof S2Position) {
-            data.endPosition.setV(v, space);
         }
     }
 
@@ -205,57 +346,6 @@ export class S2DataSetterUtils {
     static setStrokeWidth(data: S2BaseData, width: number, space?: S2Space): void {
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
             data.stroke.width.set(width, space);
-        }
-    }
-
-    static setEdgeStartDistance(data: S2BaseData, distance: number, space: S2Space = 'view'): void {
-        if ('startDistance' in data && data.startDistance instanceof S2Length) {
-            data.startDistance.set(distance, space);
-        }
-    }
-
-    static setEdgeEndDistance(data: S2BaseData, distance: number, space: S2Space = 'view'): void {
-        if ('endDistance' in data && data.endDistance instanceof S2Length) {
-            data.endDistance.set(distance, space);
-        }
-    }
-
-    static setEdgeStartAngle(data: S2BaseData, angle: number): void {
-        if ('startAngle' in data && data.startAngle instanceof S2Number) {
-            data.startAngle.set(angle);
-        }
-    }
-
-    static setEdgeEndAngle(data: S2BaseData, angle: number): void {
-        if ('endAngle' in data && data.endAngle instanceof S2Number) {
-            data.endAngle.set(angle);
-        }
-    }
-
-    static setEdgeBendAngle(data: S2BaseData, angle: number): void {
-        if ('curveBendAngle' in data && data.curveBendAngle instanceof S2Number) {
-            data.curveBendAngle.set(angle);
-        }
-    }
-
-    static setEdgeTension(data: S2BaseData, tension: number): void {
-        if ('curveStartTension' in data && data.curveStartTension instanceof S2Number) {
-            data.curveStartTension.set(tension);
-        }
-        if ('curveEndTension' in data && data.curveEndTension instanceof S2Number) {
-            data.curveEndTension.set(tension);
-        }
-    }
-
-    static setEdgeStartTension(data: S2BaseData, tension: number): void {
-        if ('curveStartTension' in data && data.curveStartTension instanceof S2Number) {
-            data.curveStartTension.set(tension);
-        }
-    }
-
-    static setEdgeEndTension(data: S2BaseData, tension: number): void {
-        if ('curveEndTension' in data && data.curveEndTension instanceof S2Number) {
-            data.curveEndTension.set(tension);
         }
     }
 

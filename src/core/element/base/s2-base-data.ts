@@ -1,22 +1,19 @@
 import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin } from '../../s2-globals';
 import { S2Color, S2TypePriority, S2Length, S2Number, S2Enum, S2String } from '../../s2-types';
 
-export class S2BaseData {
+export abstract class S2BaseData {
+    abstract setOwner(owner: S2Dirtyable | null): void;
+    abstract clearDirty(): void;
+}
+
+export class S2ElementData extends S2BaseData {
     public readonly layer: S2Number;
     public isActive: boolean;
 
     constructor() {
+        super();
         this.layer = new S2Number(0);
         this.isActive = true;
-    }
-
-    setParent(parent: S2BaseData | null = null): void {
-        void parent;
-    }
-
-    setLayer(layer: number): this {
-        this.layer.set(layer);
-        return this;
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -28,7 +25,7 @@ export class S2BaseData {
     }
 }
 
-export class S2StrokeData implements S2Dirtyable {
+export class S2StrokeData extends S2BaseData implements S2Dirtyable {
     public readonly color: S2Color;
     public readonly width: S2Length;
     public readonly opacity: S2Number;
@@ -38,6 +35,7 @@ export class S2StrokeData implements S2Dirtyable {
     private owner: S2Dirtyable | null;
 
     constructor() {
+        super();
         this.color = new S2Color(0, 0, 0, S2TypePriority.Normal);
         this.width = new S2Length(0, 'view');
         this.opacity = new S2Number(1, S2TypePriority.Normal);
@@ -87,13 +85,14 @@ export class S2StrokeData implements S2Dirtyable {
     }
 }
 
-export class S2FillData implements S2Dirtyable {
+export class S2FillData extends S2BaseData implements S2Dirtyable {
     public readonly color: S2Color;
     public readonly opacity: S2Number;
     private dirty: boolean;
     private owner: S2Dirtyable | null;
 
     constructor() {
+        super();
         this.color = new S2Color(255, 255, 255, S2TypePriority.Normal);
         this.opacity = new S2Number(1, S2TypePriority.Normal);
         this.dirty = true;
@@ -130,7 +129,7 @@ export class S2FillData implements S2Dirtyable {
     }
 }
 
-export class S2FontData implements S2Dirtyable {
+export class S2FontData extends S2BaseData implements S2Dirtyable {
     public readonly size: S2Length;
     public readonly weight: S2Number;
     public readonly relativeLineHeight: S2Number;
@@ -142,6 +141,7 @@ export class S2FontData implements S2Dirtyable {
     private owner: S2Dirtyable | null;
 
     constructor() {
+        super();
         this.size = new S2Length(16, 'view');
         this.weight = new S2Number(400);
         this.relativeLineHeight = new S2Number(21 / 16);

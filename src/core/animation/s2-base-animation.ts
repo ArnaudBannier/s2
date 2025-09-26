@@ -1,4 +1,3 @@
-import { type S2BaseElement } from '../element/base/s2-element';
 import { S2MathUtils } from '../math/s2-utils';
 import { S2BaseScene } from '../s2-base-scene';
 import type { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../s2-types';
@@ -10,10 +9,10 @@ export abstract class S2BaseAnimation {
     protected scene: S2BaseScene;
     protected cycleIndex: number = 0;
     protected cycleCount: number = 1;
-    protected cycleDuration: number = 1000;
+    protected cycleDuration: number = 0;
     protected rawCycleAlpha: number = 0;
     protected rawElapsed: number = 0;
-    protected rawDuration: number = 1000;
+    protected rawDuration: number = 0;
     protected wrapedCycleAlpha: number = 0;
     protected wrapedCycleElapsed: number = 0;
     protected ease: S2EaseType = ease.linear;
@@ -34,46 +33,24 @@ export abstract class S2BaseAnimation {
         return this.properties;
     }
 
-    private setRawElapsed(elapsed: number): void {
-        if (this.rawElapsed === elapsed) return;
-        this.rawElapsed = elapsed;
-        this.cycleIndex = S2MathUtils.clamp(Math.floor(this.rawElapsed / this.cycleDuration), 0, this.cycleCount - 1);
-
-        if (elapsed >= this.cycleCount * this.cycleDuration) {
-            this.rawCycleAlpha = 1;
-        } else {
-            this.rawCycleAlpha = (this.rawElapsed % this.cycleDuration) / this.cycleDuration;
-        }
-        this.wrapedCycleAlpha = this.reversed ? 1 - this.rawCycleAlpha : this.rawCycleAlpha;
-        if (this.alternate && this.cycleIndex % 2 === 1) this.wrapedCycleAlpha = 1 - this.wrapedCycleAlpha;
-        this.wrapedCycleAlpha = this.ease(this.wrapedCycleAlpha);
-        this.wrapedCycleElapsed = S2MathUtils.clamp(this.wrapedCycleAlpha, 0, 1) * this.cycleDuration;
-    }
-
-    setElapsed(elapsed: number): this {
-        this.setRawElapsed(elapsed);
-        for (const target of this.properties) {
-            this.setElapsedPropertyImpl(target);
-        }
-        return this;
-    }
-
-    setElapsedProperty(property: S2AnimProperty, elapsed: number): this {
-        this.setRawElapsed(elapsed);
-        this.setElapsedPropertyImpl(property);
-        return this;
-    }
-
-    protected setElapsedPropertyImpl(target: S2AnimProperty): void {
-        void target; // to avoid unused variable warning
-    }
-
     getElapsed(): number {
         return this.rawElapsed;
     }
 
     getDuration(): number {
         return this.rawDuration;
+    }
+
+    getCycleDuration(): number {
+        return this.cycleDuration;
+    }
+
+    getCycleIndex(): number {
+        return this.cycleIndex;
+    }
+
+    getCycleCount(): number {
+        return this.cycleCount;
     }
 
     setCycleCount(cycleCount: number): this {
@@ -97,25 +74,39 @@ export abstract class S2BaseAnimation {
         return this;
     }
 
-    getWrapedProgress(): number {
-        let t = this.rawElapsed / this.rawDuration;
-        if (this.reversed) t = 1 - t;
-        return this.ease(t);
+    setElapsed(elapsed: number): this {
+        this.setRawElapsed(elapsed);
+        for (const target of this.properties) {
+            this.setElapsedPropertyImpl(target);
+        }
+        return this;
     }
 
-    getCycleDuration(): number {
-        return this.cycleDuration;
+    setElapsedProperty(property: S2AnimProperty, elapsed: number): this {
+        this.setRawElapsed(elapsed);
+        this.setElapsedPropertyImpl(property);
+        return this;
     }
 
-    getCycleIndex(): number {
-        return this.cycleIndex;
-    }
-
-    getCycleCount(): number {
-        return this.cycleCount;
-    }
+    protected abstract setElapsedPropertyImpl(property: S2AnimProperty): void;
 
     protected updateRawDuration(): void {
         this.rawDuration = this.cycleDuration * (this.cycleCount < 0 ? 1 : this.cycleCount);
+    }
+
+    private setRawElapsed(elapsed: number): void {
+        if (this.rawElapsed === elapsed) return;
+        this.rawElapsed = elapsed;
+        this.cycleIndex = S2MathUtils.clamp(Math.floor(this.rawElapsed / this.cycleDuration), 0, this.cycleCount - 1);
+
+        if (elapsed >= this.cycleCount * this.cycleDuration) {
+            this.rawCycleAlpha = 1;
+        } else {
+            this.rawCycleAlpha = (this.rawElapsed % this.cycleDuration) / this.cycleDuration;
+        }
+        this.wrapedCycleAlpha = this.reversed ? 1 - this.rawCycleAlpha : this.rawCycleAlpha;
+        if (this.alternate && this.cycleIndex % 2 === 1) this.wrapedCycleAlpha = 1 - this.wrapedCycleAlpha;
+        this.wrapedCycleAlpha = this.ease(this.wrapedCycleAlpha);
+        this.wrapedCycleElapsed = S2MathUtils.clamp(this.wrapedCycleAlpha, 0, 1) * this.cycleDuration;
     }
 }

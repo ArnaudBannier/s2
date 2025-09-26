@@ -41,11 +41,11 @@ class S2TimelinePart {
 }
 
 class S2TimelinePropertyTrack {
-    public target: S2AnimProperty;
+    public property: S2AnimProperty;
     public sortedParts: S2TimelinePart[] = [];
 
-    constructor(target: S2AnimProperty) {
-        this.target = target;
+    constructor(property: S2AnimProperty) {
+        this.property = property;
     }
 
     refreshState(): void {
@@ -59,7 +59,7 @@ class S2TimelinePropertyTrack {
             if (this.sortedParts[i].end > this.sortedParts[i + 1].start) {
                 console.warn(
                     'S2Timeline: Overlapping animations on the same target are not supported.',
-                    this.target,
+                    this.property,
                     this.sortedParts[i],
                     this.sortedParts[i + 1],
                 );
@@ -67,73 +67,73 @@ class S2TimelinePropertyTrack {
         }
     }
 
-    getActivePart(elapsed: number): S2TimelinePart {
+    private getActivePart(elapsed: number): S2TimelinePart {
         if (this.sortedParts.length === 0) {
             throw new Error('S2TimelineTargetParts: No parts available.');
         }
+        if (elapsed <= this.sortedParts[0].start) {
+            return this.sortedParts[0];
+        }
         for (let i = 0; i < this.sortedParts.length - 1; i++) {
-            if (elapsed <= this.sortedParts[i].start) {
-                return this.sortedParts[i];
-            }
-            if (elapsed <= this.sortedParts[i].end) {
-                return this.sortedParts[i];
-            }
-            if (elapsed < this.sortedParts[i + 1].start) {
+            if (elapsed <= this.sortedParts[i].end || elapsed < this.sortedParts[i + 1].start) {
                 return this.sortedParts[i];
             }
         }
         return this.sortedParts[this.sortedParts.length - 1];
     }
+
+    setElapsed(elapsed: number): void {
+        const part = this.getActivePart(elapsed);
+        const animation = part.animation;
+        if (elapsed <= part.start) {
+            animation.setElapsedProperty(this.property, 0);
+        } else if (elapsed >= part.end) {
+            animation.setElapsedProperty(this.property, animation.getDuration());
+        } else {
+            const localElapsed = elapsed - part.start;
+            animation.setElapsedProperty(this.property, localElapsed);
+        }
+    }
 }
 
 export class S2Timeline extends S2BaseAnimation {
-    protected parts: S2TimelinePart[] = [];
-    protected targetPartsMap: Map<S2AnimProperty, S2TimelinePropertyTrack>;
+    protected parts: S2TimelinePart[];
+    protected propertyTrackMap: Map<S2AnimProperty, S2TimelinePropertyTrack>;
 
     constructor(scene: S2BaseScene) {
         super(scene);
         this.cycleDuration = 0;
-        this.targetPartsMap = new Map();
+        this.parts = [];
+        this.propertyTrackMap = new Map();
     }
 
     addAnimation(animation: S2BaseAnimation, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
-        const part = new S2TimelinePart(animation, position, offset);
-        part.updateRange(this.parts.length > 0 ? this.parts[this.parts.length - 1] : null);
-        this.cycleDuration = Math.max(this.cycleDuration, part.end);
+        const prevPart = this.parts.length > 0 ? this.parts[this.parts.length - 1] : null;
+        const currPart = new S2TimelinePart(animation, position, offset);
+        currPart.updateRange(prevPart);
+        this.cycleDuration = Math.max(this.cycleDuration, currPart.end);
         this.updateRawDuration();
 
-        const targets = animation.getProperties();
-        for (const target of targets) {
-            this.properties.add(target);
-            let targetParts = this.targetPartsMap.get(target);
-            if (targetParts === undefined) {
-                targetParts = new S2TimelinePropertyTrack(target);
-                this.targetPartsMap.set(target, targetParts);
+        const properties = animation.getProperties();
+        for (const property of properties) {
+            this.properties.add(property);
+            let track = this.propertyTrackMap.get(property);
+            if (track === undefined) {
+                track = new S2TimelinePropertyTrack(property);
+                this.propertyTrackMap.set(property, track);
             }
-            targetParts.addPart(part);
+            track.addPart(currPart);
         }
 
-        this.parts.push(part);
+        this.parts.push(currPart);
         return this;
     }
 
     protected setElapsedPropertyImpl(target: S2AnimProperty): void {
-        const targetParts = this.targetPartsMap.get(target);
-        if (targetParts === undefined) {
+        const propertyTrack = this.propertyTrackMap.get(target);
+        if (propertyTrack === undefined) {
             return;
         }
-
-        const elapsed = this.wrapedCycleElapsed;
-        const part = targetParts.getActivePart(this.wrapedCycleElapsed);
-        if (elapsed <= part.start) {
-            part.animation.setElapsedProperty(target, 0);
-            //part.animation.applyInitialState();
-        } else if (elapsed >= part.end) {
-            part.animation.setElapsedProperty(target, part.animation.getDuration());
-            //part.animation.applyFinalState();
-        } else {
-            const localElapsed = elapsed - part.start;
-            part.animation.setElapsedProperty(target, localElapsed);
-        }
+        propertyTrack.setElapsed(this.wrapedCycleElapsed);
     }
 }

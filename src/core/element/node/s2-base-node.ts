@@ -55,7 +55,7 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
     createRectBackground(): S2Rect {
         if (this.background !== null) this.background.setParent(null);
         this.background = new S2Rect(this.scene);
-        this.background.data.setLayer(0);
+        this.background.data.layer.set(0);
 
         this.background.setParent(this);
         this.updateSVGChildren();
@@ -65,7 +65,7 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
     createCircleBackground(): S2Circle {
         if (this.background !== null) this.background.setParent(null);
         this.background = new S2Circle(this.scene);
-        this.background.data.setLayer(0);
+        this.background.data.layer.set(0);
 
         this.background.setParent(this);
         this.updateSVGChildren();

@@ -81,6 +81,7 @@ export class S2StepAnimator {
 
     reset(): this {
         this.masterTimeline.setElapsed(0);
+        this.scene.getSVG().update();
         this.currPlayable = this.masterPlayable;
         return this;
     }

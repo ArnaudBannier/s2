@@ -2,13 +2,13 @@ import { S2Vec2 } from '../../math/s2-vec2';
 import { S2BaseScene } from '../../s2-base-scene';
 import { svgNS, type S2Dirtyable } from '../../s2-globals';
 import { S2BBox, S2Number, S2Transform, type S2Space } from '../../s2-types';
-import { S2BaseData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
+import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
 import type { S2BaseRichText } from './s2-rich-text';
 import type { S2TextData } from './s2-text-data';
 
-export class S2TSpanData extends S2BaseData {
+export class S2TSpanData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;

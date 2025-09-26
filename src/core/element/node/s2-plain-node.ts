@@ -11,7 +11,7 @@ export class S2PlainNode extends S2BaseNode {
     constructor(scene: S2BaseScene) {
         super(scene);
         this.text = new S2PlainText(this.scene);
-        this.text.data.setLayer(2);
+        this.text.data.layer.set(2);
         this.text.setParent(this);
         this.element.dataset.role = 'plain-node';
     }

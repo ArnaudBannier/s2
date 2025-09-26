@@ -10,7 +10,7 @@ import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
 import { S2LerpAnimFactory } from './core/animation/s2-lerp-anim.ts';
 import { ease } from './core/animation/s2-easing.ts';
 import { S2MathUtils } from './core/math/s2-utils.ts';
-import { S2BaseData, S2FontData } from './core/element/base/s2-base-data.ts';
+import { S2ElementData, S2FontData } from './core/element/base/s2-base-data.ts';
 import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
 import { S2Code, tokenizeAlgorithm } from './core/element/s2-code.ts';
 
@@ -69,7 +69,7 @@ class BTreeStyle {
     }
 
     setEdgeBase(edge: S2LineEdge): void {
-        S2DataSetter.addTarget(edge.data)
+        S2DataSetter.setTargets(edge.data)
             .setStrokeColor(MTL.GREY_6)
             .setStrokeWidth(4, 'view')
             .setStrokeLineCap('round')
@@ -78,7 +78,7 @@ class BTreeStyle {
     }
 
     setEdgeEmphasized(edge: S2LineEdge): void {
-        S2DataSetter.addTarget(edge.data)
+        S2DataSetter.setTargets(edge.data)
             .setStrokeColor(MTL.WHITE)
             .setStrokeWidth(5, 'view')
             .setStrokeLineCap('round')
@@ -117,8 +117,8 @@ class BTree {
     public root: BTreeNode | null;
     protected style: BTreeStyle;
     protected scene: S2Scene;
-    protected edgeGroup: S2Group<S2BaseData>;
-    protected nodeGroup: S2Group<S2BaseData>;
+    protected edgeGroup: S2Group<S2ElementData>;
+    protected nodeGroup: S2Group<S2ElementData>;
 
     levelDistance: number = 1.8;
     baseSep: number = 0.8;
@@ -132,8 +132,8 @@ class BTree {
         this.style = style;
         this.center = new S2Vec2();
         this.extents = new S2Vec2();
-        this.edgeGroup = scene.addGroup(new S2BaseData());
-        this.nodeGroup = scene.addGroup(new S2BaseData());
+        this.edgeGroup = scene.addGroup(new S2ElementData());
+        this.nodeGroup = scene.addGroup(new S2ElementData());
 
         this.height = 0;
         this.root = this.createNodes(userTree);
@@ -339,7 +339,7 @@ class SceneFigure extends S2Scene {
         this.animator = new S2StepAnimator(this);
 
         const fillRect = this.addFillRect();
-        S2DataSetter.addTarget(fillRect.data).setColor(MTL.GREY_8);
+        S2DataSetter.setTargets(fillRect.data).setColor(MTL.GREY_8);
 
         // const grid = this.addWorldGrid();
         // S2DataSetter.addTarget(grid.data).setStrokeColor(MTL.GREY_6);

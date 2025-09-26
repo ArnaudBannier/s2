@@ -12,8 +12,9 @@ import { S2Position } from './s2-types';
 import { type S2BaseElement } from './element/base/s2-element';
 import { S2BaseScene } from './s2-base-scene';
 import { S2Line } from './element/s2-line';
-import { S2BaseData } from './element/base/s2-base-data';
+import { S2ElementData } from './element/base/s2-base-data';
 import { S2DataSetter } from './element/base/s2-data-setter';
+import type { S2BaseNode } from './element/node/s2-base-node';
 
 export class S2Scene extends S2BaseScene {
     constructor(element: SVGSVGElement, camera: S2Camera) {
@@ -47,7 +48,7 @@ export class S2Scene extends S2BaseScene {
     addWorldGrid(parent: S2BaseElement = this.svg): S2Grid {
         const child = new S2Grid(this);
         const viewport = this.getActiveCamera().viewport;
-        S2DataSetter.addTarget(child.data)
+        S2DataSetter.setTargets(child.data)
             .setGridBoundA(0, 0, 'view')
             .setGridBoundB(viewport.x, viewport.y, 'view')
             .setGridReferencePoint(0, 0, 'world')
@@ -75,7 +76,7 @@ export class S2Scene extends S2BaseScene {
         return child;
     }
 
-    addGroup<Data extends S2BaseData>(data: Data, parent: S2BaseElement = this.svg): S2Group<Data> {
+    addGroup<Data extends S2ElementData>(data: Data, parent: S2BaseElement = this.svg): S2Group<Data> {
         const child = new S2Group<Data>(this, data);
         child.setParent(parent);
         return child;
@@ -87,7 +88,11 @@ export class S2Scene extends S2BaseScene {
         return child;
     }
 
-    addLineEdge(start: S2Node | S2Position, end: S2Node | S2Position, parent: S2BaseElement = this.svg): S2LineEdge {
+    addLineEdge(
+        start: S2BaseNode | S2Position,
+        end: S2BaseNode | S2Position,
+        parent: S2BaseElement = this.svg,
+    ): S2LineEdge {
         const child = new S2LineEdge(this);
         child.data.start.set(start);
         child.data.end.set(end);
@@ -95,7 +100,11 @@ export class S2Scene extends S2BaseScene {
         return child;
     }
 
-    addCubicEdge(start: S2Node | S2Position, end: S2Node | S2Position, parent: S2BaseElement = this.svg): S2CubicEdge {
+    addCubicEdge(
+        start: S2BaseNode | S2Position,
+        end: S2BaseNode | S2Position,
+        parent: S2BaseElement = this.svg,
+    ): S2CubicEdge {
         const child = new S2CubicEdge(this);
         child.data.start.set(start);
         child.data.end.set(end);

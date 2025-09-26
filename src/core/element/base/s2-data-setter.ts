@@ -1,22 +1,30 @@
-import { S2BaseData } from './s2-base-data.ts';
+import { S2BaseData, S2FontData } from './s2-base-data.ts';
 import { S2Color, type S2Space } from '../../s2-types';
 import { S2Vec2 } from '../../math/s2-vec2';
-import type { S2Anchor, S2LineCap, S2LineJoin } from '../../s2-globals.ts';
+import type {
+    S2Anchor,
+    S2FontStyle,
+    S2HorizontalAlign,
+    S2LineCap,
+    S2LineJoin,
+    S2VerticalAlign,
+} from '../../s2-globals.ts';
 import { S2DataSetterUtils } from './s2-data-setter-utils.ts';
 
 export class S2DataSetter {
     public readonly targets: S2BaseData[] = [];
 
-    static addTarget(target: S2BaseData): S2DataSetter {
+    static setTargets(...targets: S2BaseData[]): S2DataSetter {
         const setter = new S2DataSetter();
-        setter.targets.push(target);
+        setter.targets.length = 0;
+        setter.targets.push(...targets);
         return setter;
     }
 
-    static addTargets(targets: S2BaseData[]): S2DataSetter {
-        const setter = new S2DataSetter();
-        setter.targets.push(...targets);
-        return setter;
+    setTargets(...targets: S2BaseData[]): this {
+        this.targets.length = 0;
+        this.targets.push(...targets);
+        return this;
     }
 
     setAnchor(anchor: S2Anchor): this {
@@ -54,6 +62,62 @@ export class S2DataSetter {
         return this;
     }
 
+    setEdgeStartDistance(distance: number, space: S2Space = 'view'): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setEdgeStartDistance(target, distance, space);
+        }
+        return this;
+    }
+
+    setEdgeEndDistance(distance: number, space: S2Space = 'view'): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setEdgeEndDistance(target, distance, space);
+        }
+        return this;
+    }
+
+    setEdgeStartAngle(angle: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setEdgeStartAngle(target, angle);
+        }
+        return this;
+    }
+
+    setEdgeEndAngle(angle: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setEdgeEndAngle(target, angle);
+        }
+        return this;
+    }
+
+    setEdgeBendAngle(angle: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setEdgeBendAngle(target, angle);
+        }
+        return this;
+    }
+
+    setEdgeTension(tension: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setEdgeTension(target, tension);
+        }
+        return this;
+    }
+
+    setEdgeStartTension(tension: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setEdgeStartTension(target, tension);
+        }
+        return this;
+    }
+
+    setEdgeEndTension(tension: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setEdgeEndTension(target, tension);
+        }
+        return this;
+    }
+
     setExtents(x: number, y: number, space?: S2Space): this {
         for (const target of this.targets) {
             S2DataSetterUtils.setExtents(target, x, y, space);
@@ -64,6 +128,54 @@ export class S2DataSetter {
     setExtentsV(v: S2Vec2, space?: S2Space): this {
         for (const target of this.targets) {
             S2DataSetterUtils.setExtentsV(target, v, space);
+        }
+        return this;
+    }
+
+    setFont(font: S2FontData): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setFont(target, font);
+        }
+        return this;
+    }
+
+    setFontSize(size: number, space?: S2Space): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setFontSize(target, size, space);
+        }
+        return this;
+    }
+
+    setFontWeight(weight: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setFontWeight(target, weight);
+        }
+        return this;
+    }
+
+    setFontStyle(style: S2FontStyle): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setFontStyle(target, style);
+        }
+        return this;
+    }
+    setFontFamily(family: string): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setFontFamily(target, family);
+        }
+        return this;
+    }
+
+    setFontRelativeLineHeight(lineHeight: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setFontRelativeLineHeight(target, lineHeight);
+        }
+        return this;
+    }
+
+    setFontRelativeAscenderHeight(ascenderHeight: number): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setFontRelativeAscenderHeight(target, ascenderHeight);
         }
         return this;
     }
@@ -96,6 +208,20 @@ export class S2DataSetter {
         return this;
     }
 
+    setHorizontalAlign(align: S2HorizontalAlign): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setHorizontalAlign(target, align);
+        }
+        return this;
+    }
+
+    setVerticalAlign(align: S2VerticalAlign): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setVerticalAlign(target, align);
+        }
+        return this;
+    }
+
     setLayer(layer: number): this {
         for (const target of this.targets) {
             S2DataSetterUtils.setLayer(target, layer);
@@ -103,9 +229,37 @@ export class S2DataSetter {
         return this;
     }
 
+    setMinExtents(x: number, y: number, space?: S2Space): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setMinExtents(target, x, y, space);
+        }
+        return this;
+    }
+
+    setMinExtentsV(v: S2Vec2, space?: S2Space): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setMinExtentsV(target, v, space);
+        }
+        return this;
+    }
+
     setOpacity(opacity: number): this {
         for (const target of this.targets) {
             S2DataSetterUtils.setOpacity(target, opacity);
+        }
+        return this;
+    }
+
+    setPadding(x: number, y: number, space?: S2Space): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setPadding(target, x, y, space);
+        }
+        return this;
+    }
+
+    setPaddingV(v: S2Vec2, space?: S2Space): this {
+        for (const target of this.targets) {
+            S2DataSetterUtils.setPaddingV(target, v, space);
         }
         return this;
     }
@@ -225,62 +379,6 @@ export class S2DataSetter {
     setStrokeWidth(width: number, space?: S2Space): this {
         for (const target of this.targets) {
             S2DataSetterUtils.setStrokeWidth(target, width, space);
-        }
-        return this;
-    }
-
-    setEdgeStartDistance(distance: number, space: S2Space = 'view'): this {
-        for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeStartDistance(target, distance, space);
-        }
-        return this;
-    }
-
-    setEdgeEndDistance(distance: number, space: S2Space = 'view'): this {
-        for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeEndDistance(target, distance, space);
-        }
-        return this;
-    }
-
-    setEdgeStartAngle(angle: number): this {
-        for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeStartAngle(target, angle);
-        }
-        return this;
-    }
-
-    setEdgeEndAngle(angle: number): this {
-        for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeEndAngle(target, angle);
-        }
-        return this;
-    }
-
-    setEdgeBendAngle(angle: number): this {
-        for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeBendAngle(target, angle);
-        }
-        return this;
-    }
-
-    setEdgeTension(tension: number): this {
-        for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeTension(target, tension);
-        }
-        return this;
-    }
-
-    setEdgeStartTension(tension: number): this {
-        for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeStartTension(target, tension);
-        }
-        return this;
-    }
-
-    setEdgeEndTension(tension: number): this {
-        for (const target of this.targets) {
-            S2DataSetterUtils.setEdgeEndTension(target, tension);
         }
         return this;
     }
