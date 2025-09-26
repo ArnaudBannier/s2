@@ -1,6 +1,6 @@
 import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../s2-globals';
 import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform } from '../../s2-types';
-import { S2FontData, S2ElementData, S2FillData, S2StrokeData } from '../base/s2-base-data';
+import { S2FontData, S2ElementData, S2FillData, S2StrokeData, S2BaseData } from '../base/s2-base-data';
 
 export class S2NodeData extends S2ElementData {
     public readonly position: S2Position;
@@ -21,6 +21,7 @@ export class S2NodeData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.position.setOwner(owner);
         this.anchor.setOwner(owner);
         this.minExtents.setOwner(owner);
@@ -40,7 +41,7 @@ export class S2NodeData extends S2ElementData {
     }
 }
 
-export class S2NodeBackgroundData extends S2ElementData {
+export class S2NodeBackgroundData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -68,7 +69,6 @@ export class S2NodeBackgroundData extends S2ElementData {
     }
 
     clearDirty(): void {
-        super.clearDirty();
         this.fill.clearDirty();
         this.stroke.clearDirty();
         this.opacity.clearDirty();
@@ -77,7 +77,7 @@ export class S2NodeBackgroundData extends S2ElementData {
     }
 }
 
-export class S2NodeTextData extends S2ElementData {
+export class S2NodeTextData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -112,7 +112,6 @@ export class S2NodeTextData extends S2ElementData {
     }
 
     clearDirty(): void {
-        super.clearDirty();
         this.fill.clearDirty();
         this.stroke.clearDirty();
         this.opacity.clearDirty();

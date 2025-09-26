@@ -10,22 +10,11 @@ import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim.ts';
 import { ease } from '../core/animation/s2-easing.ts';
 import { S2MathUtils } from '../core/math/s2-utils.ts';
 import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
-// import { S2BaseData } from './core/element/base/s2-base-data.ts';
-// import { S2Position } from './core/s2-types.ts';
+import { S2AnimGroup } from '../core/animation/s2-anim-group.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
-
-// export class TEST {
-//     static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
-//         for (const key of Object.keys(data) as (keyof Data)[]) {
-//             if (data[key] instanceof S2Position) {
-//                 (data[key] as S2Position).setParent(parent[key] as S2Position);
-//             }
-//         }
-//     }
-// }
 
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
@@ -96,33 +85,33 @@ class SceneFigure extends S2Scene {
         this.animator.addAnimation(anim.commitFinalState());
 
         this.animator.makeStep();
-        // anim = new S2LerpAnimFactory(this)
-        //     .addUpdateTarget(this.circle)
-        //     .addUpdateTarget(this.path)
-        //     .bind(this.circle.data.position)
-        //     .bind(this.circle.data.fill.color);
-        // anim.bind(this.circle.data.stroke.color)
-        //     .bind(this.path.data.stroke.color)
-        //     .setCycleDuration(600)
-        //     .setCycleCount(3)
-        //     .setAlternate(true)
-        //     .setEasing(ease.inOut);
 
-        // const anim2 = new S2LerpAnimFactory(this)
-        //     .addUpdateTarget(this.circle)
-        //     .bind(this.circle.data.radius)
-        //     .setCycleDuration(1800)
-        //     .setEasing(ease.inOut);
+        const animGroup = new S2AnimGroup(this)
+            .addLerpProperties(
+                [
+                    this.circle.data.position,
+                    this.circle.data.fill.color,
+                    this.circle.data.stroke.color,
+                    this.circle.data.stroke.color,
+                    this.path.data.stroke.color,
+                ],
+                600,
+                ease.inOut,
+            )
+            .setCycleCount(3)
+            .setAlternate(true);
 
-        // S2DataSetter.setTargets(this.circle.data)
-        //     .setPosition(-2, 0, 'world')
-        //     .setFillColor(MTL.LIGHT_GREEN_9)
-        //     .setStrokeColor(MTL.LIGHT_GREEN_5)
-        //     .setRadius(20, 'view');
-        // S2DataSetter.setTargets(this.path.data).setStrokeColor(MTL.LIGHT_GREEN_5);
+        anim = S2LerpAnimFactory.create(this, this.circle.data.radius).setCycleDuration(1800).setEasing(ease.inOut);
+        S2DataSetter.setTargets(this.circle.data)
+            .setPosition(-2, 0, 'world')
+            .setFillColor(MTL.LIGHT_GREEN_9)
+            .setStrokeColor(MTL.LIGHT_GREEN_5)
+            .setRadius(20, 'view');
+        S2DataSetter.setTargets(this.path.data).setStrokeColor(MTL.LIGHT_GREEN_5);
 
-        // this.animator.addAnimation(anim.commitFinalStates());
-        // this.animator.addAnimation(anim2.commitFinalStates(), 'previous-start', 0);
+        this.animator.addAnimation(animGroup.commitLerpFinalStates());
+        this.animator.addAnimation(anim.commitFinalState(), 'previous-start', 0);
+        this.animator.makeStep();
     }
 }
 

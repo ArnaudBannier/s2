@@ -1,16 +1,17 @@
 import './style.css';
-import { S2Vec2 } from './core/math/s2-vec2.ts';
-import { S2Camera } from './core/math/s2-camera.ts';
-import { MTL } from './utils/mtl-colors.ts';
-import { S2Circle } from './core/element/s2-circle.ts';
-import { S2Scene } from './core/s2-scene.ts';
-import { S2StepAnimator } from './core/animation/s2-step-animator.ts';
-import { S2MathUtils } from './core/math/s2-utils.ts';
-import { S2DataSetter } from './core/element/base/s2-data-setter.ts';
-import { S2FontData } from './core/element/base/s2-base-data.ts';
-import { S2Code, tokenizeAlgorithm } from './core/element/s2-code.ts';
-import { S2LerpAnimFactory } from './core/animation/s2-lerp-anim.ts';
-import { ease } from './core/animation/s2-easing.ts';
+import { S2Vec2 } from '../core/math/s2-vec2.ts';
+import { S2Camera } from '../core/math/s2-camera.ts';
+import { MTL } from '../utils/mtl-colors.ts';
+import { S2Circle } from '../core/element/s2-circle.ts';
+import { S2Scene } from '../core/s2-scene.ts';
+import { S2StepAnimator } from '../core/animation/s2-step-animator.ts';
+import { S2MathUtils } from '../core/math/s2-utils.ts';
+import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
+import { S2FontData } from '../core/element/base/s2-base-data.ts';
+import { S2Code, tokenizeAlgorithm } from '../core/element/s2-code.ts';
+import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim.ts';
+import { ease } from '../core/animation/s2-easing.ts';
+import { S2AnimGroup } from '../core/animation/s2-anim-group.ts';
 
 const algorithm =
     '**kw:Tant que** **var:file** non vide **kw:faire**\n' +
@@ -22,16 +23,6 @@ const algorithm =
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
-
-// export class TEST {
-//     static setParent<Data extends S2BaseData>(data: Data, parent: Data): void {
-//         for (const key of Object.keys(data) as (keyof Data)[]) {
-//             if (data[key] instanceof S2Position) {
-//                 (data[key] as S2Position).setParent(parent[key] as S2Position);
-//             }
-//         }
-//     }
-// }
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
@@ -82,43 +73,36 @@ class SceneFigure extends S2Scene {
 
         this.update();
 
-        let anim = new S2LerpAnimFactory(this)
-            .addUpdateTarget(code)
-            .bind(code.data.currentLine.index)
+        let anim = S2LerpAnimFactory.create(this, code.data.currentLine.index)
             .setCycleDuration(500)
             .setEasing(ease.inOut);
         code.data.currentLine.index.set(1);
 
-        this.animator.addAnimation(anim.commitFinalStates());
+        this.animator.addAnimation(anim.commitFinalState());
         this.animator.makeStep();
 
-        anim = new S2LerpAnimFactory(this)
-            .addUpdateTarget(code)
-            .bind(code.data.currentLine.index)
-            .bind(code.data.position)
-            .setCycleDuration(500)
-            .setEasing(ease.inOut);
+        let animGroup = new S2AnimGroup(this).addLerpProperties(
+            [code.data.currentLine.index, code.data.position],
+            500,
+            ease.inOut,
+        );
+
         code.data.currentLine.index.set(2);
         code.data.position.set(-2, -0.5, 'world');
 
-        this.animator.addAnimation(anim.commitFinalStates());
+        this.animator.addAnimation(animGroup.commitLerpFinalStates());
         this.animator.makeStep();
 
         const emph = code.createEmphasisForToken(2, { category: 'fn', content: 'Traiter' });
         if (!emph) return;
 
         emph.data.opacity.set(0.0);
-        anim = new S2LerpAnimFactory(this)
-            .addUpdateTarget(code)
-            .addUpdateTarget(emph)
-            .bind(emph.data.opacity)
-            .bind(code.data.position)
-            .setCycleDuration(500)
-            .setEasing(ease.inOut);
+        animGroup = new S2AnimGroup(this).addLerpProperties([emph.data.opacity, code.data.position], 500, ease.inOut);
         emph.data.opacity.set(1.0);
         code.data.position.set(-2, 0.5, 'world');
 
-        this.animator.addAnimation(anim.commitFinalStates());
+        this.animator.addAnimation(animGroup.commitLerpFinalStates());
+        this.animator.makeStep();
     }
 
     createAnimation(): void {}
@@ -169,12 +153,12 @@ if (svgElement && slider) {
     });
     document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
         scene.animator.playMaster();
-        scene.update();
     });
 
     slider.addEventListener('input', () => {
         const ratio = slider.valueAsNumber / 100;
         scene.animator.stop();
         scene.animator.setMasterElapsed(ratio * scene.animator.getMasterDuration());
+        scene.getSVG().update();
     });
 }
