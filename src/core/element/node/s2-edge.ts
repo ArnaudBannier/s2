@@ -77,7 +77,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
 
     getPointInDirection(direction: S2Vec2, space: S2Space, camera: S2Camera, distance: S2Length): S2Vec2 {
         if (this.mode === 'node' && this.node) {
-            if (distance.hasActiveHierarchy()) {
+            if (distance.value !== -Infinity) {
                 return this.node.getPointInDirection(direction, space, distance);
             } else {
                 return this.node.getCenter(space);
@@ -206,14 +206,14 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
 
     protected getPoint(nodeOrPos: S2Node | S2Position, space: S2Space, distance: S2Length, direction: S2Vec2): S2Vec2 {
         if (nodeOrPos instanceof S2Node) {
-            if (distance.hasActiveHierarchy()) {
+            if (distance.value !== -Infinity) {
                 return nodeOrPos.getPointInDirection(direction, space, distance);
             }
             return nodeOrPos.getCenter(space);
         } else {
             const camera = this.scene.getActiveCamera();
             const point = nodeOrPos.toSpace(space, camera);
-            if (distance.hasActiveHierarchy()) {
+            if (distance.value !== -Infinity) {
                 const d = distance.toSpace(space, camera);
                 point.addV(direction.clone().normalize().scale(d));
             }
@@ -314,9 +314,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         if (this.data.endAngle.value !== -Infinity) {
             endDirection.setFromPolarDeg(this.data.endAngle.value);
         }
-        const curveBendAngle = this.data.curveBendAngle.hasActiveHierarchy()
-            ? this.data.curveBendAngle.getInherited()
-            : 0;
+        const curveBendAngle = this.data.curveBendAngle.value !== -Infinity ? this.data.curveBendAngle.get() : 0;
         startDirection.rotateDeg(+sign * curveBendAngle);
         endDirection.rotateDeg(-sign * curveBendAngle);
 
@@ -324,10 +322,8 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         const end = this.data.end.getPointInDirection(endDirection, space, camera, this.data.endDistance);
 
         const distance = start.distance(end);
-        const startTension =
-            this.data.curveStartTension.value !== -Infinity ? this.data.curveStartTension.getInherited() : 0.3;
-        const endTension =
-            this.data.curveEndTension.value !== -Infinity ? this.data.curveEndTension.getInherited() : 0.3;
+        const startTension = this.data.curveStartTension.value !== -Infinity ? this.data.curveStartTension.get() : 0.3;
+        const endTension = this.data.curveEndTension.value !== -Infinity ? this.data.curveEndTension.get() : 0.3;
         startDirection.scale(startTension * distance);
         endDirection.scale(endTension * distance);
 

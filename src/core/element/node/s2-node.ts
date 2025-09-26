@@ -182,7 +182,7 @@ export class S2Node extends S2Element<S2NodeData> {
 
     getCenter(space: S2Space = this.data.position.space): S2Vec2 {
         return S2AnchorUtils.getCenter(
-            this.data.anchor.getInherited(),
+            this.data.anchor.get(),
             space,
             this.scene.getActiveCamera(),
             this.data.position,
@@ -269,7 +269,7 @@ export class S2Node extends S2Element<S2NodeData> {
         this.extents.setValueFromSpace('view', camera, nodeExtents.x, nodeExtents.y);
 
         const nodeCenter = S2AnchorUtils.getCenter(
-            this.data.anchor.getInherited(),
+            this.data.anchor.get(),
             'view',
             camera,
             this.data.position,

@@ -78,7 +78,7 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
 
     getCenter(space: S2Space): S2Vec2 {
         return S2AnchorUtils.getCenter(
-            this.data.anchor.getInherited(),
+            this.data.anchor.get(),
             space,
             this.scene.getActiveCamera(),
             this.data.position,

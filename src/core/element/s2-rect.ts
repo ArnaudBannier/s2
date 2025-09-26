@@ -83,7 +83,7 @@ export class S2Rect extends S2Element<S2RectData> {
         const extents = this.data.extents.toSpace(space, camera).add(d, d).max(0, 0);
         const radius = Math.min(Math.max(this.data.cornerRadius.toSpace(space, camera) + d, 0), extents.x, extents.y);
         const center = S2AnchorUtils.getCenter(
-            this.data.anchor.getInherited(),
+            this.data.anchor.get(),
             space,
             camera,
             this.data.position,

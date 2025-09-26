@@ -124,23 +124,23 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
 
     protected updateTipTransform(): void {
         if (this.tipableReference === null) return;
-        this.tipTransform = this.tipableReference.getTipTransformAt(this.data.pathPosition.getInherited());
-        const extents = this.data.extents.getInherited('view', this.scene.getActiveCamera());
+        this.tipTransform = this.tipableReference.getTipTransformAt(this.data.pathPosition.get());
+        const extents = this.data.extents.get('view', this.scene.getActiveCamera());
         const strokeWidth = S2Length.toSpace(
             this.tipTransform.strokeWidth,
             this.tipTransform.space,
             'view',
             this.scene.getActiveCamera(),
         );
-        extents.x += strokeWidth * this.data.pathStrokeFactor.getInherited();
-        extents.y += strokeWidth * this.data.pathStrokeFactor.getInherited();
+        extents.x += strokeWidth * this.data.pathStrokeFactor.get();
+        extents.y += strokeWidth * this.data.pathStrokeFactor.get();
         const pathLength = S2Length.toSpace(
             this.tipTransform.pathLength,
             this.tipTransform.space,
             'view',
             this.scene.getActiveCamera(),
         );
-        const pathThreshold = this.data.pathThreshold.getInherited('view', this.scene.getActiveCamera());
+        const pathThreshold = this.data.pathThreshold.get('view', this.scene.getActiveCamera());
         if (pathThreshold > 0 && pathLength < pathThreshold) {
             extents.scale(ease.out(pathLength / pathThreshold));
         }

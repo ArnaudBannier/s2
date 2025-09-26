@@ -44,7 +44,7 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
     }
 
     setIsActive(isActive: boolean): this {
-        this.data.isActive = isActive;
+        this.data.isActive.set(isActive);
         if (this.parent) {
             this.parent.updateSVGChildren();
         }

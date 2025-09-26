@@ -1,5 +1,5 @@
 import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin } from '../../s2-globals';
-import { S2Color, S2TypePriority, S2Length, S2Number, S2Enum, S2String } from '../../s2-types';
+import { S2Color, S2TypePriority, S2Length, S2Number, S2Enum, S2String, S2Boolean } from '../../s2-types';
 
 export abstract class S2BaseData {
     abstract setOwner(owner: S2Dirtyable | null): void;
@@ -8,20 +8,22 @@ export abstract class S2BaseData {
 
 export class S2ElementData extends S2BaseData {
     public readonly layer: S2Number;
-    public isActive: boolean;
+    public readonly isActive: S2Boolean;
 
     constructor() {
         super();
         this.layer = new S2Number(0);
-        this.isActive = true;
+        this.isActive = new S2Boolean(true);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         this.layer.setOwner(owner);
+        this.isActive.setOwner(owner);
     }
 
     clearDirty(): void {
         this.layer.clearDirty();
+        this.isActive.clearDirty();
     }
 }
 
@@ -31,6 +33,7 @@ export class S2StrokeData extends S2BaseData implements S2Dirtyable {
     public readonly opacity: S2Number;
     public readonly lineCap: S2Enum<S2LineCap>;
     public readonly lineJoin: S2Enum<S2LineJoin>;
+
     private dirty: boolean;
     private owner: S2Dirtyable | null;
 
@@ -68,7 +71,6 @@ export class S2StrokeData extends S2BaseData implements S2Dirtyable {
         this.opacity.copy(other.opacity);
         this.lineCap.copy(other.lineCap);
         this.lineJoin.copy(other.lineJoin);
-        this.dirty = other.dirty;
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -88,6 +90,7 @@ export class S2StrokeData extends S2BaseData implements S2Dirtyable {
 export class S2FillData extends S2BaseData implements S2Dirtyable {
     public readonly color: S2Color;
     public readonly opacity: S2Number;
+
     private dirty: boolean;
     private owner: S2Dirtyable | null;
 
@@ -115,7 +118,6 @@ export class S2FillData extends S2BaseData implements S2Dirtyable {
     copy(other: S2FillData): void {
         this.color.copy(other.color);
         this.opacity.copy(other.opacity);
-        //this.dirty = other.dirty;
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -176,7 +178,6 @@ export class S2FontData extends S2BaseData implements S2Dirtyable {
         this.relativeAscenderHeight.copy(other.relativeAscenderHeight);
         this.family.copy(other.family);
         this.style.copy(other.style);
-        //this.dirty = other.dirty;
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {

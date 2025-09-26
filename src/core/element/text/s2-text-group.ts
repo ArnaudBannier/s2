@@ -170,7 +170,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
 
     getCenter(space: S2Space): S2Vec2 {
         return S2AnchorUtils.getCenter(
-            this.data.anchor.getInherited(),
+            this.data.anchor.get(),
             space,
             this.scene.getActiveCamera(),
             this.data.position,
@@ -278,7 +278,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
 
         let lineX = 0;
         let lineY = groupNW.y + ascenderHeight;
-        switch (this.data.verticalAlign.getInherited()) {
+        switch (this.data.verticalAlign.get()) {
             case 'top':
                 break;
             case 'middle':
@@ -291,7 +291,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
 
         for (let i = 0; i < this.textLines.length; i++) {
             const line = this.textLines[i];
-            switch (line.data.horizontalAlign.getInherited()) {
+            switch (line.data.horizontalAlign.get()) {
                 case 'left':
                     lineX = groupNW.x;
                     line.data.textAnchor.set('start');

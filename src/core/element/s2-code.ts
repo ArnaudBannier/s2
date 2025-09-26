@@ -337,7 +337,7 @@ export class S2Code extends S2Element<S2CodeData> {
         this.extents.setV(extents, space);
 
         const codeCenter = S2AnchorUtils.getCenter(
-            this.data.anchor.getInherited(),
+            this.data.anchor.get(),
             space,
             camera,
             this.data.position,
@@ -362,7 +362,7 @@ export class S2Code extends S2Element<S2CodeData> {
         const lineCount = this.textGroup.getLineCount();
         if (lineCount > 0) {
             const linePadding = this.data.currentLine.padding.toSpace(space, camera);
-            const currIndex = S2MathUtils.clamp(this.data.currentLine.index.getInherited(), 0, lineCount - 1);
+            const currIndex = S2MathUtils.clamp(this.data.currentLine.index.get(), 0, lineCount - 1);
             const index0 = S2MathUtils.clamp(Math.floor(currIndex), 0, lineCount - 1);
             const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
 

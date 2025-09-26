@@ -19,7 +19,7 @@ export class S2DataUtils {
     static applyStroke(stroke: S2StrokeData, element: SVGElement, scene: S2BaseScene): void {
         if (stroke.isDirty() === false) return;
         if (stroke.width.isDirty()) {
-            const width = stroke.width.getInherited('view', scene.getActiveCamera());
+            const width = stroke.width.get('view', scene.getActiveCamera());
             element.setAttribute('stroke-width', width.toFixed(2));
         }
         if (stroke.color.isDirty()) {
@@ -169,10 +169,10 @@ export class S2DataUtils {
         polyCurve.updateLength();
         const d = S2PathUtils.polyCurveToSVGPath(
             polyCurve,
-            pathFrom.getInherited(),
-            pathTo.getInherited(),
+            pathFrom.get(),
+            pathTo.get(),
             scene.getActiveCamera(),
-            space.getInherited(),
+            space.get(),
         );
         if (d.length >= 0) {
             element.setAttribute('d', d);

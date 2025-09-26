@@ -166,16 +166,16 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getTipTransformAt(t: number): S2TipTransform {
-        const from = this.data.pathFrom.getInherited();
-        const to = this.data.pathTo.getInherited();
+        const from = this.data.pathFrom.get();
+        const to = this.data.pathTo.get();
         t = t * (to - from) + from;
         const camera = this.scene.getActiveCamera();
         const transform = new S2TipTransform();
-        transform.space = this.data.space.getInherited();
+        transform.space = this.data.space.get();
         transform.position = this.data.polyCurve.getPointAt(t);
         transform.tangent = this.data.polyCurve.getTangentAt(t);
         transform.pathLength = this.data.polyCurve.getLength() * (to - from);
-        transform.strokeWidth = this.data.stroke.width.getInherited(transform.space, camera);
+        transform.strokeWidth = this.data.stroke.width.get(transform.space, camera);
         return transform;
     }
 
@@ -192,7 +192,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     getStart(space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getStart(),
-            this.data.space.getInherited(),
+            this.data.space.get(),
             space,
             this.scene.getActiveCamera(),
         );
@@ -201,7 +201,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     getEnd(space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getEnd(),
-            this.data.space.getInherited(),
+            this.data.space.get(),
             space,
             this.scene.getActiveCamera(),
         );
@@ -210,7 +210,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     getPointAt(t: number, space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getPointAt(t),
-            this.data.space.getInherited(),
+            this.data.space.get(),
             space,
             this.scene.getActiveCamera(),
         );
@@ -219,7 +219,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     getTangentAt(t: number, space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getTangentAt(t),
-            this.data.space.getInherited(),
+            this.data.space.get(),
             space,
             this.scene.getActiveCamera(),
         );
@@ -228,7 +228,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     getStartTangent(space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getStartTangent(),
-            this.data.space.getInherited(),
+            this.data.space.get(),
             space,
             this.scene.getActiveCamera(),
         );
@@ -237,7 +237,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     getEndTangent(space: S2Space): S2Vec2 {
         return S2Position.toSpace(
             this.data.polyCurve.getEndTangent(),
-            this.data.space.getInherited(),
+            this.data.space.get(),
             space,
             this.scene.getActiveCamera(),
         );
@@ -246,7 +246,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     getLength(space: S2Space): number {
         return S2Length.toSpace(
             this.data.polyCurve.getLength(),
-            this.data.space.getInherited(),
+            this.data.space.get(),
             space,
             this.scene.getActiveCamera(),
         );
