@@ -23,14 +23,15 @@ export class S2TSpanData extends S2ElementData {
         this.transform = new S2Transform();
         this.font = new S2FontData();
 
-        this.stroke.width.set(0, 'view');
         this.fill.opacity.set(1);
+        this.stroke.width.set(0, 'view');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
+        this.transform.setOwner(owner);
         this.font.setOwner(owner);
     }
 
@@ -96,17 +97,8 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         return this.localBBox.getExtents(space, this.scene.getActiveCamera());
     }
 
-    // updateLocalBBox(parentPosition: S2Position | null): this {
-    //     S2DataUtils.applyFont(this.data.font, this.element, this.scene);
-    //     this.localBBox.set(this.element, parentPosition, this.scene.getActiveCamera());
-    //     this.localBBox.resetDirtyFlags();
-    //     this.data.font.resetDirtyFlags();
-    //     return this;
-    // }
-
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
+        if (this.skipUpdate()) return;
 
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);

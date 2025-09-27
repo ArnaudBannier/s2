@@ -314,8 +314,7 @@ export class S2Code extends S2Element<S2CodeData> {
     }
 
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
+        if (this.skipUpdate()) return;
 
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';

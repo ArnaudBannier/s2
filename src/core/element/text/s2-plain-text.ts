@@ -53,11 +53,9 @@ export class S2PlainText extends S2Element<S2TextData> {
     }
 
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
+        if (this.skipUpdate()) return;
 
         this.updateSVGChildren();
-
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
@@ -68,7 +66,10 @@ export class S2PlainText extends S2Element<S2TextData> {
         S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
 
         const isBBoxDirty =
-            this.localBBox.isDirty() || this.data.font.isDirty() || this.data.preserveWhitespace.isDirty();
+            this.localBBox.isDirty() ||
+            this.data.textAnchor.isDirty() ||
+            this.data.font.isDirty() ||
+            this.data.preserveWhitespace.isDirty();
 
         if (isBBoxDirty) {
             this.localBBox.set(this.element, this.data.position, this.scene.getActiveCamera());

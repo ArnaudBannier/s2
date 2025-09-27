@@ -17,8 +17,8 @@ import { S2AnimGroup } from '../core/animation/s2-anim-group.ts';
 import type { S2BaseAnimation } from '../core/animation/s2-base-animation.ts';
 import type { S2PlainNode } from '../core/element/node/s2-plain-node.ts';
 
-const viewport = new S2Vec2(640.0, 360.0).scale(1.5);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
+const viewport = new S2Vec2(720.0, 360.0).scale(1.5);
+const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(9.0, 4.5), viewport, 1.0);
 
 const algorithm =
     '**kw:fonction** parcoursInfixe(**var:n**: **type:Noeud**):\n' +
@@ -30,9 +30,14 @@ const algorithm =
 
 class BTreeStyle {
     public scene: S2Scene;
+    public font: S2FontData;
 
     constructor(scene: S2Scene) {
         this.scene = scene;
+        this.font = new S2FontData();
+        this.font.family.set('monospace');
+        this.font.size.set(20, 'view');
+        this.font.relativeLineHeight.set(1.3);
     }
 
     setNodeDefault(node: S2PlainNode): void {
@@ -43,9 +48,10 @@ class BTreeStyle {
         data.text.fill.color.copy(MTL.WHITE);
         data.text.horizontalAlign.set('center');
         data.text.verticalAlign.set('middle');
-        //data.text.font.weight.set(700);
+        data.text.font.copy(this.font);
+        data.text.font.weight.set(700);
         data.padding.set(0, 0, 'view');
-        data.minExtents.set(0.5, 0.35, 'world');
+        data.minExtents.set(0.4, 0.35, 'world');
         data.background.cornerRadius.set(10, 'view');
     }
 
@@ -151,8 +157,8 @@ class BTree {
     protected edgeGroup: S2Group<S2ElementData>;
     protected nodeGroup: S2Group<S2ElementData>;
 
-    levelDistance: number = 1.8;
-    baseSep: number = 0.8;
+    levelDistance: number = 1.5;
+    baseSep: number = 0.6;
     height: number;
 
     protected center: S2Vec2;
@@ -356,7 +362,7 @@ class SceneFigure extends S2Scene {
 
         // Tree
         this.tree = new BTree(this, userTree);
-        this.tree.computeLayout(new S2Vec2(2, 0));
+        this.tree.computeLayout(new S2Vec2(3, 0));
 
         for (let i = 0; i <= this.tree.height; i++) {
             const code = new S2Code(this);
@@ -382,6 +388,7 @@ class SceneFigure extends S2Scene {
                 this.createPostOrderAnimation(this.tree.root);
                 break;
         }
+        this.update();
     }
 
     createInOrderAnimation(bTreeNode: BTreeNode | null, depth: number = 0) {
@@ -396,7 +403,7 @@ class SceneFigure extends S2Scene {
 
         this.tree.animateSelectNode(this.animator, bTreeNode);
 
-        const position = new S2Vec2(-7.5 + 0.2 * depth, 4 - 0.2 * depth);
+        const position = new S2Vec2(-8 + 0.1 * depth, 2.5 - 0.2 * depth);
         code.data.currentLine.index.set(0);
         code.data.opacity.set(0);
         code.data.position.set(position.x + 0.5, position.y, 'world');
@@ -590,6 +597,7 @@ if (svgElement && slider) {
 
     selectElement.addEventListener('change', (event) => {
         const target = event.target as HTMLSelectElement;
+        scene.animator.stop();
         switch (target.value) {
             case 'in-order':
                 scene = new SceneFigure(svgElement, userTree, 'in-order');
@@ -602,5 +610,8 @@ if (svgElement && slider) {
                 scene = new SceneFigure(svgElement, userTree, 'post-order');
                 break;
         }
+        index = -1;
+        scene.animator.stop();
+        scene.animator.reset();
     });
 }

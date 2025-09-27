@@ -93,8 +93,7 @@ export class S2Rect extends S2Element<S2RectData> {
     }
 
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
+        if (this.skipUpdate()) return;
 
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);

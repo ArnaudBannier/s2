@@ -26,6 +26,12 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         this.data.setOwner(this);
     }
 
+    protected skipUpdate(): boolean {
+        if (!this.isDirty()) return true;
+        if (!this.getSVGElement().isConnected) return true;
+        return false;
+    }
+
     isDirty(): boolean {
         return this.dirty;
     }
@@ -82,7 +88,6 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         return this.children[index];
     }
 
-    // Appel dans setParent et setIsActive et setLayer ?
     updateSVGChildren(): this {
         if (this.childrenChanged === false) return this;
 

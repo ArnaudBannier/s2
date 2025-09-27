@@ -213,9 +213,7 @@ export class S2Node extends S2Element<S2NodeData> {
     // }
 
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
-
+        if (this.skipUpdate()) return;
         const camera = this.scene.getActiveCamera();
 
         if (this.background !== null) {

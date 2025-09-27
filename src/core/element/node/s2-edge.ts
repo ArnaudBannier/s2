@@ -242,8 +242,7 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
     }
 
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
+        if (this.skipUpdate()) return;
 
         const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
@@ -300,8 +299,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
     }
 
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
+        if (this.skipUpdate()) return;
 
         const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();

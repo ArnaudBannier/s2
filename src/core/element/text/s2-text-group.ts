@@ -239,8 +239,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
     // }
 
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
+        if (this.skipUpdate()) return;
         if (this.textLines.length === 0) return;
 
         const camera = this.scene.getActiveCamera();

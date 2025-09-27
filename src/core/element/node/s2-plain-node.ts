@@ -22,8 +22,7 @@ export class S2PlainNode extends S2BaseNode {
     }
 
     update(): void {
-        if (!this.isDirty()) return;
-        if (!this.element.isConnected) return;
+        if (this.skipUpdate()) return;
 
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
