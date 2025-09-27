@@ -15,6 +15,7 @@ import { S2Line } from './element/s2-line';
 import { S2ElementData } from './element/base/s2-base-data';
 import { S2DataSetter } from './element/base/s2-data-setter';
 import type { S2BaseNode } from './element/node/s2-base-node';
+import { S2PlainNode } from './element/node/s2-plain-node';
 
 export class S2Scene extends S2BaseScene {
     constructor(element: SVGSVGElement, camera: S2Camera) {
@@ -60,6 +61,12 @@ export class S2Scene extends S2BaseScene {
 
     addText(parent: S2BaseElement = this.svg): S2RichText {
         const child = new S2RichText(this);
+        child.setParent(parent);
+        return child;
+    }
+
+    addPlainNode(parent: S2BaseElement = this.svg): S2PlainNode {
+        const child = new S2PlainNode(this);
         child.setParent(parent);
         return child;
     }
