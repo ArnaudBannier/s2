@@ -105,6 +105,7 @@ export class S2PlainNode extends S2BaseNode {
 
         for (const endpoint of this.endPoints) {
             endpoint.markDirty();
+            endpoint.edge?.update();
         }
 
         this.clearDirty();

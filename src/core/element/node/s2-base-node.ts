@@ -6,7 +6,7 @@ import { S2Circle } from '../s2-circle';
 import { S2Extents, S2Length, type S2Space } from '../../s2-types';
 import { S2Element } from '../base/s2-element';
 import { S2NodeData } from './s2-node-data';
-import type { S2EdgeEndpoint } from './s2-edge';
+import type { S2EdgeEndpoint } from './s2-edge-endpoint';
 
 export abstract class S2BaseNode extends S2Element<S2NodeData> {
     protected element: SVGGElement;
