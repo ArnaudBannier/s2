@@ -31,7 +31,8 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
 
     detachEndPoint(endPoint: S2EdgeEndpoint): this {
         const index = this.endPoints.indexOf(endPoint);
-        if (index !== -1) this.endPoints.splice(index, 1);
+        if (index === -1) return this;
+        this.endPoints.splice(index, 1);
         endPoint.markDirty();
         return this;
     }

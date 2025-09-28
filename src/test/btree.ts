@@ -403,7 +403,7 @@ class SceneFigure extends S2Scene {
 
         this.tree.animateSelectNode(this.animator, bTreeNode);
 
-        const position = new S2Vec2(-8 + 0.1 * depth, 2.5 - 0.2 * depth);
+        const position = new S2Vec2(-8 + 0.2 * depth, 2.5 - 0.2 * depth);
         code.data.currentLine.index.set(0);
         code.data.opacity.set(0);
         code.data.position.set(position.x + 0.5, position.y, 'world');

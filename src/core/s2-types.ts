@@ -71,10 +71,6 @@ export class S2Enum<T> extends S2BaseType {
         return this;
     }
 
-    // hasActiveHierarchy(): boolean {
-    //     return this.priority === S2TypePriority.Normal;
-    // }
-
     get(): T {
         return this.value;
     }
@@ -108,10 +104,6 @@ export class S2String extends S2BaseType {
         this.markDirty();
         return this;
     }
-
-    // hasActiveHierarchy(): boolean {
-    //     return this.priority === S2TypePriority.Normal;
-    // }
 
     get(): string {
         return this.value;
@@ -151,10 +143,6 @@ export class S2Boolean extends S2BaseType {
         return this;
     }
 
-    // hasActiveHierarchy(): boolean {
-    //     return this.priority === S2TypePriority.Normal;
-    // }
-
     get(): boolean {
         return this.value;
     }
@@ -189,8 +177,7 @@ export class S2Number extends S2BaseType {
     lerp(state0: S2Number, state1: S2Number, t: number): this {
         const value0 = state0.get();
         const value1 = state1.get();
-        this.value = S2MathUtils.lerp(value0, value1, t);
-        this.markDirty();
+        this.set(S2MathUtils.lerp(value0, value1, t));
         return this;
     }
 
@@ -204,10 +191,6 @@ export class S2Number extends S2BaseType {
         this.markDirty();
         return this;
     }
-
-    // hasActiveHierarchy(): boolean {
-    //     return this.priority === S2TypePriority.Normal;
-    // }
 
     get(): number {
         return this.value;
@@ -249,10 +232,10 @@ export class S2Color extends S2BaseType {
     lerp(state0: S2Color, state1: S2Color, t: number): this {
         const value0 = state0.get();
         const value1 = state1.get();
-        this.r = S2MathUtils.lerp(value0.r, value1.r, t);
-        this.g = S2MathUtils.lerp(value0.g, value1.g, t);
-        this.b = S2MathUtils.lerp(value0.b, value1.b, t);
-        this.markDirty();
+        const r = S2MathUtils.lerp(value0.r, value1.r, t);
+        const g = S2MathUtils.lerp(value0.g, value1.g, t);
+        const b = S2MathUtils.lerp(value0.b, value1.b, t);
+        this.set(r, g, b);
         return this;
     }
 
@@ -293,10 +276,6 @@ export class S2Color extends S2BaseType {
         return `rgb(${Math.floor(this.r)}, ${Math.floor(this.g)}, ${Math.floor(this.b)})`;
     }
 
-    // hasActiveHierarchy(): boolean {
-    //     return this.priority === S2TypePriority.Normal;
-    // }
-
     get(): { r: number; g: number; b: number } {
         return { r: this.r, g: this.g, b: this.b };
     }
@@ -336,9 +315,7 @@ export class S2Position extends S2BaseType {
         const space = state1.space;
         const value0 = state0.get(space, camera);
         const value1 = state1.get(space, camera);
-        this.value = S2Vec2.lerp(value0, value1, t);
-        this.space = space;
-        this.markDirty();
+        this.setV(S2Vec2.lerp(value0, value1, t), space);
         return this;
     }
 
@@ -379,10 +356,6 @@ export class S2Position extends S2BaseType {
         this.markDirty();
         return this;
     }
-
-    // hasActiveHierarchy(): boolean {
-    //     return this.priority === S2TypePriority.Normal;
-    // }
 
     get(space: S2Space, camera: S2Camera): S2Vec2 {
         return this.toSpace(space, camera);
@@ -452,9 +425,7 @@ export class S2Length extends S2BaseType {
         const space = state1.space;
         const value0 = state0.get(space, camera);
         const value1 = state1.get(space, camera);
-        this.value = S2MathUtils.lerp(value0, value1, t);
-        this.space = space;
-        this.markDirty();
+        this.set(S2MathUtils.lerp(value0, value1, t), space);
         return this;
     }
 
@@ -485,10 +456,6 @@ export class S2Length extends S2BaseType {
         this.markDirty();
         return this;
     }
-
-    // hasActiveHierarchy(): boolean {
-    //     return this.priority === S2TypePriority.Normal;
-    // }
 
     get(space: S2Space, camera: S2Camera): number {
         return this.toSpace(space, camera);
@@ -561,9 +528,7 @@ export class S2Extents extends S2BaseType {
         const space = state1.space;
         const value0 = state0.get(space, camera);
         const value1 = state1.get(space, camera);
-        this.value = S2Vec2.lerp(value0, value1, t);
-        this.space = space;
-        this.markDirty();
+        this.setV(S2Vec2.lerp(value0, value1, t), space);
         return this;
     }
 
@@ -678,8 +643,7 @@ export class S2Transform extends S2BaseType {
     lerp(state0: S2Transform, state1: S2Transform, t: number): this {
         const value0 = state0.get();
         const value1 = state1.get();
-        this.value.lerp(value0, value1, t);
-        this.markDirty();
+        this.set(S2Mat2x3.lerp(value0, value1, t));
         return this;
     }
 
