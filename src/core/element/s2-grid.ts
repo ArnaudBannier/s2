@@ -2,7 +2,7 @@ import { S2BaseScene } from '../s2-base-scene';
 import { S2Extents, S2Number, S2Position, S2Transform } from '../s2-types';
 import { svgNS, type S2Dirtyable } from '../s2-globals';
 import { S2Element } from './base/s2-element';
-import { S2ElementData, S2StrokeData } from './base/s2-base-data';
+import { S2BaseData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 
 export class S2GridData extends S2ElementData {
@@ -33,17 +33,18 @@ export class S2GridData extends S2ElementData {
         this.stroke.clearDirty();
         this.opacity.clearDirty();
         this.transform.clearDirty();
-        this.geometry.resetDirtyFlags();
+        this.geometry.clearDirty();
     }
 }
 
-export class S2GridGeometryData {
+export class S2GridGeometryData extends S2BaseData {
     public readonly boundA: S2Position;
     public readonly boundB: S2Position;
     public readonly steps: S2Extents;
     public readonly referencePoint: S2Position;
 
     constructor() {
+        super();
         this.boundA = new S2Position(-8, -4.5, 'world');
         this.boundB = new S2Position(+8, +4.5, 'world');
         this.steps = new S2Extents(1, 1, 'world');
@@ -57,7 +58,7 @@ export class S2GridGeometryData {
         this.referencePoint.setOwner(owner);
     }
 
-    resetDirtyFlags(): void {
+    clearDirty(): void {
         this.boundA.clearDirty();
         this.boundB.clearDirty();
         this.steps.clearDirty();

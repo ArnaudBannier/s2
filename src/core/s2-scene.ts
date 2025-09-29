@@ -50,11 +50,12 @@ export class S2Scene extends S2BaseScene {
         const child = new S2Grid(this);
         const viewport = this.getActiveCamera().viewport;
         S2DataSetter.setTargets(child.data)
+            .setStrokeWidth(1, 'view')
+            .setTargets(child.data.geometry)
             .setGridBoundA(0, 0, 'view')
             .setGridBoundB(viewport.x, viewport.y, 'view')
             .setGridReferencePoint(0, 0, 'world')
-            .setGridSteps(1, 1, 'world')
-            .setStrokeWidth(1, 'view');
+            .setGridSteps(1, 1, 'world');
         child.setParent(parent);
         return child;
     }

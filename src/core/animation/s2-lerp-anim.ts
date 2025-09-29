@@ -72,12 +72,12 @@ export class S2LerpAnimColor extends S2LerpAnim {
     }
 
     commitInitialState(): this {
-        this.state0.copy(this.property);
+        this.state0.hardCopy(this.property);
         return this;
     }
 
     commitFinalState(): this {
-        this.state1.copy(this.property);
+        this.state1.hardCopy(this.property);
         return this;
     }
 

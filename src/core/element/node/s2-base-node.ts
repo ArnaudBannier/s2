@@ -41,6 +41,10 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
+    getExtents(space: S2Space): S2Vec2 {
+        return this.extents.toSpace(space, this.scene.getActiveCamera());
+    }
+
     getMinExtents(space: S2Space): S2Vec2 {
         return this.data.minExtents.toSpace(space, this.scene.getActiveCamera());
     }

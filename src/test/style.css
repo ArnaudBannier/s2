@@ -15,6 +15,7 @@
     --primary-color: #00aaff;
     --secondary-color: #e99c2a;
 }
+
 body {
     margin: 0;
     display: flex;
@@ -22,15 +23,18 @@ body {
     min-width: 320px;
     min-height: 100vh;
 }
+
 h1 {
     font-size: 3.2em;
     line-height: 1.1;
 }
+
 #app {
     width: 100%;
     margin: 0 auto;
     text-align: center;
 }
+
 .responsive-svg {
     display: block;
     width: 100%;
@@ -38,6 +42,7 @@ h1 {
     max-height: 70vh;
     margin: auto;
 }
+
 button {
     border-radius: 8px;
     border: 1px solid transparent;
@@ -50,17 +55,21 @@ button {
     cursor: pointer;
     transition: border-color 0.25s;
 }
+
 button:hover {
     border-color: #03a9f4;
     color: #03a9f4;
 }
+
 button:focus,
 button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
+
 .figure-nav {
     padding: 1em;
 }
+
 select {
     border-radius: 8px;
     border: 1px solid transparent;
@@ -73,13 +82,16 @@ select {
     cursor: pointer;
     transition: border-color 0.25s;
 }
+
 select:hover {
     border-color: #03a9f4;
 }
+
 select:focus,
 select:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
+
 /* 
 @media (prefers-color-scheme: light) {
     :root {

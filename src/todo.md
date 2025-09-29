@@ -25,6 +25,8 @@
 - Créer deux catégories pour les animations -> timeAnim eventAnim ?
 - Comment gérer les smoothDamped ?
 - S2AnimationGroup ?
+- Valeur de variables dans un rectangle au dessus qui apparait lors d'une animation ou si possible avec la souris.
+- Possibilité d'écrire les valeurs dans le texte d'information.
 
 # Tests
 
