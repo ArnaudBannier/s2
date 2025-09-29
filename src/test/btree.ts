@@ -313,7 +313,7 @@ class BTree {
         bTreeNode.parentEmphEdge.data.pathTo.set(0.0);
         animator.addAnimation(parentAnim.commitFinalState(), 'previous-end', 0);
 
-        let anim = this.style.createExploreEdgeAnim(bTreeNode.parentEdge);
+        const anim = this.style.createExploreEdgeAnim(bTreeNode.parentEdge);
         animator.addAnimation(anim, 'previous-start', 200);
     }
 }
@@ -558,7 +558,7 @@ class SceneFigure extends S2Scene {
         if (depth < 0 || depth >= this.codeStack.length) return;
         const code = this.codeStack[depth];
 
-        let lerpAnim = S2LerpAnimFactory.create(this, code.data.currentLine.index)
+        const lerpAnim = S2LerpAnimFactory.create(this, code.data.currentLine.index)
             .setCycleDuration(500)
             .setEasing(ease.inOut);
         code.data.currentLine.index.set(lineIndex);
@@ -580,7 +580,7 @@ class SceneFigure extends S2Scene {
         tspan.data.fill.color.hardCopy(MTL.WHITE);
         tspan.data.fill.color.setPriority(S2TypePriority.Important);
 
-        let lerpAnim = S2LerpAnimFactory.create(this, tspan.data.opacity).setCycleDuration(500).setEasing(ease.inOut);
+        const lerpAnim = S2LerpAnimFactory.create(this, tspan.data.opacity).setCycleDuration(500).setEasing(ease.inOut);
         tspan.data.opacity.set(1);
         this.animator.addAnimation(lerpAnim.commitFinalState(), 'previous-start', 200);
     }

@@ -73,7 +73,7 @@ class SceneFigure extends S2Scene {
 
         this.update();
 
-        let anim = S2LerpAnimFactory.create(this, code.data.currentLine.index)
+        const anim = S2LerpAnimFactory.create(this, code.data.currentLine.index)
             .setCycleDuration(500)
             .setEasing(ease.inOut);
         code.data.currentLine.index.set(1);
