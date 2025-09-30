@@ -332,7 +332,6 @@ class BTreeNode {
         this.data = data;
         this.node = scene.addPlainNode();
         this.node.setContent(data.toString());
-        this.node.createRectBackground();
     }
 
     setLeft(bTreeNode: BTreeNode) {

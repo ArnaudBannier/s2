@@ -11,7 +11,6 @@ export class S2NodeData extends S2ElementData {
     public readonly text: S2NodeTextData;
     public readonly padding: S2Extents;
     public readonly minExtents: S2Extents;
-    public readonly shape: S2Enum<S2NodeShape>;
 
     constructor() {
         super();
@@ -21,7 +20,6 @@ export class S2NodeData extends S2ElementData {
         this.background = new S2NodeBackgroundData();
         this.text = new S2NodeTextData();
         this.padding = new S2Extents(10, 5, 'view');
-        this.shape = new S2Enum<S2NodeShape>('rectangle');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -32,7 +30,6 @@ export class S2NodeData extends S2ElementData {
         this.background.setOwner(owner);
         this.text.setOwner(owner);
         this.padding.setOwner(owner);
-        this.shape.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -43,7 +40,6 @@ export class S2NodeData extends S2ElementData {
         this.background.clearDirty();
         this.text.clearDirty();
         this.padding.clearDirty();
-        this.shape.clearDirty();
     }
 }
 

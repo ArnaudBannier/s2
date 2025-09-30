@@ -99,12 +99,12 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
     }
 
     protected updateBackground(): void {
-        if (this.data.shape.isDirty()) {
+        if (this.data.background.shape.isDirty()) {
             // Remove old background
             if (this.background !== null) this.background.setParent(null);
 
             // Create new background
-            switch (this.data.shape.value) {
+            switch (this.data.background.shape.value) {
                 case 'rectangle':
                     this.background = new S2Rect(this.scene);
                     break;

@@ -72,7 +72,7 @@ class SceneFigure extends S2Scene {
             node.setParent(this.getSVG());
             this.setNodeDefaultStyle(node);
             node.setContent(i.toString());
-            node.createRectBackground();
+            node.data.background.shape.set('rectangle');
             node.data.position.setV(S2Vec2.fromPolarDeg(i * 45, 3), 'world');
             node.data.anchor.set(anchors[i]);
 
