@@ -9,6 +9,7 @@ import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-utils';
 import type { S2TSpan } from './text/s2-tspan';
+import type { S2Vec2 } from '../math/s2-vec2';
 
 export type S2CodeToken = {
     type: string;
@@ -48,6 +49,7 @@ export class S2CodeData extends S2ElementData {
     public readonly opacity: S2Number;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly padding: S2Extents;
+    public readonly minExtents: S2Extents;
     public readonly text: S2CodeTextData;
     public readonly background: S2CodeBackgroundData;
     public readonly currentLine: S2CodeCurrentLineData;
@@ -57,6 +59,7 @@ export class S2CodeData extends S2ElementData {
         this.position = new S2Position(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.padding = new S2Extents(10, 5, 'view');
+        this.minExtents = new S2Extents(0, 0, 'view');
         this.text = new S2CodeTextData();
         this.background = new S2CodeBackgroundData();
         this.currentLine = new S2CodeCurrentLineData();
@@ -67,6 +70,7 @@ export class S2CodeData extends S2ElementData {
         this.position.setOwner(owner);
         this.anchor.setOwner(owner);
         this.padding.setOwner(owner);
+        this.minExtents.setOwner(owner);
         this.text.setOwner(owner);
         this.background.setOwner(owner);
         this.currentLine.setOwner(owner);
@@ -78,6 +82,7 @@ export class S2CodeData extends S2ElementData {
         this.position.clearDirty();
         this.anchor.clearDirty();
         this.padding.clearDirty();
+        this.minExtents.clearDirty();
         this.text.clearDirty();
         this.background.clearDirty();
         this.currentLine.clearDirty();
@@ -301,10 +306,9 @@ export class S2Code extends S2Element<S2CodeData> {
         }
     }
 
-    // refreshExtents(): this {
-    //     this.textGroup.refreshExtents();
-    //     return this;
-    // }
+    getExtents(space: S2Space): S2Vec2 {
+        return this.extents.toSpace(space, this.scene.getActiveCamera());
+    }
 
     getSVGElement(): SVGElement {
         return this.element;
@@ -329,8 +333,12 @@ export class S2Code extends S2Element<S2CodeData> {
 
         const textExtents = this.textGroup.getExtents(space);
         const padding = this.data.padding.toSpace(space, camera);
+
+        const minExtents = this.data.minExtents.toSpace(space, camera);
         const extents = textExtents.addV(padding);
+        extents.maxV(minExtents);
         this.extents.setV(extents, space);
+        const textMinExtents = extents.clone().subV(padding);
 
         const codeCenter = S2AnchorUtils.getCenter(
             this.data.anchor.get(),
@@ -340,6 +348,7 @@ export class S2Code extends S2Element<S2CodeData> {
             this.extents,
         );
 
+        this.textGroup.data.minExtents.setV(textMinExtents, space);
         this.textGroup.data.position.setV(codeCenter, space);
         this.textGroup.update();
 

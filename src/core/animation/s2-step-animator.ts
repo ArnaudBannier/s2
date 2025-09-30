@@ -39,6 +39,20 @@ export class S2StepAnimator {
         return this.speed;
     }
 
+    getStepIndexFromElapsed(elapsed: number): number {
+        for (let i = 0; i < this.stepTimes.length - 1; i++) {
+            if (elapsed >= this.stepTimes[i] && elapsed < this.stepTimes[i + 1]) {
+                return i;
+            }
+        }
+        return this.stepTimes.length - 1;
+    }
+
+    getStepStartTime(index: number): number {
+        index = S2MathUtils.clamp(index, 0, this.stepTimelines.length - 1);
+        return this.stepTimes[index];
+    }
+
     playStep(index: number): this {
         index = S2MathUtils.clamp(index, 0, this.stepTimelines.length - 1);
         this.stop();

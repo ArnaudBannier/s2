@@ -219,6 +219,15 @@ export class S2Color extends S2BaseType {
         return new S2Color(this.r, this.g, this.b, this.priority);
     }
 
+    hardCopy(color: S2Color): this {
+        if (this.r === color.r && this.g === color.g && this.b === color.b) return this;
+        this.r = color.r;
+        this.g = color.g;
+        this.b = color.b;
+        this.markDirty();
+        return this;
+    }
+
     copy(color: S2Color): this {
         if (this.priority === S2TypePriority.Important) return this;
         if (this.r === color.r && this.g === color.g && this.b === color.b) return this;
