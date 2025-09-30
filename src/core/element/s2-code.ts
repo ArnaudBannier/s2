@@ -1,7 +1,7 @@
 import { S2BaseScene } from '../s2-base-scene';
 import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../s2-globals';
 import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypePriority, type S2Space } from '../s2-types';
-import { S2FillData, S2ElementData, S2StrokeData, S2FontData } from './base/s2-base-data';
+import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
 import { S2Rect } from './s2-rect';
@@ -85,7 +85,7 @@ export class S2CodeData extends S2ElementData {
     }
 }
 
-export class S2CodeTextData extends S2ElementData {
+export class S2CodeTextData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -114,7 +114,6 @@ export class S2CodeTextData extends S2ElementData {
     }
 
     clearDirty(): void {
-        super.clearDirty();
         this.fill.clearDirty();
         this.stroke.clearDirty();
         this.opacity.clearDirty();
@@ -123,7 +122,7 @@ export class S2CodeTextData extends S2ElementData {
     }
 }
 
-export class S2CodeBackgroundData extends S2ElementData {
+export class S2CodeBackgroundData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -148,7 +147,6 @@ export class S2CodeBackgroundData extends S2ElementData {
     }
 
     clearDirty(): void {
-        super.clearDirty();
         this.fill.clearDirty();
         this.stroke.clearDirty();
         this.opacity.clearDirty();
@@ -156,7 +154,7 @@ export class S2CodeBackgroundData extends S2ElementData {
     }
 }
 
-export class S2CodeCurrentLineData extends S2ElementData {
+export class S2CodeCurrentLineData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -184,7 +182,6 @@ export class S2CodeCurrentLineData extends S2ElementData {
     }
 
     clearDirty(): void {
-        super.clearDirty();
         this.fill.clearDirty();
         this.stroke.clearDirty();
         this.opacity.clearDirty();

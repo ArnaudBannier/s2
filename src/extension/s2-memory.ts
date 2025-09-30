@@ -1,27 +1,25 @@
-import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform } from '../../s2-types';
-import { S2FontData, S2ElementData, S2FillData, S2StrokeData, S2BaseData } from '../base/s2-base-data';
+import { S2BaseData, S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../core/element/base/s2-base-data';
+import { S2Element } from '../core/element/base/s2-element';
+import type { S2BaseScene } from '../core/s2-base-scene';
+import { svgNS, type S2Anchor, type S2Dirtyable } from '../core/s2-globals';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position } from '../core/s2-types';
 
-export type S2NodeShape = 'none' | 'rectangle' | 'circle';
-
-export class S2NodeData extends S2ElementData {
+export class S2MemoryData extends S2ElementData {
     public readonly position: S2Position;
     public readonly anchor: S2Enum<S2Anchor>;
-    public readonly background: S2NodeBackgroundData;
-    public readonly text: S2NodeTextData;
+    public readonly background: S2MemoryBackgroundData;
+    public readonly text: S2MemoryTextData;
     public readonly padding: S2Extents;
     public readonly minExtents: S2Extents;
-    public readonly shape: S2Enum<S2NodeShape>;
 
     constructor() {
         super();
         this.position = new S2Position(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.minExtents = new S2Extents(0, 0, 'view');
-        this.background = new S2NodeBackgroundData();
-        this.text = new S2NodeTextData();
+        this.background = new S2MemoryBackgroundData();
+        this.text = new S2MemoryTextData();
         this.padding = new S2Extents(10, 5, 'view');
-        this.shape = new S2Enum<S2NodeShape>('rectangle');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -32,7 +30,6 @@ export class S2NodeData extends S2ElementData {
         this.background.setOwner(owner);
         this.text.setOwner(owner);
         this.padding.setOwner(owner);
-        this.shape.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -43,26 +40,21 @@ export class S2NodeData extends S2ElementData {
         this.background.clearDirty();
         this.text.clearDirty();
         this.padding.clearDirty();
-        this.shape.clearDirty();
     }
 }
 
-export class S2NodeBackgroundData extends S2BaseData {
+export class S2MemoryBackgroundData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly transform: S2Transform;
     public readonly cornerRadius: S2Length;
-    public readonly shape: S2Enum<S2NodeShape>;
 
     constructor() {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
-        this.transform = new S2Transform();
         this.cornerRadius = new S2Length(5, 'view');
-        this.shape = new S2Enum<S2NodeShape>('rectangle');
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -72,40 +64,29 @@ export class S2NodeBackgroundData extends S2BaseData {
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
-        this.transform.setOwner(owner);
         this.cornerRadius.setOwner(owner);
-        this.shape.setOwner(owner);
     }
 
     clearDirty(): void {
         this.fill.clearDirty();
         this.stroke.clearDirty();
         this.opacity.clearDirty();
-        this.transform.clearDirty();
         this.cornerRadius.clearDirty();
-        this.shape.clearDirty();
     }
 }
 
-export class S2NodeTextData extends S2BaseData {
+export class S2MemoryTextData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly transform: S2Transform;
-
     public readonly font: S2FontData;
-    public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
-    public readonly verticalAlign: S2Enum<S2VerticalAlign>;
 
     constructor() {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
-        this.transform = new S2Transform();
         this.font = new S2FontData();
-        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
-        this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
 
         this.stroke.width.set(0, 'view');
         this.fill.opacity.set(1);
@@ -115,19 +96,39 @@ export class S2NodeTextData extends S2BaseData {
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
-        this.transform.setOwner(owner);
         this.font.setOwner(owner);
-        this.horizontalAlign.setOwner(owner);
-        this.verticalAlign.setOwner(owner);
     }
 
     clearDirty(): void {
         this.fill.clearDirty();
         this.stroke.clearDirty();
         this.opacity.clearDirty();
-        this.transform.clearDirty();
         this.font.clearDirty();
-        this.horizontalAlign.clearDirty();
-        this.verticalAlign.clearDirty();
+    }
+}
+
+export class S2Memory extends S2Element<S2MemoryData> {
+    protected element: SVGGElement;
+
+    constructor(scene: S2BaseScene) {
+        super(scene, new S2MemoryData());
+        this.element = document.createElementNS(svgNS, 'g');
+    }
+
+    getSVGElement(): SVGElement {
+        return this.element;
+    }
+
+    update(): void {
+        if (this.skipUpdate()) return;
+
+        // S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        // S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        // S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        // S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
+        // S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');
+        // S2DataUtils.applyRadius(this.data.radius, this.element, this.scene);
+
+        this.clearDirty();
     }
 }

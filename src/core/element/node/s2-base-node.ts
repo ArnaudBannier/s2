@@ -93,4 +93,64 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         }
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
+
+    protected updateBackground(): void {
+        if (this.data.shape.isDirty()) {
+            // Remove old background
+            if (this.background !== null) this.background.setParent(null);
+
+            // Create new background
+            switch (this.data.shape.value) {
+                case 'rectangle':
+                    this.background = new S2Rect(this.scene);
+                    break;
+                case 'circle':
+                    this.background = new S2Circle(this.scene);
+                    break;
+                case 'none':
+                    this.background = null;
+                    return;
+            }
+            this.background.data.layer.set(0);
+            this.background.setParent(this);
+            this.updateSVGChildren();
+        }
+
+        if (this.background === null) return;
+
+        const camera = this.scene.getActiveCamera();
+        const space: S2Space = 'view';
+        const nodeCenter = this.getCenter(space);
+        const extents = this.extents.toSpace(space, camera);
+
+        this.background.data.stroke.copy(this.data.background.stroke);
+        this.background.data.fill.copy(this.data.background.fill);
+        this.background.data.opacity.copy(this.data.background.opacity);
+        this.background.data.transform.copy(this.data.background.transform);
+        if (this.background instanceof S2Rect) {
+            this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
+        }
+
+        // Position background
+        if (this.background instanceof S2Rect) {
+            // Rectangle
+            this.background.data.position.setV(nodeCenter, space);
+            this.background.data.extents.setV(extents, space);
+            this.background.data.anchor.set('center');
+        } else if (this.background instanceof S2Circle) {
+            // Circle
+            const radius = Math.max(extents.x, extents.y);
+            this.background.data.position.setV(nodeCenter, space);
+            this.background.data.radius.set(radius, space);
+        }
+
+        this.background.update();
+    }
+
+    protected updateEndPoints(): void {
+        for (const endpoint of this.endPoints) {
+            endpoint.markDirty();
+            endpoint.edge?.update();
+        }
+    }
 }

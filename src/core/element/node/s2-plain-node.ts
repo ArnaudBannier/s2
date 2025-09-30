@@ -1,6 +1,4 @@
 import { S2BaseScene } from '../../s2-base-scene';
-import { S2Rect } from '../s2-rect';
-import { S2Circle } from '../s2-circle';
 import { type S2Space } from '../../s2-types';
 import { S2PlainText } from '../text/s2-plain-text';
 import { S2BaseNode } from './s2-base-node';
@@ -40,7 +38,7 @@ export class S2PlainNode extends S2BaseNode {
         extents.max(textExtents.x + padding.x, textExtents.y + padding.y);
         const contentExtents = extents.clone().subV(padding);
 
-        this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
+        this.extents.setV(extents, space);
 
         const nodeCenter = this.getCenter(space);
         const contentNW = nodeCenter.clone().subV(contentExtents);
@@ -77,37 +75,34 @@ export class S2PlainNode extends S2BaseNode {
         this.text.data.position.set(lineX, lineY, 'view');
         this.text.update();
 
-        // Style background
-        if (this.background !== null) {
-            this.background.data.stroke.copy(this.data.background.stroke);
-            this.background.data.fill.copy(this.data.background.fill);
-            this.background.data.opacity.copy(this.data.background.opacity);
-            this.background.data.transform.copy(this.data.background.transform);
-            if (this.background instanceof S2Rect) {
-                this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
-            }
+        // // Style background
+        // if (this.background !== null) {
+        //     this.background.data.stroke.copy(this.data.background.stroke);
+        //     this.background.data.fill.copy(this.data.background.fill);
+        //     this.background.data.opacity.copy(this.data.background.opacity);
+        //     this.background.data.transform.copy(this.data.background.transform);
+        //     if (this.background instanceof S2Rect) {
+        //         this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
+        //     }
 
-            // Position background
-            if (this.background instanceof S2Rect) {
-                // Rectangle
-                this.background.data.position.setV(nodeCenter, 'view');
-                this.background.data.extents.setV(extents, 'view');
-                this.background.data.anchor.set('center');
-            } else if (this.background instanceof S2Circle) {
-                // Circle
-                const radius = Math.max(extents.x, extents.y);
-                this.background.data.position.setV(nodeCenter, 'view');
-                this.background.data.radius.set(radius, 'view');
-            }
+        //     // Position background
+        //     if (this.background instanceof S2Rect) {
+        //         // Rectangle
+        //         this.background.data.position.setV(nodeCenter, 'view');
+        //         this.background.data.extents.setV(extents, 'view');
+        //         this.background.data.anchor.set('center');
+        //     } else if (this.background instanceof S2Circle) {
+        //         // Circle
+        //         const radius = Math.max(extents.x, extents.y);
+        //         this.background.data.position.setV(nodeCenter, 'view');
+        //         this.background.data.radius.set(radius, 'view');
+        //     }
 
-            this.background.update();
-        }
+        //     this.background.update();
+        // }
+        this.updateBackground();
 
-        for (const endpoint of this.endPoints) {
-            endpoint.markDirty();
-            endpoint.edge?.update();
-        }
-
+        this.updateEndPoints();
         this.clearDirty();
     }
 }
