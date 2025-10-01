@@ -57,26 +57,6 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         return this.element;
     }
 
-    createRectBackground(): S2Rect {
-        if (this.background !== null) this.background.setParent(null);
-        this.background = new S2Rect(this.scene);
-        this.background.data.layer.set(0);
-
-        this.background.setParent(this);
-        this.updateSVGChildren();
-        return this.background;
-    }
-
-    createCircleBackground(): S2Circle {
-        if (this.background !== null) this.background.setParent(null);
-        this.background = new S2Circle(this.scene);
-        this.background.data.layer.set(0);
-
-        this.background.setParent(this);
-        this.updateSVGChildren();
-        return this.background;
-    }
-
     getBackground(): S2Circle | S2Rect | null {
         return this.background;
     }
