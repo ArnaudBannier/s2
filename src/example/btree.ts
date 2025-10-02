@@ -1,4 +1,4 @@
-import './style.css';
+import './s2-example-style.css';
 import { S2Vec2 } from '../core/math/s2-vec2.ts';
 import { S2Camera } from '../core/math/s2-camera.ts';
 import { MTL } from '../utils/mtl-colors.ts';
@@ -64,6 +64,7 @@ class BTreeStyle {
         data.background.fill.color.copy(MTL.GREY_6);
         data.background.stroke.color.copy(MTL.GREY_4);
         data.background.stroke.width.set(4, 'view');
+        data.background.cornerRadius.set(10, 'view');
         data.text.fill.color.copy(MTL.WHITE);
         data.text.horizontalAlign.set('center');
         data.text.verticalAlign.set('middle');
@@ -71,7 +72,6 @@ class BTreeStyle {
         data.text.font.weight.set(700);
         data.padding.set(0, 0, 'view');
         data.minExtents.set(0.4, 0.35, 'world');
-        data.background.cornerRadius.set(10, 'view');
         data.layer.set(2);
     }
 

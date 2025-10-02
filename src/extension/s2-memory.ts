@@ -124,6 +124,7 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.element.dataset.role = 'memory';
         this.background = new S2Rect(scene);
         this.vSeparator = new S2Line(scene);
+        this.background.setParent(this);
         this.vSeparator.setParent(this);
         this.hSeparators = [];
         for (let i = 0; i < this.addressCount; i++) {
@@ -181,6 +182,8 @@ export class S2Memory extends S2Element<S2MemoryData> {
 
         this.vSeparator.data.startPosition.set(center.x, center.y + extents.y, space);
         this.vSeparator.data.endPosition.set(center.x, center.y - extents.y, space);
+        this.vSeparator.data.stroke.color.copy(this.data.background.stroke.color);
+        this.vSeparator.data.stroke.width.copy(this.data.background.stroke.width);
 
         this.vSeparator.update();
 

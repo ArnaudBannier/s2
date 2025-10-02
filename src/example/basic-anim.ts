@@ -1,4 +1,4 @@
-import './style.css';
+import './s2-example-style.css';
 import { S2Vec2 } from '../core/math/s2-vec2.ts';
 import { S2Camera } from '../core/math/s2-camera.ts';
 import { MTL } from '../utils/mtl-colors.ts';
@@ -119,7 +119,7 @@ const appDiv = document.querySelector<HTMLDivElement>('#app');
 if (appDiv) {
     appDiv.innerHTML = `
         <div>
-            <h1>My first SVG</h1>
+            <h1>Animation simple</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
                 <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
