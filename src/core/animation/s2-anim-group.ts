@@ -1,4 +1,4 @@
-import type { S2BaseScene } from '../s2-base-scene';
+import type { S2BaseScene } from '../scene/s2-base-scene';
 import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
 import type { S2EaseType } from './s2-easing';
 import { S2LerpAnim, S2LerpAnimFactory } from './s2-lerp-anim';

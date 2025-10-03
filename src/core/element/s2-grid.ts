@@ -1,4 +1,4 @@
-import { S2BaseScene } from '../s2-base-scene';
+import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2Extents, S2Number, S2Position, S2Transform } from '../s2-types';
 import { svgNS, type S2Dirtyable } from '../s2-globals';
 import { S2Element } from './base/s2-element';

@@ -1,6 +1,6 @@
 import { ease } from '../animation/s2-easing';
 import { S2Mat2x3Builder } from '../math/s2-mat2x3-builder';
-import { S2BaseScene } from '../s2-base-scene';
+import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2TipTransform, svgNS, type S2Dirtyable } from '../s2-globals';
 import { S2Extents, S2Length, S2Number, S2Position, S2Transform } from '../s2-types';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';

@@ -1,5 +1,5 @@
 import { S2Vec2 } from '../../math/s2-vec2';
-import { S2BaseScene } from '../../s2-base-scene';
+import { S2BaseScene } from '../../scene/s2-base-scene';
 import {
     type S2Anchor,
     type S2Dirtyable,

@@ -1,4 +1,4 @@
-import { S2BaseScene } from '../s2-base-scene';
+import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../s2-types';
 import { type S2AnimProperty } from './s2-base-animation';
 import { S2BaseDurationAnimation } from './s2-base-duration-animation';

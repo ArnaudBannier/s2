@@ -1,5 +1,5 @@
 import { S2ShapeUtils } from '../math/s2-shape-utils';
-import { S2BaseScene } from '../s2-base-scene';
+import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Anchor, S2AnchorUtils, type S2Dirtyable } from '../s2-globals';
 import { type S2Space, S2Length, S2Extents, S2Enum, S2Number, S2Transform, S2Position } from '../s2-types';

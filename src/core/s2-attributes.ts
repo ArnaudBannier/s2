@@ -1,18 +1,3 @@
-/*
-    Pour une animation :
-    - copie de la valeur initiale
-    - copie de la valeur finale
-    [ ] référence vers la variable à modifier
-    [ ] référence vers une fonction "type MyFn = (x: number) => void;" Oui mas il faut faire un fléché...
-
-    Comment créer facilement une animation ?
-    -> Il faut sauvegarder les paramètres quelque part...
-        [ ] Dans l'objet directement ?
-        [x] Dans une animation en construction ?
-*/
-
-//////////////////////////////////////////////////////////////////////////////
-
 /*Animation attributes
 color,
 dash,

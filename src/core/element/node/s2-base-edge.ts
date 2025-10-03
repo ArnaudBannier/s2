@@ -1,5 +1,5 @@
 import { S2Vec2 } from '../../math/s2-vec2';
-import { S2BaseScene } from '../../s2-base-scene';
+import { S2BaseScene } from '../../scene/s2-base-scene';
 import { S2Node } from './s2-node';
 import { S2Path } from '../s2-path';
 import { type S2Space, S2Length, S2Number, S2Position } from '../../s2-types';

@@ -1,5 +1,5 @@
 import { S2Vec2 } from '../../math/s2-vec2';
-import { S2BaseScene } from '../../s2-base-scene';
+import { S2BaseScene } from '../../scene/s2-base-scene';
 import { S2AnchorUtils, svgNS } from '../../s2-globals';
 import { S2Rect } from '../s2-rect';
 import { S2Circle } from '../s2-circle';

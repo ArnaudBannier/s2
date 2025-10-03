@@ -1,4 +1,4 @@
-import { S2BaseScene } from '../../s2-base-scene';
+import { S2BaseScene } from '../../scene/s2-base-scene';
 import { type S2Space } from '../../s2-types';
 import { S2PlainText } from '../text/s2-plain-text';
 import { S2BaseNode } from './s2-base-node';

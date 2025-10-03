@@ -1,5 +1,5 @@
-import { S2Camera } from './math/s2-camera';
-import { S2SVG } from './element/s2-svg';
+import { S2Camera } from '../math/s2-camera';
+import { S2SVG } from '../element/s2-svg';
 
 export abstract class S2BaseScene {
     public readonly svg: S2SVG;

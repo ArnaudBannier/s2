@@ -1,21 +1,21 @@
-import { S2Camera } from './math/s2-camera';
-import { S2Circle } from './element/s2-circle';
-import { S2Rect } from './element/s2-rect';
-import { S2Grid } from './element/s2-grid';
-import { S2RichText } from './element/text/s2-rich-text';
-import { S2Node } from './element/node/s2-node';
-import { S2Path } from './element/s2-path';
-import { S2FillRect } from './element/s2-fill-rect';
-import { S2Group } from './element/s2-group';
-import { S2CubicEdge, S2LineEdge } from './element/node/s2-edge';
-import { S2Position } from './s2-types';
-import { type S2BaseElement } from './element/base/s2-element';
+import { S2Camera } from '../math/s2-camera';
+import { S2Circle } from '../element/s2-circle';
+import { S2Rect } from '../element/s2-rect';
+import { S2Grid } from '../element/s2-grid';
+import { S2RichText } from '../element/text/s2-rich-text';
+import { S2Node } from '../element/node/s2-node';
+import { S2Path } from '../element/s2-path';
+import { S2FillRect } from '../element/s2-fill-rect';
+import { S2Group } from '../element/s2-group';
+import { S2CubicEdge, S2LineEdge } from '../element/node/s2-edge';
+import { S2Position } from '../s2-types';
+import { type S2BaseElement } from '../element/base/s2-element';
 import { S2BaseScene } from './s2-base-scene';
-import { S2Line } from './element/s2-line';
-import { S2ElementData } from './element/base/s2-base-data';
-import { S2DataSetter } from './element/base/s2-data-setter';
-import type { S2BaseNode } from './element/node/s2-base-node';
-import { S2PlainNode } from './element/node/s2-plain-node';
+import { S2Line } from '../element/s2-line';
+import { S2ElementData } from '../element/base/s2-base-data';
+import { S2DataSetter } from '../element/base/s2-data-setter';
+import type { S2BaseNode } from '../element/node/s2-base-node';
+import { S2PlainNode } from '../element/node/s2-plain-node';
 
 export class S2Scene extends S2BaseScene {
     constructor(element: SVGSVGElement, camera: S2Camera) {

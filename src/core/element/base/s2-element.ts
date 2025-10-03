@@ -1,4 +1,4 @@
-import { type S2BaseScene } from '../../s2-base-scene';
+import { type S2BaseScene } from '../../scene/s2-base-scene';
 import { type S2Dirtyable, type S2Tipable } from '../../s2-globals';
 import { S2ElementData } from './s2-base-data';
 

@@ -1,4 +1,4 @@
-import { S2BaseScene } from '../s2-base-scene';
+import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
 
 export type S2TimelinePosition = 'absolute' | 'previous-start' | 'previous-end';
