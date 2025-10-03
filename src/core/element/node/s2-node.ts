@@ -1,10 +1,10 @@
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../../s2-globals';
-import { S2AnchorUtils, S2FlexUtils, svgNS } from '../../s2-globals';
+import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
+import { S2AnchorUtils, S2FlexUtils, svgNS } from '../../shared/s2-globals';
 import { S2Rect } from '../s2-rect';
 import { S2Circle } from '../s2-circle';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../../s2-types';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../../shared/s2-types';
 import { S2TextGroup, S2TextLine } from '../text/s2-text-group';
 import { clamp } from '../../math/s2-utils';
 import { S2Line } from '../s2-line';

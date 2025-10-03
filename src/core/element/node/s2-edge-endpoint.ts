@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../../math/s2-vec2';
-import { type S2Space, S2Length, S2Position } from '../../s2-types';
+import { type S2Space, S2Length, S2Position } from '../../shared/s2-types';
 import { S2Camera } from '../../math/s2-camera';
-import { type S2Dirtyable } from '../../s2-globals';
+import { type S2Dirtyable } from '../../shared/s2-globals';
 import { S2BaseNode } from './s2-base-node';
 import type { S2BaseEdge } from './s2-base-edge';
 

@@ -8,7 +8,7 @@ import { S2Path } from '../element/s2-path';
 import { S2FillRect } from '../element/s2-fill-rect';
 import { S2Group } from '../element/s2-group';
 import { S2CubicEdge, S2LineEdge } from '../element/node/s2-edge';
-import { S2Position } from '../s2-types';
+import { S2Position } from '../shared/s2-types';
 import { type S2BaseElement } from '../element/base/s2-element';
 import { S2BaseScene } from './s2-base-scene';
 import { S2Line } from '../element/s2-line';

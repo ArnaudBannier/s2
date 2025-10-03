@@ -1,5 +1,5 @@
-import { type S2Dirtyable, type S2TextAnchor } from '../../s2-globals';
-import { S2Boolean, S2Enum, S2Number, S2Position, S2Transform } from '../../s2-types';
+import { type S2Dirtyable, type S2TextAnchor } from '../../shared/s2-globals';
+import { S2Boolean, S2Enum, S2Number, S2Position, S2Transform } from '../../shared/s2-types';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 
 export class S2TextData extends S2ElementData {

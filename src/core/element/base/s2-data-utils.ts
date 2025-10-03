@@ -9,8 +9,8 @@ import {
     S2Position,
     S2Transform,
     type S2Space,
-} from '../../s2-types';
-import { S2AnchorUtils, type S2Anchor, type S2TextAnchor } from '../../s2-globals.ts';
+} from '../../shared/s2-types.ts';
+import { S2AnchorUtils, type S2Anchor, type S2TextAnchor } from '../../shared/s2-globals.ts';
 import { S2BaseScene } from '../../scene/s2-base-scene.ts';
 import type { S2PolyCurve } from '../../math/s2-curve.ts';
 import { S2PathUtils } from '../s2-path.ts';

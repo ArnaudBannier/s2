@@ -1,4 +1,4 @@
-import { S2Color } from '../core/s2-types';
+import { S2Color } from '../core/shared/s2-types';
 
 // Material Design Colors - https://material.io/design/color/the-color-system.html
 export const MTL: Record<string, S2Color> = {

@@ -1,6 +1,6 @@
 import { S2MathUtils } from '../math/s2-utils';
 import { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../s2-types';
+import type { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../shared/s2-types';
 import { ease, type S2EaseType } from './s2-easing';
 
 export type S2AnimProperty = S2Number | S2Color | S2Position | S2Length | S2Extents;

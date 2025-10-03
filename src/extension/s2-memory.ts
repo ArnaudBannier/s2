@@ -4,8 +4,8 @@ import { S2Line } from '../core/element/s2-line';
 import { S2Rect } from '../core/element/s2-rect';
 import type { S2Vec2 } from '../core/math/s2-vec2';
 import type { S2BaseScene } from '../core/scene/s2-base-scene';
-import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable } from '../core/s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, type S2Space } from '../core/s2-types';
+import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable } from '../core/shared/s2-globals';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, type S2Space } from '../core/shared/s2-types';
 
 export class S2MemoryData extends S2ElementData {
     public readonly position: S2Position;

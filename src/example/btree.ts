@@ -18,7 +18,7 @@ import type { S2PlainNode } from '../core/element/node/s2-plain-node.ts';
 import { S2RichText } from '../core/element/text/s2-rich-text.ts';
 import type { S2Rect } from '../core/element/s2-rect.ts';
 import { S2PlainText } from '../core/element/text/s2-plain-text.ts';
-import { S2TypePriority } from '../core/s2-types.ts';
+import { S2TypePriority } from '../core/shared/s2-types.ts';
 
 const viewport = new S2Vec2(720.0, 360.0).scale(1.5);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(9.0, 4.5), viewport, 1.0);

@@ -7,7 +7,7 @@ import {
     type S2VerticalAlign,
     S2AnchorUtils,
     svgNS,
-} from '../../s2-globals';
+} from '../../shared/s2-globals';
 import { S2BaseRichText } from './s2-rich-text';
 import {
     S2Enum,
@@ -18,7 +18,7 @@ import {
     S2Transform,
     S2TypePriority,
     type S2Space,
-} from '../../s2-types';
+} from '../../shared/s2-types';
 import { S2Element } from '../base/s2-element';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2DataUtils } from '../base/s2-data-utils';

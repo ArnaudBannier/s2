@@ -1,5 +1,5 @@
-import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin } from '../../s2-globals';
-import { S2Color, S2TypePriority, S2Length, S2Number, S2Enum, S2String, S2Boolean } from '../../s2-types';
+import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin } from '../../shared/s2-globals';
+import { S2Color, S2TypePriority, S2Length, S2Number, S2Enum, S2String, S2Boolean } from '../../shared/s2-types';
 
 export abstract class S2BaseData {
     abstract setOwner(owner: S2Dirtyable | null): void;

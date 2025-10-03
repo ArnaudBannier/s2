@@ -1,5 +1,5 @@
 import { S2BaseData, S2FontData } from './s2-base-data.ts';
-import { S2Color, type S2Space } from '../../s2-types';
+import { S2Color, type S2Space } from '../../shared/s2-types.ts';
 import { S2Vec2 } from '../../math/s2-vec2';
 import type {
     S2Anchor,
@@ -8,7 +8,7 @@ import type {
     S2LineCap,
     S2LineJoin,
     S2VerticalAlign,
-} from '../../s2-globals.ts';
+} from '../../shared/s2-globals.ts';
 import { S2DataSetterUtils } from './s2-data-setter-utils.ts';
 
 export class S2DataSetter {

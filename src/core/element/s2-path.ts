@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../scene/s2-base-scene';
-import { S2TipTransform, svgNS, type S2Dirtyable, type S2Tipable } from '../s2-globals';
-import { S2Enum, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../s2-types';
+import { S2TipTransform, svgNS, type S2Dirtyable, type S2Tipable } from '../shared/s2-globals';
+import { S2Enum, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../shared/s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
 import { S2Element } from './base/s2-element';

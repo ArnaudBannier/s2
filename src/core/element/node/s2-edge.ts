@@ -1,6 +1,6 @@
 import { S2BaseScene } from '../../scene/s2-base-scene';
-import { type S2Space, S2Number, S2TypePriority } from '../../s2-types';
-import { type S2Dirtyable } from '../../s2-globals';
+import { type S2Space, S2Number, S2TypePriority } from '../../shared/s2-types';
+import { type S2Dirtyable } from '../../shared/s2-globals';
 import { S2Edge, S2EdgeData } from './s2-base-edge';
 
 // S2NodeArcManhattan

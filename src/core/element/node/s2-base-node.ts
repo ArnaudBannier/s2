@@ -1,9 +1,9 @@
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2BaseScene } from '../../scene/s2-base-scene';
-import { S2AnchorUtils, svgNS } from '../../s2-globals';
+import { S2AnchorUtils, svgNS } from '../../shared/s2-globals';
 import { S2Rect } from '../s2-rect';
 import { S2Circle } from '../s2-circle';
-import { S2Extents, S2Length, type S2Space } from '../../s2-types';
+import { S2Extents, S2Length, type S2Space } from '../../shared/s2-types';
 import { S2Element } from '../base/s2-element';
 import { S2NodeData } from './s2-node-data';
 import type { S2EdgeEndpoint } from './s2-edge-endpoint';

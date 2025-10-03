@@ -9,7 +9,7 @@ import { ease } from '../core/animation/s2-easing.ts';
 import { S2MathUtils } from '../core/math/s2-utils.ts';
 import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
 import { S2PlainNode } from '../core/element/node/s2-plain-node.ts';
-import type { S2Anchor } from '../core/s2-globals.ts';
+import type { S2Anchor } from '../core/shared/s2-globals.ts';
 import { S2CubicEdge } from '../core/element/node/s2-edge.ts';
 import { S2AnimGroup } from '../core/animation/s2-anim-group.ts';
 

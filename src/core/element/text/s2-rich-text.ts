@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2BaseScene } from '../../scene/s2-base-scene';
-import { svgNS } from '../../s2-globals';
-import { S2Extents, S2Position, type S2Space } from '../../s2-types';
+import { svgNS } from '../../shared/s2-globals';
+import { S2Extents, S2Position, type S2Space } from '../../shared/s2-types';
 import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TSpan } from './s2-tspan';

@@ -1,6 +1,6 @@
-import type { S2ArrowTip } from './element/s2-arrow-tip';
-import type { S2Camera } from './math/s2-camera';
-import { S2Vec2 } from './math/s2-vec2';
+import type { S2ArrowTip } from '../element/s2-arrow-tip';
+import type { S2Camera } from '../math/s2-camera';
+import { S2Vec2 } from '../math/s2-vec2';
 import { type S2Space, S2Position, S2Extents } from './s2-types';
 
 export const svgNS = 'http://www.w3.org/2000/svg';

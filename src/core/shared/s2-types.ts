@@ -1,7 +1,7 @@
-import { S2Vec2 } from './math/s2-vec2';
-import { S2Camera } from './math/s2-camera';
-import { S2MathUtils } from './math/s2-utils';
-import { S2Mat2x3 } from './math/s2-mat2x3';
+import { S2Vec2 } from '../math/s2-vec2';
+import { S2Camera } from '../math/s2-camera';
+import { S2MathUtils } from '../math/s2-utils';
+import { S2Mat2x3 } from '../math/s2-mat2x3';
 import type { S2Dirtyable } from './s2-globals';
 
 export type S2Space = 'world' | 'view';

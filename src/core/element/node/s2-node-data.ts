@@ -1,5 +1,5 @@
-import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform } from '../../s2-types';
+import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform } from '../../shared/s2-types';
 import { S2FontData, S2ElementData, S2FillData, S2StrokeData, S2BaseData } from '../base/s2-base-data';
 
 export type S2NodeShape = 'none' | 'rectangle' | 'circle';

@@ -1,6 +1,6 @@
 import { S2BaseScene } from '../scene/s2-base-scene';
-import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypePriority, type S2Space } from '../s2-types';
+import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../shared/s2-globals';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypePriority, type S2Space } from '../shared/s2-types';
 import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
