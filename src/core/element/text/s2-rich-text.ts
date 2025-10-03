@@ -124,13 +124,13 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
 
         for (const tspan of this.tspans) {
             if (this.data.fill.isDirty() || tspan.isDirty()) {
-                tspan.data.fill.copy(this.data.fill);
+                tspan.data.fill.copyIfUnlocked(this.data.fill);
             }
             if (this.data.stroke.isDirty() || tspan.isDirty()) {
-                tspan.data.stroke.copy(this.data.stroke);
+                tspan.data.stroke.copyIfUnlocked(this.data.stroke);
             }
             if (this.data.font.isDirty() || tspan.isDirty()) {
-                tspan.data.font.copy(this.data.font);
+                tspan.data.font.copyIfUnlocked(this.data.font);
             }
             tspan.update();
         }

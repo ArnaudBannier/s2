@@ -26,10 +26,10 @@ export class S2PlainNode extends S2BaseNode {
         const space: S2Space = 'view';
         this.updateSVGChildren();
 
-        this.text.data.font.copy(this.data.text.font);
-        this.text.data.fill.copy(this.data.text.fill);
-        this.text.data.opacity.copy(this.data.text.opacity);
-        this.text.data.stroke.copy(this.data.text.stroke);
+        this.text.data.font.copyIfUnlocked(this.data.text.font);
+        this.text.data.fill.copyIfUnlocked(this.data.text.fill);
+        this.text.data.opacity.copyIfUnlocked(this.data.text.opacity);
+        this.text.data.stroke.copyIfUnlocked(this.data.text.stroke);
         this.text.update();
 
         const textExtents = this.text.getExtents(space);
@@ -75,33 +75,7 @@ export class S2PlainNode extends S2BaseNode {
         this.text.data.position.set(lineX, lineY, 'view');
         this.text.update();
 
-        // // Style background
-        // if (this.background !== null) {
-        //     this.background.data.stroke.copy(this.data.background.stroke);
-        //     this.background.data.fill.copy(this.data.background.fill);
-        //     this.background.data.opacity.copy(this.data.background.opacity);
-        //     this.background.data.transform.copy(this.data.background.transform);
-        //     if (this.background instanceof S2Rect) {
-        //         this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
-        //     }
-
-        //     // Position background
-        //     if (this.background instanceof S2Rect) {
-        //         // Rectangle
-        //         this.background.data.position.setV(nodeCenter, 'view');
-        //         this.background.data.extents.setV(extents, 'view');
-        //         this.background.data.anchor.set('center');
-        //     } else if (this.background instanceof S2Circle) {
-        //         // Circle
-        //         const radius = Math.max(extents.x, extents.y);
-        //         this.background.data.position.setV(nodeCenter, 'view');
-        //         this.background.data.radius.set(radius, 'view');
-        //     }
-
-        //     this.background.update();
-        // }
         this.updateBackground();
-
         this.updateEndPoints();
         this.clearDirty();
     }

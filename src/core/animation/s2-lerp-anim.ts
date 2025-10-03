@@ -42,12 +42,12 @@ export class S2LerpAnimNumber extends S2LerpAnim {
     }
 
     commitInitialState(): this {
-        this.state0.copy(this.property);
+        this.state0.copyIfUnlocked(this.property);
         return this;
     }
 
     commitFinalState(): this {
-        this.state1.copy(this.property);
+        this.state1.copyIfUnlocked(this.property);
         return this;
     }
 
@@ -72,12 +72,12 @@ export class S2LerpAnimColor extends S2LerpAnim {
     }
 
     commitInitialState(): this {
-        this.state0.hardCopy(this.property);
+        this.state0.copy(this.property);
         return this;
     }
 
     commitFinalState(): this {
-        this.state1.hardCopy(this.property);
+        this.state1.copy(this.property);
         return this;
     }
 
@@ -102,12 +102,12 @@ export class S2LerpAnimLength extends S2LerpAnim {
     }
 
     commitInitialState(): this {
-        this.state0.copy(this.property);
+        this.state0.copyIfUnlocked(this.property);
         return this;
     }
 
     commitFinalState(): this {
-        this.state1.copy(this.property);
+        this.state1.copyIfUnlocked(this.property);
         return this;
     }
 
@@ -133,12 +133,12 @@ export class S2LerpAnimPosition extends S2LerpAnim {
     }
 
     commitInitialState(): this {
-        this.state0.copy(this.property);
+        this.state0.copyIfUnlocked(this.property);
         return this;
     }
 
     commitFinalState(): this {
-        this.state1.copy(this.property);
+        this.state1.copyIfUnlocked(this.property);
         return this;
     }
 
@@ -164,12 +164,12 @@ export class S2LerpAnimExtents extends S2LerpAnim {
     }
 
     commitInitialState(): this {
-        this.state0.copy(this.property);
+        this.state0.copyIfUnlocked(this.property);
         return this;
     }
 
     commitFinalState(): this {
-        this.state1.copy(this.property);
+        this.state1.copyIfUnlocked(this.property);
         return this;
     }
 

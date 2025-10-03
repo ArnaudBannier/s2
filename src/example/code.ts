@@ -54,16 +54,16 @@ class SceneFigure extends S2Scene {
         const code = new S2Code(this);
         code.setParent(this.getSVG());
 
-        code.data.text.font.copy(font);
-        code.data.text.fill.color.copy(MTL.WHITE);
+        code.data.text.font.copyIfUnlocked(font);
+        code.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
         code.data.anchor.set('west');
         code.data.position.set(-5, 0, 'world');
         code.data.padding.set(20, 5, 'view');
-        code.data.background.fill.color.copy(MTL.GREY_9);
+        code.data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
         code.data.currentLine.opacity.set(1);
-        code.data.currentLine.fill.color.copy(MTL.BLACK);
+        code.data.currentLine.fill.color.copyIfUnlocked(MTL.BLACK);
         code.data.currentLine.fill.opacity.set(0.5);
-        code.data.currentLine.stroke.color.copy(MTL.WHITE);
+        code.data.currentLine.stroke.color.copyIfUnlocked(MTL.WHITE);
         code.data.currentLine.stroke.width.set(1, 'view');
         code.data.currentLine.stroke.opacity.set(0.2);
         code.data.currentLine.padding.set(-0.5, 2, 'view');

@@ -1,5 +1,5 @@
 import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin } from '../../shared/s2-globals';
-import { S2Color, S2TypePriority, S2Length, S2Number, S2Enum, S2String, S2Boolean } from '../../shared/s2-types';
+import { S2Color, S2Length, S2Number, S2Enum, S2String, S2Boolean } from '../../shared/s2-types';
 
 export abstract class S2BaseData {
     abstract setOwner(owner: S2Dirtyable | null): void;
@@ -39,11 +39,11 @@ export class S2StrokeData extends S2BaseData implements S2Dirtyable {
 
     constructor() {
         super();
-        this.color = new S2Color(0, 0, 0, S2TypePriority.Normal);
+        this.color = new S2Color(0, 0, 0);
         this.width = new S2Length(0, 'view');
-        this.opacity = new S2Number(1, S2TypePriority.Normal);
-        this.lineCap = new S2Enum<S2LineCap>('round', S2TypePriority.Normal);
-        this.lineJoin = new S2Enum<S2LineJoin>('miter', S2TypePriority.Normal);
+        this.opacity = new S2Number(1);
+        this.lineCap = new S2Enum<S2LineCap>('round');
+        this.lineJoin = new S2Enum<S2LineJoin>('miter');
 
         this.dirty = true;
         this.owner = null;
@@ -73,6 +73,14 @@ export class S2StrokeData extends S2BaseData implements S2Dirtyable {
         this.lineJoin.copy(other.lineJoin);
     }
 
+    copyIfUnlocked(other: S2StrokeData): void {
+        this.color.copyIfUnlocked(other.color);
+        this.width.copyIfUnlocked(other.width);
+        this.opacity.copyIfUnlocked(other.opacity);
+        this.lineCap.copyIfUnlocked(other.lineCap);
+        this.lineJoin.copyIfUnlocked(other.lineJoin);
+    }
+
     setOwner(owner: S2Dirtyable | null = null): void {
         this.owner = owner;
     }
@@ -96,8 +104,8 @@ export class S2FillData extends S2BaseData implements S2Dirtyable {
 
     constructor() {
         super();
-        this.color = new S2Color(255, 255, 255, S2TypePriority.Normal);
-        this.opacity = new S2Number(1, S2TypePriority.Normal);
+        this.color = new S2Color(255, 255, 255);
+        this.opacity = new S2Number(1);
         this.dirty = true;
         this.owner = null;
 
@@ -118,6 +126,11 @@ export class S2FillData extends S2BaseData implements S2Dirtyable {
     copy(other: S2FillData): void {
         this.color.copy(other.color);
         this.opacity.copy(other.opacity);
+    }
+
+    copyIfUnlocked(other: S2FillData): void {
+        this.color.copyIfUnlocked(other.color);
+        this.opacity.copyIfUnlocked(other.opacity);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -178,6 +191,15 @@ export class S2FontData extends S2BaseData implements S2Dirtyable {
         this.relativeAscenderHeight.copy(other.relativeAscenderHeight);
         this.family.copy(other.family);
         this.style.copy(other.style);
+    }
+
+    copyIfUnlocked(other: S2FontData): void {
+        this.size.copyIfUnlocked(other.size);
+        this.weight.copyIfUnlocked(other.weight);
+        this.relativeLineHeight.copyIfUnlocked(other.relativeLineHeight);
+        this.relativeAscenderHeight.copyIfUnlocked(other.relativeAscenderHeight);
+        this.family.copyIfUnlocked(other.family);
+        this.style.copyIfUnlocked(other.style);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {

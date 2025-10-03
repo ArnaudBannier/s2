@@ -9,16 +9,7 @@ import {
     svgNS,
 } from '../../shared/s2-globals';
 import { S2BaseRichText } from './s2-rich-text';
-import {
-    S2Enum,
-    S2Extents,
-    S2Length,
-    S2Number,
-    S2Position,
-    S2Transform,
-    S2TypePriority,
-    type S2Space,
-} from '../../shared/s2-types';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../../shared/s2-types';
 import { S2Element } from '../base/s2-element';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2DataUtils } from '../base/s2-data-utils';
@@ -31,7 +22,7 @@ export class S2TextLineData extends S2TextData {
     constructor() {
         super();
         this.skip = new S2Length(0, 'view');
-        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left', S2TypePriority.Normal);
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -253,12 +244,12 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         const lineHeight = font.relativeLineHeight.value * font.size.value;
         const textExtents = new S2Vec2(0, 0);
         for (const line of this.textLines) {
-            line.data.font.copy(this.data.font);
-            line.data.fill.copy(this.data.fill);
-            line.data.stroke.copy(this.data.stroke);
-            line.data.opacity.copy(this.data.opacity);
-            line.data.horizontalAlign.copy(this.data.horizontalAlign);
-            line.data.skip.copy(this.data.skip);
+            line.data.font.copyIfUnlocked(this.data.font);
+            line.data.fill.copyIfUnlocked(this.data.fill);
+            line.data.stroke.copyIfUnlocked(this.data.stroke);
+            line.data.opacity.copyIfUnlocked(this.data.opacity);
+            line.data.horizontalAlign.copyIfUnlocked(this.data.horizontalAlign);
+            line.data.skip.copyIfUnlocked(this.data.skip);
             line.update();
 
             const lineExt = line.getExtents(space);

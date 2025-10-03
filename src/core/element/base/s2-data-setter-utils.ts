@@ -24,19 +24,19 @@ export class S2DataSetterUtils {
             'fill' in data.background &&
             data.background.fill instanceof S2FillData
         ) {
-            data.background.fill.color.copy(color);
+            data.background.fill.color.copyIfUnlocked(color);
         }
     }
 
     static setColor(data: S2BaseData, color: S2Color): void {
         if ('color' in data && data.color instanceof S2Color) {
-            data.color.copy(color);
+            data.color.copyIfUnlocked(color);
         }
         if ('fill' in data && data.fill instanceof S2FillData) {
-            data.fill.color.copy(color);
+            data.fill.color.copyIfUnlocked(color);
         }
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.color.copy(color);
+            data.stroke.color.copyIfUnlocked(color);
         }
     }
 
@@ -147,7 +147,7 @@ export class S2DataSetterUtils {
 
     static setFillColor(data: S2BaseData, color: S2Color): void {
         if ('fill' in data && data.fill instanceof S2FillData) {
-            data.fill.color.copy(color);
+            data.fill.color.copyIfUnlocked(color);
         }
     }
 
@@ -171,7 +171,7 @@ export class S2DataSetterUtils {
 
     static setFont(data: S2BaseData, font: S2FontData): void {
         if ('font' in data && data.font instanceof S2FontData) {
-            data.font.copy(font);
+            data.font.copyIfUnlocked(font);
         }
     }
 
@@ -303,7 +303,7 @@ export class S2DataSetterUtils {
 
     static setStrokeColor(data: S2BaseData, color: S2Color): void {
         if ('stroke' in data && data.stroke instanceof S2StrokeData) {
-            data.stroke.color.copy(color);
+            data.stroke.color.copyIfUnlocked(color);
         }
     }
 

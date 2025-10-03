@@ -107,12 +107,12 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         const nodeCenter = this.getCenter(space);
         const extents = this.extents.toSpace(space, camera);
 
-        this.background.data.stroke.copy(this.data.background.stroke);
-        this.background.data.fill.copy(this.data.background.fill);
-        this.background.data.opacity.copy(this.data.background.opacity);
-        this.background.data.transform.copy(this.data.background.transform);
+        this.background.data.stroke.copyIfUnlocked(this.data.background.stroke);
+        this.background.data.fill.copyIfUnlocked(this.data.background.fill);
+        this.background.data.opacity.copyIfUnlocked(this.data.background.opacity);
+        this.background.data.transform.copyIfUnlocked(this.data.background.transform);
         if (this.background instanceof S2Rect) {
-            this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
+            this.background.data.cornerRadius.copyIfUnlocked(this.data.background.cornerRadius);
         }
 
         // Position background

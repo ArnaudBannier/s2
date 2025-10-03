@@ -154,9 +154,9 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
     }
 
     protected applyStyleToPath(): void {
-        this.path.data.pathFrom.copy(this.data.pathFrom);
-        this.path.data.pathTo.copy(this.data.pathTo);
-        this.path.data.stroke.copy(this.data.stroke);
-        this.path.data.opacity.copy(this.data.opacity);
+        this.path.data.pathFrom.copyIfUnlocked(this.data.pathFrom);
+        this.path.data.pathTo.copyIfUnlocked(this.data.pathTo);
+        this.path.data.stroke.copyIfUnlocked(this.data.stroke);
+        this.path.data.opacity.copyIfUnlocked(this.data.opacity);
     }
 }

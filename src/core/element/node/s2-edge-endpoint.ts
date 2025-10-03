@@ -46,12 +46,12 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         if (endpoint instanceof S2BaseNode) {
             this.mode = 'node';
             this.node = endpoint;
-            this.position.copy(this.node.data.position);
+            this.position.copyIfUnlocked(this.node.data.position);
             this.node.attachEndPoint(this);
         } else {
             this.mode = 'position';
             this.node = null;
-            this.position.copy(endpoint);
+            this.position.copyIfUnlocked(endpoint);
         }
         return this;
     }
@@ -59,7 +59,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
     copy(other: S2EdgeEndpoint): void {
         this.mode = other.mode;
         this.node = other.node;
-        this.position.copy(other.position);
+        this.position.copyIfUnlocked(other.position);
     }
 
     getCenter(space: S2Space, camera: S2Camera): S2Vec2 {

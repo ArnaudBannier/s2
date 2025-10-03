@@ -83,7 +83,7 @@ class SceneFigure extends S2Scene {
             for (let j = -1; j < 2; j += 2) {
                 const edge = new S2CubicEdge(this);
                 edge.setParent(this.getSVG());
-                edge.data.stroke.color.copy(MTL.GREY_5);
+                edge.data.stroke.color.copyIfUnlocked(MTL.GREY_5);
                 edge.data.start.set(this.nodes[i]);
                 edge.data.end.set(this.nodes[(i + 1) % this.nodes.length]);
                 edge.data.startDistance.set(10, 'view');

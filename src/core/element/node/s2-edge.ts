@@ -1,5 +1,5 @@
 import { S2BaseScene } from '../../scene/s2-base-scene';
-import { type S2Space, S2Number, S2TypePriority } from '../../shared/s2-types';
+import { type S2Space, S2Number } from '../../shared/s2-types';
 import { type S2Dirtyable } from '../../shared/s2-globals';
 import { S2Edge, S2EdgeData } from './s2-base-edge';
 
@@ -42,9 +42,9 @@ export class S2CubicEdgeData extends S2EdgeData {
 
     constructor() {
         super();
-        this.curveStartTension = new S2Number(0.3, S2TypePriority.Normal);
-        this.curveEndTension = new S2Number(0.3, S2TypePriority.Normal);
-        this.curveBendAngle = new S2Number(0, S2TypePriority.Normal);
+        this.curveStartTension = new S2Number(0.3);
+        this.curveEndTension = new S2Number(0.3);
+        this.curveBendAngle = new S2Number(0);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {

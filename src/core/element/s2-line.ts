@@ -1,6 +1,6 @@
 import { S2BaseScene } from '../scene/s2-base-scene';
 import { svgNS, type S2Dirtyable } from '../shared/s2-globals';
-import { S2Number, S2Position, S2Transform, S2TypePriority } from '../shared/s2-types';
+import { S2Number, S2Position, S2Transform } from '../shared/s2-types';
 import { S2Element } from './base/s2-element';
 import { S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -15,7 +15,7 @@ export class S2LineData extends S2ElementData {
     constructor() {
         super();
         this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1, S2TypePriority.Normal);
+        this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.startPosition = new S2Position();
         this.endPosition = new S2Position();

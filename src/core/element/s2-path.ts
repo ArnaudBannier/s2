@@ -350,8 +350,8 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         );
 
         for (const arrowTip of this.arrowTips) {
-            arrowTip.data.fill.color.copy(this.data.stroke.color);
-            arrowTip.data.fill.opacity.copy(this.data.stroke.opacity);
+            arrowTip.data.fill.color.copyIfUnlocked(this.data.stroke.color);
+            arrowTip.data.fill.opacity.copyIfUnlocked(this.data.stroke.opacity);
             arrowTip.markDirty();
             arrowTip.update();
         }

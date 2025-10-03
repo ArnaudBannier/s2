@@ -5,19 +5,19 @@ import { S2Mat2x3 } from '../math/s2-mat2x3';
 import type { S2Dirtyable } from './s2-globals';
 
 export type S2Space = 'world' | 'view';
-export enum S2TypePriority {
-    Normal = 'normal',
-    Important = 'important',
-}
 
 export abstract class S2BaseType implements S2Dirtyable {
     abstract readonly kind: string;
-    public priority: S2TypePriority = S2TypePriority.Normal;
-    public dirty: boolean = true;
-    public owner: S2Dirtyable | null = null;
+    protected dirty: boolean = true;
+    protected owner: S2Dirtyable | null = null;
+    protected locked: boolean = false;
 
     setOwner(owner: S2Dirtyable | null = null): void {
         this.owner = owner;
+    }
+
+    getOwner(): S2Dirtyable | null {
+        return this.owner;
     }
 
     isDirty(): boolean {
@@ -34,10 +34,23 @@ export abstract class S2BaseType implements S2Dirtyable {
         this.dirty = false;
     }
 
-    setPriority(priority: S2TypePriority): this {
-        if (this.priority === priority) return this;
-        this.priority = priority;
-        this.markDirty();
+    isLocked(): boolean {
+        return this.locked;
+    }
+
+    lock(): this {
+        if (!this.locked) {
+            this.locked = true;
+            // No markDirty: we don't change the value
+        }
+        return this;
+    }
+
+    unlock(): this {
+        if (this.locked) {
+            this.locked = false;
+            // No markDirty: we don't change the value
+        }
         return this;
     }
 }
@@ -46,18 +59,22 @@ export class S2Enum<T> extends S2BaseType {
     readonly kind = 'enum' as const;
     public value: T;
 
-    constructor(value: T, priority: S2TypePriority = S2TypePriority.Normal) {
+    constructor(value: T, locked: boolean = false) {
         super();
         this.value = value;
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2Enum<T> {
-        return new S2Enum(this.value, this.priority);
+        return new S2Enum(this.value, this.locked);
+    }
+
+    copyIfUnlocked(other: S2Enum<T>): this {
+        if (this.locked) return this;
+        return this.copy(other);
     }
 
     copy(other: S2Enum<T>): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (this.value === other.value) return this;
         this.value = other.value;
         this.markDirty();
@@ -80,18 +97,22 @@ export class S2String extends S2BaseType {
     readonly kind = 'string' as const;
     public value: string;
 
-    constructor(value: string = '', priority: S2TypePriority = S2TypePriority.Normal) {
+    constructor(value: string = '', locked: boolean = false) {
         super();
         this.value = value;
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2String {
-        return new S2String(this.value, this.priority);
+        return new S2String(this.value, this.locked);
+    }
+
+    copyIfUnlocked(other: S2String): this {
+        if (this.locked) return this;
+        return this.copy(other);
     }
 
     copy(other: S2String): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (this.value === other.value) return this;
         this.value = other.value;
         this.markDirty();
@@ -118,18 +139,22 @@ export class S2Boolean extends S2BaseType {
     readonly kind = 'boolean' as const;
     public value: boolean;
 
-    constructor(value: boolean = false, priority: S2TypePriority = S2TypePriority.Normal) {
+    constructor(value: boolean = false, locked: boolean = false) {
         super();
         this.value = value;
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2Boolean {
-        return new S2Boolean(this.value, this.priority);
+        return new S2Boolean(this.value, this.locked);
+    }
+
+    copyIfUnlocked(other: S2Boolean): this {
+        if (this.locked) return this;
+        return this.copy(other);
     }
 
     copy(other: S2Boolean): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (this.value === other.value) return this;
         this.value = other.value;
         this.markDirty();
@@ -156,18 +181,22 @@ export class S2Number extends S2BaseType {
     readonly kind = 'number' as const;
     public value: number;
 
-    constructor(value: number, priority: S2TypePriority = S2TypePriority.Normal) {
+    constructor(value: number, locked: boolean = false) {
         super();
         this.value = value;
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2Number {
-        return new S2Number(this.value, this.priority);
+        return new S2Number(this.value, this.locked);
+    }
+
+    copyIfUnlocked(other: S2Number): this {
+        if (this.locked) return this;
+        return this.copy(other);
     }
 
     copy(other: S2Number): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (this.value === other.value) return this;
         this.value = other.value;
         this.markDirty();
@@ -207,29 +236,24 @@ export class S2Color extends S2BaseType {
     public g: number;
     public b: number;
 
-    constructor(r: number = 0, g: number = 0, b: number = 0, priority: S2TypePriority = S2TypePriority.Normal) {
+    constructor(r: number = 0, g: number = 0, b: number = 0, locked: boolean = false) {
         super();
         this.r = r;
         this.g = g;
         this.b = b;
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2Color {
-        return new S2Color(this.r, this.g, this.b, this.priority);
+        return new S2Color(this.r, this.g, this.b, this.locked);
     }
 
-    hardCopy(color: S2Color): this {
-        if (this.r === color.r && this.g === color.g && this.b === color.b) return this;
-        this.r = color.r;
-        this.g = color.g;
-        this.b = color.b;
-        this.markDirty();
-        return this;
+    copyIfUnlocked(color: S2Color): this {
+        if (this.locked) return this;
+        return this.copy(color);
     }
 
     copy(color: S2Color): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (this.r === color.r && this.g === color.g && this.b === color.b) return this;
         this.r = color.r;
         this.g = color.g;
@@ -295,24 +319,23 @@ export class S2Position extends S2BaseType {
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(
-        x: number = 0,
-        y: number = 0,
-        space: S2Space = 'world',
-        priority: S2TypePriority = S2TypePriority.Normal,
-    ) {
+    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', locked: boolean = false) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2Position {
-        return new S2Position(this.value.x, this.value.y, this.space, this.priority);
+        return new S2Position(this.value.x, this.value.y, this.space, this.locked);
+    }
+
+    copyIfUnlocked(other: S2Position): this {
+        if (this.locked) return this;
+        return this.copy(other);
     }
 
     copy(other: S2Position): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (S2Vec2.eq(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
@@ -410,19 +433,23 @@ export class S2Length extends S2BaseType {
     public value: number;
     public space: S2Space;
 
-    constructor(value: number = 0, space: S2Space = 'world', priority: S2TypePriority = S2TypePriority.Normal) {
+    constructor(value: number = 0, space: S2Space = 'world', locked: boolean = false) {
         super();
         this.value = value;
         this.space = space;
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2Length {
-        return new S2Length(this.value, this.space, this.priority);
+        return new S2Length(this.value, this.space, this.locked);
+    }
+
+    copyIfUnlocked(other: S2Length): this {
+        if (this.locked) return this;
+        return this.copy(other);
     }
 
     copy(other: S2Length): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (this.value === other.value && this.space === other.space) return this;
         this.value = other.value;
         this.space = other.space;
@@ -508,24 +535,23 @@ export class S2Extents extends S2BaseType {
     public value: S2Vec2;
     public space: S2Space;
 
-    constructor(
-        x: number = 0,
-        y: number = 0,
-        space: S2Space = 'world',
-        priority: S2TypePriority = S2TypePriority.Normal,
-    ) {
+    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', locked: boolean = false) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2Extents {
-        return new S2Extents(this.value.x, this.value.y, this.space, this.priority);
+        return new S2Extents(this.value.x, this.value.y, this.space, this.locked);
+    }
+
+    copyIfUnlocked(other: S2Extents): this {
+        if (this.locked) return this;
+        return this.copy(other);
     }
 
     copy(other: S2Extents): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (S2Vec2.eq(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
@@ -630,19 +656,32 @@ export class S2Transform extends S2BaseType {
         a10: number = 0,
         a11: number = 1,
         a12: number = 0,
-        priority: S2TypePriority = S2TypePriority.Normal,
+        locked: boolean = false,
     ) {
         super();
         this.value = new S2Mat2x3(a00, a01, a02, a10, a11, a12);
-        this.priority = priority;
+        this.locked = locked;
     }
 
     clone(): S2Transform {
-        return new S2Transform().copy(this);
+        const t = new S2Transform(
+            this.value.elements[0],
+            this.value.elements[1],
+            this.value.elements[2],
+            this.value.elements[3],
+            this.value.elements[4],
+            this.value.elements[5],
+            this.locked,
+        );
+        return t;
+    }
+
+    copyIfUnlocked(other: S2Transform): this {
+        if (this.locked) return this;
+        return this.copy(other);
     }
 
     copy(other: S2Transform): this {
-        if (this.priority === S2TypePriority.Important) return this;
         if (S2Mat2x3.eq(this.value, other.value)) return this;
         this.value.copy(other.value);
         this.markDirty();
@@ -665,10 +704,6 @@ export class S2Transform extends S2BaseType {
         this.value.copy(value);
         this.markDirty();
         return this;
-    }
-
-    hasActiveHierarchy(): boolean {
-        return this.priority === S2TypePriority.Normal;
     }
 
     get(): S2Mat2x3 {

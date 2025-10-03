@@ -1,6 +1,6 @@
 import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../shared/s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2TypePriority, type S2Space } from '../shared/s2-types';
+import { S2Enum, S2Extents, S2Length, S2Number, S2Position, type S2Space } from '../shared/s2-types';
 import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
@@ -236,26 +236,20 @@ export class S2Code extends S2Element<S2CodeData> {
     static defaultTokenStyleSetter(tspan: S2TSpan, type: string): void {
         switch (type) {
             case 'fn':
-                tspan.data.fill.color.copy(MTL.ORANGE_2);
-                tspan.data.fill.color.setPriority(S2TypePriority.Important);
+                tspan.data.fill.color.copyIfUnlocked(MTL.ORANGE_2).lock();
                 break;
             case 'type':
-                tspan.data.fill.color.copy(MTL.CYAN_3);
-                tspan.data.fill.color.setPriority(S2TypePriority.Important);
+                tspan.data.fill.color.copyIfUnlocked(MTL.CYAN_3).lock();
                 break;
             case 'kw':
-                tspan.data.fill.color.copy(MTL.PURPLE_3);
-                tspan.data.fill.color.setPriority(S2TypePriority.Important);
-                tspan.data.font.weight.set(700);
-                tspan.data.font.weight.setPriority(S2TypePriority.Important);
+                tspan.data.fill.color.copyIfUnlocked(MTL.PURPLE_3).lock();
+                tspan.data.font.weight.set(700).lock();
                 break;
             case 'var':
-                tspan.data.fill.color.copy(MTL.LIGHT_BLUE_1);
-                tspan.data.fill.color.setPriority(S2TypePriority.Important);
+                tspan.data.fill.color.copyIfUnlocked(MTL.LIGHT_BLUE_1).lock();
                 break;
             case 'punct':
-                tspan.data.fill.color.copy(MTL.PURPLE_1);
-                tspan.data.fill.color.setPriority(S2TypePriority.Important);
+                tspan.data.fill.color.copyIfUnlocked(MTL.PURPLE_1).lock();
                 break;
         }
     }
@@ -270,8 +264,8 @@ export class S2Code extends S2Element<S2CodeData> {
 
         const emph = new S2TextEmphasis(this.scene);
         emph.data.fill.opacity.set(0.2);
-        emph.data.fill.color.copy(MTL.BLUE_9);
-        emph.data.stroke.color.copy(MTL.BLUE_5);
+        emph.data.fill.color.copyIfUnlocked(MTL.BLUE_9);
+        emph.data.stroke.color.copyIfUnlocked(MTL.BLUE_5);
         emph.data.stroke.width.set(1, 'view');
         emph.data.layer.set(1);
         emph.setParent(this);
@@ -323,12 +317,12 @@ export class S2Code extends S2Element<S2CodeData> {
 
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
 
-        this.textGroup.data.font.copy(this.data.text.font);
+        this.textGroup.data.font.copyIfUnlocked(this.data.text.font);
         this.textGroup.data.horizontalAlign.set('left');
-        this.textGroup.data.verticalAlign.copy(this.data.text.verticalAlign);
-        this.textGroup.data.fill.copy(this.data.text.fill);
-        this.textGroup.data.opacity.copy(this.data.text.opacity);
-        this.textGroup.data.stroke.copy(this.data.text.stroke);
+        this.textGroup.data.verticalAlign.copyIfUnlocked(this.data.text.verticalAlign);
+        this.textGroup.data.fill.copyIfUnlocked(this.data.text.fill);
+        this.textGroup.data.opacity.copyIfUnlocked(this.data.text.opacity);
+        this.textGroup.data.stroke.copyIfUnlocked(this.data.text.stroke);
         this.textGroup.update();
 
         const textExtents = this.textGroup.getExtents(space);
@@ -354,15 +348,15 @@ export class S2Code extends S2Element<S2CodeData> {
 
         this.codeBackground.data.position.setV(codeCenter, 'view');
         this.codeBackground.data.extents.setV(extents, 'view');
-        this.codeBackground.data.cornerRadius.copy(this.data.background.cornerRadius);
-        this.codeBackground.data.fill.copy(this.data.background.fill);
-        this.codeBackground.data.stroke.copy(this.data.background.stroke);
-        this.codeBackground.data.opacity.copy(this.data.background.opacity);
+        this.codeBackground.data.cornerRadius.copyIfUnlocked(this.data.background.cornerRadius);
+        this.codeBackground.data.fill.copyIfUnlocked(this.data.background.fill);
+        this.codeBackground.data.stroke.copyIfUnlocked(this.data.background.stroke);
+        this.codeBackground.data.opacity.copyIfUnlocked(this.data.background.opacity);
         this.codeBackground.update();
 
-        this.lineBackground.data.fill.copy(this.data.currentLine.fill);
-        this.lineBackground.data.stroke.copy(this.data.currentLine.stroke);
-        this.lineBackground.data.opacity.copy(this.data.currentLine.opacity);
+        this.lineBackground.data.fill.copyIfUnlocked(this.data.currentLine.fill);
+        this.lineBackground.data.stroke.copyIfUnlocked(this.data.currentLine.stroke);
+        this.lineBackground.data.opacity.copyIfUnlocked(this.data.currentLine.opacity);
 
         const lineCount = this.textGroup.getLineCount();
         if (lineCount > 0) {
@@ -460,10 +454,10 @@ export class S2TextEmphasis extends S2Element<S2TextEmphasisData> {
         this.rect.data.position.setV(position, space);
         this.rect.data.extents.set(textExtents.x + padding.x, textExtents.y + padding.y, space);
         this.rect.data.anchor.set('center');
-        this.rect.data.fill.copy(this.data.fill);
-        this.rect.data.stroke.copy(this.data.stroke);
-        this.rect.data.opacity.copy(this.data.opacity);
-        this.rect.data.cornerRadius.copy(this.data.cornerRadius);
+        this.rect.data.fill.copyIfUnlocked(this.data.fill);
+        this.rect.data.stroke.copyIfUnlocked(this.data.stroke);
+        this.rect.data.opacity.copyIfUnlocked(this.data.opacity);
+        this.rect.data.cornerRadius.copyIfUnlocked(this.data.cornerRadius);
         this.rect.update();
 
         this.clearDirty();

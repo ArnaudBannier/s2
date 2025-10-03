@@ -217,27 +217,27 @@ export class S2Node extends S2Element<S2NodeData> {
         const camera = this.scene.getActiveCamera();
 
         if (this.background !== null) {
-            this.background.data.stroke.copy(this.data.background.stroke);
-            this.background.data.fill.copy(this.data.background.fill);
-            this.background.data.opacity.copy(this.data.background.opacity);
-            this.background.data.transform.copy(this.data.background.transform);
+            this.background.data.stroke.copyIfUnlocked(this.data.background.stroke);
+            this.background.data.fill.copyIfUnlocked(this.data.background.fill);
+            this.background.data.opacity.copyIfUnlocked(this.data.background.opacity);
+            this.background.data.transform.copyIfUnlocked(this.data.background.transform);
             if (this.background instanceof S2Rect) {
-                this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
+                this.background.data.cornerRadius.copyIfUnlocked(this.data.background.cornerRadius);
             }
         }
 
         for (const textGroup of this.textGroups) {
-            textGroup.data.font.copy(this.data.text.font);
-            textGroup.data.horizontalAlign.copy(this.data.text.horizontalAlign);
-            textGroup.data.verticalAlign.copy(this.data.text.verticalAlign);
-            textGroup.data.fill.copy(this.data.text.fill);
-            textGroup.data.opacity.copy(this.data.text.opacity);
-            textGroup.data.stroke.copy(this.data.text.stroke);
+            textGroup.data.font.copyIfUnlocked(this.data.text.font);
+            textGroup.data.horizontalAlign.copyIfUnlocked(this.data.text.horizontalAlign);
+            textGroup.data.verticalAlign.copyIfUnlocked(this.data.text.verticalAlign);
+            textGroup.data.fill.copyIfUnlocked(this.data.text.fill);
+            textGroup.data.opacity.copyIfUnlocked(this.data.text.opacity);
+            textGroup.data.stroke.copyIfUnlocked(this.data.text.stroke);
         }
 
         for (const line of this.sepLines) {
-            line.data.opacity.copy(this.data.separator.opacity);
-            line.data.stroke.copy(this.data.separator.stroke);
+            line.data.opacity.copyIfUnlocked(this.data.separator.opacity);
+            line.data.stroke.copyIfUnlocked(this.data.separator.stroke);
         }
 
         const partHeights: Array<number> = [];

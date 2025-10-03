@@ -114,8 +114,8 @@ export class S2Memory extends S2Element<S2MemoryData> {
     protected element: SVGGElement;
     protected addressCount: number;
     protected background: S2Rect;
-    protected vSeparator: S2Line;
-    protected hSeparators: S2Line[];
+    protected vLine: S2Line;
+    protected hLines: S2Line[];
 
     constructor(scene: S2BaseScene, addressCount: number) {
         super(scene, new S2MemoryData());
@@ -123,15 +123,15 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.addressCount = addressCount;
         this.element.dataset.role = 'memory';
         this.background = new S2Rect(scene);
-        this.vSeparator = new S2Line(scene);
+        this.vLine = new S2Line(scene);
         this.background.setParent(this);
-        this.vSeparator.setParent(this);
-        this.hSeparators = [];
-        for (let i = 0; i < this.addressCount; i++) {
+        this.vLine.setParent(this);
+        this.hLines = [];
+        for (let i = 0; i < this.addressCount - 1; i++) {
             const hLine = new S2Line(scene);
             hLine.setParent(this);
             hLine.setIsActive(false);
-            this.hSeparators.push(hLine);
+            this.hLines.push(hLine);
         }
         this.updateBackground();
     }
@@ -160,11 +160,11 @@ export class S2Memory extends S2Element<S2MemoryData> {
         const center = this.getCenter(space);
         const extents = this.getExtents(space);
 
-        this.background.data.stroke.copy(this.data.background.stroke);
-        this.background.data.fill.copy(this.data.background.fill);
-        this.background.data.opacity.copy(this.data.background.opacity);
+        this.background.data.stroke.copyIfUnlocked(this.data.background.stroke);
+        this.background.data.fill.copyIfUnlocked(this.data.background.fill);
+        this.background.data.opacity.copyIfUnlocked(this.data.background.opacity);
         if (this.background instanceof S2Rect) {
-            this.background.data.cornerRadius.copy(this.data.background.cornerRadius);
+            this.background.data.cornerRadius.copyIfUnlocked(this.data.background.cornerRadius);
         }
 
         // Position background
@@ -180,20 +180,23 @@ export class S2Memory extends S2Element<S2MemoryData> {
         const center = this.getCenter(space);
         const extents = this.getExtents(space);
 
-        this.vSeparator.data.startPosition.set(center.x, center.y + extents.y, space);
-        this.vSeparator.data.endPosition.set(center.x, center.y - extents.y, space);
-        this.vSeparator.data.stroke.color.copy(this.data.background.stroke.color);
-        this.vSeparator.data.stroke.width.copy(this.data.background.stroke.width);
+        this.vLine.data.startPosition.set(center.x, center.y + extents.y, space);
+        this.vLine.data.endPosition.set(center.x, center.y - extents.y, space);
+        this.vLine.data.stroke.color.copyIfUnlocked(this.data.background.stroke.color);
+        this.vLine.data.stroke.width.copyIfUnlocked(this.data.background.stroke.width);
 
-        this.vSeparator.update();
+        this.vLine.update();
 
-        // for (const hLine of this.hSeparators) {
-        //     hLine.data.position.setV(center, space);
-        //     hLine.data.extents.setV(extents, space);
-        //     hLine.data.anchor.set('center');
-
-        //     hLine.update();
-        // }
+        const stepY = (2 * extents.y) / this.addressCount;
+        let lineY = center.y - extents.y + stepY;
+        for (const hLine of this.hLines) {
+            hLine.data.startPosition.set(center.x - extents.x, lineY, space);
+            hLine.data.endPosition.set(center.x + extents.x, lineY, space);
+            hLine.data.stroke.color.copyIfUnlocked(this.data.background.stroke.color);
+            hLine.data.stroke.width.copyIfUnlocked(this.data.background.stroke.width);
+            hLine.update();
+            lineY += stepY;
+        }
     }
 
     update(): void {

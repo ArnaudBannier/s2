@@ -18,7 +18,6 @@ import type { S2PlainNode } from '../core/element/node/s2-plain-node.ts';
 import { S2RichText } from '../core/element/text/s2-rich-text.ts';
 import type { S2Rect } from '../core/element/s2-rect.ts';
 import { S2PlainText } from '../core/element/text/s2-plain-text.ts';
-import { S2TypePriority } from '../core/shared/s2-types.ts';
 
 const viewport = new S2Vec2(720.0, 360.0).scale(1.5);
 const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(9.0, 4.5), viewport, 1.0);
@@ -61,14 +60,14 @@ class BTreeStyle {
 
     setNodeDefault(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copy(MTL.GREY_6);
-        data.background.stroke.color.copy(MTL.GREY_4);
+        data.background.fill.color.copyIfUnlocked(MTL.GREY_6);
+        data.background.stroke.color.copyIfUnlocked(MTL.GREY_4);
         data.background.stroke.width.set(4, 'view');
         data.background.cornerRadius.set(10, 'view');
-        data.text.fill.color.copy(MTL.WHITE);
+        data.text.fill.color.copyIfUnlocked(MTL.WHITE);
         data.text.horizontalAlign.set('center');
         data.text.verticalAlign.set('middle');
-        data.text.font.copy(this.font);
+        data.text.font.copyIfUnlocked(this.font);
         data.text.font.weight.set(700);
         data.padding.set(0, 0, 'view');
         data.minExtents.set(0.4, 0.35, 'world');
@@ -77,9 +76,9 @@ class BTreeStyle {
 
     setNodeSelected(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copy(MTL.GREY_8);
-        data.background.stroke.color.copy(MTL.BLUE_5);
-        data.text.fill.color.copy(MTL.BLUE_2);
+        data.background.fill.color.copyIfUnlocked(MTL.GREY_8);
+        data.background.stroke.color.copyIfUnlocked(MTL.BLUE_5);
+        data.text.fill.color.copyIfUnlocked(MTL.BLUE_2);
     }
 
     createSelectNodeAnim(node: S2PlainNode): S2AnimGroup {
@@ -97,9 +96,9 @@ class BTreeStyle {
 
     setNodeExplored(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copy(MTL.CYAN_7);
-        data.background.stroke.color.copy(MTL.CYAN_3);
-        data.text.fill.color.copy(MTL.WHITE);
+        data.background.fill.color.copyIfUnlocked(MTL.CYAN_7);
+        data.background.stroke.color.copyIfUnlocked(MTL.CYAN_3);
+        data.text.fill.color.copyIfUnlocked(MTL.WHITE);
     }
 
     createExploreNodeAnim(node: S2PlainNode): S2AnimGroup {
@@ -139,7 +138,7 @@ class BTreeStyle {
     }
 
     setEdgeSelected(edge: S2LineEdge): void {
-        edge.data.stroke.color.copy(MTL.BLUE_5);
+        edge.data.stroke.color.copyIfUnlocked(MTL.BLUE_5);
     }
 
     createSelectEdgeAnim(edge: S2LineEdge): S2BaseAnimation {
@@ -152,7 +151,7 @@ class BTreeStyle {
     }
 
     setEdgeExplored(edge: S2LineEdge): void {
-        edge.data.stroke.color.copy(MTL.GREY_7);
+        edge.data.stroke.color.copyIfUnlocked(MTL.GREY_7);
     }
 
     createExploreEdgeAnim(edge: S2LineEdge): S2BaseAnimation {
@@ -368,17 +367,17 @@ class SceneFigure extends S2Scene {
         font.relativeLineHeight.set(1.3);
 
         this.setDefaultFont(code.data.text.font);
-        code.data.text.fill.color.copy(MTL.WHITE);
+        code.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
         code.data.padding.set(20, 10, 'view');
         code.data.minExtents.set(3.5, 1, 'world');
-        code.data.background.fill.color.copy(MTL.GREY_9);
-        code.data.background.stroke.color.copy(MTL.GREY_7);
+        code.data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
+        code.data.background.stroke.color.copyIfUnlocked(MTL.GREY_7);
         code.data.background.stroke.width.set(2, 'view');
         code.data.background.cornerRadius.set(10, 'view');
         code.data.currentLine.opacity.set(1);
-        code.data.currentLine.fill.color.copy(MTL.BLACK);
+        code.data.currentLine.fill.color.copyIfUnlocked(MTL.BLACK);
         code.data.currentLine.fill.opacity.set(0.5);
-        code.data.currentLine.stroke.color.copy(MTL.WHITE);
+        code.data.currentLine.stroke.color.copyIfUnlocked(MTL.WHITE);
         code.data.currentLine.stroke.width.set(1, 'view');
         code.data.currentLine.stroke.opacity.set(0.2);
         code.data.currentLine.padding.set(-0.5, 2, 'view');
@@ -387,7 +386,7 @@ class SceneFigure extends S2Scene {
 
     setOutputTextStyle(text: S2RichText): void {
         this.setDefaultFont(text.data.font);
-        text.data.fill.color.copy(MTL.WHITE);
+        text.data.fill.color.copyIfUnlocked(MTL.WHITE);
     }
 
     setOutputBackgroundStyle(rect: S2Rect): void {
@@ -416,7 +415,7 @@ class SceneFigure extends S2Scene {
         this.outputTitle = new S2PlainText(this);
         this.outputTitle.setParent(this.getSVG());
         this.outputTitle.setContent('Noeuds explorés :');
-        this.outputTitle.data.fill.color.copy(MTL.ORANGE_2);
+        this.outputTitle.data.fill.color.copyIfUnlocked(MTL.ORANGE_2);
         this.setDefaultFont(this.outputTitle.data.font);
         this.outputText = new S2RichText(this);
         this.outputText.setParent(this.getSVG());
@@ -570,14 +569,14 @@ class SceneFigure extends S2Scene {
             const anim = S2LerpAnimFactory.create(this, lastTSpan.data.fill.color)
                 .setCycleDuration(500)
                 .setEasing(ease.inOut);
-            lastTSpan.data.fill.color.hardCopy(MTL.GREY_4);
+            lastTSpan.data.fill.color.copy(MTL.GREY_4);
             this.animator.addAnimation(anim.commitFinalState(), 'previous-start', 0);
         }
 
         const tspan = this.outputText.addTSpan(text);
         tspan.data.opacity.set(0);
-        tspan.data.fill.color.hardCopy(MTL.WHITE);
-        tspan.data.fill.color.setPriority(S2TypePriority.Important);
+        tspan.data.fill.color.copy(MTL.WHITE);
+        tspan.data.fill.color.lock();
 
         const lerpAnim = S2LerpAnimFactory.create(this, tspan.data.opacity).setCycleDuration(500).setEasing(ease.inOut);
         tspan.data.opacity.set(1);
