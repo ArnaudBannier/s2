@@ -27,6 +27,10 @@ export class S2PlainText extends S2Element<S2TextData> {
         return this;
     }
 
+    getContent(): string {
+        return this.element.textContent;
+    }
+
     getPosition(space: S2Space): S2Vec2 {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }

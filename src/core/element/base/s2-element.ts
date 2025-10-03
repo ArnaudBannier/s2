@@ -27,8 +27,10 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
     }
 
     protected skipUpdate(): boolean {
+        if (!this.getSVGElement().isConnected) {
+            console.warn('Updating element not connected to DOM', this);
+        }
         if (!this.isDirty()) return true;
-        if (!this.getSVGElement().isConnected) return true;
         return false;
     }
 
@@ -49,7 +51,7 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         this.data.clearDirty();
     }
 
-    setIsActive(isActive: boolean): this {
+    setActive(isActive: boolean): this {
         this.data.isActive.set(isActive);
         if (this.parent) {
             this.parent.updateSVGChildren();
@@ -88,6 +90,10 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         return this.children[index];
     }
 
+    getScene(): S2BaseScene {
+        return this.scene;
+    }
+
     updateSVGChildren(): this {
         if (this.childrenChanged === false) return this;
 
@@ -98,7 +104,7 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         });
         const elements: SVGElement[] = [];
         for (const child of this.children) {
-            if (child.data.isActive) {
+            if (child.data.isActive.get()) {
                 elements.push(child.getSVGElement());
             }
         }

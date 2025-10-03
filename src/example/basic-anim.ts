@@ -41,7 +41,7 @@ class SceneFigure extends S2Scene {
         S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);
 
         this.path = this.addPath();
-        this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0).update();
+        this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
         S2DataSetter.setTargets(this.path.data)
             .setStrokeColor(MTL.CYAN_5)
             .setStrokeWidth(6, 'view')

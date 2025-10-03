@@ -3,40 +3,65 @@ import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
 
 export type S2TimelinePosition = 'absolute' | 'previous-start' | 'previous-end';
 class S2TimelinePart {
-    public animation: S2BaseAnimation;
-    public position: S2TimelinePosition;
-    public offset: number;
-    public start: number;
-    public end: number;
+    protected animation: S2BaseAnimation | null;
+    protected position: S2TimelinePosition;
+    protected offset: number;
+    protected start: number;
+    protected end: number;
 
-    constructor(animation: S2BaseAnimation, position: S2TimelinePosition, offset: number) {
-        this.animation = animation;
-        this.start = 0;
-        this.end = 0 + animation.getDuration();
+    constructor(position: S2TimelinePosition, offset: number) {
         this.position = position;
         this.offset = offset;
+        this.animation = null;
+        this.start = 0;
+        this.end = 0;
+    }
+
+    getStart(): number {
+        return this.start;
+    }
+
+    getEnd(): number {
+        return this.end;
+    }
+
+    setAnimation(animation: S2BaseAnimation | null): void {
+        this.animation = animation;
     }
 
     updateRange(prevPart: S2TimelinePart | null): void {
-        this.start = this.offset;
+        const duration = this.animation ? this.animation.getDuration() : 0;
         if (prevPart !== null) {
             switch (this.position) {
+                default:
                 case 'absolute':
+                    this.start = this.offset;
                     break;
                 case 'previous-start':
-                    if (prevPart) {
-                        this.start += prevPart.start;
-                    }
+                    this.start = prevPart.start + this.offset;
                     break;
                 case 'previous-end':
-                    if (prevPart) {
-                        this.start += prevPart.start + prevPart.animation.getDuration();
-                    }
+                    this.start = prevPart.end + this.offset;
                     break;
             }
         }
         this.start = Math.max(this.start, 0);
-        this.end = this.start + this.animation.getDuration();
+        this.end = this.start + duration;
+    }
+
+    setElapsedProperty(property: S2AnimProperty, elapsed: number): void {
+        if (this.animation) {
+            if (elapsed <= this.start) {
+                this.animation.setElapsedProperty(property, 0);
+            } else if (elapsed >= this.end) {
+                this.animation.setElapsedProperty(property, this.animation.getDuration());
+            } else {
+                const localElapsed = elapsed - this.start;
+                this.animation.setElapsedProperty(property, localElapsed);
+            }
+        } else {
+            console.warn('S2TimelinePart: No animation assigned.');
+        }
     }
 }
 
@@ -48,15 +73,11 @@ class S2TimelinePropertyTrack {
         this.property = property;
     }
 
-    refreshState(): void {
-        this.sortedParts.sort((a, b) => a.start - b.start);
-    }
-
     addPart(part: S2TimelinePart): void {
         this.sortedParts.push(part);
-        this.sortedParts.sort((a, b) => a.start - b.start);
+        this.sortedParts.sort((a, b) => a.getStart() - b.getStart());
         for (let i = 0; i < this.sortedParts.length - 1; i++) {
-            if (this.sortedParts[i].end > this.sortedParts[i + 1].start) {
+            if (this.sortedParts[i].getEnd() > this.sortedParts[i + 1].getStart()) {
                 console.warn(
                     'S2Timeline: Overlapping animations on the same target are not supported.',
                     this.property,
@@ -67,15 +88,16 @@ class S2TimelinePropertyTrack {
         }
     }
 
-    private getActivePart(elapsed: number): S2TimelinePart {
+    private getActivePart(elapsed: number): S2TimelinePart | null {
         if (this.sortedParts.length === 0) {
-            throw new Error('S2TimelineTargetParts: No parts available.');
+            console.warn('S2TimelineTargetParts: No parts available.');
+            return null;
         }
-        if (elapsed <= this.sortedParts[0].start) {
+        if (elapsed <= this.sortedParts[0].getStart()) {
             return this.sortedParts[0];
         }
         for (let i = 0; i < this.sortedParts.length - 1; i++) {
-            if (elapsed <= this.sortedParts[i].end || elapsed < this.sortedParts[i + 1].start) {
+            if (elapsed < this.sortedParts[i + 1].getStart()) {
                 return this.sortedParts[i];
             }
         }
@@ -84,15 +106,7 @@ class S2TimelinePropertyTrack {
 
     setElapsed(elapsed: number): void {
         const part = this.getActivePart(elapsed);
-        const animation = part.animation;
-        if (elapsed <= part.start) {
-            animation.setElapsedProperty(this.property, 0);
-        } else if (elapsed >= part.end) {
-            animation.setElapsedProperty(this.property, animation.getDuration());
-        } else {
-            const localElapsed = elapsed - part.start;
-            animation.setElapsedProperty(this.property, localElapsed);
-        }
+        part?.setElapsedProperty(this.property, elapsed);
     }
 }
 
@@ -109,9 +123,10 @@ export class S2Timeline extends S2BaseAnimation {
 
     addAnimation(animation: S2BaseAnimation, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
         const prevPart = this.parts.length > 0 ? this.parts[this.parts.length - 1] : null;
-        const currPart = new S2TimelinePart(animation, position, offset);
+        const currPart = new S2TimelinePart(position, offset);
+        currPart.setAnimation(animation);
         currPart.updateRange(prevPart);
-        this.cycleDuration = Math.max(this.cycleDuration, currPart.end);
+        this.cycleDuration = Math.max(this.cycleDuration, currPart.getEnd());
         this.updateRawDuration();
 
         const properties = animation.getProperties();

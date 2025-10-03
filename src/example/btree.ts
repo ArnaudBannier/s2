@@ -261,7 +261,6 @@ class BTree {
     private computeLayoutRec(bTreeNode: BTreeNode | null, index: number, depth: number): number {
         if (bTreeNode === null) return index;
         index = this.computeLayoutRec(bTreeNode.left, index, depth + 1);
-        console.log('maxNodeExt', this.maxNodeExtents);
         bTreeNode.node.data.position.set(
             this.center.x - this.extents.x + this.maxNodeExtents.x + index * this.baseSep,
             this.center.y + this.extents.y - this.maxNodeExtents.y - depth * this.levelDistance,

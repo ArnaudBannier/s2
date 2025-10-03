@@ -7,6 +7,7 @@ import { S2StepAnimator } from '../core/animation/s2-step-animator.ts';
 import { S2MathUtils } from '../core/math/s2-utils.ts';
 import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
 import { S2Memory } from '../extension/s2-memory.ts';
+import { S2FontData } from '../core/element/base/s2-base-data.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -14,10 +15,17 @@ const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
+    public font: S2FontData;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
         this.animator = new S2StepAnimator(this);
+
+        this.font = new S2FontData();
+        this.font.family.set('monospace');
+        this.font.size.set(16, 'view');
+        this.font.relativeAscenderHeight.set(0.7);
+        this.font.relativeLineHeight.set(1.3);
 
         const fillRect = this.addFillRect();
         S2DataSetter.setTargets(fillRect.data).setColor(MTL.GREY_8);
@@ -26,15 +34,23 @@ class SceneFigure extends S2Scene {
         S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_9);
 
         const addressCount = 16;
-        const memory = new S2Memory(this, addressCount);
+        const isStacked = true;
+        const memory = new S2Memory(this, addressCount, isStacked);
         memory.setParent(this.getSVG());
         memory.data.extents.set(2.5, 4.0, 'world');
 
         memory.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
+        memory.data.text.font.copyIfUnlocked(this.font);
         memory.data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
         memory.data.background.stroke.color.copyIfUnlocked(MTL.GREY_7);
         memory.data.background.stroke.width.set(2, 'view');
         memory.data.background.cornerRadius.set(10, 'view');
+
+        memory.addVariable('i', '42');
+        memory.addVariable('sum', '0');
+        memory.addVariable('value', '1234');
+
+        this.update();
     }
 
     createAnimation(): void {}
