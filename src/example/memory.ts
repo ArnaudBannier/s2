@@ -16,6 +16,7 @@ const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
     public font: S2FontData;
+    public memory: S2Memory;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
@@ -36,6 +37,7 @@ class SceneFigure extends S2Scene {
         const addressCount = 16;
         const isStacked = true;
         const memory = new S2Memory(this, addressCount, isStacked);
+        this.memory = memory;
         memory.setParent(this.getSVG());
         memory.data.extents.set(2.5, 4.0, 'world');
 
@@ -51,9 +53,20 @@ class SceneFigure extends S2Scene {
         memory.addVariable('value', '1234');
 
         this.update();
+
+        this.createAnimation();
     }
 
-    createAnimation(): void {}
+    createAnimation(): void {
+        this.animator.makeStep();
+        const row = this.memory.getRow(0);
+        this.update();
+        row.animateSetValue('100', this.animator);
+        this.animator.makeStep();
+        this.update();
+        row.animateSetValue('73', this.animator);
+        this.animator.makeStep();
+    }
 }
 
 const appDiv = document.querySelector<HTMLDivElement>('#app');

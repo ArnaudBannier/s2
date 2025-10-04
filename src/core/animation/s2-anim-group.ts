@@ -1,4 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
+import { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../shared/s2-types';
 import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
 import type { S2EaseType } from './s2-easing';
 import { S2LerpAnim, S2LerpAnimFactory } from './s2-lerp-anim';
@@ -33,9 +34,27 @@ export class S2AnimGroup extends S2BaseAnimation {
 
     addLerpProperties(properties: S2AnimProperty[], duration: number, easing: S2EaseType): this {
         for (const property of properties) {
-            this.addAnimation(
-                S2LerpAnimFactory.create(this.scene, property).setCycleDuration(duration).setEasing(easing),
-            );
+            if (property instanceof S2Number) {
+                this.addAnimation(
+                    S2LerpAnimFactory.create(this.scene, property).setCycleDuration(duration).setEasing(easing),
+                );
+            } else if (property instanceof S2Color) {
+                this.addAnimation(
+                    S2LerpAnimFactory.create(this.scene, property).setCycleDuration(duration).setEasing(easing),
+                );
+            } else if (property instanceof S2Position) {
+                this.addAnimation(
+                    S2LerpAnimFactory.create(this.scene, property).setCycleDuration(duration).setEasing(easing),
+                );
+            } else if (property instanceof S2Length) {
+                this.addAnimation(
+                    S2LerpAnimFactory.create(this.scene, property).setCycleDuration(duration).setEasing(easing),
+                );
+            } else if (property instanceof S2Extents) {
+                this.addAnimation(
+                    S2LerpAnimFactory.create(this.scene, property).setCycleDuration(duration).setEasing(easing),
+                );
+            }
         }
         return this;
     }

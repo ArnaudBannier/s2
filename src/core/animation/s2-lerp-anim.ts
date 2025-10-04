@@ -5,7 +5,12 @@ import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 
 // Factory class
 export class S2LerpAnimFactory {
-    static create(scene: S2BaseScene, property: S2AnimProperty): S2LerpAnim {
+    static create(scene: S2BaseScene, property: S2Number): S2LerpAnim;
+    static create(scene: S2BaseScene, property: S2Color): S2LerpAnim;
+    static create(scene: S2BaseScene, property: S2Position): S2LerpAnim;
+    static create(scene: S2BaseScene, property: S2Length): S2LerpAnim;
+    static create(scene: S2BaseScene, property: S2Extents): S2LerpAnim;
+    static create(scene: S2BaseScene, property: S2Number | S2Color | S2Position | S2Length | S2Extents): S2LerpAnim {
         switch (property.kind) {
             case 'number':
                 return new S2LerpAnimNumber(scene, property as S2Number);

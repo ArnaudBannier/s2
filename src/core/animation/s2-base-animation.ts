@@ -1,9 +1,32 @@
 import { S2MathUtils } from '../math/s2-utils';
 import { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Color, S2Extents, S2Length, S2Number, S2Position } from '../shared/s2-types';
+import type { S2Anchor, S2HorizontalAlign, S2TextAnchor, S2VerticalAlign } from '../shared/s2-globals';
+import type {
+    S2Boolean,
+    S2Color,
+    S2Enum,
+    S2Extents,
+    S2Length,
+    S2Number,
+    S2Position,
+    S2Space,
+    S2String,
+} from '../shared/s2-types';
 import { ease, type S2EaseType } from './s2-easing';
 
-export type S2AnimProperty = S2Number | S2Color | S2Position | S2Length | S2Extents;
+export type S2AnimProperty =
+    | S2Number
+    | S2Color
+    | S2Position
+    | S2Length
+    | S2Extents
+    | S2Boolean
+    | S2String
+    | S2Enum<S2Space>
+    | S2Enum<S2Anchor>
+    | S2Enum<S2TextAnchor>
+    | S2Enum<S2VerticalAlign>
+    | S2Enum<S2HorizontalAlign>;
 
 export abstract class S2BaseAnimation {
     protected scene: S2BaseScene;

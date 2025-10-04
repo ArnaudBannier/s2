@@ -8,12 +8,13 @@ export abstract class S2BaseScene {
     private nextUpdateId: number;
 
     constructor(element: SVGSVGElement, camera: S2Camera) {
-        element.innerHTML = '';
         this.activeCamera = camera;
-        this.svg = new S2SVG(this, element);
-        this.svg.update();
         this.nextElementId = 0;
         this.nextUpdateId = 0;
+
+        element.innerHTML = '';
+        this.svg = new S2SVG(this, element);
+        this.svg.update();
     }
 
     getNextElementId(): number {

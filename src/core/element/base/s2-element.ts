@@ -27,9 +27,9 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
     }
 
     protected skipUpdate(): boolean {
-        if (!this.getSVGElement().isConnected) {
-            console.warn('Updating element not connected to DOM', this);
-        }
+        // if (!this.getSVGElement().isConnected) {
+        //     console.warn('Updating element not connected to DOM', this);
+        // }
         if (!this.isDirty()) return true;
         return false;
     }
@@ -66,8 +66,10 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
             if (index !== -1) {
                 this.parent.children.splice(index, 1);
                 this.parent.childrenChanged = true;
+                this.parent.markDirty();
+            } else {
+                console.warn('S2Element: Inconsistent parent-child relationship.', this, this.parent);
             }
-            this.parent.markDirty();
         }
         if (parent !== null) {
             parent.children.push(this);
@@ -95,7 +97,13 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
     }
 
     updateSVGChildren(): this {
-        if (this.childrenChanged === false) return this;
+        // Check if any child's state has changed
+        const childrenStateUpdated = this.children.some(
+            (child) => child.data.layer.isDirty() || child.data.isActive.isDirty(),
+        );
+        if (!childrenStateUpdated && !this.childrenChanged) return this;
+
+        console.log('Updating SVG children for', this);
 
         // Sort by layer, then by id to ensure stable order
         this.children.sort((a: S2BaseElement, b: S2BaseElement): number => {
@@ -109,9 +117,9 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
             }
         }
         const svgElement = this.getSVGElement();
-        const childrenChanged =
+        const svgChildrenChanged =
             svgElement.children.length !== elements.length || elements.some((el, i) => el !== svgElement.children[i]);
-        if (childrenChanged) {
+        if (svgChildrenChanged) {
             svgElement.replaceChildren(...elements);
         }
         this.childrenChanged = false;

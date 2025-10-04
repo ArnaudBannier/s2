@@ -1,3 +1,7 @@
+import { ease } from '../core/animation/s2-easing';
+import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim';
+import type { S2StepAnimator } from '../core/animation/s2-step-animator';
+import { S2TimelineSetter } from '../core/animation/s2-timeline-trigger';
 import { S2Element } from '../core/element/base/s2-element';
 import { S2Line } from '../core/element/s2-line';
 import { S2Rect } from '../core/element/s2-rect';
@@ -12,8 +16,7 @@ class S2MemoryRow {
     protected scene: S2BaseScene;
     public parentMemory: S2Memory;
     public index: number;
-    public currValue: S2PlainText;
-    public prevValue: S2PlainText;
+    public values: S2PlainText[];
     public name: S2PlainText;
     public address: S2PlainText;
     public hLine: S2Line;
@@ -26,26 +29,20 @@ class S2MemoryRow {
         this.scene = scene;
         this.parentMemory = parent;
         this.index = index;
-        this.currValue = new S2PlainText(scene);
-        this.prevValue = new S2PlainText(scene);
+        this.values = [];
         this.name = new S2PlainText(scene);
         this.address = new S2PlainText(scene);
         this.hLine = new S2Line(scene);
-        this.currValue.setParent(parent);
-        this.prevValue.setParent(parent);
         this.name.setParent(parent);
         this.address.setParent(parent);
         this.hLine.setParent(parent);
         this.isStacked = false;
 
         this.address.data.textAnchor.set('end');
-        this.currValue.data.textAnchor.set('start');
         this.name.data.textAnchor.set('start');
 
         this.lowerBound = new S2Position();
         this.upperBound = new S2Position();
-
-        this.prevValue.setActive(false);
     }
 
     setAddress(address: string): void {
@@ -53,8 +50,41 @@ class S2MemoryRow {
     }
 
     setValue(value: string): void {
-        this.prevValue.setContent(this.currValue.getContent());
-        this.currValue.setContent(value);
+        const text = new S2PlainText(this.scene);
+        text.setParent(this.parentMemory);
+        text.data.textAnchor.set('start');
+        text.setContent(value);
+        this.values.push(text);
+    }
+
+    animateSetValue(value: string, animator: S2StepAnimator): void {
+        const duration = 500;
+        if (this.values.length > 0) {
+            const lastValue = this.values[this.values.length - 1];
+            lastValue.data.opacity.set(1.0);
+            const lerpAnim = S2LerpAnimFactory.create(this.scene, lastValue.data.opacity)
+                .setCycleDuration(duration)
+                .setEasing(ease.inOut);
+            lastValue.data.opacity.set(0.0);
+            lerpAnim.commitFinalState();
+            animator.addAnimation(lerpAnim);
+            animator.addTrigger(S2TimelineSetter.boolean(lastValue.data.isActive, false));
+        }
+
+        const text = new S2PlainText(this.scene);
+        text.setParent(this.parentMemory);
+        text.data.textAnchor.set('start');
+        text.setContent(value);
+        this.values.push(text);
+
+        animator.addTrigger(S2TimelineSetter.boolean(text.data.isActive, true), 'previous-end', -duration);
+        text.data.opacity.set(0.0);
+        const lerpAnim = S2LerpAnimFactory.create(this.scene, text.data.opacity)
+            .setCycleDuration(duration)
+            .setEasing(ease.inOut);
+        text.data.opacity.set(1.0);
+        lerpAnim.commitFinalState();
+        animator.addAnimation(lerpAnim);
     }
 
     setName(name: string): void {
@@ -74,7 +104,6 @@ class S2MemoryRow {
         const upperBound = this.upperBound.toSpace(space, camera);
         const height = upperBound.y - lowerBound.y;
         const width = upperBound.x - lowerBound.x;
-        this.currValue.data.position.set(lowerBound.x + 0.25 * width, lowerBound.y + height / 2, space);
         this.name.data.position.set(lowerBound.x + 0.75 * width, lowerBound.y + height / 2, space);
         if (this.isStacked) {
             this.hLine.data.startPosition.set(lowerBound.x, upperBound.y, space);
@@ -88,14 +117,19 @@ class S2MemoryRow {
         const ascenderHeight = font.relativeAscenderHeight.value * font.size.toSpace(space, camera);
         const textY = lowerBound.y + height / 2 - ascenderHeight / 2;
         const padding = parentData.padding.toSpace(space, camera).x;
-        this.currValue.data.position.set(lowerBound.x + padding, textY, space);
+
+        if (this.values.length > 0) {
+            this.values[this.values.length - 1].data.position.set(lowerBound.x + padding, textY, space);
+        }
         this.name.data.position.set(lowerBound.x + padding + 0.5 * width, textY, space);
         this.address.data.position.set(lowerBound.x - padding, textY, space);
     }
 
     update(): void {
         this.updateGeometry();
-        this.currValue.update();
+        for (const value of this.values) {
+            value.update();
+        }
         this.name.update();
         this.address.update();
         this.hLine.update();
@@ -164,6 +198,10 @@ export class S2Memory extends S2Element<S2MemoryData> {
         return this;
     }
 
+    getRow(index: number): S2MemoryRow {
+        return this.rows[index];
+    }
+
     protected updateBackground(): void {
         //const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
@@ -227,7 +265,9 @@ export class S2Memory extends S2Element<S2MemoryData> {
 
         if (this.data.text.font.isDirty()) {
             for (const row of this.rows) {
-                row.currValue.data.font.copyIfUnlocked(this.data.text.font);
+                for (const value of row.values) {
+                    value.data.font.copyIfUnlocked(this.data.text.font);
+                }
                 row.name.data.font.copyIfUnlocked(this.data.text.font);
                 row.address.data.font.copyIfUnlocked(this.data.text.font);
             }

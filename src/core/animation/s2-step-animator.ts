@@ -3,6 +3,7 @@ import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2BaseAnimation } from './s2-base-animation';
 import { S2PlayableAnimation } from './s2-animation-manager';
 import { S2Timeline, type S2TimelinePosition } from './s2-timeline';
+import type { S2TimelineTrigger } from './s2-timeline-trigger';
 
 export class S2StepAnimator {
     protected scene: S2BaseScene;
@@ -142,11 +143,26 @@ export class S2StepAnimator {
             this.stepTimelines.push(timeline);
             this.stepPlayables.push(playable);
             this.stepTimes.push(0);
-            //this.masterTimeline.addAnimation(timeline, 'previous-end', 0);
             this.shouldAddNewStep = false;
         }
         const currTimeline = this.stepTimelines[this.stepTimelines.length - 1];
         currTimeline.addAnimation(animation, position, offset);
+        this.update();
+        return this;
+    }
+
+    addTrigger(trigger: S2TimelineTrigger, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
+        if (this.shouldAddNewStep) {
+            const timeline = new S2Timeline(this.scene);
+            const playable = new S2PlayableAnimation(timeline);
+            playable.setSpeed(this.speed);
+            this.stepTimelines.push(timeline);
+            this.stepPlayables.push(playable);
+            this.stepTimes.push(0);
+            this.shouldAddNewStep = false;
+        }
+        const currTimeline = this.stepTimelines[this.stepTimelines.length - 1];
+        currTimeline.addTrigger(trigger, position, offset);
         this.update();
         return this;
     }

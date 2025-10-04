@@ -1,37 +1,34 @@
-import type { S2Anchor } from '../shared/s2-globals';
-import type {
-    S2Boolean,
-    S2Color,
-    S2Enum,
-    S2Extents,
-    S2Length,
-    S2Number,
-    S2Position,
-    S2Space,
-    S2String,
-} from '../shared/s2-types';
-
-export type S2TriggerProperty =
-    | S2Number
-    | S2Color
-    | S2Position
-    | S2Length
-    | S2Extents
-    | S2Boolean
-    | S2String
-    | S2Enum<S2Space>
-    | S2Enum<S2Anchor>;
+import type { S2Boolean, S2Number } from '../shared/s2-types';
+import type { S2AnimProperty } from './s2-base-animation';
 
 export class S2TimelineTrigger {
-    protected property: S2TriggerProperty;
+    protected property: S2AnimProperty;
 
-    constructor(property: S2TriggerProperty) {
+    constructor(property: S2AnimProperty) {
         this.property = property;
     }
 
-    getProperty(): S2TriggerProperty {
+    getProperty(): S2AnimProperty {
         return this.property;
     }
 
     onTrigger(): void {}
+}
+
+export class S2TimelineSetter {
+    static boolean(property: S2Boolean, value: boolean): S2TimelineTrigger {
+        const trigger = new S2TimelineTrigger(property);
+        trigger.onTrigger = () => {
+            property.set(value);
+        };
+        return trigger;
+    }
+
+    static number(property: S2Number, value: number): S2TimelineTrigger {
+        const trigger = new S2TimelineTrigger(property);
+        trigger.onTrigger = () => {
+            property.set(value);
+        };
+        return trigger;
+    }
 }
