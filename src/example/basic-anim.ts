@@ -149,26 +149,37 @@ if (svgElement && slider) {
         index = -1;
         scene.animator.stop();
         scene.animator.reset();
+        slider.value = '0';
     });
     document.querySelector<HTMLButtonElement>('#prev-button')?.addEventListener('click', () => {
         index = S2MathUtils.clamp(index - 1, 0, scene.animator.getStepCount() - 1);
-        scene.animator.playStep(index);
+        scene.animator.resetStep(index);
+        scene.update();
+        const stepStart = scene.animator.getStepStartTime(index);
+        const ratio = stepStart / scene.animator.getMasterDuration();
+        slider.value = (ratio * 100).toString();
     });
     document.querySelector<HTMLButtonElement>('#next-button')?.addEventListener('click', () => {
         index = S2MathUtils.clamp(index + 1, 0, scene.animator.getStepCount() - 1);
         scene.animator.playStep(index);
+        const stepStart = scene.animator.getStepStartTime(index);
+        const ratio = stepStart / scene.animator.getMasterDuration();
+        slider.value = (ratio * 100).toString();
     });
     document.querySelector<HTMLButtonElement>('#play-button')?.addEventListener('click', () => {
         scene.animator.playStep(index);
     });
     document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
         scene.animator.playMaster();
+        slider.value = '0';
     });
 
     slider.addEventListener('input', () => {
         const ratio = slider.valueAsNumber / 100;
+        const elapsed = ratio * scene.animator.getMasterDuration();
         scene.animator.stop();
-        scene.animator.setMasterElapsed(ratio * scene.animator.getMasterDuration());
+        scene.animator.setMasterElapsed(elapsed);
+        index = scene.animator.getStepIndexFromElapsed(elapsed);
         scene.getSVG().update();
     });
 }

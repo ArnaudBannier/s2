@@ -58,6 +58,9 @@ class S2MemoryRow {
     }
 
     animateSetValue(value: string, animator: S2StepAnimator): void {
+        const currentStepDuration = animator.getCurrentStepDuration();
+        const timeLabel = `set-value-${this.index}-${value}`;
+        animator.addStepLabelAtCurrentTime(timeLabel);
         const duration = 500;
         if (this.values.length > 0) {
             const lastValue = this.values[this.values.length - 1];
@@ -67,8 +70,9 @@ class S2MemoryRow {
                 .setEasing(ease.inOut);
             lastValue.data.opacity.set(0.0);
             lerpAnim.commitFinalState();
-            animator.addAnimation(lerpAnim);
-            animator.addTrigger(S2TimelineSetter.boolean(lastValue.data.isActive, false));
+            animator.addAnimation(lerpAnim, timeLabel);
+            animator.addTrigger(S2TimelineSetter.boolean(lastValue.data.isActive, true), 'timeline-start');
+            animator.addTrigger(S2TimelineSetter.boolean(lastValue.data.isActive, false), timeLabel, duration);
         }
 
         const text = new S2PlainText(this.scene);
@@ -77,14 +81,19 @@ class S2MemoryRow {
         text.setContent(value);
         this.values.push(text);
 
-        animator.addTrigger(S2TimelineSetter.boolean(text.data.isActive, true), 'previous-end', -duration);
+        if (currentStepDuration < 1) {
+            animator.addTrigger(S2TimelineSetter.boolean(text.data.isActive, false), 'timeline-start');
+        } else {
+            animator.addTrigger(S2TimelineSetter.boolean(text.data.isActive, false), 'timeline-start');
+        }
+        animator.addTrigger(S2TimelineSetter.boolean(text.data.isActive, true), timeLabel);
         text.data.opacity.set(0.0);
         const lerpAnim = S2LerpAnimFactory.create(this.scene, text.data.opacity)
             .setCycleDuration(duration)
             .setEasing(ease.inOut);
         text.data.opacity.set(1.0);
         lerpAnim.commitFinalState();
-        animator.addAnimation(lerpAnim);
+        animator.addAnimation(lerpAnim, timeLabel);
     }
 
     setName(name: string): void {

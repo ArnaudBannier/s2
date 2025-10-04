@@ -1,24 +1,21 @@
+import type { S2BaseElement } from '../element/base/s2-element';
 import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
-import type { S2TimelineTrigger } from './s2-timeline-trigger';
+import { S2TimelineSetter, type S2TimelineTrigger } from './s2-timeline-trigger';
 
 export type S2TimelinePosition = 'absolute' | 'previous-start' | 'previous-end';
 
 class S2TimelinePart {
     protected animation: S2BaseAnimation | null;
     protected trigger: S2TimelineTrigger | null;
-    protected position: S2TimelinePosition;
-    protected offset: number;
     protected start: number;
     protected end: number;
 
-    constructor(position: S2TimelinePosition, offset: number) {
-        this.position = position;
-        this.offset = offset;
+    constructor(start: number) {
+        this.start = start;
+        this.end = start;
         this.animation = null;
         this.trigger = null;
-        this.start = 0;
-        this.end = 0;
     }
 
     getStart(): number {
@@ -39,30 +36,12 @@ class S2TimelinePart {
 
     setAnimation(animation: S2BaseAnimation | null): void {
         this.animation = animation;
+        this.updateEnd();
     }
 
     setTrigger(trigger: S2TimelineTrigger): void {
         this.trigger = trigger;
-    }
-
-    updateRange(prevPart: S2TimelinePart | null): void {
-        const duration = this.animation ? this.animation.getDuration() : 0;
-        if (prevPart !== null) {
-            switch (this.position) {
-                default:
-                case 'absolute':
-                    this.start = this.offset;
-                    break;
-                case 'previous-start':
-                    this.start = prevPart.start + this.offset;
-                    break;
-                case 'previous-end':
-                    this.start = prevPart.end + this.offset;
-                    break;
-            }
-        }
-        this.start = Math.max(this.start, 0);
-        this.end = this.start + duration;
+        this.updateEnd();
     }
 
     setElapsedProperty(property: S2AnimProperty, elapsed: number): void {
@@ -81,6 +60,11 @@ class S2TimelinePart {
             console.warn('S2TimelinePart: No animation assigned.');
         }
     }
+
+    protected updateEnd(): void {
+        const duration = this.animation ? this.animation.getDuration() : 0;
+        this.end = this.start + duration;
+    }
 }
 
 class S2TimelinePropertyTrack {
@@ -89,6 +73,10 @@ class S2TimelinePropertyTrack {
 
     constructor(property: S2AnimProperty) {
         this.property = property;
+    }
+
+    getPartCount(): number {
+        return this.sortedParts.length;
     }
 
     addPart(part: S2TimelinePart): void {
@@ -144,6 +132,7 @@ export class S2Timeline extends S2BaseAnimation {
         this.parts = [];
         this.propertyTrackMap = new Map();
         this.labelTimeMap = new Map();
+        this.addLabel('start', 0);
     }
 
     addLabel(name: string, time: number): this {
@@ -156,44 +145,70 @@ export class S2Timeline extends S2BaseAnimation {
         return this;
     }
 
-    addAnimationAtLabel(animation: S2BaseAnimation, label: string, offset: number = 0): this {
-        let time = 0;
-        const labelTime = this.labelTimeMap.get(label);
-        if (labelTime !== undefined) {
-            time = labelTime;
-        } else if (this.parts.length > 0) {
-            const prevPart = this.parts[this.parts.length - 1];
-            if (label === 'previous-end') {
-                time = prevPart.getEnd();
-            } else if (label === 'previous-start') {
-                time = prevPart.getStart();
-            }
-        }
-        time = Math.max(0, time + offset);
-        void animation; // to avoid unused variable warning
-
-        // TODO
-
-        return this;
+    getLabelTime(name: string): number | undefined {
+        return this.labelTimeMap.get(name);
     }
 
-    addAnimation(animation: S2BaseAnimation, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
-        const part = new S2TimelinePart(position, offset);
+    protected getAbsoluteTime(label: string, offset: number): number {
+        switch (label) {
+            case '':
+            case 'timeline-end':
+                return this.cycleDuration + offset;
+            case 'absolute':
+            case 'timeline-start':
+                return offset;
+            case 'previous-end':
+                if (this.parts.length > 0) {
+                    return this.parts[this.parts.length - 1].getEnd() + offset;
+                } else {
+                    return offset;
+                }
+            case 'previous-start':
+                if (this.parts.length > 0) {
+                    return this.parts[this.parts.length - 1].getStart() + offset;
+                } else {
+                    return offset;
+                }
+        }
+        const labelTime = this.labelTimeMap.get(label);
+        if (labelTime !== undefined) {
+            return labelTime + offset;
+        }
+        return offset;
+    }
+
+    addAnimation(animation: S2BaseAnimation, label: string = '', offset: number = 0): this {
+        const start = this.getAbsoluteTime(label, offset);
+        const part = new S2TimelinePart(start);
         part.setAnimation(animation);
         this.addPart(part);
         return this;
     }
 
-    addTrigger(trigger: S2TimelineTrigger, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
-        const part = new S2TimelinePart(position, offset);
+    addTrigger(trigger: S2TimelineTrigger, label: string = '', offset: number = 0): this {
+        const start = this.getAbsoluteTime(label, offset);
+        const part = new S2TimelinePart(start);
         part.setTrigger(trigger);
         this.addPart(part);
         return this;
     }
 
+    activateElement(element: S2BaseElement): this {
+        const property = element.data.isActive;
+        if (this.propertyTrackMap.has(property)) {
+            this.addTrigger(S2TimelineSetter.boolean(property, true), 'timeline-start');
+        } else {
+            if (this.cycleDuration <= 0) {
+                this.addTrigger(S2TimelineSetter.boolean(property, true), 'timeline-start');
+            } else {
+                this.addTrigger(S2TimelineSetter.boolean(property, false), 'timeline-start');
+                this.addTrigger(S2TimelineSetter.boolean(property, true));
+            }
+        }
+        return this;
+    }
+
     protected addPart(part: S2TimelinePart): void {
-        const prevPart = this.parts.length > 0 ? this.parts[this.parts.length - 1] : null;
-        part.updateRange(prevPart);
         this.cycleDuration = Math.max(this.cycleDuration, part.getEnd());
         this.updateRawDuration();
 

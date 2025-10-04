@@ -2,8 +2,9 @@ import { S2MathUtils } from '../math/s2-utils';
 import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2BaseAnimation } from './s2-base-animation';
 import { S2PlayableAnimation } from './s2-animation-manager';
-import { S2Timeline, type S2TimelinePosition } from './s2-timeline';
+import { S2Timeline } from './s2-timeline';
 import type { S2TimelineTrigger } from './s2-timeline-trigger';
+import type { S2BaseElement } from '../element/base/s2-element';
 
 export class S2StepAnimator {
     protected scene: S2BaseScene;
@@ -135,7 +136,7 @@ export class S2StepAnimator {
         return this;
     }
 
-    addAnimation(animation: S2BaseAnimation, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
+    protected getCurrentStepTimeline(): S2Timeline {
         if (this.shouldAddNewStep) {
             const timeline = new S2Timeline(this.scene);
             const playable = new S2PlayableAnimation(timeline);
@@ -145,26 +146,38 @@ export class S2StepAnimator {
             this.stepTimes.push(0);
             this.shouldAddNewStep = false;
         }
-        const currTimeline = this.stepTimelines[this.stepTimelines.length - 1];
-        currTimeline.addAnimation(animation, position, offset);
+        return this.stepTimelines[this.stepTimelines.length - 1];
+    }
+
+    addAnimation(animation: S2BaseAnimation, label: string = '', offset: number = 0): this {
+        const currTimeline = this.getCurrentStepTimeline();
+        currTimeline.addAnimation(animation, label, offset);
         this.update();
         return this;
     }
 
-    addTrigger(trigger: S2TimelineTrigger, position: S2TimelinePosition = 'previous-end', offset: number = 0): this {
-        if (this.shouldAddNewStep) {
-            const timeline = new S2Timeline(this.scene);
-            const playable = new S2PlayableAnimation(timeline);
-            playable.setSpeed(this.speed);
-            this.stepTimelines.push(timeline);
-            this.stepPlayables.push(playable);
-            this.stepTimes.push(0);
-            this.shouldAddNewStep = false;
-        }
-        const currTimeline = this.stepTimelines[this.stepTimelines.length - 1];
-        currTimeline.addTrigger(trigger, position, offset);
+    addTrigger(trigger: S2TimelineTrigger, label: string = '', offset: number = 0): this {
+        const currTimeline = this.getCurrentStepTimeline();
+        currTimeline.addTrigger(trigger, label, offset);
         this.update();
         return this;
+    }
+
+    addLabel(name: string, time: number): this {
+        const currTimeline = this.getCurrentStepTimeline();
+        currTimeline.addLabel(name, time);
+        return this;
+    }
+
+    addStepLabelAtCurrentTime(name: string): this {
+        const currTimeline = this.getCurrentStepTimeline();
+        currTimeline.addLabelAtCurrentTime(name);
+        return this;
+    }
+
+    getCurrentStepDuration(): number {
+        const currTimeline = this.getCurrentStepTimeline();
+        return currTimeline.getCycleDuration();
     }
 
     update(): void {

@@ -768,7 +768,6 @@ if (svgElement && slider) {
         const stepStart = scene.animator.getStepStartTime(index);
         const ratio = stepStart / scene.animator.getMasterDuration();
         slider.value = (ratio * 100).toString();
-        //scene.animator.playStep(index);
     });
     document.querySelector<HTMLButtonElement>('#next-button')?.addEventListener('click', () => {
         index = S2MathUtils.clamp(index + 1, 0, scene.animator.getStepCount() - 1);
