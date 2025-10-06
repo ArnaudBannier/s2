@@ -524,6 +524,7 @@ class SceneFigure extends S2Scene {
             anim.setCycleDuration(500).setEasing(ease.out).commitFinalState();
         }
 
+        this.animator.enableElement(code, true);
         this.animator.addAnimation(animPos, 'previous-end', 0);
         this.animator.addAnimation(animOpacity, 'previous-start', 0);
         this.animator.addAnimation(animIndex, 'previous-start', 0);
@@ -549,6 +550,7 @@ class SceneFigure extends S2Scene {
 
         this.animator.addAnimation(animPos, 'previous-end', 0);
         this.animator.addAnimation(animOpacity, 'previous-start', 0);
+        this.animator.enableElement(code, false);
     }
 
     animateCodeLineIndex(depth: number, lineIndex: number) {

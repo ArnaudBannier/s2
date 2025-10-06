@@ -101,16 +101,16 @@ export class S2Direction
         return S2Direction.toSpace(this.value, this.space, space, camera);
     }
 
-    static toSpace(position: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
+    static toSpace(direction: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
         if (currSpace === nextSpace) {
             // this = other
-            return position.clone();
+            return direction.clone();
         } else if (currSpace === 'world') {
             // this: world, other: view
-            return camera.worldToViewDirectionV(position);
+            return camera.worldToViewDirectionV(direction);
         } else {
             // this: view, other: world
-            return camera.viewToWorldDirectionV(position);
+            return camera.viewToWorldDirectionV(direction);
         }
     }
 }

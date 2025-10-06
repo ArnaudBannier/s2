@@ -78,7 +78,11 @@ class SceneFigure extends S2Scene {
         this.update();
 
         row.animateSetName('compteur', this.animator);
-        row.animateCopyValue(otherRow, this.animator, 'copy');
+        row.animateCopyValue(otherRow, this.animator);
+        this.animator.makeStep();
+        this.update();
+
+        row.animateCopyAddress(otherRow, this.animator);
         this.animator.makeStep();
         this.update();
     }
