@@ -32,12 +32,6 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         return this.data.position.toSpace(space, this.scene.getActiveCamera());
     }
 
-    setContent(content: string): this {
-        //throw new Error('Use addTSpan() to add text content with S2TSpan elements.');
-        this.addTSpan(content);
-        return this;
-    }
-
     addTSpan(content: string, category?: string): S2TSpan {
         const tspan = new S2TSpan(this.scene, this);
         tspan.setParent(this);
@@ -118,7 +112,7 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         // S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-        S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'x', 'y');
+        S2DataUtils.applyShiftedPosition(this.data.position, this.data.localShift, this.element, this.scene, 'x', 'y');
         S2DataUtils.applyPreserveWhitespace(this.data.preserveWhitespace, this.element, this.scene);
         S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
 

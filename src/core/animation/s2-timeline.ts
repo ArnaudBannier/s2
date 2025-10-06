@@ -1,7 +1,7 @@
 import type { S2BaseElement } from '../element/base/s2-element';
 import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
-import { S2TimelineSetter, type S2TimelineTrigger } from './s2-timeline-trigger';
+import { S2TriggerBoolean, type S2TimelineTrigger } from './s2-timeline-trigger';
 
 export type S2TimelinePosition = 'absolute' | 'previous-start' | 'previous-end';
 
@@ -124,29 +124,29 @@ class S2TimelinePropertyTrack {
 export class S2Timeline extends S2BaseAnimation {
     protected parts: S2TimelinePart[];
     protected propertyTrackMap: Map<S2AnimProperty, S2TimelinePropertyTrack>;
-    protected labelTimeMap: Map<string, number>;
+    protected labelToTime: Map<string, number>;
 
     constructor(scene: S2BaseScene) {
         super(scene);
         this.cycleDuration = 0;
         this.parts = [];
         this.propertyTrackMap = new Map();
-        this.labelTimeMap = new Map();
+        this.labelToTime = new Map();
         this.addLabel('start', 0);
     }
 
     addLabel(name: string, time: number): this {
-        this.labelTimeMap.set(name, time);
+        this.labelToTime.set(name, time);
         return this;
     }
 
     addLabelAtCurrentTime(name: string): this {
-        this.labelTimeMap.set(name, this.cycleDuration);
+        this.labelToTime.set(name, this.cycleDuration);
         return this;
     }
 
     getLabelTime(name: string): number | undefined {
-        return this.labelTimeMap.get(name);
+        return this.labelToTime.get(name);
     }
 
     protected getAbsoluteTime(label: string, offset: number): number {
@@ -170,7 +170,7 @@ export class S2Timeline extends S2BaseAnimation {
                     return offset;
                 }
         }
-        const labelTime = this.labelTimeMap.get(label);
+        const labelTime = this.labelToTime.get(label);
         if (labelTime !== undefined) {
             return labelTime + offset;
         }
@@ -193,16 +193,17 @@ export class S2Timeline extends S2BaseAnimation {
         return this;
     }
 
-    activateElement(element: S2BaseElement): this {
-        const property = element.data.isActive;
+    enableElement(element: S2BaseElement, isEnabled: boolean, label: string = '', offset: number = 0): this {
+        const time = this.getAbsoluteTime(label, offset);
+        const property = element.data.isEnabled;
         if (this.propertyTrackMap.has(property)) {
-            this.addTrigger(S2TimelineSetter.boolean(property, true), 'timeline-start');
+            this.addTrigger(new S2TriggerBoolean(property, isEnabled), 'absolute', time);
         } else {
-            if (this.cycleDuration <= 0) {
-                this.addTrigger(S2TimelineSetter.boolean(property, true), 'timeline-start');
+            if (time <= 0) {
+                this.addTrigger(new S2TriggerBoolean(property, isEnabled), 'timeline-start');
             } else {
-                this.addTrigger(S2TimelineSetter.boolean(property, false), 'timeline-start');
-                this.addTrigger(S2TimelineSetter.boolean(property, true));
+                this.addTrigger(new S2TriggerBoolean(property, !isEnabled), 'timeline-start');
+                this.addTrigger(new S2TriggerBoolean(property, isEnabled), 'absolute', time);
             }
         }
         return this;
@@ -218,7 +219,7 @@ export class S2Timeline extends S2BaseAnimation {
         if (animation) {
             properties = animation.getProperties();
         } else if (trigger) {
-            properties = new Set([trigger.getProperty()]);
+            properties = new Set([trigger.property]);
         } else {
             console.warn('S2Timeline: No animation or trigger assigned.');
             properties = new Set();
@@ -234,10 +235,9 @@ export class S2Timeline extends S2BaseAnimation {
 
     protected createOrGetPropertyTrack(property: S2AnimProperty): S2TimelinePropertyTrack {
         let track = this.propertyTrackMap.get(property);
-        if (track === undefined) {
-            track = new S2TimelinePropertyTrack(property);
-            this.propertyTrackMap.set(property, track);
-        }
+        if (track) return track;
+        track = new S2TimelinePropertyTrack(property);
+        this.propertyTrackMap.set(property, track);
         return track;
     }
 

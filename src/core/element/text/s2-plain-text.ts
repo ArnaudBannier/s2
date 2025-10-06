@@ -6,12 +6,12 @@ import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TextData } from './s2-text-data';
 
-export class S2PlainText extends S2Element<S2TextData> {
+export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
     protected element: SVGTextElement;
     protected localBBox: S2BBox;
 
-    constructor(scene: S2BaseScene) {
-        super(scene, new S2TextData());
+    constructor(scene: S2BaseScene, data: Data) {
+        super(scene, data);
         this.element = document.createElementNS(svgNS, 'text');
         this.localBBox = new S2BBox();
         this.localBBox.setOwner(this);
@@ -59,12 +59,11 @@ export class S2PlainText extends S2Element<S2TextData> {
     update(): void {
         if (this.skipUpdate()) return;
 
-        this.updateSVGChildren();
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-        S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'x', 'y');
+        S2DataUtils.applyShiftedPosition(this.data.position, this.data.localShift, this.element, this.scene, 'x', 'y');
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
         S2DataUtils.applyPreserveWhitespace(this.data.preserveWhitespace, this.element, this.scene);
         S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
@@ -80,5 +79,11 @@ export class S2PlainText extends S2Element<S2TextData> {
         }
 
         this.clearDirty();
+    }
+}
+
+export class S2PlainText extends S2BasePlainText<S2TextData> {
+    constructor(scene: S2BaseScene) {
+        super(scene, new S2TextData());
     }
 }

@@ -11,7 +11,6 @@ import { ease } from '../core/animation/s2-easing.ts';
 import { S2MathUtils } from '../core/math/s2-utils.ts';
 import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
 import { S2AnimGroup } from '../core/animation/s2-anim-group.ts';
-import { S2TimelineSetter } from '../core/animation/s2-timeline-trigger.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -80,11 +79,10 @@ class SceneFigure extends S2Scene {
 
         this.animator.makeStep();
 
+        this.animator.enableElement(this.circle, true);
         anim = S2LerpAnimFactory.create(this, this.circle.data.opacity).setCycleDuration(500).setEasing(ease.inOut);
 
         this.circle.data.opacity.set(1.0);
-        this.animator.addTrigger(S2TimelineSetter.boolean(this.circle.data.isActive, false), 'absolute', 0);
-        this.animator.addTrigger(S2TimelineSetter.boolean(this.circle.data.isActive, true), 'previous-end', 0);
         this.animator.addAnimation(anim.commitFinalState());
 
         this.animator.makeStep();
@@ -115,6 +113,7 @@ class SceneFigure extends S2Scene {
         this.animator.addAnimation(animGroup.commitLerpFinalStates());
         this.animator.addAnimation(anim.commitFinalState(), 'previous-start', 0);
         this.animator.makeStep();
+        this.animator.finalize();
     }
 }
 

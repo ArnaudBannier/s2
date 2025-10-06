@@ -44,6 +44,10 @@ export class S2Vec2 {
         return Math.abs(v1.x - v2.x) < epsilon && Math.abs(v1.y - v2.y) < epsilon;
     }
 
+    static isZero(v: S2Vec2, epsilon: number = 1e-4): boolean {
+        return Math.abs(v.x) < epsilon && Math.abs(v.y) < epsilon;
+    }
+
     get width(): number {
         return this.x;
     }

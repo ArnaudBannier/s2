@@ -51,8 +51,8 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         this.data.clearDirty();
     }
 
-    setActive(isActive: boolean): this {
-        this.data.isActive.set(isActive);
+    setEnabled(isEnabled: boolean): this {
+        this.data.isEnabled.set(isEnabled);
         if (this.parent) {
             this.parent.updateSVGChildren();
         }
@@ -99,11 +99,9 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
     updateSVGChildren(): this {
         // Check if any child's state has changed
         const childrenStateUpdated = this.children.some(
-            (child) => child.data.layer.isDirty() || child.data.isActive.isDirty(),
+            (child) => child.data.layer.isDirty() || child.data.isEnabled.isDirty(),
         );
         if (!childrenStateUpdated && !this.childrenChanged) return this;
-
-        console.log('Updating SVG children for', this);
 
         // Sort by layer, then by id to ensure stable order
         this.children.sort((a: S2BaseElement, b: S2BaseElement): number => {
@@ -112,7 +110,7 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         });
         const elements: SVGElement[] = [];
         for (const child of this.children) {
-            if (child.data.isActive.get()) {
+            if (child.data.isEnabled.get()) {
                 elements.push(child.getSVGElement());
             }
         }

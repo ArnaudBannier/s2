@@ -115,6 +115,22 @@ export class S2DataUtils {
         }
     }
 
+    static applyShiftedPosition(
+        position: S2Position,
+        shift: S2Extents,
+        element: SVGElement,
+        scene: S2BaseScene,
+        xAttribute: string = 'x',
+        yAttribute: string = 'y',
+    ): void {
+        if (position.isDirty() || shift.isDirty()) {
+            const p = position.toSpace('view', scene.getActiveCamera());
+            const s = shift.toSpace('view', scene.getActiveCamera());
+            element.setAttribute(xAttribute, (p.x + s.x).toFixed(2));
+            element.setAttribute(yAttribute, (p.y + s.y).toFixed(2));
+        }
+    }
+
     static applyAnchoredPosition(
         position: S2Position,
         extents: S2Extents,

@@ -17,7 +17,7 @@ export class S2MemoryData extends S2ElementData {
         this.extents = new S2Extents(0, 0, 'view');
         this.background = new S2MemoryBackgroundData();
         this.text = new S2MemoryTextData();
-        this.padding = new S2Extents(10, 5, 'view');
+        this.padding = new S2Extents(15, 5, 'view');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {

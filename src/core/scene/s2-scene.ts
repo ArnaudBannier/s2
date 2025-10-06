@@ -119,9 +119,4 @@ export class S2Scene extends S2BaseScene {
         child.setParent(parent);
         return child;
     }
-
-    update(): this {
-        this.svg.update();
-        return this;
-    }
 }

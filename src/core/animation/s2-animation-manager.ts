@@ -4,13 +4,24 @@ import { S2BaseAnimation } from './s2-base-animation';
 export class S2PlayableAnimation {
     protected manager: S2AnimationManager;
     protected animation: S2BaseAnimation;
-    protected state: 'playing' | 'paused' | 'stopped' = 'stopped';
+    protected state: 'playing' | 'paused' | 'stopped';
     protected repeat: boolean = false;
     protected speed: number = 1;
+    protected playFrom: number;
+    protected playTo: number;
 
     constructor(animation: S2BaseAnimation) {
         this.animation = animation;
         this.manager = S2AnimationManager.getInstance();
+        this.playFrom = 0;
+        this.playTo = this.animation.getDuration();
+        this.state = 'stopped';
+    }
+
+    setRange(from: number, to: number): this {
+        this.playFrom = Math.max(0, from);
+        this.playTo = Math.min(to, this.animation.getDuration());
+        return this;
     }
 
     getAnimation(): S2BaseAnimation {
@@ -45,7 +56,7 @@ export class S2PlayableAnimation {
 
     play(repeat: boolean = false): this {
         this.state = 'playing';
-        this.animation.setElapsed(0);
+        this.animation.setElapsed(this.playFrom);
         this.manager.addAnimation(this);
         this.repeat = repeat;
         return this;
@@ -76,21 +87,22 @@ export class S2PlayableAnimation {
     update(delta: number): this {
         if (this.state !== 'playing') return this;
         const rawElapsed = this.animation.getElapsed() + delta * this.speed;
-        const rawDuration = this.animation.getDuration();
-        if (rawElapsed >= rawDuration) {
+        const rawDuration = this.playTo - this.playFrom;
+        if (rawElapsed >= this.playTo) {
             if (this.repeat) {
-                this.animation.setElapsed(rawElapsed % rawDuration);
+                const localElapsed = (rawElapsed - this.playFrom) % rawDuration;
+                this.animation.setElapsed(localElapsed + this.playFrom);
             } else {
-                this.animation.setElapsed(rawDuration);
+                this.animation.setElapsed(this.playTo);
                 this.stop();
             }
-        } else if (rawElapsed < 0) {
-            this.animation.setElapsed(0);
+        } else if (rawElapsed < this.playFrom) {
+            this.animation.setElapsed(this.playFrom);
             this.stop();
         } else {
             this.animation.setElapsed(rawElapsed);
         }
-        this.animation.getScene().getSVG().update();
+        this.animation.getScene().update();
         return this;
     }
 }

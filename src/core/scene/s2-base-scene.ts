@@ -32,4 +32,9 @@ export abstract class S2BaseScene {
     getSVG(): S2SVG {
         return this.svg;
     }
+
+    update(): this {
+        this.svg.update();
+        return this;
+    }
 }

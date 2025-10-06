@@ -34,13 +34,14 @@ class SceneFigure extends S2Scene {
         const grid = this.addWorldGrid();
         S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_9);
 
-        const addressCount = 16;
+        const addressCount = 4;
         const isStacked = true;
         const memory = new S2Memory(this, addressCount, isStacked);
         this.memory = memory;
         memory.setParent(this.getSVG());
         memory.data.extents.set(2.5, 4.0, 'world');
 
+        memory.data.padding.set(15, 0, 'view');
         memory.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
         memory.data.text.font.copyIfUnlocked(this.font);
         memory.data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
@@ -60,12 +61,26 @@ class SceneFigure extends S2Scene {
     createAnimation(): void {
         this.animator.makeStep();
         const row = this.memory.getRow(0);
+        const otherRow = this.memory.getRow(1);
         this.update();
-        row.animateSetValue('100', this.animator);
+
+        this.animator.addStepLabelAtCurrentTime('coucou');
+        row.animateSetValue('100', this.animator, 'coucou');
+        row.animateSetName('index', this.animator, 'coucou', 200);
         this.animator.makeStep();
         this.update();
         row.animateSetValue('73', this.animator);
         this.animator.makeStep();
+        this.update();
+
+        row.animateDestroy(this.animator);
+        this.animator.makeStep();
+        this.update();
+
+        row.animateSetName('compteur', this.animator);
+        row.animateCopyValue(otherRow, this.animator, 'copy');
+        this.animator.makeStep();
+        this.update();
     }
 }
 

@@ -8,37 +8,20 @@ import type { S2BaseElement } from '../element/base/s2-element';
 
 export class S2StepAnimator {
     protected scene: S2BaseScene;
-    protected masterTimeline: S2Timeline;
-    protected masterPlayable: S2PlayableAnimation;
-    protected stepTimelines: S2Timeline[];
-    protected stepPlayables: S2PlayableAnimation[];
-    protected shouldAddNewStep: boolean = true;
+    protected timeline: S2Timeline;
+    protected playable: S2PlayableAnimation;
     protected stepTimes: number[];
-    protected speed: number;
-    protected currPlayable: S2PlayableAnimation;
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
-        this.masterTimeline = new S2Timeline(this.scene);
-        this.masterPlayable = new S2PlayableAnimation(this.masterTimeline);
-        this.stepTimelines = [];
-        this.stepPlayables = [];
+        this.timeline = new S2Timeline(this.scene);
+        this.playable = new S2PlayableAnimation(this.timeline);
         this.stepTimes = [0];
-        this.speed = 1;
-        this.currPlayable = this.masterPlayable;
     }
 
-    setSpeed(speed: number): this {
-        this.speed = speed;
-        this.masterPlayable.setSpeed(speed);
-        for (const playable of this.stepPlayables) {
-            playable.setSpeed(speed);
-        }
+    finalize(): this {
+        this.makeStep();
         return this;
-    }
-
-    getSpeed(): number {
-        return this.speed;
     }
 
     getStepIndexFromElapsed(elapsed: number): number {
@@ -51,160 +34,130 @@ export class S2StepAnimator {
     }
 
     getStepStartTime(index: number): number {
-        index = S2MathUtils.clamp(index, 0, this.stepTimelines.length - 1);
+        index = S2MathUtils.clamp(index, 0, this.stepTimes.length - 2);
         return this.stepTimes[index];
     }
 
     playStep(index: number): this {
-        index = S2MathUtils.clamp(index, 0, this.stepTimelines.length - 1);
+        index = S2MathUtils.clamp(index, 0, this.stepTimes.length - 2);
         this.stop();
-        this.masterTimeline.setElapsed(this.stepTimes[index]);
-        this.currPlayable = this.stepPlayables[index];
-        this.currPlayable.play();
+        this.timeline.setElapsed(this.stepTimes[index]);
+        this.playable.setRange(this.stepTimes[index], this.stepTimes[index + 1]);
+        this.playable.play();
         return this;
     }
 
     playMaster(): this {
         this.stop();
-        this.currPlayable = this.masterPlayable;
-        this.currPlayable.play();
+        this.playable.setRange(0, this.timeline.getDuration());
+        this.playable.play();
         return this;
     }
 
     isPlaying(): boolean {
-        return this.currPlayable.isPlaying();
+        return this.playable.isPlaying();
     }
 
     isPaused(): boolean {
-        return this.currPlayable.isPaused();
+        return this.playable.isPaused();
     }
 
     pause(): this {
-        this.currPlayable.pause();
+        this.playable.pause();
         return this;
     }
 
     resume(): this {
-        this.currPlayable.resume();
+        this.playable.resume();
         return this;
     }
 
     resetStep(index: number): this {
-        index = S2MathUtils.clamp(index, 0, this.stepTimelines.length - 1);
-        this.masterTimeline.setElapsed(this.stepTimes[index]);
+        index = S2MathUtils.clamp(index, 0, this.stepTimes.length - 1);
+        this.timeline.setElapsed(this.stepTimes[index]);
         return this;
     }
 
     reset(): this {
-        this.masterTimeline.setElapsed(0);
+        this.timeline.setElapsed(0);
         this.scene.getSVG().update();
-        this.currPlayable = this.masterPlayable;
         return this;
     }
 
     stop(): this {
-        this.currPlayable.stop();
+        this.playable.stop();
         return this;
     }
 
     setMasterElapsed(elapsed: number): this {
-        this.masterTimeline.setElapsed(elapsed);
+        this.timeline.setElapsed(elapsed);
         return this;
     }
 
     getMasterDuration(): number {
-        return this.masterTimeline.getDuration();
+        return this.timeline.getDuration();
     }
 
     getStepDuration(index: number): number {
-        index = S2MathUtils.clamp(index, 0, this.stepTimelines.length - 1);
-        return this.stepTimelines[index].getDuration();
+        index = S2MathUtils.clamp(index, 0, this.stepTimes.length - 2);
+        return this.stepTimes[index + 1] - this.stepTimes[index];
     }
 
     getStepCount(): number {
-        return this.stepTimelines.length;
+        return this.stepTimes.length - 1;
     }
 
     makeStep(): this {
-        if (this.shouldAddNewStep) return this;
-        if (this.stepTimelines.length === 0) return this;
-
-        const currTimeline = this.stepTimelines[this.stepTimelines.length - 1];
-        this.masterTimeline.addAnimation(currTimeline, 'previous-end', 0);
-
-        this.shouldAddNewStep = true;
+        if (this.timeline.getDuration() >= this.stepTimes[this.stepTimes.length - 1]) {
+            this.stepTimes.push(this.timeline.getDuration());
+        }
         return this;
     }
 
-    protected getCurrentStepTimeline(): S2Timeline {
-        if (this.shouldAddNewStep) {
-            const timeline = new S2Timeline(this.scene);
-            const playable = new S2PlayableAnimation(timeline);
-            playable.setSpeed(this.speed);
-            this.stepTimelines.push(timeline);
-            this.stepPlayables.push(playable);
-            this.stepTimes.push(0);
-            this.shouldAddNewStep = false;
-        }
-        return this.stepTimelines[this.stepTimelines.length - 1];
-    }
-
     addAnimation(animation: S2BaseAnimation, label: string = '', offset: number = 0): this {
-        const currTimeline = this.getCurrentStepTimeline();
-        currTimeline.addAnimation(animation, label, offset);
-        this.update();
+        this.timeline.addAnimation(animation, label, offset);
         return this;
     }
 
     addTrigger(trigger: S2TimelineTrigger, label: string = '', offset: number = 0): this {
-        const currTimeline = this.getCurrentStepTimeline();
-        currTimeline.addTrigger(trigger, label, offset);
-        this.update();
+        this.timeline.addTrigger(trigger, label, offset);
         return this;
     }
 
     addLabel(name: string, time: number): this {
-        const currTimeline = this.getCurrentStepTimeline();
-        currTimeline.addLabel(name, time);
+        this.timeline.addLabel(name, time);
         return this;
     }
 
     addStepLabelAtCurrentTime(name: string): this {
-        const currTimeline = this.getCurrentStepTimeline();
-        currTimeline.addLabelAtCurrentTime(name);
+        this.timeline.addLabelAtCurrentTime(name);
+        return this;
+    }
+
+    enableElement(element: S2BaseElement, isEnabled: boolean, label: string = '', offset: number = 0): this {
+        this.timeline.enableElement(element, isEnabled, label, offset);
         return this;
     }
 
     getCurrentStepDuration(): number {
-        const currTimeline = this.getCurrentStepTimeline();
-        return currTimeline.getCycleDuration();
-    }
-
-    update(): void {
-        let stepTime = 0;
-        this.stepTimes[0] = 0;
-        for (let i = 0; i < this.stepTimelines.length; i++) {
-            const step = this.stepTimelines[i];
-            stepTime += step.getDuration();
-            this.stepTimes[i + 1] = stepTime;
-        }
+        return this.timeline.getCycleDuration();
     }
 
     getMasterTimeline(): S2Timeline {
-        return this.masterTimeline;
+        return this.timeline;
     }
 
     getStepTimeline(index: number): S2Timeline {
-        index = S2MathUtils.clamp(index, 0, this.stepTimelines.length - 1);
-        return this.stepTimelines[index];
+        void index;
+        return this.timeline;
     }
 
     getStepPlayable(index: number): S2PlayableAnimation {
-        index = S2MathUtils.clamp(index, 0, this.stepTimelines.length - 1);
-        return this.stepPlayables[index];
+        this.playable.setRange(this.stepTimes[index], this.stepTimes[index + 1]);
+        return this.playable;
     }
 
     getMasterPlayable(): S2PlayableAnimation {
-        return this.masterPlayable;
+        return this.playable;
     }
 }

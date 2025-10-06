@@ -8,22 +8,22 @@ export abstract class S2BaseData {
 
 export class S2ElementData extends S2BaseData {
     public readonly layer: S2Number;
-    public readonly isActive: S2Boolean;
+    public readonly isEnabled: S2Boolean;
 
     constructor() {
         super();
         this.layer = new S2Number(0);
-        this.isActive = new S2Boolean(true);
+        this.isEnabled = new S2Boolean(true);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         this.layer.setOwner(owner);
-        this.isActive.setOwner(owner);
+        this.isEnabled.setOwner(owner);
     }
 
     clearDirty(): void {
         this.layer.clearDirty();
-        this.isActive.clearDirty();
+        this.isEnabled.clearDirty();
     }
 }
 

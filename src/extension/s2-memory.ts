@@ -1,7 +1,6 @@
 import { ease } from '../core/animation/s2-easing';
 import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim';
 import type { S2StepAnimator } from '../core/animation/s2-step-animator';
-import { S2TimelineSetter } from '../core/animation/s2-timeline-trigger';
 import { S2Element } from '../core/element/base/s2-element';
 import { S2Line } from '../core/element/s2-line';
 import { S2Rect } from '../core/element/s2-rect';
@@ -17,12 +16,15 @@ class S2MemoryRow {
     public parentMemory: S2Memory;
     public index: number;
     public values: S2PlainText[];
-    public name: S2PlainText;
+    public names: S2PlainText[];
     public address: S2PlainText;
     public hLine: S2Line;
     public isStacked: boolean;
     public lowerBound: S2Position;
     public upperBound: S2Position;
+    protected basePosName: S2Position;
+    protected basePosValue: S2Position;
+    private labelId: number;
 
     constructor(parent: S2Memory, index: number) {
         const scene = parent.getScene();
@@ -30,74 +32,172 @@ class S2MemoryRow {
         this.parentMemory = parent;
         this.index = index;
         this.values = [];
-        this.name = new S2PlainText(scene);
+        this.names = [];
         this.address = new S2PlainText(scene);
         this.hLine = new S2Line(scene);
-        this.name.setParent(parent);
-        this.address.setParent(parent);
-        this.hLine.setParent(parent);
-        this.isStacked = false;
-
-        this.address.data.textAnchor.set('end');
-        this.name.data.textAnchor.set('start');
-
         this.lowerBound = new S2Position();
         this.upperBound = new S2Position();
+        this.basePosName = new S2Position();
+        this.basePosValue = new S2Position();
+
+        this.hLine.setParent(parent);
+        this.address.setParent(parent);
+        this.address.data.textAnchor.set('end');
+        this.isStacked = false;
+        this.labelId = 0;
     }
 
     setAddress(address: string): void {
         this.address.setContent(address);
     }
 
-    setValue(value: string): void {
+    setValue(value: string): S2PlainText {
         const text = new S2PlainText(this.scene);
         text.setParent(this.parentMemory);
         text.data.textAnchor.set('start');
+        text.data.position.setV(this.basePosValue.value, this.basePosValue.space);
         text.setContent(value);
         this.values.push(text);
+        return text;
     }
 
-    animateSetValue(value: string, animator: S2StepAnimator): void {
-        const currentStepDuration = animator.getCurrentStepDuration();
-        const timeLabel = `set-value-${this.index}-${value}`;
-        animator.addStepLabelAtCurrentTime(timeLabel);
+    setName(name: string): S2PlainText {
+        const text = new S2PlainText(this.scene);
+        text.setParent(this.parentMemory);
+        text.data.textAnchor.set('start');
+        text.data.position.setV(this.basePosName.value, this.basePosName.space);
+        text.setContent(name);
+        this.names.push(text);
+        return text;
+    }
+
+    animateSetValue(value: string, animator: S2StepAnimator, label?: string, offset: number = 0): void {
+        label = this.ensureLabel(animator, label);
         const duration = 500;
         if (this.values.length > 0) {
             const lastValue = this.values[this.values.length - 1];
-            lastValue.data.opacity.set(1.0);
-            const lerpAnim = S2LerpAnimFactory.create(this.scene, lastValue.data.opacity)
-                .setCycleDuration(duration)
-                .setEasing(ease.inOut);
-            lastValue.data.opacity.set(0.0);
-            lerpAnim.commitFinalState();
-            animator.addAnimation(lerpAnim, timeLabel);
-            animator.addTrigger(S2TimelineSetter.boolean(lastValue.data.isActive, true), 'timeline-start');
-            animator.addTrigger(S2TimelineSetter.boolean(lastValue.data.isActive, false), timeLabel, duration);
+            this.animateFadeOut(lastValue, animator, new S2Vec2(30, 0), label, duration, offset);
         }
 
-        const text = new S2PlainText(this.scene);
-        text.setParent(this.parentMemory);
-        text.data.textAnchor.set('start');
-        text.setContent(value);
-        this.values.push(text);
-
-        if (currentStepDuration < 1) {
-            animator.addTrigger(S2TimelineSetter.boolean(text.data.isActive, false), 'timeline-start');
-        } else {
-            animator.addTrigger(S2TimelineSetter.boolean(text.data.isActive, false), 'timeline-start');
-        }
-        animator.addTrigger(S2TimelineSetter.boolean(text.data.isActive, true), timeLabel);
-        text.data.opacity.set(0.0);
-        const lerpAnim = S2LerpAnimFactory.create(this.scene, text.data.opacity)
-            .setCycleDuration(duration)
-            .setEasing(ease.inOut);
-        text.data.opacity.set(1.0);
-        lerpAnim.commitFinalState();
-        animator.addAnimation(lerpAnim, timeLabel);
+        const text = this.setValue(value);
+        this.animateFadeIn(text, animator, new S2Vec2(-5, 0), label, duration, offset + 250);
     }
 
-    setName(name: string): void {
-        this.name.setContent(name);
+    animateSetName(name: string, animator: S2StepAnimator, label?: string, offset: number = 0): void {
+        label = this.ensureLabel(animator, label);
+        const duration = 500;
+
+        const text = this.setName(name);
+        this.animateFadeIn(text, animator, new S2Vec2(-5, 0), label, duration, offset);
+    }
+
+    animateDestroy(animator: S2StepAnimator, label?: string, offset: number = 0): void {
+        label = this.ensureLabel(animator, label);
+        const duration = 500;
+
+        if (this.values.length > 0) {
+            const lastValue = this.values[this.values.length - 1];
+            this.animateFadeOut(lastValue, animator, new S2Vec2(30, 0), label, duration, offset);
+        }
+
+        if (this.names.length > 0) {
+            const lastName = this.names[this.names.length - 1];
+            this.animateFadeOut(lastName, animator, new S2Vec2(30, 0), label, duration, offset);
+        }
+    }
+
+    animateCopyValue(srcRow: S2MemoryRow, animator: S2StepAnimator, label?: string, offset: number = 0): void {
+        label = this.ensureLabel(animator, label);
+        const duration = 500;
+        if (srcRow.values.length === 0) return;
+        const srcValue = srcRow.values[srcRow.values.length - 1];
+        const dstValue = this.setValue(srcValue.getContent());
+        this.animateCopy(dstValue, srcValue, animator, label, duration, offset);
+    }
+
+    protected ensureLabel(animator: S2StepAnimator, label?: string): string {
+        if (label) return label;
+        const timeLabel = `memory-${this.parentMemory.id}-row-${this.index}-${this.labelId++}`;
+        animator.addStepLabelAtCurrentTime(timeLabel);
+        return timeLabel;
+    }
+
+    protected animateCopy(
+        dstText: S2PlainText,
+        srcText: S2PlainText,
+        animator: S2StepAnimator,
+        label: string,
+        duration: number,
+        offset: number,
+    ): void {
+        animator.enableElement(dstText, true, label, offset);
+        const space: S2Space = 'view';
+        const srcPosition = srcText.data.position.toSpace(space, this.scene.getActiveCamera());
+        const dstPosition = dstText.data.position.toSpace(space, this.scene.getActiveCamera());
+        const shift = dstPosition.subV(srcPosition);
+        dstText.data.localShift.setV(shift, space);
+        const copyAnim = S2LerpAnimFactory.create(this.scene, dstText.data.localShift)
+            .setCycleDuration(duration)
+            .setEasing(ease.out);
+        dstText.data.localShift.set(0, 0, space);
+        copyAnim.commitFinalState();
+        animator.addAnimation(copyAnim, label, offset);
+    }
+
+    protected animateFadeIn(
+        text: S2PlainText,
+        animator: S2StepAnimator,
+        shift: S2Vec2,
+        label: string,
+        duration: number,
+        offset: number,
+    ): void {
+        text.data.opacity.set(0.0);
+        const opacityAnim = S2LerpAnimFactory.create(this.scene, text.data.opacity)
+            .setCycleDuration(duration)
+            .setEasing(ease.out);
+        text.data.opacity.set(1.0);
+        opacityAnim.commitFinalState();
+
+        animator.enableElement(text, true, label, offset);
+        animator.addAnimation(opacityAnim, label, offset);
+
+        if (S2Vec2.isZero(shift) === false) {
+            text.data.localShift.setV(shift, 'view');
+            const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.localShift)
+                .setCycleDuration(duration)
+                .setEasing(ease.inOut);
+            text.data.localShift.set(0, 0, 'view');
+            shiftAnim.commitFinalState();
+            animator.addAnimation(shiftAnim, label, offset);
+        }
+    }
+
+    protected animateFadeOut(
+        text: S2PlainText,
+        animator: S2StepAnimator,
+        shift: S2Vec2,
+        label: string,
+        duration: number,
+        offset: number,
+    ): void {
+        text.data.opacity.set(1.0);
+        const opacityAnim = S2LerpAnimFactory.create(this.scene, text.data.opacity)
+            .setCycleDuration(duration)
+            .setEasing(ease.out);
+        text.data.opacity.set(0.0);
+        opacityAnim.commitFinalState();
+        animator.addAnimation(opacityAnim, label, offset);
+        if (S2Vec2.isZero(shift) === false) {
+            text.data.localShift.set(0, 0, 'view');
+            const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.localShift)
+                .setCycleDuration(duration)
+                .setEasing(ease.inOut);
+            text.data.localShift.setV(shift, 'view');
+            shiftAnim.commitFinalState();
+            animator.addAnimation(shiftAnim, label, offset);
+        }
+        animator.enableElement(text, false, label, offset + duration);
     }
 
     setWorldBounds(lowerBound: S2Vec2, upperBound: S2Vec2): void {
@@ -106,14 +206,36 @@ class S2MemoryRow {
     }
 
     updateGeometry(): void {
+        const parentData = this.parentMemory.data;
+        const isDirty =
+            this.lowerBound.isDirty() ||
+            this.upperBound.isDirty() ||
+            parentData.padding.isDirty() ||
+            parentData.text.font.isDirty();
+        if (isDirty === false) return;
+
         const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
-        const parentData = this.parentMemory.data;
         const lowerBound = this.lowerBound.toSpace(space, camera);
         const upperBound = this.upperBound.toSpace(space, camera);
         const height = upperBound.y - lowerBound.y;
         const width = upperBound.x - lowerBound.x;
-        this.name.data.position.set(lowerBound.x + 0.75 * width, lowerBound.y + height / 2, space);
+
+        const font = parentData.text.font;
+        const ascenderHeight = font.relativeAscenderHeight.value * font.size.toSpace(space, camera);
+        const textY = lowerBound.y + height / 2 - ascenderHeight / 2;
+        const padding = parentData.padding.toSpace(space, camera).x;
+
+        this.address.data.position.set(lowerBound.x - padding, textY, space);
+        this.basePosValue.set(lowerBound.x + padding, textY, space);
+        this.basePosName.set(lowerBound.x + 0.5 * width + padding, textY, space);
+        for (const value of this.values) {
+            value.data.position.setV(this.basePosValue.value, space);
+        }
+        for (const name of this.names) {
+            name.data.position.setV(this.basePosName.value, space);
+        }
+
         if (this.isStacked) {
             this.hLine.data.startPosition.set(lowerBound.x, upperBound.y, space);
             this.hLine.data.endPosition.set(upperBound.x, upperBound.y, space);
@@ -121,17 +243,6 @@ class S2MemoryRow {
             this.hLine.data.startPosition.set(lowerBound.x, lowerBound.y, space);
             this.hLine.data.endPosition.set(upperBound.x, lowerBound.y, space);
         }
-
-        const font = parentData.text.font;
-        const ascenderHeight = font.relativeAscenderHeight.value * font.size.toSpace(space, camera);
-        const textY = lowerBound.y + height / 2 - ascenderHeight / 2;
-        const padding = parentData.padding.toSpace(space, camera).x;
-
-        if (this.values.length > 0) {
-            this.values[this.values.length - 1].data.position.set(lowerBound.x + padding, textY, space);
-        }
-        this.name.data.position.set(lowerBound.x + padding + 0.5 * width, textY, space);
-        this.address.data.position.set(lowerBound.x - padding, textY, space);
     }
 
     update(): void {
@@ -139,7 +250,9 @@ class S2MemoryRow {
         for (const value of this.values) {
             value.update();
         }
-        this.name.update();
+        for (const name of this.names) {
+            name.update();
+        }
         this.address.update();
         this.hLine.update();
     }
@@ -176,7 +289,7 @@ export class S2Memory extends S2Element<S2MemoryData> {
             }
             this.rows.push(row);
         }
-        this.rows[this.addressCount - 1].hLine.setActive(false);
+        this.rows[this.addressCount - 1].hLine.setEnabled(false);
         //this.updateBackground();
         this.element.dataset.role = 'memory';
     }
@@ -277,7 +390,9 @@ export class S2Memory extends S2Element<S2MemoryData> {
                 for (const value of row.values) {
                     value.data.font.copyIfUnlocked(this.data.text.font);
                 }
-                row.name.data.font.copyIfUnlocked(this.data.text.font);
+                for (const name of row.names) {
+                    name.data.font.copyIfUnlocked(this.data.text.font);
+                }
                 row.address.data.font.copyIfUnlocked(this.data.text.font);
             }
         }
@@ -298,3 +413,27 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.clearDirty();
     }
 }
+
+// class S2MemoryText {
+//     public text: S2PlainText;
+//     public shift: S2Extents;
+//     protected scene: S2BaseScene;
+
+//     constructor(parent: S2Memory) {
+//         const scene = parent.getScene();
+//         this.scene = scene;
+//         this.text = new S2PlainText(scene);
+//         this.shift = new S2Extents(0, 0, 'view');
+
+//         this.text.setParent(parent);
+//         this.shift.setOwner(parent);
+//     }
+
+//     updatePosition(basePosition: S2Position): void {
+//         const space: S2Space = 'world';
+//         const camera = this.scene.getActiveCamera();
+//         const shift = this.shift.toSpace(space, camera);
+//         const position = basePosition.toSpace(space, camera).addV(shift);
+//         this.text.data.position.setV(position, space);
+//     }
+// }
