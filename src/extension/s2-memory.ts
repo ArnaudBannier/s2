@@ -25,7 +25,6 @@ class S2MemoryRow {
     public upperBound: S2Position;
     protected basePosName: S2Position;
     protected basePosValue: S2Position;
-    private labelId: number;
 
     constructor(parent: S2Memory, index: number) {
         const scene = parent.getScene();
@@ -45,7 +44,6 @@ class S2MemoryRow {
         this.address.setParent(parent);
         this.address.data.textAnchor.set('end');
         this.isStacked = false;
-        this.labelId = 0;
     }
 
     setAddress(address: string): void {
@@ -79,7 +77,7 @@ class S2MemoryRow {
     }
 
     animateSetValue(value: string, animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = this.ensureLabel(animator, label);
+        label = animator.ensureLabel(label);
         const duration = 500;
         let delay = 0;
         if (this.values.length > 0) {
@@ -95,7 +93,7 @@ class S2MemoryRow {
     }
 
     animateSetName(name: string, animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = this.ensureLabel(animator, label);
+        label = animator.ensureLabel(label);
         const duration = 500;
 
         const text = this.setName(name);
@@ -103,7 +101,7 @@ class S2MemoryRow {
     }
 
     animateDestroy(animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = this.ensureLabel(animator, label);
+        label = animator.ensureLabel(label);
         const duration = 500;
 
         if (this.values.length > 0) {
@@ -118,7 +116,7 @@ class S2MemoryRow {
     }
 
     animateCopyValue(srcRow: S2MemoryRow, animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = this.ensureLabel(animator, label);
+        label = animator.ensureLabel(label);
         const duration = 500;
         let delay = 0;
         if (this.values.length > 0) {
@@ -135,7 +133,7 @@ class S2MemoryRow {
     }
 
     animateCopyAddress(srcRow: S2MemoryRow, animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = this.ensureLabel(animator, label);
+        label = animator.ensureLabel(label);
         const duration = 500;
         let delay = 0;
         if (this.values.length > 0) {
@@ -148,13 +146,6 @@ class S2MemoryRow {
         const srcText = srcRow.address;
         const dstText = this.setValue(srcText.getContent());
         this.animateCopy(dstText, srcText, animator, label, duration, offset + delay);
-    }
-
-    protected ensureLabel(animator: S2StepAnimator, label?: string): string {
-        if (label) return label;
-        const timeLabel = `memory-${this.parentMemory.id}-row-${this.index}-${this.labelId++}`;
-        animator.addStepLabelAtCurrentTime(timeLabel);
-        return timeLabel;
     }
 
     protected animateCopy(

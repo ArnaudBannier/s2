@@ -12,11 +12,14 @@ export class S2StepAnimator {
     protected playable: S2PlayableAnimation;
     protected stepTimes: number[];
 
+    private labelId: number;
+
     constructor(scene: S2BaseScene) {
         this.scene = scene;
         this.timeline = new S2Timeline(this.scene);
         this.playable = new S2PlayableAnimation(this.timeline);
         this.stepTimes = [0];
+        this.labelId = 0;
     }
 
     finalize(): this {
@@ -129,9 +132,20 @@ export class S2StepAnimator {
         return this;
     }
 
-    addStepLabelAtCurrentTime(name: string): this {
+    addLabelAtCurrentTime(name: string): this {
         this.timeline.addLabelAtCurrentTime(name);
         return this;
+    }
+
+    createLabelAtCurrentTime(): string {
+        const label = `step-${this.stepTimes.length - 1}-id-${this.labelId++}`;
+        this.timeline.addLabelAtCurrentTime(label);
+        return label;
+    }
+
+    ensureLabel(label?: string): string {
+        if (label) return label;
+        return this.createLabelAtCurrentTime();
     }
 
     enableElement(element: S2BaseElement, isEnabled: boolean, label: string = '', offset: number = 0): this {

@@ -3,7 +3,8 @@ import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
 import { S2TriggerBoolean, type S2TimelineTrigger } from './s2-timeline-trigger';
 
-export type S2TimelinePosition = 'absolute' | 'previous-start' | 'previous-end';
+// export type S2TimelinePosition = 'absolute' | 'previous-start' | 'previous-end';
+// export type S2TimelineLabel = 'timeline-start' | 'timeline-end' | 'absolute' | 'previous-start' | 'previous-end';
 
 class S2TimelinePart {
     protected animation: S2BaseAnimation | null;
@@ -125,6 +126,15 @@ export class S2Timeline extends S2BaseAnimation {
     protected parts: S2TimelinePart[];
     protected propertyTrackMap: Map<S2AnimProperty, S2TimelinePropertyTrack>;
     protected labelToTime: Map<string, number>;
+    protected labelId: number;
+
+    static readonly reservedLabelNames: readonly string[] = [
+        'timeline-start',
+        'timeline-end',
+        'absolute',
+        'previous-start',
+        'previous-end',
+    ] as const;
 
     constructor(scene: S2BaseScene) {
         super(scene);
@@ -132,26 +142,34 @@ export class S2Timeline extends S2BaseAnimation {
         this.parts = [];
         this.propertyTrackMap = new Map();
         this.labelToTime = new Map();
-        this.addLabel('start', 0);
+        this.labelId = 0;
     }
 
     addLabel(name: string, time: number): this {
+        if (S2Timeline.reservedLabelNames.includes(name)) {
+            console.warn(`Label name '${name}' is reserved and cannot be used.`);
+            return this;
+        }
+        if (this.labelToTime.has(name)) {
+            console.warn(`Label '${name}' already exists. Overwriting.`);
+        }
         this.labelToTime.set(name, time);
         return this;
     }
 
     addLabelAtCurrentTime(name: string): this {
-        this.labelToTime.set(name, this.cycleDuration);
+        this.addLabel(name, this.cycleDuration);
         return this;
     }
 
-    getLabelTime(name: string): number | undefined {
-        return this.labelToTime.get(name);
+    createLabelAtCurrentTime(): string {
+        const label = `@-auto-label-${this.labelId++}`;
+        this.addLabelAtCurrentTime(label);
+        return label;
     }
 
-    protected getAbsoluteTime(label: string, offset: number): number {
+    getLabelTime(label: string, offset: number = 0): number {
         switch (label) {
-            case '':
             case 'timeline-end':
                 return this.cycleDuration + offset;
             case 'absolute':
@@ -171,30 +189,34 @@ export class S2Timeline extends S2BaseAnimation {
                 }
         }
         const labelTime = this.labelToTime.get(label);
-        if (labelTime !== undefined) {
-            return labelTime + offset;
-        }
+        if (labelTime !== undefined) return labelTime + offset;
+        console.warn(`Label '${label}' not found. Using offset as absolute time.`);
         return offset;
     }
 
-    addAnimation(animation: S2BaseAnimation, label: string = '', offset: number = 0): this {
-        const start = this.getAbsoluteTime(label, offset);
+    addAnimation(animation: S2BaseAnimation, label: string = 'timeline-end', offset: number = 0): this {
+        const start = this.getLabelTime(label, offset);
         const part = new S2TimelinePart(start);
         part.setAnimation(animation);
         this.addPart(part);
         return this;
     }
 
-    addTrigger(trigger: S2TimelineTrigger, label: string = '', offset: number = 0): this {
-        const start = this.getAbsoluteTime(label, offset);
+    addTrigger(trigger: S2TimelineTrigger, label: string = 'timeline-end', offset: number = 0): this {
+        const start = this.getLabelTime(label, offset);
         const part = new S2TimelinePart(start);
         part.setTrigger(trigger);
         this.addPart(part);
         return this;
     }
 
-    enableElement(element: S2BaseElement, isEnabled: boolean, label: string = '', offset: number = 0): this {
-        const time = this.getAbsoluteTime(label, offset);
+    enableElement(
+        element: S2BaseElement,
+        isEnabled: boolean,
+        label: string = 'timeline-end',
+        offset: number = 0,
+    ): this {
+        const time = this.getLabelTime(label, offset);
         const property = element.data.isEnabled;
         if (this.propertyTrackMap.has(property)) {
             this.addTrigger(new S2TriggerBoolean(property, isEnabled), 'absolute', time);

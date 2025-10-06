@@ -64,7 +64,7 @@ class SceneFigure extends S2Scene {
         const otherRow = this.memory.getRow(1);
         this.update();
 
-        this.animator.addStepLabelAtCurrentTime('coucou');
+        this.animator.addLabelAtCurrentTime('coucou');
         row.animateSetValue('100', this.animator, 'coucou');
         row.animateSetName('index', this.animator, 'coucou', 200);
         this.animator.makeStep();
