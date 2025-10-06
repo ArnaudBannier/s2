@@ -8,7 +8,7 @@ import { S2PlainText } from '../core/element/text/s2-plain-text';
 import { S2Vec2 } from '../core/math/s2-vec2';
 import type { S2BaseScene } from '../core/scene/s2-base-scene';
 import { S2AnchorUtils, svgNS } from '../core/shared/s2-globals';
-import { S2Position, type S2Space } from '../core/shared/s2-types';
+import { S2Position, type S2Space } from '../core/shared/s2-base-type';
 import { S2MemoryData } from './s2-memory-data';
 
 class S2MemoryRow {

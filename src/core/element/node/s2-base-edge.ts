@@ -2,12 +2,15 @@ import { S2Vec2 } from '../../math/s2-vec2';
 import { S2BaseScene } from '../../scene/s2-base-scene';
 import { S2Node } from './s2-node';
 import { S2Path } from '../s2-path';
-import { type S2Space, S2Length, S2Number, S2Position } from '../../shared/s2-types';
+import { type S2Space } from '../../shared/s2-base-type';
 import { S2Element } from '../base/s2-element';
 import { S2ElementData, S2StrokeData } from '../base/s2-base-data';
 import { type S2Dirtyable, type S2Tipable, S2TipTransform, svgNS } from '../../shared/s2-globals';
 import { S2ArrowTip } from '../s2-arrow-tip';
 import { S2EdgeEndpoint } from './s2-edge-endpoint';
+import { S2Number } from '../../shared/s2-number';
+import { S2Length } from '../../shared/s2-length';
+import type { S2Position } from '../../shared/s2-position';
 
 // S2NodeArcManhattan
 

@@ -1,10 +1,14 @@
 import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, type S2Dirtyable } from '../shared/s2-globals';
-import { type S2Space, S2Length, S2Number, S2Position, S2Transform } from '../shared/s2-types';
+import { type S2Space } from '../shared/s2-base-type';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
+import { S2Number } from '../shared/s2-number';
+import { S2Transform } from '../shared/s2-transform';
+import { S2Position } from '../shared/s2-position';
+import { S2Length } from '../shared/s2-length';
 
 export class S2CircleData extends S2ElementData {
     public readonly fill: S2FillData;

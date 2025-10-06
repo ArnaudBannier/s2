@@ -1,9 +1,10 @@
 import { S2BaseScene } from '../scene/s2-base-scene';
 import { svgNS, type S2Dirtyable } from '../shared/s2-globals';
 import { S2Element } from './base/s2-element';
-import { S2Color, S2Number } from '../shared/s2-types';
 import { S2ElementData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
+import { S2Number } from '../shared/s2-number';
+import { S2Color } from '../shared/s2-color';
 
 export class S2FillRectData extends S2ElementData {
     public readonly color: S2Color;

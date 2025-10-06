@@ -1,6 +1,11 @@
 import { type S2Dirtyable, type S2TextAnchor } from '../../shared/s2-globals';
-import { S2Boolean, S2Enum, S2Extents, S2Number, S2Position, S2Transform } from '../../shared/s2-types';
+import { S2Enum } from '../../shared/s2-enum';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
+import { S2Number } from '../../shared/s2-number';
+import { S2Transform } from '../../shared/s2-transform';
+import { S2Position } from '../../shared/s2-position';
+import { S2Direction } from '../../shared/s2-direction';
+import { S2Boolean } from '../../shared/s2-boolean';
 
 export class S2TextData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -8,7 +13,7 @@ export class S2TextData extends S2ElementData {
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
     public readonly position: S2Position;
-    public readonly localShift: S2Extents;
+    public readonly localShift: S2Direction;
     public readonly font: S2FontData;
     public readonly textAnchor: S2Enum<S2TextAnchor>;
     public readonly preserveWhitespace: S2Boolean;
@@ -20,7 +25,7 @@ export class S2TextData extends S2ElementData {
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.position = new S2Position(0, 0, 'world');
-        this.localShift = new S2Extents(0, 0, 'view');
+        this.localShift = new S2Direction(0, 0, 'view');
         this.font = new S2FontData();
         this.textAnchor = new S2Enum<S2TextAnchor>('start');
         this.preserveWhitespace = new S2Boolean(false);

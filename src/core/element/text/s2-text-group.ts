@@ -9,11 +9,17 @@ import {
     svgNS,
 } from '../../shared/s2-globals';
 import { S2BaseRichText } from './s2-rich-text';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../../shared/s2-types';
+import { type S2Space } from '../../shared/s2-base-type';
 import { S2Element } from '../base/s2-element';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TextData } from './s2-text-data';
+import { S2Length } from '../../shared/s2-length';
+import { S2Enum } from '../../shared/s2-enum';
+import { S2Number } from '../../shared/s2-number';
+import { S2Transform } from '../../shared/s2-transform';
+import { S2Position } from '../../shared/s2-position';
+import { S2Extents } from '../../shared/s2-extents';
 
 export class S2TextLineData extends S2TextData {
     public readonly skip: S2Length;
@@ -168,66 +174,6 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
             this.extents, // this.data.minExtents,
         );
     }
-
-    // refreshExtents(): this {
-    //     this.contentExtents.set(0, 0, 'view');
-    //     this.extents.set(0, 0, 'view');
-
-    //     const camera = this.scene.getActiveCamera();
-    //     const space = 'view';
-
-    //     // Apply font to group element to ensure correct measurement of bounding boxes
-    //     S2DataUtils.applyFont(this.data.font, this.element, this.scene);
-
-    //     let maxWidth = 0;
-    //     let totalHeight = 0;
-    //     for (let i = 0; i < this.textLines.length; i++) {
-    //         const line = this.textLines[i];
-    //         line.update();
-    //         line.updateExtents();
-    //         //
-    //         const lineExtents = line.getExtents('view');
-    //         const font = line.data.font;
-    //         const relativeHeight = font.relativeLineHeight.getInherited();
-    //         const size = font.size.getInherited(space, camera);
-    //         maxWidth = Math.max(lineExtents.x * 2, maxWidth);
-    //         totalHeight += line.data.skip.value + relativeHeight * size;
-    //     }
-    //     const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
-    //     const minExtents = this.data.minExtents.toSpace(space, camera);
-    //     const extents = minExtents.maxV(textExtents);
-
-    //     this.contentExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
-    //     this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
-    //     return this;
-    // }
-
-    // updateExtents(): void {
-    //     const camera = this.scene.getActiveCamera();
-    //     const space = 'view';
-
-    //     // Apply font to group element to ensure correct measurement of bounding boxes
-    //     S2DataUtils.applyFont(this.data.font, this.element, this.scene);
-
-    //     let maxWidth = 0;
-    //     let totalHeight = 0;
-    //     for (let i = 0; i < this.textLines.length; i++) {
-    //         const line = this.textLines[i];
-    //         line.update();
-    //         const bbox = line.getBBox();
-    //         const font = line.data.font;
-    //         const relativeHeight = font.relativeLineHeight.getInherited();
-    //         const size = font.size.getInherited(space, camera);
-    //         maxWidth = Math.max(bbox.width, maxWidth);
-    //         totalHeight += line.data.skip.value + relativeHeight * size;
-    //     }
-    //     const textExtents = new S2Vec2(maxWidth, totalHeight).scale(0.5);
-    //     const minExtents = this.data.minExtents.toSpace(space, camera);
-    //     const extents = minExtents.maxV(textExtents);
-
-    //     this.contentExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
-    //     this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
-    // }
 
     update(): void {
         if (this.skipUpdate()) return;

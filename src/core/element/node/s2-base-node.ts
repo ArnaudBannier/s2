@@ -3,10 +3,12 @@ import { S2BaseScene } from '../../scene/s2-base-scene';
 import { S2AnchorUtils, svgNS } from '../../shared/s2-globals';
 import { S2Rect } from '../s2-rect';
 import { S2Circle } from '../s2-circle';
-import { S2Extents, S2Length, type S2Space } from '../../shared/s2-types';
+import { type S2Space } from '../../shared/s2-base-type';
 import { S2Element } from '../base/s2-element';
 import { S2NodeData } from './s2-node-data';
 import type { S2EdgeEndpoint } from './s2-edge-endpoint';
+import { S2Extents } from '../../shared/s2-extents';
+import type { S2Length } from '../../shared/s2-length';
 
 export abstract class S2BaseNode extends S2Element<S2NodeData> {
     protected element: SVGGElement;
@@ -95,8 +97,10 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
                     this.background = null;
                     return;
             }
-            this.background.data.layer.set(0);
-            this.background.setParent(this);
+            if (this.background) {
+                this.background.data.layer.set(0);
+                this.background.setParent(this);
+            }
             this.updateSVGChildren();
         }
 

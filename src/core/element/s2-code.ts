@@ -1,6 +1,6 @@
 import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../shared/s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, type S2Space } from '../shared/s2-types';
+import type { S2Space } from '../shared/s2-base-type';
 import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
@@ -10,6 +10,11 @@ import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-utils';
 import type { S2TSpan } from './text/s2-tspan';
 import type { S2Vec2 } from '../math/s2-vec2';
+import { S2Position } from '../shared/s2-position';
+import { S2Enum } from '../shared/s2-enum';
+import { S2Extents } from '../shared/s2-extents';
+import { S2Number } from '../shared/s2-number';
+import { S2Length } from '../shared/s2-length';
 
 export type S2CodeToken = {
     type: string;

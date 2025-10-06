@@ -1,5 +1,4 @@
 import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './s2-base-data.ts';
-import { S2Color, S2Enum, S2Extents, S2Length, S2Number, S2Position, type S2Space } from '../../shared/s2-types.ts';
 import { S2Vec2 } from '../../math/s2-vec2';
 import {
     type S2Anchor,
@@ -9,6 +8,13 @@ import {
     type S2LineJoin,
     type S2VerticalAlign,
 } from '../../shared/s2-globals.ts';
+import { S2Enum } from '../../shared/s2-enum.ts';
+import { S2Color } from '../../shared/s2-color.ts';
+import type { S2Space } from '../../shared/s2-base-type.ts';
+import { S2Length } from '../../shared/s2-length.ts';
+import { S2Number } from '../../shared/s2-number.ts';
+import { S2Position } from '../../shared/s2-position.ts';
+import { S2Extents } from '../../shared/s2-extents.ts';
 
 export class S2DataSetterUtils {
     static setAnchor(data: S2BaseData, anchor: S2Anchor): void {

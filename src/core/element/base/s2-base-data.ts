@@ -1,5 +1,10 @@
+import { S2Boolean } from '../../shared/s2-boolean';
+import { S2Color } from '../../shared/s2-color';
+import { S2Enum } from '../../shared/s2-enum';
 import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin } from '../../shared/s2-globals';
-import { S2Color, S2Length, S2Number, S2Enum, S2String, S2Boolean } from '../../shared/s2-types';
+import { S2Length } from '../../shared/s2-length';
+import { S2Number } from '../../shared/s2-number';
+import { S2String } from '../../shared/s2-string';
 
 export abstract class S2BaseData {
     abstract setOwner(owner: S2Dirtyable | null): void;

@@ -1,6 +1,10 @@
 import type { S2Anchor } from '../shared/s2-globals';
-import type { S2Boolean, S2Enum, S2Number, S2Space, S2String } from '../shared/s2-types';
+import type { S2Space } from '../shared/s2-base-type';
 import type { S2AnimProperty } from './s2-base-animation';
+import type { S2Boolean } from '../shared/s2-boolean';
+import type { S2String } from '../shared/s2-string';
+import type { S2Enum } from '../shared/s2-enum';
+import type { S2Number } from '../shared/s2-number';
 
 export abstract class S2TimelineTrigger<T extends S2AnimProperty = S2AnimProperty> {
     public property: T;

@@ -108,7 +108,7 @@ export class S2StepAnimator {
     }
 
     makeStep(): this {
-        if (this.timeline.getDuration() >= this.stepTimes[this.stepTimes.length - 1]) {
+        if (this.timeline.getDuration() > this.stepTimes[this.stepTimes.length - 1]) {
             this.stepTimes.push(this.timeline.getDuration());
         }
         return this;

@@ -4,20 +4,26 @@ import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../../shared/
 import { S2AnchorUtils, S2FlexUtils, svgNS } from '../../shared/s2-globals';
 import { S2Rect } from '../s2-rect';
 import { S2Circle } from '../s2-circle';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../../shared/s2-types';
+import { type S2Space } from '../../shared/s2-base-type';
 import { S2TextGroup, S2TextLine } from '../text/s2-text-group';
 import { clamp } from '../../math/s2-utils';
 import { S2Line } from '../s2-line';
 import { S2Element } from '../base/s2-element';
-import { S2FontData, S2ElementData, S2FillData, S2StrokeData } from '../base/s2-base-data';
 import { S2DataUtils } from '../base/s2-data-utils';
+import { S2Extents } from '../../shared/s2-extents';
+import { S2Length } from '../../shared/s2-length';
+import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
+import { S2Position } from '../../shared/s2-position';
+import { S2Enum } from '../../shared/s2-enum';
+import { S2Number } from '../../shared/s2-number';
+import { S2Transform } from '../../shared/s2-transform';
 
-export class S2NodeData extends S2ElementData {
+export class S2RichNodeData extends S2ElementData {
     public readonly position: S2Position;
     public readonly anchor: S2Enum<S2Anchor>;
-    public readonly background: S2NodeBackgroundData;
-    public readonly text: S2NodeTextData;
-    public readonly separator: S2NodeSeparatorData;
+    public readonly background: S2RichNodeBackgroundData;
+    public readonly text: S2RichNodeTextData;
+    public readonly separator: S2RichNodeSeparatorData;
     public readonly padding: S2Extents;
     public readonly partSep: S2Length;
     public readonly minExtents: S2Extents;
@@ -27,15 +33,15 @@ export class S2NodeData extends S2ElementData {
         this.position = new S2Position(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.minExtents = new S2Extents(0, 0, 'view');
-        this.background = new S2NodeBackgroundData();
-        this.separator = new S2NodeSeparatorData();
-        this.text = new S2NodeTextData();
+        this.background = new S2RichNodeBackgroundData();
+        this.separator = new S2RichNodeSeparatorData();
+        this.text = new S2RichNodeTextData();
         this.padding = new S2Extents(10, 5, 'view');
         this.partSep = new S2Length(5, 'view');
     }
 }
 
-export class S2NodeBackgroundData extends S2ElementData {
+export class S2RichNodeBackgroundData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -55,7 +61,7 @@ export class S2NodeBackgroundData extends S2ElementData {
     }
 }
 
-export class S2NodeTextData extends S2ElementData {
+export class S2RichNodeTextData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -80,7 +86,7 @@ export class S2NodeTextData extends S2ElementData {
     }
 }
 
-export class S2NodeSeparatorData extends S2ElementData {
+export class S2RichNodeSeparatorData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
 
@@ -94,7 +100,7 @@ export class S2NodeSeparatorData extends S2ElementData {
     }
 }
 
-export class S2Node extends S2Element<S2NodeData> {
+export class S2Node extends S2Element<S2RichNodeData> {
     protected element: SVGGElement;
     protected textGroups: S2TextGroup[];
     protected textGrows: number[];
@@ -103,7 +109,7 @@ export class S2Node extends S2Element<S2NodeData> {
     protected extents: S2Extents;
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
-        super(scene, new S2NodeData());
+        super(scene, new S2RichNodeData());
         this.element = document.createElementNS(svgNS, 'g');
         this.textGroups = [];
         this.textGrows = [];

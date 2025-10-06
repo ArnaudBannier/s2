@@ -13,6 +13,22 @@ export class S2Camera {
         this.viewScale = viewScale;
     }
 
+    getWorldToViewScaleX(): number {
+        return (0.5 * this.viewport.x) / (this.viewExtents.x * this.viewScale);
+    }
+
+    getWorldToViewScaleY(): number {
+        return (0.5 * this.viewport.y) / (this.viewExtents.y * this.viewScale);
+    }
+
+    getViewToWorldScaleX(): number {
+        return (2.0 * (this.viewExtents.x * this.viewScale)) / this.viewport.x;
+    }
+
+    getViewToWorldScaleY(): number {
+        return (2.0 * (this.viewExtents.y * this.viewScale)) / this.viewport.y;
+    }
+
     viewToWorldX(x: number): number {
         const ratio = x / this.viewport.x;
         const worldW = 2.0 * this.viewExtents.x * this.viewScale;
@@ -33,24 +49,32 @@ export class S2Camera {
         return this.viewToWorld(v.x, v.y);
     }
 
+    viewToWorldInto(x: number, y: number, out: S2Vec2): void {
+        out.set(this.viewToWorldX(x), this.viewToWorldY(y));
+    }
+
+    viewToWorldDirectionX(x: number): number {
+        return +x * this.getViewToWorldScaleX();
+    }
+
+    viewToWorldDirectionY(y: number): number {
+        return -y * this.getViewToWorldScaleY();
+    }
+
+    viewToWorldDirection(x: number, y: number): S2Vec2 {
+        return new S2Vec2(this.viewToWorldDirectionX(x), this.viewToWorldDirectionY(y));
+    }
+
+    viewToWorldDirectionV(v: S2Vec2): S2Vec2 {
+        return new S2Vec2(this.viewToWorldDirectionX(v.x), this.viewToWorldDirectionY(v.y));
+    }
+
+    viewToWorldDirectionInto(x: number, y: number, out: S2Vec2): void {
+        out.set(this.viewToWorldDirectionX(x), this.viewToWorldDirectionY(y));
+    }
+
     viewToWorldLength(length: number): number {
         return length * this.getViewToWorldScaleX();
-    }
-
-    getWorldToViewScaleX(): number {
-        return (0.5 * this.viewport.x) / (this.viewExtents.x * this.viewScale);
-    }
-
-    getWorldToViewScaleY(): number {
-        return (0.5 * this.viewport.y) / (this.viewExtents.y * this.viewScale);
-    }
-
-    getViewToWorldScaleX(): number {
-        return (2.0 * (this.viewExtents.x * this.viewScale)) / this.viewport.x;
-    }
-
-    getViewToWorldScaleY(): number {
-        return (2.0 * (this.viewExtents.y * this.viewScale)) / this.viewport.y;
     }
 
     worldToViewX(x: number): number {
@@ -69,6 +93,26 @@ export class S2Camera {
 
     worldToViewV(v: S2Vec2): S2Vec2 {
         return this.worldToView(v.x, v.y);
+    }
+
+    worldToViewDirectionX(x: number): number {
+        return +x * this.getWorldToViewScaleX();
+    }
+
+    worldToViewDirectionY(y: number): number {
+        return -y * this.getWorldToViewScaleY();
+    }
+
+    worldToViewDirection(x: number, y: number): S2Vec2 {
+        return new S2Vec2(this.worldToViewDirectionX(x), this.worldToViewDirectionY(y));
+    }
+
+    worldToViewDirectionV(v: S2Vec2): S2Vec2 {
+        return new S2Vec2(this.worldToViewDirectionX(v.x), this.worldToViewDirectionY(v.y));
+    }
+
+    worldToViewDirectionInto(x: number, y: number, out: S2Vec2): void {
+        out.set(this.worldToViewDirectionX(x), this.worldToViewDirectionY(y));
     }
 
     worldToViewLength(length: number): number {

@@ -1,6 +1,10 @@
 import { S2BaseData, S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../core/element/base/s2-base-data';
+import { S2Enum } from '../core/shared/s2-enum';
+import { S2Extents } from '../core/shared/s2-extents';
 import { type S2Anchor, type S2Dirtyable } from '../core/shared/s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position } from '../core/shared/s2-types';
+import { S2Length } from '../core/shared/s2-length';
+import { S2Number } from '../core/shared/s2-number';
+import { S2Position } from '../core/shared/s2-position';
 
 export class S2MemoryData extends S2ElementData {
     public readonly position: S2Position;

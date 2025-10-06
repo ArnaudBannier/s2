@@ -1,5 +1,10 @@
+import { S2Enum } from '../../shared/s2-enum';
+import { S2Extents } from '../../shared/s2-extents';
 import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
-import { S2Enum, S2Extents, S2Length, S2Number, S2Position, S2Transform } from '../../shared/s2-types';
+import { S2Length } from '../../shared/s2-length';
+import { S2Number } from '../../shared/s2-number';
+import { S2Position } from '../../shared/s2-position';
+import { S2Transform } from '../../shared/s2-transform';
 import { S2FontData, S2ElementData, S2FillData, S2StrokeData, S2BaseData } from '../base/s2-base-data';
 
 export type S2NodeShape = 'none' | 'rectangle' | 'circle';

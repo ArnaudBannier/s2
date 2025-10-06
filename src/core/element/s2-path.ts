@@ -1,13 +1,18 @@
 import { S2Vec2 } from '../math/s2-vec2';
 import { type S2BaseScene } from '../scene/s2-base-scene';
 import { S2TipTransform, svgNS, type S2Dirtyable, type S2Tipable } from '../shared/s2-globals';
-import { S2Enum, S2Length, S2Number, S2Position, S2Transform, type S2Space } from '../shared/s2-types';
 import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Camera } from '../math/s2-camera';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2ArrowTip } from './s2-arrow-tip';
+import { S2Number } from '../shared/s2-number';
+import { S2Transform } from '../shared/s2-transform';
+import { S2Enum } from '../shared/s2-enum';
+import type { S2Space } from '../shared/s2-base-type';
+import { S2Position } from '../shared/s2-position';
+import { S2Length } from '../shared/s2-length';
 
 export class S2PathData extends S2ElementData {
     public readonly stroke: S2StrokeData;

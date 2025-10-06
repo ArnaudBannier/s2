@@ -1,19 +1,18 @@
 import { S2FillData, S2FontData, S2StrokeData } from './s2-base-data.ts';
-import {
-    S2Boolean,
-    S2Color,
-    S2Enum,
-    S2Extents,
-    S2Length,
-    S2Number,
-    S2Position,
-    S2Transform,
-    type S2Space,
-} from '../../shared/s2-types.ts';
+import { S2Enum } from '../../shared/s2-enum.ts';
 import { S2AnchorUtils, type S2Anchor, type S2TextAnchor } from '../../shared/s2-globals.ts';
 import { S2BaseScene } from '../../scene/s2-base-scene.ts';
 import type { S2PolyCurve } from '../../math/s2-curve.ts';
 import { S2PathUtils } from '../s2-path.ts';
+import type { S2Color } from '../../shared/s2-color.ts';
+import type { S2Number } from '../../shared/s2-number.ts';
+import type { S2Transform } from '../../shared/s2-transform.ts';
+import type { S2Position } from '../../shared/s2-position.ts';
+import type { S2Direction } from '../../shared/s2-direction.ts';
+import type { S2Extents } from '../../shared/s2-extents.ts';
+import type { S2Length } from '../../shared/s2-length.ts';
+import type { S2Space } from '../../shared/s2-base-type.ts';
+import type { S2Boolean } from '../../shared/s2-boolean.ts';
 
 export class S2DataUtils {
     static applyStroke(stroke: S2StrokeData, element: SVGElement, scene: S2BaseScene): void {
@@ -117,15 +116,16 @@ export class S2DataUtils {
 
     static applyShiftedPosition(
         position: S2Position,
-        shift: S2Extents,
+        shift: S2Direction,
         element: SVGElement,
         scene: S2BaseScene,
         xAttribute: string = 'x',
         yAttribute: string = 'y',
     ): void {
         if (position.isDirty() || shift.isDirty()) {
-            const p = position.toSpace('view', scene.getActiveCamera());
-            const s = shift.toSpace('view', scene.getActiveCamera());
+            const camera = scene.getActiveCamera();
+            const p = position.toSpace('view', camera);
+            const s = shift.toSpace('view', camera);
             element.setAttribute(xAttribute, (p.x + s.x).toFixed(2));
             element.setAttribute(yAttribute, (p.y + s.y).toFixed(2));
         }

@@ -1,10 +1,11 @@
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2BaseScene } from '../../scene/s2-base-scene';
 import { svgNS } from '../../shared/s2-globals';
-import { S2BBox, type S2Space } from '../../shared/s2-types';
+import { type S2Space } from '../../shared/s2-base-type';
 import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TextData } from './s2-text-data';
+import { S2BBox } from '../../shared/s2-bbox';
 
 export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
     protected element: SVGTextElement;
@@ -28,7 +29,7 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
     }
 
     getContent(): string {
-        return this.element.textContent;
+        return this.element.textContent || '';
     }
 
     getPosition(space: S2Space): S2Vec2 {
