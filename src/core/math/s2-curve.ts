@@ -1,7 +1,7 @@
 import { S2Vec2 } from './s2-vec2';
 import { invLerp, lerp, remap } from './s2-utils';
 
-interface S2Curve {
+export interface S2Curve {
     getStart(): S2Vec2;
     getEnd(): S2Vec2;
     getPointAt(t: number): S2Vec2;
@@ -96,27 +96,27 @@ export class S2PolyCurve implements S2Curve {
         return this;
     }
 
-    addLine(p0: S2Vec2, p1: S2Vec2): S2LineCurve {
+    addLine(p0: S2Vec2, p1: S2Vec2): this {
         const curve = new S2LineCurve(p0, p1);
         this.length += curve.getLength();
         this.curves.push(curve);
-        return curve;
+        return this;
     }
 
-    addQuadratic(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2, sampleCount: number = 0): S2QuadraticCurve {
+    addQuadratic(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2, sampleCount: number = 0): this {
         const curve = new S2QuadraticCurve(p0, p1, p2).computeLinearLUT(sampleCount);
         if (sampleCount > 0) curve.computeLinearLUT(sampleCount);
         this.length += curve.getLength();
         this.curves.push(curve);
-        return curve;
+        return this;
     }
 
-    addCubic(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2, p3: S2Vec2, sampleCount: number = 0): S2CubicCurve {
+    addCubic(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2, p3: S2Vec2, sampleCount: number = 0): this {
         const curve = new S2CubicCurve(p0, p1, p2, p3);
         if (sampleCount > 0) curve.computeLinearLUT(sampleCount);
         this.length += curve.getLength();
         this.curves.push(curve);
-        return curve;
+        return this;
     }
 
     getPointAt(t: number): S2Vec2 {

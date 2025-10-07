@@ -59,19 +59,18 @@ export class S2BaseLerpAnim<T extends S2AnimProperty & S2HasClone<T> & S2HasCopy
     }
 
     commitInitialState(): this {
-        this.state0.copyIfUnlocked(this.property);
+        this.state0.copy(this.property);
         return this;
     }
 
     commitFinalState(): this {
-        this.state1.copyIfUnlocked(this.property);
+        this.state1.copy(this.property);
         return this;
     }
 
     protected setElapsedPropertyImpl(property: S2AnimProperty): void {
         if (property !== this.property) return;
-        const alpha = this.wrapedCycleAlpha;
-        this.property.lerp(this.state0, this.state1, alpha);
+        this.property.lerp(this.state0, this.state1, this.wrapedCycleAlpha);
     }
 }
 
@@ -91,19 +90,18 @@ export class S2BaseLerpAnimWithCamera<
     }
 
     commitInitialState(): this {
-        this.state0.copyIfUnlocked(this.property);
+        this.state0.copy(this.property);
         return this;
     }
 
     commitFinalState(): this {
-        this.state1.copyIfUnlocked(this.property);
+        this.state1.copy(this.property);
         return this;
     }
 
     protected setElapsedPropertyImpl(property: S2AnimProperty): void {
         if (property !== this.property) return;
-        const alpha = this.wrapedCycleAlpha;
-        this.property.lerp(this.state0, this.state1, alpha, this.scene.getActiveCamera());
+        this.property.lerp(this.state0, this.state1, this.wrapedCycleAlpha, this.scene.getActiveCamera());
     }
 }
 

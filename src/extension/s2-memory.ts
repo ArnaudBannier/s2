@@ -11,6 +11,8 @@ import { S2AnchorUtils, svgNS } from '../core/shared/s2-globals';
 import { type S2Space } from '../core/shared/s2-base-type';
 import { S2MemoryData } from './s2-memory-data';
 import { S2Position } from '../core/shared/s2-position';
+import { S2MotionPathDirection } from '../core/animation/s2-motion-path';
+import type { S2Color } from '../core/shared/s2-color';
 
 class S2MemoryRow {
     protected scene: S2BaseScene;
@@ -50,7 +52,7 @@ class S2MemoryRow {
         this.address.setContent(address);
     }
 
-    setValue(value: string): S2PlainText {
+    setValue(value: string, options: { color?: S2Color } = {}): S2PlainText {
         const text = new S2PlainText(this.scene);
         text.setParent(this.parentMemory);
         text.data.textAnchor.set('start');
@@ -58,12 +60,15 @@ class S2MemoryRow {
         text.data.font.copyIfUnlocked(this.parentMemory.data.text.font);
         text.data.fill.color.copyIfUnlocked(this.parentMemory.data.text.fill.color);
         text.data.fill.opacity.copyIfUnlocked(this.parentMemory.data.text.fill.opacity);
+        if (options.color) {
+            text.data.fill.color.copy(options.color).lock();
+        }
         text.setContent(value);
         this.values.push(text);
         return text;
     }
 
-    setName(name: string): S2PlainText {
+    setName(name: string, options: { color?: S2Color } = {}): S2PlainText {
         const text = new S2PlainText(this.scene);
         text.setParent(this.parentMemory);
         text.data.textAnchor.set('start');
@@ -71,14 +76,22 @@ class S2MemoryRow {
         text.data.font.copyIfUnlocked(this.parentMemory.data.text.font);
         text.data.fill.color.copyIfUnlocked(this.parentMemory.data.text.fill.color);
         text.data.fill.opacity.copyIfUnlocked(this.parentMemory.data.text.fill.opacity);
+        if (options.color) {
+            text.data.fill.color.copy(options.color).lock();
+        }
         text.setContent(name);
         this.names.push(text);
         return text;
     }
 
-    animateSetValue(value: string, animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = animator.ensureLabel(label);
-        const duration = 500;
+    animateSetValue(
+        value: string,
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number; color?: S2Color } = {},
+    ): S2PlainText {
+        const label = animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
         let delay = 0;
         if (this.values.length > 0) {
             const lastValue = this.values[this.values.length - 1];
@@ -88,21 +101,40 @@ class S2MemoryRow {
             }
         }
 
-        const text = this.setValue(value);
+        const text = this.setValue(value, { color: options.color });
         this.animateFadeIn(text, animator, new S2Vec2(-5, 0), label, duration, offset + delay);
+        return text;
     }
 
-    animateSetName(name: string, animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = animator.ensureLabel(label);
-        const duration = 500;
+    animateSetName(
+        name: string,
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number; color?: S2Color } = {},
+    ): S2PlainText {
+        const label = animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
+        let delay = 0;
+        if (this.names.length > 0) {
+            const lastName = this.names[this.names.length - 1];
+            if (lastName.data.isEnabled) {
+                this.animateFadeOut(lastName, animator, new S2Vec2(30, 0), label, duration, offset);
+                delay = 250;
+            }
+        }
 
-        const text = this.setName(name);
-        this.animateFadeIn(text, animator, new S2Vec2(-5, 0), label, duration, offset);
+        const text = this.setName(name, { color: options.color });
+        this.animateFadeIn(text, animator, new S2Vec2(-5, 0), label, duration, offset + delay);
+        return text;
     }
 
-    animateDestroy(animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = animator.ensureLabel(label);
-        const duration = 500;
+    animateDestroy(
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number } = {},
+    ): void {
+        const label = animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
 
         if (this.values.length > 0) {
             const lastValue = this.values[this.values.length - 1];
@@ -115,47 +147,77 @@ class S2MemoryRow {
         }
     }
 
-    animateCopyValue(srcRow: S2MemoryRow, animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = animator.ensureLabel(label);
-        const duration = 500;
-        let delay = 0;
-        if (this.values.length > 0) {
-            const lastValue = this.values[this.values.length - 1];
-            if (lastValue.data.isEnabled) {
-                this.animateFadeOut(lastValue, animator, new S2Vec2(30, 0), label, duration, offset);
-                delay = 250;
-            }
+    animateCopyValue(
+        srcRow: S2MemoryRow,
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            srcAngle?: number;
+            dstAngle?: number;
+            curveTension?: number;
+            color?: S2Color;
+        } = {},
+    ): S2PlainText {
+        if (srcRow.values.length === 0) {
+            throw new Error('Source row has no value to copy');
         }
-        if (srcRow.values.length === 0) return;
+        const lastText = this.values.length > 0 ? this.values[this.values.length - 1] : undefined;
         const srcText = srcRow.values[srcRow.values.length - 1];
         const dstText = this.setValue(srcText.getContent());
-        this.animateCopy(dstText, srcText, animator, label, duration, offset + delay);
+        this.animateCopy(srcText, dstText, animator, { lastText: lastText, ...options });
+        return dstText;
     }
 
-    animateCopyAddress(srcRow: S2MemoryRow, animator: S2StepAnimator, label?: string, offset: number = 0): void {
-        label = animator.ensureLabel(label);
-        const duration = 500;
-        let delay = 0;
-        if (this.values.length > 0) {
-            const lastValue = this.values[this.values.length - 1];
-            if (lastValue.data.isEnabled) {
-                this.animateFadeOut(lastValue, animator, new S2Vec2(30, 0), label, duration, offset);
-                delay = 250;
-            }
-        }
+    animateCopyAddress(
+        srcRow: S2MemoryRow,
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            srcAngle?: number;
+            dstAngle?: number;
+            curveTension?: number;
+            color?: S2Color;
+        } = {},
+    ): S2PlainText {
+        const lastText = this.values.length > 0 ? this.values[this.values.length - 1] : undefined;
         const srcText = srcRow.address;
         const dstText = this.setValue(srcText.getContent());
-        this.animateCopy(dstText, srcText, animator, label, duration, offset + delay);
+        this.animateCopy(srcText, dstText, animator, { lastText: lastText, ...options });
+        return dstText;
     }
 
     protected animateCopy(
-        dstText: S2PlainText,
         srcText: S2PlainText,
+        dstText: S2PlainText,
         animator: S2StepAnimator,
-        label: string,
-        duration: number,
-        offset: number,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            srcAngle?: number;
+            dstAngle?: number;
+            curveTension?: number;
+            color?: S2Color;
+            lastText?: S2PlainText;
+        } = {},
     ): void {
+        const label = animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
+        const srcAngle = options.srcAngle ?? 180;
+        const dstAngle = options.dstAngle ?? 180;
+        const tension = options.curveTension ?? 0.4;
+
+        let delay = 0;
+        if (options.lastText && options.lastText.data.isEnabled) {
+            this.animateFadeOut(options.lastText, animator, new S2Vec2(30, 0), label, duration, offset);
+            delay = 250;
+        }
+
         animator.enableElement(dstText, true, label, offset);
         const space: S2Space = 'world';
         const srcPosition = srcText.getPosition(space);
@@ -163,14 +225,34 @@ class S2MemoryRow {
         if (srcText.data.textAnchor.get() === 'end') {
             srcPosition.x -= 2 * srcText.getExtents(space).x;
         }
-        const shift = srcPosition.subV(dstPosition);
-        dstText.data.localShift.setV(shift, space);
-        const copyAnim = S2LerpAnimFactory.create(this.scene, dstText.data.localShift)
+        const motionAnim = new S2MotionPathDirection(this.scene, dstText.data.localShift)
             .setCycleDuration(duration)
-            .setEasing(ease.out);
+            .setEasing(ease.inOut)
+            .setSpace(space);
+
+        const shift = srcPosition.subV(dstPosition);
+        const distance = shift.length();
+        const path = motionAnim.getCurve();
+        const sampleCount = 16;
+        path.clear()
+            .addCubic(
+                shift,
+                S2Vec2.add(shift, S2Vec2.fromPolarDeg(srcAngle, tension * distance)),
+                S2Vec2.fromPolarDeg(dstAngle, tension * distance),
+                new S2Vec2(0, 0),
+                sampleCount,
+            )
+            .updateLength();
         dstText.data.localShift.set(0, 0, space);
-        copyAnim.commitFinalState();
-        animator.addAnimation(copyAnim, label, offset);
+        animator.addAnimation(motionAnim, label, offset + delay);
+
+        if (options.color) {
+            dstText.data.fill.color.copy(srcText.data.fill.color);
+            const colorAnim = S2LerpAnimFactory.create(this.scene, dstText.data.fill.color).setCycleDuration(duration);
+            dstText.data.fill.color.copy(options.color).lock();
+            colorAnim.commitFinalState();
+            animator.addAnimation(colorAnim, label, offset + delay);
+        }
     }
 
     protected animateFadeIn(

@@ -65,11 +65,12 @@ class SceneFigure extends S2Scene {
         this.update();
 
         this.animator.addLabelAtCurrentTime('coucou');
-        row.animateSetValue('100', this.animator, 'coucou');
-        row.animateSetName('index', this.animator, 'coucou', 200);
+        let value = row.animateSetValue('100', this.animator, { label: 'coucou' });
+        value.data.fill.color.copy(MTL.ORANGE);
+        row.animateSetName('index', this.animator, { label: 'coucou', offset: 0 });
         this.animator.makeStep();
         this.update();
-        row.animateSetValue('73', this.animator);
+        value = row.animateSetValue('73', this.animator, { color: MTL.LIGHT_BLUE });
         this.animator.makeStep();
         this.update();
 
@@ -78,11 +79,11 @@ class SceneFigure extends S2Scene {
         this.update();
 
         row.animateSetName('compteur', this.animator);
-        row.animateCopyValue(otherRow, this.animator);
+        value = row.animateCopyValue(otherRow, this.animator, { color: MTL.LIGHT_GREEN });
         this.animator.makeStep();
         this.update();
 
-        row.animateCopyAddress(otherRow, this.animator);
+        value = row.animateCopyAddress(otherRow, this.animator, { srcAngle: 0, dstAngle: 180, color: MTL.PINK });
         this.animator.makeStep();
         this.update();
     }
