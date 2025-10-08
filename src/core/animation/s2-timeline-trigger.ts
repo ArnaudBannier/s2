@@ -5,6 +5,7 @@ import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';
 import type { S2Enum } from '../shared/s2-enum';
 import type { S2Number } from '../shared/s2-number';
+import type { S2Color } from '../shared/s2-color';
 
 export abstract class S2TimelineTrigger<T extends S2AnimProperty = S2AnimProperty> {
     public property: T;
@@ -78,5 +79,18 @@ export class S2TriggerNumber extends S2TimelineTrigger<S2Number> {
 
     onTrigger(): void {
         this.property.set(this.value);
+    }
+}
+
+export class S2TriggerColor extends S2TimelineTrigger<S2Color> {
+    public value: S2Color;
+
+    constructor(property: S2Color, value: S2Color) {
+        super(property);
+        this.value = value;
+    }
+
+    onTrigger(): void {
+        this.property.copy(this.value);
     }
 }

@@ -176,6 +176,37 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.rows[varId].animateColor(color, animator, options);
     }
 
+    animateEmphIn(
+        varId: number,
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            color?: S2Color;
+        } = {},
+    ): void {
+        if (varId < 0 || varId >= this.addressCount) {
+            throw new Error('Invalid variable ID');
+        }
+        this.rows[varId].animateEmphIn(animator, options);
+    }
+
+    animateEmphOut(
+        varId: number,
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+        } = {},
+    ): void {
+        if (varId < 0 || varId >= this.addressCount) {
+            throw new Error('Invalid variable ID');
+        }
+        this.rows[varId].animateEmphOut(animator, options);
+    }
+
     protected updateBackground(): void {
         //const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
@@ -251,7 +282,6 @@ export class S2Memory extends S2Element<S2MemoryData> {
 
         for (const row of this.rows) {
             row.address.data.fill.copyIfUnlocked(this.data.text.addressFill);
-            row.background.data.fill.copyIfUnlocked(this.data.emphasis.fill);
             //row.address.data.background.copyIfUnlocked(this.data.text.addressFill);
             row.update();
         }

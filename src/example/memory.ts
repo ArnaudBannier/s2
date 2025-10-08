@@ -45,11 +45,12 @@ class SceneFigure extends S2Scene {
         memory.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
         memory.data.text.addressFill.color.copyIfUnlocked(MTL.GREY_4);
         memory.data.text.font.copyIfUnlocked(this.font);
-        memory.data.emphasis.fill.color.copyIfUnlocked(MTL.BLUE);
         memory.data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
         memory.data.background.stroke.color.copyIfUnlocked(MTL.GREY_7);
         memory.data.background.stroke.width.set(2, 'view');
         memory.data.background.cornerRadius.set(10, 'view');
+        memory.data.emphasis.cornerRadius.set(7, 'view');
+        memory.data.emphasis.padding.set(3, 3, 'view');
 
         this.update();
 
@@ -65,10 +66,12 @@ class SceneFigure extends S2Scene {
         this.animator.makeStep();
         this.update();
 
-        this.memory.animateSetValue(varId1, '73', this.animator, { color: MTL.LIGHT_BLUE });
+        this.memory.animateEmphIn(varId1, this.animator, { label: 'emph', color: MTL.LIGHT_BLUE });
+        this.memory.animateSetValue(varId1, '73', this.animator, { label: 'emph', offset: 200, color: MTL.LIGHT_BLUE });
         this.animator.makeStep();
         this.update();
 
+        this.memory.animateEmphOut(varId1, this.animator);
         this.memory.animateDestroy(varId1, this.animator);
         this.animator.makeStep();
         this.update();

@@ -11,7 +11,7 @@ import { S2MotionPathDirection } from '../core/animation/s2-motion-path';
 import type { S2Color } from '../core/shared/s2-color';
 import type { S2Memory } from './s2-memory';
 import { S2Rect } from '../core/element/s2-rect';
-import { MTL } from '../utils/mtl-colors';
+import { S2TriggerColor } from '../core/animation/s2-timeline-trigger';
 
 export class S2MemoryRow {
     protected scene: S2BaseScene;
@@ -46,6 +46,7 @@ export class S2MemoryRow {
 
         this.hLine.setParent(parent);
         this.background.setParent(parent);
+        this.background.data.isEnabled.set(false);
         this.address.setParent(parent);
         this.address.data.textAnchor.set('end');
         this.isStacked = false;
@@ -230,6 +231,58 @@ export class S2MemoryRow {
         }
     }
 
+    animateEmphIn(
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            color?: S2Color;
+        } = {},
+    ): void {
+        const label = animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
+
+        this.background.data.opacity.set(0.0);
+        this.background.data.fill.opacity.set(0.25);
+        this.background.data.stroke.width.set(1, 'view');
+        const opacityAnim = S2LerpAnimFactory.create(this.scene, this.background.data.opacity)
+            .setCycleDuration(duration)
+            .setEasing(ease.inOut);
+        this.background.data.opacity.set(1.0);
+        opacityAnim.commitFinalState();
+        animator.addAnimation(opacityAnim, label, offset);
+        animator.enableElement(this.background, true, label, offset);
+
+        if (options.color) {
+            animator.addTrigger(new S2TriggerColor(this.background.data.fill.color, options.color), label, offset);
+            animator.addTrigger(new S2TriggerColor(this.background.data.stroke.color, options.color), label, offset);
+        }
+    }
+
+    animateEmphOut(
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+        } = {},
+    ): void {
+        const label = animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
+
+        this.background.data.opacity.set(1.0);
+        const opacityAnim = S2LerpAnimFactory.create(this.scene, this.background.data.opacity)
+            .setCycleDuration(duration)
+            .setEasing(ease.inOut);
+        this.background.data.opacity.set(0.0);
+        opacityAnim.commitFinalState();
+        animator.addAnimation(opacityAnim, label, offset);
+        animator.enableElement(this.background, false, label, offset + duration);
+    }
+
     protected animateCopy(
         srcText: S2PlainText,
         dstText: S2PlainText,
@@ -258,7 +311,6 @@ export class S2MemoryRow {
             delay = 250;
         }
 
-        animator.enableElement(dstText, true, label, offset);
         const space: S2Space = 'world';
         const srcPosition = srcText.getPosition(space);
         const dstPosition = dstText.getPosition(space);
@@ -284,6 +336,7 @@ export class S2MemoryRow {
             )
             .updateLength();
         dstText.data.localShift.set(0, 0, space);
+        animator.enableElement(dstText, true, label, offset + delay);
         animator.addAnimation(motionAnim, label, offset + delay);
 
         if (options.color) {

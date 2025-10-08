@@ -82,36 +82,21 @@ export class S2MemoryBackgroundData extends S2BaseData {
 }
 
 export class S2MemoryEmphasisData extends S2BaseData {
-    public readonly fill: S2FillData;
-    public readonly stroke: S2StrokeData;
-    public readonly opacity: S2Number;
     public readonly cornerRadius: S2Length;
     public readonly padding: S2Extents;
 
     constructor() {
         super();
-        this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1);
         this.cornerRadius = new S2Length(7, 'view');
         this.padding = new S2Extents(2, 2, 'view');
-
-        this.stroke.opacity.set(1);
-        this.fill.opacity.set(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
-        this.fill.setOwner(owner);
-        this.stroke.setOwner(owner);
-        this.opacity.setOwner(owner);
         this.cornerRadius.setOwner(owner);
         this.padding.setOwner(owner);
     }
 
     clearDirty(): void {
-        this.fill.clearDirty();
-        this.stroke.clearDirty();
-        this.opacity.clearDirty();
         this.cornerRadius.clearDirty();
         this.padding.clearDirty();
     }
