@@ -117,12 +117,12 @@ export class S2StepAnimator {
         return this;
     }
 
-    addAnimation(animation: S2BaseAnimation, label: string = '', offset: number = 0): this {
+    addAnimation(animation: S2BaseAnimation, label?: string, offset: number = 0): this {
         this.timeline.addAnimation(animation, label, offset);
         return this;
     }
 
-    addTrigger(trigger: S2TimelineTrigger, label: string = '', offset: number = 0): this {
+    addTrigger(trigger: S2TimelineTrigger, label?: string, offset: number = 0): this {
         this.timeline.addTrigger(trigger, label, offset);
         return this;
     }
@@ -144,11 +144,16 @@ export class S2StepAnimator {
     }
 
     ensureLabel(label?: string): string {
-        if (label) return label;
-        return this.createLabelAtCurrentTime();
+        if (label) {
+            if (this.timeline.hasLabel(label)) return label;
+            this.timeline.addLabelAtCurrentTime(label);
+            return label;
+        } else {
+            return this.createLabelAtCurrentTime();
+        }
     }
 
-    enableElement(element: S2BaseElement, isEnabled: boolean, label: string = '', offset: number = 0): this {
+    enableElement(element: S2BaseElement, isEnabled: boolean, label?: string, offset: number = 0): this {
         this.timeline.enableElement(element, isEnabled, label, offset);
         return this;
     }

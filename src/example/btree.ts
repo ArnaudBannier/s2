@@ -284,7 +284,11 @@ class BTree {
 
         let anim: S2BaseAnimation | null = null;
         anim = this.style.createSelectNodeAnim(bTreeNode.node);
-        animator.addAnimation(anim, 'previous-start', bTreeNode.parentEdge ? 100 : 0);
+        if (bTreeNode.parentEmphEdge) {
+            animator.addAnimation(anim, 'previous-start', bTreeNode.parentEdge ? 100 : 0);
+        } else {
+            animator.addAnimation(anim, 'timeline-end', bTreeNode.parentEdge ? 100 : 0);
+        }
 
         if (bTreeNode.left && bTreeNode.left.parentEdge) {
             anim = this.style.createSelectEdgeAnim(bTreeNode.left.parentEdge);
@@ -298,7 +302,7 @@ class BTree {
 
     animateExploreNode(animator: S2StepAnimator, bTreeNode: BTreeNode) {
         const anim = this.style.createExploreNodeAnim(bTreeNode.node);
-        animator.addAnimation(anim, 'previous-end', 0);
+        animator.addAnimation(anim, 'timeline-end', 0);
     }
 
     animateExitParentEdge(animator: S2StepAnimator, bTreeNode: BTreeNode) {
@@ -309,7 +313,7 @@ class BTree {
             .setEasing(ease.inOut);
 
         bTreeNode.parentEmphEdge.data.pathTo.set(0.0);
-        animator.addAnimation(parentAnim.commitFinalState(), 'previous-end', 0);
+        animator.addAnimation(parentAnim.commitFinalState(), 'timeline-end', 0);
 
         const anim = this.style.createExploreEdgeAnim(bTreeNode.parentEdge);
         animator.addAnimation(anim, 'previous-start', 200);
@@ -525,7 +529,7 @@ class SceneFigure extends S2Scene {
         }
 
         this.animator.enableElement(code, true);
-        this.animator.addAnimation(animPos, 'previous-end', 0);
+        this.animator.addAnimation(animPos, 'timeline-end', 0);
         this.animator.addAnimation(animOpacity, 'previous-start', 0);
         this.animator.addAnimation(animIndex, 'previous-start', 0);
     }
@@ -548,7 +552,7 @@ class SceneFigure extends S2Scene {
             anim.setCycleDuration(500).setEasing(ease.out).commitFinalState();
         }
 
-        this.animator.addAnimation(animPos, 'previous-end', 0);
+        this.animator.addAnimation(animPos, 'timeline-end', 0);
         this.animator.addAnimation(animOpacity, 'previous-start', 0);
         this.animator.enableElement(code, false);
     }
@@ -561,7 +565,7 @@ class SceneFigure extends S2Scene {
             .setCycleDuration(500)
             .setEasing(ease.inOut);
         code.data.currentLine.index.set(lineIndex);
-        this.animator.addAnimation(lerpAnim.commitFinalState(), 'previous-end', 0);
+        this.animator.addAnimation(lerpAnim.commitFinalState(), 'timeline-end', 0);
     }
 
     animateWriteOutput(text: string) {

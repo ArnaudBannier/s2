@@ -31,10 +31,10 @@ class SceneFigure extends S2Scene {
         const fillRect = this.addFillRect();
         S2DataSetter.setTargets(fillRect.data).setColor(MTL.GREY_8);
 
-        const grid = this.addWorldGrid();
-        S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_9);
+        // const grid = this.addWorldGrid();
+        // S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_9);
 
-        const addressCount = 4;
+        const addressCount = 10;
         const isStacked = true;
         const memory = new S2Memory(this, addressCount, isStacked);
         this.memory = memory;
@@ -43,15 +43,13 @@ class SceneFigure extends S2Scene {
 
         memory.data.padding.set(15, 0, 'view');
         memory.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
+        memory.data.text.addressFill.color.copyIfUnlocked(MTL.GREY_4);
         memory.data.text.font.copyIfUnlocked(this.font);
+        memory.data.emphasis.fill.color.copyIfUnlocked(MTL.BLUE);
         memory.data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
         memory.data.background.stroke.color.copyIfUnlocked(MTL.GREY_7);
         memory.data.background.stroke.width.set(2, 'view');
         memory.data.background.cornerRadius.set(10, 'view');
-
-        memory.addVariable('i', '42');
-        memory.addVariable('sum', '0');
-        memory.addVariable('value', '1234');
 
         this.update();
 
@@ -60,30 +58,42 @@ class SceneFigure extends S2Scene {
 
     createAnimation(): void {
         this.animator.makeStep();
-        const row = this.memory.getRow(0);
-        const otherRow = this.memory.getRow(1);
-        this.update();
+        let varId1 = this.memory.addVariable();
 
-        this.animator.addLabelAtCurrentTime('coucou');
-        let value = row.animateSetValue('100', this.animator, { label: 'coucou' });
-        value.data.fill.color.copy(MTL.ORANGE);
-        row.animateSetName('index', this.animator, { label: 'coucou', offset: 0 });
-        this.animator.makeStep();
-        this.update();
-        value = row.animateSetValue('73', this.animator, { color: MTL.LIGHT_BLUE });
+        this.memory.animateSetValue(varId1, '100', this.animator, { label: 'coucou', color: MTL.ORANGE });
+        this.memory.animateSetName(varId1, 'index', this.animator, { label: 'coucou', offset: 100 });
         this.animator.makeStep();
         this.update();
 
-        row.animateDestroy(this.animator);
+        this.memory.animateSetValue(varId1, '73', this.animator, { color: MTL.LIGHT_BLUE });
         this.animator.makeStep();
         this.update();
 
-        row.animateSetName('compteur', this.animator);
-        value = row.animateCopyValue(otherRow, this.animator, { color: MTL.LIGHT_GREEN });
+        this.memory.animateDestroy(varId1, this.animator);
         this.animator.makeStep();
         this.update();
 
-        value = row.animateCopyAddress(otherRow, this.animator, { srcAngle: 0, dstAngle: 180, color: MTL.PINK });
+        varId1 = this.memory.addVariable();
+        this.memory.animateSetValue(varId1, '100', this.animator, { label: 'label2' });
+        this.memory.animateSetName(varId1, 'index', this.animator, { label: 'label2' });
+        this.animator.makeStep();
+        this.update();
+
+        const varId2 = this.memory.addVariable();
+        this.memory.animateSetValue(varId2, '100', this.animator, { label: 'label3' });
+        this.memory.animateSetName(varId2, 'variable', this.animator, { label: 'label3', offset: 100 });
+        this.animator.makeStep();
+        this.update();
+
+        this.memory.animateCopyValue(varId1, varId2, this.animator, { color: MTL.LIGHT_GREEN });
+        this.animator.makeStep();
+        this.update();
+
+        this.memory.animateCopyAddress(varId2, varId1, this.animator, { srcAngle: 0, dstAngle: 180, color: MTL.PINK });
+        this.animator.makeStep();
+        this.update();
+
+        this.memory.animateColor(varId2, MTL.GREY_7, this.animator);
         this.animator.makeStep();
         this.update();
     }

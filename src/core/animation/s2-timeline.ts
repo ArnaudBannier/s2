@@ -168,6 +168,10 @@ export class S2Timeline extends S2BaseAnimation {
         return label;
     }
 
+    hasLabel(label: string): boolean {
+        return this.labelToTime.has(label);
+    }
+
     getLabelTime(label: string, offset: number = 0): number {
         switch (label) {
             case 'timeline-end':
