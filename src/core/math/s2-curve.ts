@@ -1,5 +1,5 @@
 import { S2Vec2 } from './s2-vec2';
-import { invLerp, lerp, remap } from './s2-utils';
+import { S2MathUtils } from './s2-utils';
 
 export interface S2Curve {
     getStart(): S2Vec2;
@@ -64,7 +64,7 @@ export class S2PolyCurve implements S2Curve {
             if (targetLength < cumule)
                 return {
                     index: i,
-                    t: invLerp(cumule - this.curves[i].getLength(), cumule, targetLength),
+                    t: S2MathUtils.invLerp(cumule - this.curves[i].getLength(), cumule, targetLength),
                 };
         }
         return { index: this.curves.length - 1, t: 1.0 };
@@ -268,7 +268,7 @@ abstract class S2BezierCurve {
         const index = Math.floor(realIndex);
         if (index < 0) return 0;
         if (index >= this.linearLUT.length - 1) return 1;
-        return lerp(this.linearLUT[index], this.linearLUT[index + 1], realIndex - index);
+        return S2MathUtils.lerp(this.linearLUT[index], this.linearLUT[index + 1], realIndex - index);
     }
 
     computeLinearLUT(sampleCount: number = 8): this {
@@ -293,7 +293,13 @@ abstract class S2BezierCurve {
             const t = i / sampleCount;
             while (progress[index] < t && index < progress.length - 1) index++;
             this.linearLUT.push(
-                remap(progress[index - 1], progress[index], (index - 1) / sampleCount, index / sampleCount, t),
+                S2MathUtils.remap(
+                    progress[index - 1],
+                    progress[index],
+                    (index - 1) / sampleCount,
+                    index / sampleCount,
+                    t,
+                ),
             );
         }
         return this;

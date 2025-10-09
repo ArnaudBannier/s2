@@ -6,7 +6,6 @@ import { S2Rect } from '../s2-rect';
 import { S2Circle } from '../s2-circle';
 import { type S2Space } from '../../shared/s2-base-type';
 import { S2TextGroup, S2TextLine } from '../text/s2-text-group';
-import { clamp } from '../../math/s2-utils';
 import { S2Line } from '../s2-line';
 import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
@@ -17,6 +16,7 @@ import { S2Position } from '../../shared/s2-position';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
+import { S2MathUtils } from '../../math/s2-utils';
 
 export class S2RichNodeData extends S2ElementData {
     public readonly position: S2Position;
@@ -152,7 +152,7 @@ export class S2Node extends S2Element<S2RichNodeData> {
     }
 
     addLine(options?: { partIndex?: number; align?: S2HorizontalAlign; skip?: number }): S2TextLine {
-        const index = clamp(options?.partIndex ?? 0, 0, this.textGroups.length - 1);
+        const index = S2MathUtils.clamp(options?.partIndex ?? 0, 0, this.textGroups.length - 1);
         const textLine = this.textGroups[index].addLine(options);
         return textLine;
     }

@@ -453,7 +453,7 @@ export class S2TextEmphasis extends S2Element<S2TextEmphasisData> {
 
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
-        const position = this.textReference.getPosition(space);
+        const position = this.textReference.getCenter(space);
         const textExtents = this.textReference.getExtents(space);
         const padding = this.data.padding.toSpace(space, camera);
         this.rect.data.position.setV(position, space);

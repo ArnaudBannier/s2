@@ -90,14 +90,23 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         return this.localBBox.getCenter(space, this.scene.getActiveCamera());
     }
 
-    getPosition(space: S2Space): S2Vec2 {
-        const localPos = this.getLocalCenter(space);
-        const parentPos = this.parentText.getPosition(space);
-        return localPos.addV(parentPos);
+    getCenter(space: S2Space): S2Vec2 {
+        const localCenter = this.getLocalCenter(space);
+        return localCenter.addV(this.parentText.getPosition(space));
     }
 
     getExtents(space: S2Space): S2Vec2 {
         return this.localBBox.getExtents(space, this.scene.getActiveCamera());
+    }
+
+    getLower(space: S2Space): S2Vec2 {
+        const localLower = this.localBBox.getLower(space, this.scene.getActiveCamera());
+        return localLower.addV(this.parentText.getPosition(space));
+    }
+
+    getUpper(space: S2Space): S2Vec2 {
+        const localUpper = this.localBBox.getUpper(space, this.scene.getActiveCamera());
+        return localUpper.addV(this.parentText.getPosition(space));
     }
 
     update(): void {
