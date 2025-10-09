@@ -1,6 +1,6 @@
-import { type S2BaseScene } from '../../scene/s2-base-scene';
-import { type S2Dirtyable, type S2Tipable } from '../../shared/s2-globals';
-import { S2ElementData } from './s2-base-data';
+import type { S2BaseScene } from '../../scene/s2-base-scene';
+import type { S2Dirtyable, S2Tipable } from '../../shared/s2-globals';
+import type { S2ElementData } from './s2-base-data';
 
 export type S2BaseElement = S2Element<S2ElementData>;
 export type S2BaseTipable = S2Element<S2ElementData> & S2Tipable;

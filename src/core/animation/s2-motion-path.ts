@@ -58,10 +58,7 @@ export class S2MotionPathDirection extends S2BaseMotionPath {
 
     protected setElapsedPropertyImpl(property: S2AnimProperty): void {
         if (property !== this.property) return;
-        const distance = this.polyCurve.getLength() * this.wrapedCycleAlpha;
-        console.log(distance);
         const point = this.polyCurve.getPointAt(this.wrapedCycleAlpha);
         this.property.setV(point, this.space);
-        console.log(point);
     }
 }

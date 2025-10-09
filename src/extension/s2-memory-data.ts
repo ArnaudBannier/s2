@@ -9,17 +9,19 @@ import { S2Position } from '../core/shared/s2-position';
 export class S2MemoryData extends S2ElementData {
     public readonly position: S2Position;
     public readonly anchor: S2Enum<S2Anchor>;
+    public readonly extents: S2Extents;
+    public readonly valueWidth: S2Length;
     public readonly background: S2MemoryBackgroundData;
     public readonly highlight: S2MemoryHighlightData;
     public readonly text: S2MemoryTextData;
     public readonly padding: S2Extents;
-    public readonly extents: S2Extents;
 
     constructor() {
         super();
         this.position = new S2Position(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.extents = new S2Extents(0, 0, 'view');
+        this.valueWidth = new S2Length(2, 'world');
         this.background = new S2MemoryBackgroundData();
         this.highlight = new S2MemoryHighlightData();
         this.text = new S2MemoryTextData();
@@ -31,6 +33,7 @@ export class S2MemoryData extends S2ElementData {
         this.position.setOwner(owner);
         this.anchor.setOwner(owner);
         this.extents.setOwner(owner);
+        this.valueWidth.setOwner(owner);
         this.background.setOwner(owner);
         this.highlight.setOwner(owner);
         this.text.setOwner(owner);
@@ -42,6 +45,7 @@ export class S2MemoryData extends S2ElementData {
         this.position.clearDirty();
         this.anchor.clearDirty();
         this.extents.clearDirty();
+        this.valueWidth.clearDirty();
         this.background.clearDirty();
         this.highlight.clearDirty();
         this.text.clearDirty();

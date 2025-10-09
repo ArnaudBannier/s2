@@ -1,8 +1,7 @@
 import { S2Vec2 } from '../math/s2-vec2';
-import { type S2BaseScene } from '../scene/s2-base-scene';
+import type { S2BaseScene } from '../scene/s2-base-scene';
 import { S2TipTransform, svgNS, type S2Dirtyable, type S2Tipable } from '../shared/s2-globals';
-import { S2CubicCurve, S2LineCurve, S2PolyCurve } from '../math/s2-curve';
-import { S2Camera } from '../math/s2-camera';
+import { S2CubicCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
@@ -59,59 +58,6 @@ export class S2PathData extends S2ElementData {
         //this.polyCurve.resetDirtyFlags();
         this.pathFrom.clearDirty();
         this.pathTo.clearDirty();
-    }
-}
-
-export class S2PathUtils {
-    static polyCurveToSVGPath(
-        polyCurve: S2PolyCurve,
-        pathFrom: number,
-        pathTo: number,
-        camera: S2Camera,
-        space: S2Space,
-    ): string {
-        if (pathFrom > 0 && pathTo < 1) {
-            polyCurve = polyCurve.createPartialCurveRange(pathFrom, pathTo);
-        } else if (pathFrom > 0) {
-            polyCurve = polyCurve.createPartialCurveFrom(pathFrom);
-        } else if (pathTo < 1) {
-            polyCurve = polyCurve.createPartialCurveTo(pathTo);
-        }
-
-        const curveCount = polyCurve.getCurveCount();
-        if (curveCount <= 0 || pathFrom >= pathTo) return '';
-
-        let svgPath = '';
-        const currStart = polyCurve.getCurve(0).getStart();
-        const prevEnd = new S2Vec2(Infinity, Infinity);
-
-        for (let i = 0; i < curveCount; i++) {
-            const curve = polyCurve.getCurve(i);
-
-            if (!S2Vec2.eq(prevEnd, curve.getStart())) {
-                const point = S2Position.toSpace(currStart, space, 'view', camera);
-                svgPath += `M ${point.x},${point.y} `;
-            }
-
-            if (curve instanceof S2LineCurve) {
-                const point = S2Position.toSpace(curve.getEnd(), space, 'view', camera);
-                svgPath += `L ${point.x},${point.y} `;
-            } else if (curve instanceof S2CubicCurve) {
-                const bezierPoints = curve.getBezierPoints();
-                svgPath += 'C ';
-                for (let j = 1; j < bezierPoints.length; j++) {
-                    const point = S2Position.toSpace(bezierPoints[j], space, 'view', camera);
-                    svgPath += `${point.x},${point.y} `;
-                }
-            }
-            const end = curve.getEnd();
-            if (S2Vec2.eq(currStart, end)) {
-                svgPath += 'Z ';
-                currStart.copy(end);
-            }
-            prevEnd.copy(end);
-        }
-        return svgPath.trimEnd();
     }
 }
 

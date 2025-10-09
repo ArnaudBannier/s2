@@ -1,4 +1,4 @@
-import { S2BaseScene } from '../scene/s2-base-scene';
+import type { S2BaseScene } from '../scene/s2-base-scene';
 import { S2ElementData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 

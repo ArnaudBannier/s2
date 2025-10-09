@@ -20,7 +20,7 @@ export class S2MemoryRow {
     public values: S2PlainText[];
     public names: S2PlainText[];
     public address: S2PlainText;
-    public background: S2Rect;
+    public highlight: S2Rect;
     public hLine: S2Line;
     public isStacked: boolean;
     public lowerBound: S2Position;
@@ -42,11 +42,11 @@ export class S2MemoryRow {
         this.upperBound = new S2Position();
         this.basePosName = new S2Position();
         this.basePosValue = new S2Position();
-        this.background = new S2Rect(scene);
+        this.highlight = new S2Rect(scene);
 
         this.hLine.setParent(parent);
-        this.background.setParent(parent);
-        this.background.data.isEnabled.set(false);
+        this.highlight.setParent(parent);
+        this.highlight.data.isEnabled.set(false);
         this.address.setParent(parent);
         this.address.data.textAnchor.set('end');
         this.isStacked = false;
@@ -244,20 +244,20 @@ export class S2MemoryRow {
         const offset = options.offset ?? 0;
         const duration = options.duration ?? 500;
 
-        this.background.data.opacity.set(0.0);
-        this.background.data.fill.opacity.set(0.25);
-        this.background.data.stroke.width.set(1, 'view');
-        const opacityAnim = S2LerpAnimFactory.create(this.scene, this.background.data.opacity)
+        this.highlight.data.opacity.set(0.0);
+        this.highlight.data.fill.opacity.set(0.25);
+        this.highlight.data.stroke.width.set(1, 'view');
+        const opacityAnim = S2LerpAnimFactory.create(this.scene, this.highlight.data.opacity)
             .setCycleDuration(duration)
             .setEasing(ease.inOut);
-        this.background.data.opacity.set(1.0);
+        this.highlight.data.opacity.set(1.0);
         opacityAnim.commitFinalState();
         animator.addAnimation(opacityAnim, label, offset);
-        animator.enableElement(this.background, true, label, offset);
+        animator.enableElement(this.highlight, true, label, offset);
 
         if (options.color) {
-            animator.addTrigger(new S2TriggerColor(this.background.data.fill.color, options.color), label, offset);
-            animator.addTrigger(new S2TriggerColor(this.background.data.stroke.color, options.color), label, offset);
+            animator.addTrigger(new S2TriggerColor(this.highlight.data.fill.color, options.color), label, offset);
+            animator.addTrigger(new S2TriggerColor(this.highlight.data.stroke.color, options.color), label, offset);
         }
     }
 
@@ -273,14 +273,14 @@ export class S2MemoryRow {
         const offset = options.offset ?? 0;
         const duration = options.duration ?? 500;
 
-        this.background.data.opacity.set(1.0);
-        const opacityAnim = S2LerpAnimFactory.create(this.scene, this.background.data.opacity)
+        this.highlight.data.opacity.set(1.0);
+        const opacityAnim = S2LerpAnimFactory.create(this.scene, this.highlight.data.opacity)
             .setCycleDuration(duration)
             .setEasing(ease.inOut);
-        this.background.data.opacity.set(0.0);
+        this.highlight.data.opacity.set(0.0);
         opacityAnim.commitFinalState();
         animator.addAnimation(opacityAnim, label, offset);
-        animator.enableElement(this.background, false, label, offset + duration);
+        animator.enableElement(this.highlight, false, label, offset + duration);
     }
 
     protected animateCopy(
@@ -429,10 +429,12 @@ export class S2MemoryRow {
         const ascenderHeight = font.relativeAscenderHeight.value * font.size.toSpace(space, camera);
         const textY = lowerBound.y + height / 2 - ascenderHeight / 2;
         const padding = parentData.padding.toSpace(space, camera).x;
+        const valueWidth = parentData.valueWidth.toSpace(space, camera);
+        const nameWidth = width - valueWidth;
 
         this.address.data.position.set(lowerBound.x - padding, textY, space);
         this.basePosValue.set(lowerBound.x + padding, textY, space);
-        this.basePosName.set(lowerBound.x + 0.5 * width + padding, textY, space);
+        this.basePosName.set(lowerBound.x + valueWidth + padding, textY, space);
         for (const value of this.values) {
             value.data.position.setV(this.basePosValue.value, space);
         }
@@ -448,14 +450,18 @@ export class S2MemoryRow {
             this.hLine.data.endPosition.set(upperBound.x, lowerBound.y, space);
         }
 
-        const emphCenter = new S2Vec2(lowerBound.x + 0.75 * width, lowerBound.y + 0.5 * height);
-        this.background.data.position.setV(emphCenter, space);
+        const highlightCenter = new S2Vec2(lowerBound.x + 0.75 * width, lowerBound.y + 0.5 * height);
+        this.highlight.data.position.setV(highlightCenter, space);
 
-        const emphPadding = parentData.highlight.padding.toSpace(space, camera);
-        this.background.data.position.set(lowerBound.x + 0.75 * width, lowerBound.y + 0.5 * height, space);
-        this.background.data.extents.set(0.25 * width - 2 * emphPadding.x, 0.5 * height - 2 * emphPadding.y, space);
-        this.background.data.cornerRadius.set(parentData.highlight.cornerRadius.toSpace(space, camera), space);
-        this.background.data.anchor.set('center');
+        const highlightPadding = parentData.highlight.padding.toSpace(space, camera);
+        this.highlight.data.position.setV(highlightCenter, space);
+        this.highlight.data.extents.set(
+            0.5 * nameWidth - 2 * highlightPadding.x,
+            0.5 * height - 2 * highlightPadding.y,
+            space,
+        );
+        this.highlight.data.cornerRadius.set(parentData.highlight.cornerRadius.toSpace(space, camera), space);
+        this.highlight.data.anchor.set('center');
     }
 
     update(): void {
@@ -468,6 +474,6 @@ export class S2MemoryRow {
         }
         this.address.update();
         this.hLine.update();
-        this.background.update();
+        this.highlight.update();
     }
 }

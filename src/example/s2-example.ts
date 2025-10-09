@@ -1,4 +1,4 @@
-export interface S2Example {
+interface S2Example {
     id: string;
     title: string;
     path: string;

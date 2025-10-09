@@ -238,8 +238,10 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.background.data.anchor.set('center');
 
         // Vertical line
-        this.vLine.data.startPosition.set(center.x, center.y + extents.y, space);
-        this.vLine.data.endPosition.set(center.x, center.y - extents.y, space);
+        const valueWidth = this.data.valueWidth.toSpace(space, this.scene.getActiveCamera());
+        const vLineX = center.x - extents.x + valueWidth;
+        this.vLine.data.startPosition.set(vLineX, center.y + extents.y, space);
+        this.vLine.data.endPosition.set(vLineX, center.y - extents.y, space);
         this.vLine.data.stroke.color.copyIfUnlocked(this.data.background.stroke.color);
         this.vLine.data.stroke.width.copyIfUnlocked(this.data.background.stroke.width);
 
