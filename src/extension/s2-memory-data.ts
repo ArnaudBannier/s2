@@ -10,7 +10,7 @@ export class S2MemoryData extends S2ElementData {
     public readonly position: S2Position;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly background: S2MemoryBackgroundData;
-    public readonly emphasis: S2MemoryEmphasisData;
+    public readonly highlight: S2MemoryHighlightData;
     public readonly text: S2MemoryTextData;
     public readonly padding: S2Extents;
     public readonly extents: S2Extents;
@@ -21,7 +21,7 @@ export class S2MemoryData extends S2ElementData {
         this.anchor = new S2Enum<S2Anchor>('center');
         this.extents = new S2Extents(0, 0, 'view');
         this.background = new S2MemoryBackgroundData();
-        this.emphasis = new S2MemoryEmphasisData();
+        this.highlight = new S2MemoryHighlightData();
         this.text = new S2MemoryTextData();
         this.padding = new S2Extents(15, 5, 'view');
     }
@@ -32,7 +32,7 @@ export class S2MemoryData extends S2ElementData {
         this.anchor.setOwner(owner);
         this.extents.setOwner(owner);
         this.background.setOwner(owner);
-        this.emphasis.setOwner(owner);
+        this.highlight.setOwner(owner);
         this.text.setOwner(owner);
         this.padding.setOwner(owner);
     }
@@ -43,7 +43,7 @@ export class S2MemoryData extends S2ElementData {
         this.anchor.clearDirty();
         this.extents.clearDirty();
         this.background.clearDirty();
-        this.emphasis.clearDirty();
+        this.highlight.clearDirty();
         this.text.clearDirty();
         this.padding.clearDirty();
     }
@@ -81,7 +81,7 @@ export class S2MemoryBackgroundData extends S2BaseData {
     }
 }
 
-export class S2MemoryEmphasisData extends S2BaseData {
+export class S2MemoryHighlightData extends S2BaseData {
     public readonly cornerRadius: S2Length;
     public readonly padding: S2Extents;
 

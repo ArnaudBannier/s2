@@ -231,7 +231,7 @@ export class S2MemoryRow {
         }
     }
 
-    animateEmphIn(
+    animateHighlightIn(
         animator: S2StepAnimator,
         options: {
             label?: string;
@@ -261,7 +261,7 @@ export class S2MemoryRow {
         }
     }
 
-    animateEmphOut(
+    animateHighlightOut(
         animator: S2StepAnimator,
         options: {
             label?: string;
@@ -451,10 +451,10 @@ export class S2MemoryRow {
         const emphCenter = new S2Vec2(lowerBound.x + 0.75 * width, lowerBound.y + 0.5 * height);
         this.background.data.position.setV(emphCenter, space);
 
-        const emphPadding = parentData.emphasis.padding.toSpace(space, camera);
+        const emphPadding = parentData.highlight.padding.toSpace(space, camera);
         this.background.data.position.set(lowerBound.x + 0.75 * width, lowerBound.y + 0.5 * height, space);
         this.background.data.extents.set(0.25 * width - 2 * emphPadding.x, 0.5 * height - 2 * emphPadding.y, space);
-        this.background.data.cornerRadius.set(parentData.emphasis.cornerRadius.toSpace(space, camera), space);
+        this.background.data.cornerRadius.set(parentData.highlight.cornerRadius.toSpace(space, camera), space);
         this.background.data.anchor.set('center');
     }
 

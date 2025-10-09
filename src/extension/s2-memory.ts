@@ -11,6 +11,131 @@ import { S2MemoryData } from './s2-memory-data';
 import type { S2Color } from '../core/shared/s2-color';
 import { S2MemoryRow } from './s2-memory-row';
 
+export class S2MemoryId {
+    public readonly memoryRef: S2Memory;
+    public readonly index: number;
+
+    constructor(memoryRef: S2Memory, index: number) {
+        this.memoryRef = memoryRef;
+        this.index = index;
+    }
+
+    free(): void {
+        this.memoryRef.destroyMemoryId(this);
+    }
+
+    setValue(value: string, options: { color?: S2Color } = {}): S2PlainText {
+        return this.memoryRef.getRow(this.index).setValue(value, options);
+    }
+
+    setName(name: string, options: { color?: S2Color } = {}): S2PlainText {
+        return this.memoryRef.getRow(this.index).setName(name, options);
+    }
+
+    animateSetValue(
+        value: string,
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number; color?: S2Color } = {},
+    ): S2PlainText {
+        return this.memoryRef.getRow(this.index).animateSetValue(value, animator, options);
+    }
+
+    animateSetName(
+        name: string,
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number; color?: S2Color } = {},
+    ): S2PlainText {
+        return this.memoryRef.getRow(this.index).animateSetName(name, animator, options);
+    }
+
+    animateSetNameAndValue(
+        name: string,
+        value: string,
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            delay?: number;
+            duration?: number;
+            nameColor?: S2Color;
+            valueColor?: S2Color;
+        } = {},
+    ): { name: S2PlainText; value: S2PlainText } {
+        const offset = options.offset ?? 0;
+        const delay = options.delay ?? 100;
+        const nameOptions = { ...options, color: options.nameColor, offset: offset + delay };
+        const valueOptions = { ...options, color: options.valueColor, offset: offset };
+        return {
+            name: this.memoryRef.getRow(this.index).animateSetName(name, animator, nameOptions),
+            value: this.memoryRef.getRow(this.index).animateSetValue(value, animator, valueOptions),
+        };
+    }
+
+    animateDestroy(
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number } = {},
+    ): void {
+        this.memoryRef.getRow(this.index).animateDestroy(animator, options);
+        this.free();
+    }
+
+    animateCopyValue(
+        src: S2MemoryId,
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            srcAngle?: number;
+            dstAngle?: number;
+            curveTension?: number;
+            color?: S2Color;
+        } = {},
+    ): S2PlainText {
+        const srcRow = src.memoryRef.getRow(src.index);
+        return this.memoryRef.getRow(this.index).animateCopyValue(srcRow, animator, options);
+    }
+
+    animateCopyAddress(
+        src: S2MemoryId,
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            srcAngle?: number;
+            dstAngle?: number;
+            curveTension?: number;
+            color?: S2Color;
+        } = {},
+    ): S2PlainText {
+        const srcRow = src.memoryRef.getRow(src.index);
+        return this.memoryRef.getRow(this.index).animateCopyAddress(srcRow, animator, options);
+    }
+
+    animateColor(
+        color: S2Color,
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number } = {},
+    ): void {
+        this.memoryRef.getRow(this.index).animateColor(color, animator, options);
+    }
+
+    animateHighlightIn(
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number; color?: S2Color } = {},
+    ): void {
+        this.memoryRef.getRow(this.index).animateHighlightIn(animator, options);
+    }
+
+    animateHighlightOut(
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number } = {},
+    ): void {
+        this.memoryRef.getRow(this.index).animateHighlightOut(animator, options);
+    }
+}
+
 export class S2Memory extends S2Element<S2MemoryData> {
     protected element: SVGGElement;
     protected addressCount: number;
@@ -19,8 +144,17 @@ export class S2Memory extends S2Element<S2MemoryData> {
     protected rows: S2MemoryRow[];
     protected isStacked: boolean;
 
-    constructor(scene: S2BaseScene, addressCount: number, isStacked = false) {
+    constructor(
+        scene: S2BaseScene,
+        addressCount: number,
+        options: { isStacked?: boolean; addressStart?: number; addressPrefix?: string; addressRadix?: number } = {},
+    ) {
         super(scene, new S2MemoryData());
+        const isStacked = options.isStacked ?? false;
+        const addressStart = options.addressStart ?? 0;
+        const addressPrefix = options.addressPrefix ?? '@';
+        const addressRadix = options.addressRadix ?? 10;
+
         this.element = document.createElementNS(svgNS, 'g');
         this.addressCount = addressCount;
         this.isStacked = isStacked;
@@ -31,13 +165,10 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.vLine.setParent(this);
         this.rows = [];
         for (let i = 0; i < this.addressCount; i++) {
+            const address = addressStart + (this.isStacked ? this.addressCount - 1 - i : i);
             const row = new S2MemoryRow(this, i);
-            row.isStacked = isStacked;
-            if (isStacked) {
-                row.setAddress(`@${this.addressCount - 1 - i}`);
-            } else {
-                row.setAddress(`@${i}`);
-            }
+            row.isStacked = this.isStacked;
+            row.setAddress(addressPrefix + address.toString(addressRadix).toUpperCase());
             this.rows.push(row);
         }
         this.rows[this.addressCount - 1].hLine.setEnabled(false);
@@ -62,157 +193,38 @@ export class S2Memory extends S2Element<S2MemoryData> {
         );
     }
 
-    addVariable(): number {
-        let varId = 0;
-        while (varId < this.addressCount && !this.rows[varId].isAvailable()) {
-            varId++;
+    getRow(rowId: number): S2MemoryRow {
+        if (rowId < 0 || rowId >= this.addressCount) {
+            throw new Error('Invalid row ID');
         }
-        if (varId >= this.addressCount) {
+        return this.rows[rowId];
+    }
+
+    createMemoryId(): S2MemoryId {
+        let index = 0;
+        while (index < this.addressCount && !this.rows[index].isAvailable()) {
+            index++;
+        }
+        if (index >= this.addressCount) {
             throw new Error('Memory is full');
         }
-        this.rows[varId].setAvailability(false);
-        return varId;
+        this.rows[index].setAvailability(false);
+        return new S2MemoryId(this, index);
     }
 
-    setValue(varId: number, value: string, options: { color?: S2Color } = {}): S2PlainText {
-        if (varId < 0 || varId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
+    destroyMemoryId(varId: S2MemoryId): void {
+        if (varId.memoryRef !== this || varId.index < 0 || varId.index >= this.addressCount) {
+            throw new Error('Invalid memory ID');
         }
-        return this.rows[varId].setValue(value, options);
-    }
-
-    setName(varId: number, name: string, options: { color?: S2Color } = {}): S2PlainText {
-        if (varId < 0 || varId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        return this.rows[varId].setName(name, options);
-    }
-
-    animateSetValue(
-        varId: number,
-        value: string,
-        animator: S2StepAnimator,
-        options: { label?: string; offset?: number; duration?: number; color?: S2Color } = {},
-    ): S2PlainText {
-        if (varId < 0 || varId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        return this.rows[varId].animateSetValue(value, animator, options);
-    }
-
-    animateSetName(
-        varId: number,
-        name: string,
-        animator: S2StepAnimator,
-        options: { label?: string; offset?: number; duration?: number; color?: S2Color } = {},
-    ): S2PlainText {
-        if (varId < 0 || varId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        return this.rows[varId].animateSetName(name, animator, options);
-    }
-
-    animateDestroy(
-        varId: number,
-        animator: S2StepAnimator,
-        options: { label?: string; offset?: number; duration?: number } = {},
-    ): void {
-        if (varId < 0 || varId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        this.rows[varId].animateDestroy(animator, options);
-        this.rows[varId].setAvailability(true);
-    }
-
-    animateCopyValue(
-        dstId: number,
-        srcId: number,
-        animator: S2StepAnimator,
-        options: {
-            label?: string;
-            offset?: number;
-            duration?: number;
-            srcAngle?: number;
-            dstAngle?: number;
-            curveTension?: number;
-            color?: S2Color;
-        } = {},
-    ): S2PlainText {
-        if (dstId < 0 || dstId >= this.addressCount || srcId < 0 || srcId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        return this.rows[dstId].animateCopyValue(this.rows[srcId], animator, options);
-    }
-
-    animateCopyAddress(
-        dstId: number,
-        srcId: number,
-        animator: S2StepAnimator,
-        options: {
-            label?: string;
-            offset?: number;
-            duration?: number;
-            srcAngle?: number;
-            dstAngle?: number;
-            curveTension?: number;
-            color?: S2Color;
-        } = {},
-    ): S2PlainText {
-        if (dstId < 0 || dstId >= this.addressCount || srcId < 0 || srcId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        return this.rows[dstId].animateCopyAddress(this.rows[srcId], animator, options);
-    }
-
-    animateColor(
-        varId: number,
-        color: S2Color,
-        animator: S2StepAnimator,
-        options: { label?: string; offset?: number; duration?: number } = {},
-    ): void {
-        if (varId < 0 || varId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        this.rows[varId].animateColor(color, animator, options);
-    }
-
-    animateEmphIn(
-        varId: number,
-        animator: S2StepAnimator,
-        options: {
-            label?: string;
-            offset?: number;
-            duration?: number;
-            color?: S2Color;
-        } = {},
-    ): void {
-        if (varId < 0 || varId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        this.rows[varId].animateEmphIn(animator, options);
-    }
-
-    animateEmphOut(
-        varId: number,
-        animator: S2StepAnimator,
-        options: {
-            label?: string;
-            offset?: number;
-            duration?: number;
-        } = {},
-    ): void {
-        if (varId < 0 || varId >= this.addressCount) {
-            throw new Error('Invalid variable ID');
-        }
-        this.rows[varId].animateEmphOut(animator, options);
+        this.rows[varId.index].setAvailability(true);
     }
 
     protected updateBackground(): void {
-        //const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
         const center = this.getCenter(space);
         const extents = this.getExtents(space);
 
+        // Background style
         this.background.data.stroke.copyIfUnlocked(this.data.background.stroke);
         this.background.data.fill.copyIfUnlocked(this.data.background.fill);
         this.background.data.opacity.copyIfUnlocked(this.data.background.opacity);
@@ -220,36 +232,20 @@ export class S2Memory extends S2Element<S2MemoryData> {
             this.background.data.cornerRadius.copyIfUnlocked(this.data.background.cornerRadius);
         }
 
-        // Position background
+        // Background position
         this.background.data.position.setV(center, space);
         this.background.data.extents.setV(extents, space);
         this.background.data.anchor.set('center');
 
-        this.background.update();
-    }
-
-    protected updateSeparators(): void {
-        const space: S2Space = 'view';
-        const center = this.getCenter(space);
-        const extents = this.getExtents(space);
-
+        // Vertical line
         this.vLine.data.startPosition.set(center.x, center.y + extents.y, space);
         this.vLine.data.endPosition.set(center.x, center.y - extents.y, space);
         this.vLine.data.stroke.color.copyIfUnlocked(this.data.background.stroke.color);
         this.vLine.data.stroke.width.copyIfUnlocked(this.data.background.stroke.width);
 
+        // Update
+        this.background.update();
         this.vLine.update();
-
-        // const stepY = (2 * extents.y) / this.addressCount;
-        // let lineY = center.y - extents.y + stepY;
-        // for (const hLine of this.hLines) {
-        //     hLine.data.startPosition.set(center.x - extents.x, lineY, space);
-        //     hLine.data.endPosition.set(center.x + extents.x, lineY, space);
-        //     hLine.data.stroke.color.copyIfUnlocked(this.data.background.stroke.color);
-        //     hLine.data.stroke.width.copyIfUnlocked(this.data.background.stroke.width);
-        //     hLine.update();
-        //     lineY += stepY;
-        // }
     }
 
     protected updateVariables(): void {
@@ -292,7 +288,6 @@ export class S2Memory extends S2Element<S2MemoryData> {
 
         this.updateSVGChildren();
         this.updateBackground();
-        this.updateSeparators();
         this.updateVariables();
 
         this.clearDirty();

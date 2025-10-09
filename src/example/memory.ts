@@ -8,6 +8,21 @@ import { S2MathUtils } from '../core/math/s2-utils.ts';
 import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
 import { S2Memory } from '../extension/s2-memory.ts';
 import { S2FontData } from '../core/element/base/s2-base-data.ts';
+import { S2Code, tokenizeAlgorithm } from '../core/element/s2-code.ts';
+
+const codeString =
+    '**type:int** **fn:main**(**type:void**)\n' +
+    '{\n' +
+    '    **type:int** **var:a** = **num:10**, **var:b** = **num:5**;\n' +
+    "    **type:char** **var:c**, **var:d**, **var:e**, **var:f** = **str:'s'**;\n" +
+    '    **var:a** = **var:b** + **num:2**;\n' +
+    '    **var:b** += **var:a**;\n' +
+    '    **var:c** = **var:d** = **var:f**;\n' +
+    '    **var:e** = **var:f** - **num:1**;\n' +
+    '    **var:a**++;\n' +
+    '    **var:b**--;\n' +
+    '    **kw:return** **num:0**;\n' +
+    '}';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -17,6 +32,7 @@ class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
     public font: S2FontData;
     public memory: S2Memory;
+    public code: S2Code;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
@@ -34,13 +50,41 @@ class SceneFigure extends S2Scene {
         // const grid = this.addWorldGrid();
         // S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_9);
 
+        const code = new S2Code(this);
+        this.code = code;
+        code.setParent(this.getSVG());
+        code.data.text.font.copyIfUnlocked(this.font);
+        code.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
+        code.data.padding.set(20, 15, 'view');
+        //code.data.minExtents.set(3.5, 1, 'world');
+        code.data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
+        code.data.background.stroke.color.copyIfUnlocked(MTL.GREY_7);
+        code.data.background.stroke.width.set(2, 'view');
+        code.data.background.cornerRadius.set(10, 'view');
+        code.data.currentLine.opacity.set(1);
+        code.data.currentLine.fill.color.copyIfUnlocked(MTL.BLACK);
+        code.data.currentLine.fill.opacity.set(0.5);
+        code.data.currentLine.stroke.color.copyIfUnlocked(MTL.WHITE);
+        code.data.currentLine.stroke.width.set(1, 'view');
+        code.data.currentLine.stroke.opacity.set(0.2);
+        code.data.currentLine.padding.set(-0.5, 2, 'view');
+        code.data.currentLine.index.set(0);
+        code.data.position.set(-5.5, 0, 'world');
+        code.data.anchor.set('west');
+
+        code.setContent(tokenizeAlgorithm(codeString));
+
         const addressCount = 10;
-        const isStacked = true;
-        const memory = new S2Memory(this, addressCount, isStacked);
+        const memory = new S2Memory(this, addressCount, {
+            isStacked: true,
+            addressStart: 64,
+            addressPrefix: '@',
+            addressRadix: 10,
+        });
         this.memory = memory;
         memory.setParent(this.getSVG());
+        memory.data.position.set(3, 0, 'world');
         memory.data.extents.set(2.5, 4.0, 'world');
-
         memory.data.padding.set(15, 0, 'view');
         memory.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
         memory.data.text.addressFill.color.copyIfUnlocked(MTL.GREY_4);
@@ -49,8 +93,8 @@ class SceneFigure extends S2Scene {
         memory.data.background.stroke.color.copyIfUnlocked(MTL.GREY_7);
         memory.data.background.stroke.width.set(2, 'view');
         memory.data.background.cornerRadius.set(10, 'view');
-        memory.data.emphasis.cornerRadius.set(7, 'view');
-        memory.data.emphasis.padding.set(3, 3, 'view');
+        memory.data.highlight.cornerRadius.set(7, 'view');
+        memory.data.highlight.padding.set(3, 3, 'view');
 
         this.update();
 
@@ -59,44 +103,83 @@ class SceneFigure extends S2Scene {
 
     createAnimation(): void {
         this.animator.makeStep();
-        let varId1 = this.memory.addVariable();
+        const numberColor = MTL.LIME_2;
+        const charColor = MTL.DEEP_ORANGE_2;
+        let currLine = 1;
 
-        this.memory.animateSetValue(varId1, '100', this.animator, { label: 'coucou', color: MTL.ORANGE });
-        this.memory.animateSetName(varId1, 'index', this.animator, { label: 'coucou', offset: 100 });
+        // int a = 10, b = 5;
+        currLine = 2;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        const varA = this.memory.createMemoryId();
+        const varB = this.memory.createMemoryId();
+        let label = this.animator.createLabelAtCurrentTime();
+        varA.animateSetNameAndValue('a', '10', this.animator, { label: label, valueColor: numberColor });
+        varB.animateSetNameAndValue('b', '5', this.animator, {
+            label: label,
+            offset: 200,
+            valueColor: numberColor,
+        });
         this.animator.makeStep();
         this.update();
 
-        this.memory.animateEmphIn(varId1, this.animator, { label: 'emph', color: MTL.LIGHT_BLUE });
-        this.memory.animateSetValue(varId1, '73', this.animator, { label: 'emph', offset: 200, color: MTL.LIGHT_BLUE });
+        // char c, d, e, f = 's';
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        const varC = this.memory.createMemoryId();
+        const varD = this.memory.createMemoryId();
+        const varE = this.memory.createMemoryId();
+        const varF = this.memory.createMemoryId();
+        label = this.animator.createLabelAtCurrentTime();
+        varC.animateSetNameAndValue('c', '?', this.animator, { label: label, offset: 100, valueColor: charColor });
+        varD.animateSetNameAndValue('d', '?', this.animator, { label: label, offset: 200, valueColor: charColor });
+        varE.animateSetNameAndValue('e', '?', this.animator, { label: label, offset: 300, valueColor: charColor });
+        varF.animateSetNameAndValue('f', '115', this.animator, {
+            label: label,
+            offset: 400,
+            valueColor: charColor,
+        });
         this.animator.makeStep();
         this.update();
 
-        this.memory.animateEmphOut(varId1, this.animator);
-        this.memory.animateDestroy(varId1, this.animator);
+        // a = b + 2;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varA.animateSetValue('7', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        varId1 = this.memory.addVariable();
-        this.memory.animateSetValue(varId1, '100', this.animator, { label: 'label2' });
-        this.memory.animateSetName(varId1, 'index', this.animator, { label: 'label2' });
+        // b += a;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varB.animateSetValue('12', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        const varId2 = this.memory.addVariable();
-        this.memory.animateSetValue(varId2, '100', this.animator, { label: 'label3' });
-        this.memory.animateSetName(varId2, 'variable', this.animator, { label: 'label3', offset: 100 });
+        // c = d = f;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varD.animateCopyValue(varF, this.animator, { color: charColor });
+        this.animator.makeStep();
+        this.update();
+        varC.animateCopyValue(varD, this.animator, { color: charColor });
         this.animator.makeStep();
         this.update();
 
-        this.memory.animateCopyValue(varId1, varId2, this.animator, { color: MTL.LIGHT_GREEN });
+        // e = f - 1;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varE.animateSetValue('114', this.animator, { color: charColor });
         this.animator.makeStep();
         this.update();
 
-        this.memory.animateCopyAddress(varId2, varId1, this.animator, { srcAngle: 0, dstAngle: 180, color: MTL.PINK });
+        // a++;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varA.animateSetValue('8', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        this.memory.animateColor(varId2, MTL.GREY_7, this.animator);
+        // b--;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varB.animateSetValue('11', this.animator, { color: numberColor });
+        this.animator.makeStep();
+        this.update();
+
+        this.code.animateSetCurrentLine(currLine++, this.animator);
         this.animator.makeStep();
         this.update();
     }

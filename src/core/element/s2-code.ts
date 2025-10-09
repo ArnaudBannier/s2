@@ -15,6 +15,9 @@ import { S2Enum } from '../shared/s2-enum';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Number } from '../shared/s2-number';
 import { S2Length } from '../shared/s2-length';
+import type { S2StepAnimator } from '../animation/s2-step-animator';
+import { S2LerpAnimFactory } from '../animation/s2-lerp-anim';
+import { ease } from '../animation/s2-easing';
 
 export type S2CodeToken = {
     type: string;
@@ -26,9 +29,9 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
     // Regex qui capture :
     // 1. Balises **tag:texte**
     // 2. Espaces
-    // 3. Ponctuation ((),=,; etc.)
+    // 3. Ponctuation (();,.)
     // 4. Tout le reste (mots)
-    const regex = /\*\*(\w+):(.*?)\*\*|(\s+)|([()=;,.])|([^\s()=;,.]+)/g;
+    const regex = /\*\*(\w+):(.*?)\*\*|(\s+)|([();,.])|([^\s();,.]+)/g;
 
     for (const line of input.split('\n')) {
         let match;
@@ -244,7 +247,7 @@ export class S2Code extends S2Element<S2CodeData> {
                 tspan.data.fill.color.copyIfUnlocked(MTL.ORANGE_2).lock();
                 break;
             case 'type':
-                tspan.data.fill.color.copyIfUnlocked(MTL.CYAN_3).lock();
+                tspan.data.fill.color.copyIfUnlocked(MTL.BLUE_3).lock();
                 break;
             case 'kw':
                 tspan.data.fill.color.copyIfUnlocked(MTL.PURPLE_3).lock();
@@ -253,10 +256,35 @@ export class S2Code extends S2Element<S2CodeData> {
             case 'var':
                 tspan.data.fill.color.copyIfUnlocked(MTL.LIGHT_BLUE_1).lock();
                 break;
+            case 'num':
+                tspan.data.fill.color.copyIfUnlocked(MTL.LIME_2).lock();
+                break;
+            case 'str':
+                tspan.data.fill.color.copyIfUnlocked(MTL.DEEP_ORANGE_2).lock();
+                break;
             case 'punct':
                 tspan.data.fill.color.copyIfUnlocked(MTL.PURPLE_1).lock();
                 break;
         }
+    }
+
+    animateSetCurrentLine(
+        index: number,
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number; prevIndex?: number } = {},
+    ): this {
+        const label = animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
+        if (options.prevIndex !== undefined) {
+            this.data.currentLine.index.set(options.prevIndex);
+        }
+        const lerpAnim = S2LerpAnimFactory.create(this.scene, this.data.currentLine.index)
+            .setCycleDuration(duration)
+            .setEasing(ease.inOut);
+        this.data.currentLine.index.set(index);
+        animator.addAnimation(lerpAnim.commitFinalState(), label, offset);
+        return this;
     }
 
     findTokenTSpan(lineIndex: number, options: { content?: string; category?: string }): S2TSpan | undefined {
