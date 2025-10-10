@@ -8,18 +8,17 @@ import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
 
 const titleString = 'Etat de la mémoire : instructions simples 2';
 const codeString =
-    '**type:int** **fn:main**(**type:void**)\n' +
-    '{\n' +
-    '   **type:short** **var:a** = **num:7**;\n' +
-    '   **type:float** **var:f** = **num:3.14f**;\n' +
-    '   **type:double** **var:d**, **var:g** = **num:2**;\n' +
-    '   **type:int** **var:i** = **num:0**;\n' +
-    '   \n' +
-    '   **var:f** += **var:a**;\n' +
-    '   **var:g** = **var:a** + **var:i**;\n' +
-    '   **var:i**++;\n' +
-    '   **var:f** = **var:a** - **var:i**;\n' +
-    '   **kw:return** **num:0**;\n' +
+    '**type:int** **fn:main**(**type:void**) {\n' +
+    '    **type:short** **var:a** = **num:7**;\n' +
+    '    **type:float** **var:f** = **num:3.14f**;\n' +
+    '    **type:double** **var:d**, **var:g** = **num:2**;\n' +
+    '    **type:int** **var:i** = **num:0**;\n' +
+    '    \n' +
+    '    **var:f** += **var:a**;\n' +
+    '    **var:g** = **var:a** + **var:i**;\n' +
+    '    **var:i**++;\n' +
+    '    **var:f** = **var:a** - **var:i**;\n' +
+    '    **kw:return** **num:0**;\n' +
     '}';
 
 const viewportScale = 1.5;
@@ -63,7 +62,6 @@ class SceneFigure extends BaseMemoryScene {
         let currLine = 1;
 
         // short a = 7;
-        currLine = 2;
         this.code.animateSetCurrentLine(currLine++, this.animator);
         const varA = this.memory.createMemoryId();
         varA.animateSetNameAndValue('a', '7', this.animator, { valueColor: numberColor });

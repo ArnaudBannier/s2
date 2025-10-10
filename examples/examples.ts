@@ -19,6 +19,12 @@ export const examples: S2Example[] = [
         description: "Code d'introduction aux instructions en C.",
     },
     {
+        id: 'memory-s01-conditionals-01',
+        title: 'INF1031 Etat de la mémoire : conditionnelles',
+        path: '/s2/examples/memory/s01-conditionals-01.html',
+        description: 'Code en C avec des instructions conditionnelles.',
+    },
+    {
         id: 'btree',
         title: 'INF2031 : Arbre binaire',
         path: '/s2/examples/algorithm/btree.html',

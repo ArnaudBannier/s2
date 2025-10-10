@@ -6,17 +6,30 @@ import { S2Memory } from '../../src/extension/s2-memory.ts';
 import { BaseMemoryScene } from './base-memory-scene.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
 
-const titleString = 'Etat de la mémoire : instructions simples 1';
+const titleString = 'Etat de la mémoire : conditionnelles';
 const codeString =
     '**type:int** **fn:main**(**type:void**) {\n' +
-    '    **type:int** **var:a** = **num:10**, **var:b** = **num:5**;\n' +
-    "    **type:char** **var:c**, **var:d**, **var:e**, **var:f** = **str:'s'**;\n" +
-    '    **var:a** = **var:b** + **num:2**;\n' +
-    '    **var:b** += **var:a**;\n' +
-    '    **var:c** = **var:d** = **var:f**;\n' +
-    '    **var:e** = **var:f** - **num:1**;\n' +
-    '    **var:a**++;\n' +
-    '    **var:b**--;\n' +
+    '    **type:int** **var:a** = **num:3**, **var:b** = **num:2**;\n' +
+    "    **type:char** **var:c** = **str:'c'**;\n" +
+    '    **type:float** **var:f** = **var:a** + **num:0.5f**;\n' +
+    '    \n' +
+    '    **kw:if** (**var:a** == **var:b**) {\n' +
+    '        **var:c**++;\n' +
+    '    }\n' +
+    '    **kw:if** (**var:a** = **var:b**) {\n' +
+    '        **var:f** *= **num:2**;\n' +
+    '    }\n' +
+    '    \n' +
+    '    **var:b** = (**var:a** == (**var:b** - **num:1**));\n' +
+    '    **kw:switch** (**var:b**) {\n' +
+    '    **kw:case** **num:0** :\n' +
+    '        **var:f** -= **num:1**;\n' +
+    '    **kw:case** **num:1** :\n' +
+    '        **var:f** *= **num:2**;\n' +
+    '        **kw:break**;\n' +
+    '    **kw:default** :\n' +
+    '        **var:a** = **num:7**;\n' +
+    '    }\n' +
     '    **kw:return** **num:0**;\n' +
     '}';
 
@@ -34,11 +47,13 @@ class SceneFigure extends BaseMemoryScene {
         // const grid = this.addWorldGrid();
         // S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_9);
 
+        this.setDefaultFont(14);
         this.code = new S2Code(this);
         this.code.setParent(this.getSVG());
         this.setDefaultCodeStyle(this.code);
         this.code.setContent(tokenizeAlgorithm(codeString));
 
+        this.setDefaultFont(16);
         const addressCount = 10;
         this.memory = new S2Memory(this, addressCount, {
             isStacked: true,
@@ -56,6 +71,7 @@ class SceneFigure extends BaseMemoryScene {
     createAnimation(): void {
         this.animator.makeStep();
         const numberColor = MTL.LIME_2;
+        //const undefinedColor = MTL.RED_3;
         const charColor = MTL.DEEP_ORANGE_2;
         let currLine = 1;
 
@@ -64,8 +80,8 @@ class SceneFigure extends BaseMemoryScene {
         const varA = this.memory.createMemoryId();
         const varB = this.memory.createMemoryId();
         let label = this.animator.createLabelAtCurrentTime();
-        varA.animateSetNameAndValue('a', '10', this.animator, { label: label, valueColor: numberColor });
-        varB.animateSetNameAndValue('b', '5', this.animator, {
+        varA.animateSetNameAndValue('a', '3', this.animator, { label: label, valueColor: numberColor });
+        varB.animateSetNameAndValue('b', '2', this.animator, {
             label: label,
             offset: 200,
             valueColor: numberColor,
@@ -73,90 +89,103 @@ class SceneFigure extends BaseMemoryScene {
         this.animator.makeStep();
         this.update();
 
-        // char c, d, e, f = 's';
+        // char c = 'c';
         this.code.animateSetCurrentLine(currLine++, this.animator);
         const varC = this.memory.createMemoryId();
-        const varD = this.memory.createMemoryId();
-        const varE = this.memory.createMemoryId();
+        varC.animateSetNameAndValue('c', '99', this.animator, { valueColor: charColor });
+        this.animator.makeStep();
+        this.update();
+
+        // float f = a + 0.5f;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
         const varF = this.memory.createMemoryId();
-        label = this.animator.createLabelAtCurrentTime();
-        varC.animateSetNameAndValue('c', '?', this.animator, { label: label, offset: 100, valueColor: charColor });
-        varD.animateSetNameAndValue('d', '?', this.animator, { label: label, offset: 200, valueColor: charColor });
-        varE.animateSetNameAndValue('e', '?', this.animator, { label: label, offset: 300, valueColor: charColor });
-        varF.animateSetNameAndValue('f', '115', this.animator, {
-            label: label,
-            offset: 400,
-            valueColor: charColor,
-        });
+        varF.animateSetNameAndValue('f', '3.5', this.animator, { valueColor: numberColor });
         this.animator.makeStep();
         this.update();
 
-        // a = b + 2;
+        // if (a == b) {
+        currLine++;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varA.animateSetValue('7', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        // b += a;
+        currLine++;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varB.animateSetValue('12', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        // c = d = f;
+        // if (a = b) {
         this.code.animateSetCurrentLine(currLine++, this.animator);
         label = this.animator.createLabelAtCurrentTime();
         let codeHighlight = this.code.createTokenHighlight(
             [
-                { lineIndex: currLine - 1, content: 'd' },
-                { lineIndex: currLine - 1, content: 'f' },
+                { lineIndex: currLine - 1, content: 'a' },
+                { lineIndex: currLine - 1, content: 'b' },
             ],
-            MTL.CYAN,
+            MTL.RED,
         );
         codeHighlight.animateFadeIn(this.animator, { label: label });
-        varF.animateHighlightIn(this.animator, { label: label, offset: 100, color: MTL.CYAN });
-        varD.animateHighlightIn(this.animator, { label: label, offset: 200, color: MTL.CYAN });
-        varD.animateCopyValue(varF, this.animator, { color: charColor });
+        varA.animateHighlightIn(this.animator, { label: label, offset: 100, color: MTL.RED });
+        this.animator.makeStep();
+        this.update();
+
+        varA.animateCopyValue(varB, this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
         label = this.animator.createLabelAtCurrentTime();
         codeHighlight.animateFadeOut(this.animator, { label: label });
+        varA.animateHighlightOut(this.animator, { label: label, offset: 100 });
 
-        codeHighlight = this.code.createTokenHighlight(
-            [
-                { lineIndex: currLine - 1, content: 'c' },
-                { lineIndex: currLine - 1, content: 'd' },
-            ],
-            MTL.CYAN,
-        );
-        codeHighlight.animateFadeIn(this.animator, { label: label });
-        varF.animateHighlightOut(this.animator, { label: label, offset: 100 });
-        varC.animateHighlightIn(this.animator, { label: label, offset: 200, color: MTL.CYAN });
-        varC.animateCopyValue(varD, this.animator, { color: charColor });
+        // f *= 2;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varF.animateSetValue('7', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        label = this.animator.createLabelAtCurrentTime();
-        codeHighlight.animateFadeOut(this.animator, { label: label });
-        varD.animateHighlightOut(this.animator, { label: label, offset: 100 });
-        varC.animateHighlightOut(this.animator, { label: label, offset: 200 });
-
-        // e = f - 1;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varE.animateSetValue('114', this.animator, { color: charColor });
         this.animator.makeStep();
         this.update();
 
-        // a++;
+        // b = (a == (b - 1));
+        currLine++;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varA.animateSetValue('8', this.animator, { color: numberColor });
+        varB.animateSetValue('0', this.animator, { color: numberColor });
+
+        // switch (b) {
+        this.code.animateSetCurrentLine(currLine++, this.animator);
         this.animator.makeStep();
         this.update();
 
-        // b--;
+        // case 0 :
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varB.animateSetValue('11', this.animator, { color: numberColor });
+        this.animator.makeStep();
+        this.update();
+
+        // f -= 1;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varF.animateSetValue('6', this.animator, { color: numberColor });
+        this.animator.makeStep();
+        this.update();
+
+        // case 1 :
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        this.animator.makeStep();
+        this.update();
+
+        // f *= 2;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        varF.animateSetValue('12', this.animator, { color: numberColor });
+        this.animator.makeStep();
+        this.update();
+
+        // break;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        this.animator.makeStep();
+        this.update();
+
+        currLine += 2;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
         this.animator.makeStep();
         this.update();
 
