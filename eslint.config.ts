@@ -5,7 +5,7 @@ import { defineConfig } from 'eslint/config';
 
 export default defineConfig([
     {
-        ignores: ['dist', 'build', 'node_modules'],
+        ignores: ['dist', 'build', 'node_modules', '.dependency-cruiser.cjs'],
     },
     {
         files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
