@@ -62,6 +62,10 @@ export class S2Circle extends S2Element<S2CircleData> {
         return this.data.radius.toSpace(space, this.scene.getActiveCamera());
     }
 
+    getCenter(space: S2Space): S2Vec2 {
+        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+    }
+
     getSVGElement(): SVGElement {
         return this.element;
     }

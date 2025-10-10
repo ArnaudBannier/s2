@@ -59,6 +59,10 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         return this;
     }
 
+    isEnabled(): boolean {
+        return this.data.isEnabled.get();
+    }
+
     setParent(parent: S2BaseElement | null): this {
         if (this.parent === parent) return this;
         if (this.parent !== null) {

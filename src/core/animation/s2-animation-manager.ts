@@ -2,7 +2,6 @@ import { S2Timer } from './s2-timer';
 import { S2BaseAnimation } from './s2-base-animation';
 
 export class S2PlayableAnimation {
-    protected manager: S2AnimationManager;
     protected animation: S2BaseAnimation;
     protected state: 'playing' | 'paused' | 'stopped';
     protected repeat: boolean = false;
@@ -12,7 +11,6 @@ export class S2PlayableAnimation {
 
     constructor(animation: S2BaseAnimation) {
         this.animation = animation;
-        this.manager = S2AnimationManager.getInstance();
         this.playFrom = 0;
         this.playTo = this.animation.getDuration();
         this.state = 'stopped';
@@ -57,27 +55,27 @@ export class S2PlayableAnimation {
     play(repeat: boolean = false): this {
         this.state = 'playing';
         this.animation.setElapsed(this.playFrom);
-        this.manager.addAnimation(this);
+        S2AnimationManager.addAnimation(this);
         this.repeat = repeat;
         return this;
     }
 
     pause(): this {
         this.state = 'paused';
-        this.manager.removeAnimation(this);
+        S2AnimationManager.removeAnimation(this);
         return this;
     }
 
     stop(): this {
         this.state = 'stopped';
-        this.manager.removeAnimation(this);
+        S2AnimationManager.removeAnimation(this);
         return this;
     }
 
     resume(): this {
         if (this.state === 'paused') {
             this.state = 'playing';
-            this.manager.addAnimation(this);
+            S2AnimationManager.addAnimation(this);
         } else if (this.state === 'stopped') {
             this.play();
         }
@@ -132,6 +130,14 @@ export class S2AnimationManager {
         return S2AnimationManager._instance;
     }
 
+    static addAnimation(animation: S2PlayableAnimation): void {
+        S2AnimationManager.getInstance().activeAnimations.add(animation);
+    }
+
+    static removeAnimation(animation: S2PlayableAnimation): void {
+        S2AnimationManager.getInstance().activeAnimations.delete(animation);
+    }
+
     protected update(timestamp: number): void {
         this.timer.update(timestamp);
         const delta = this.timer.getDelta();
@@ -149,6 +155,11 @@ export class S2AnimationManager {
 
     removeAnimation(animation: S2PlayableAnimation): this {
         this.activeAnimations.delete(animation);
+        return this;
+    }
+
+    wakeUp(): this {
+        requestAnimationFrame(this.update);
         return this;
     }
 }

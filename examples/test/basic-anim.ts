@@ -39,6 +39,12 @@ class SceneFigure extends S2Scene {
         const grid = this.addWorldGrid();
         S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);
 
+        // const svg = this.getSVG();
+        // svg.getSVGElement().addEventListener('mouseover', (event: MouseEvent) => {
+        //     const point = svg.convertDOMPoint(event.clientX, event.clientY, 'view');
+        //     console.log(`Mouse at: ${point.x.toFixed(2)}, ${point.y.toFixed(2)}`);
+        // });
+
         this.path = this.addPath();
         this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
         S2DataSetter.setTargets(this.path.data)
@@ -53,6 +59,29 @@ class SceneFigure extends S2Scene {
         this.setCircleDefaultStyle(this.circle);
         this.circle.data.position.set(0, 0, 'world');
         this.circle.data.opacity.set(0.0);
+
+        this.circle.getSVGElement().addEventListener('mouseover', (event: MouseEvent) => {
+            console.log('Circle mouse enter');
+            this.circle.data.stroke.width.set(8, 'view');
+            this.update();
+        });
+
+        // const svg = this.getSVG();
+        // svg.getSVGElement().addEventListener('mousemove', (event: MouseEvent) => {
+        //     const point = svg.convertDOMPoint(event.clientX, event.clientY, 'world');
+        //     console.log(`Mouse at: ${point.x.toFixed(2)}, ${point.y.toFixed(2)}`);
+        //     if (this.circle.isEnabled() && point.distanceSq(this.circle.getCenter('world')) < 1) {
+        //         this.circle.data.stroke.width.set(8, 'view');
+        //         this.update();
+        //     }
+        // });
+
+        const circle = this.addCircle();
+        this.setCircleDefaultStyle(circle);
+        circle.data.position.set(0.5, 0, 'world');
+        circle.data.radius.set(1.5, 'world');
+        circle.data.opacity.set(0.1);
+        //circle.getSVGElement().style.pointerEvents = '';
 
         const tip = this.path.createArrowTip();
         tip.setParent(this.getSVG());
