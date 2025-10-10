@@ -18,8 +18,7 @@ import { S2RichText } from '../../src/core/element/text/s2-rich-text.ts';
 import type { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { S2PlainText } from '../../src/core/element/text/s2-plain-text.ts';
 
-const viewport = new S2Vec2(720.0, 360.0).scale(1.5);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(9.0, 4.5), viewport, 1.0);
+const titleString = 'Parcours infixe, préfixe et suffixe';
 
 const inOrderAlgorithm =
     '**kw:fonction** **fn:parcoursInfixe**(**var:n**: **type:Noeud**):\n' +
@@ -44,6 +43,9 @@ const postOrderAlgorithm =
     '  **kw:si** **var:n**.**var:droit** existe **kw:alors**\n' +
     '    **fn:parcoursSuffixe**(**var:n**.**var:droit**)\n' +
     '  **fn:traiter**(**var:n**)';
+
+const viewport = new S2Vec2(720.0, 360.0).scale(1.5);
+const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(9.0, 4.5), viewport, 1.0);
 
 class BTreeStyle {
     public scene: S2Scene;
@@ -720,7 +722,7 @@ const appDiv = document.querySelector<HTMLDivElement>('#app');
 if (appDiv) {
     appDiv.innerHTML = `
         <div>
-            <h1>Parcours d'un arbre binaire</h1>
+            <h1>${titleString}</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id="test-svg" class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
                 <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>

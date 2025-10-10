@@ -7,6 +7,7 @@ import { BaseMemoryScene } from './base-memory-scene.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
 
 const titleString = 'Etat de la mémoire : conditionnelles';
+
 const codeString =
     '**type:int** **fn:main**(**type:void**) {\n' +
     '    **type:int** **var:a** = **num:3**, **var:b** = **num:2**;\n' +
@@ -122,10 +123,10 @@ class SceneFigure extends BaseMemoryScene {
                 { lineIndex: currLine - 1, content: 'a' },
                 { lineIndex: currLine - 1, content: 'b' },
             ],
-            MTL.RED,
+            MTL.CYAN,
         );
         codeHighlight.animateFadeIn(this.animator, { label: label });
-        varA.animateHighlightIn(this.animator, { label: label, offset: 100, color: MTL.RED });
+        varA.animateHighlightIn(this.animator, { label: label, offset: 100, color: MTL.CYAN });
         this.animator.makeStep();
         this.update();
 

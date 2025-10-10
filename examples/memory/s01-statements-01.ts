@@ -7,6 +7,7 @@ import { BaseMemoryScene } from './base-memory-scene.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
 
 const titleString = 'Etat de la mémoire : instructions simples 1';
+
 const codeString =
     '**type:int** **fn:main**(**type:void**) {\n' +
     '    **type:int** **var:a** = **num:10**, **var:b** = **num:5**;\n' +
