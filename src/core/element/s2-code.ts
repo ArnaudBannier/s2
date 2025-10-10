@@ -253,7 +253,7 @@ export class S2Code extends S2Element<S2CodeData> {
                 break;
             case 'kw':
                 tspan.data.fill.color.copyIfUnlocked(MTL.PURPLE_3).lock();
-                tspan.data.font.weight.set(700).lock();
+                //tspan.data.font.weight.set(700).lock();
                 break;
             case 'var':
                 tspan.data.fill.color.copyIfUnlocked(MTL.LIGHT_BLUE_1).lock();
