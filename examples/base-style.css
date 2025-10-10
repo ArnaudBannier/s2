@@ -22,10 +22,34 @@ body {
     place-items: center;
     min-width: 320px;
     min-height: 100vh;
+    font-family: system-ui, sans-serif;
+}
+
+.back-btn {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: #424242;
+    color: #fff;
+    text-decoration: none;
+    transition: border-color 0.25s;
+    line-height: 1;
+    z-index: 1000;
+}
+
+.back-btn:hover {
+    border-color: #03a9f4;
 }
 
 h1 {
-    font-size: 3.2em;
+    font-size: 2.2em;
     line-height: 1.1;
 }
 
@@ -39,7 +63,7 @@ h1 {
     display: block;
     width: 100%;
     aspect-ratio: auto;
-    max-height: 70vh;
+    max-height: 75vh;
     margin: auto;
 }
 
@@ -91,20 +115,3 @@ select:focus,
 select:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
-
-/* 
-@media (prefers-color-scheme: light) {
-    :root {
-        color: #213547;
-        background-color: #ffffff;
-    }
-    a:hover {
-        color: #747bff;
-    }
-    button {
-        background-color: #f9f9f9;
-    }
-    select {
-        background-color: #f9f9f9;
-    }
-} */

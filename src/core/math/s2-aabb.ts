@@ -9,11 +9,11 @@ export class S2AABB {
         this.upper = new S2Vec2();
     }
 
-    setFromPoints(points: S2Vec2[]): void {
+    setFromPoints(points: S2Vec2[]): this {
         if (points.length === 0) {
             this.lower.set(0, 0);
             this.upper.set(0, 0);
-            return;
+            return this;
         }
 
         this.lower.set(+Infinity, +Infinity);
@@ -23,6 +23,19 @@ export class S2AABB {
             this.lower.minV(point);
             this.upper.maxV(point);
         }
+        return this;
+    }
+
+    setEmpty(): this {
+        this.lower.set(+Infinity, +Infinity);
+        this.upper.set(-Infinity, -Infinity);
+        return this;
+    }
+
+    expandToInclude(point: S2Vec2): this {
+        this.lower.minV(point);
+        this.upper.maxV(point);
+        return this;
     }
 
     getCenter(): S2Vec2 {
@@ -37,11 +50,12 @@ export class S2AABB {
         return point.x >= this.lower.x && point.x <= this.upper.x && point.y >= this.lower.y && point.y <= this.upper.y;
     }
 
-    expand(amount: number): void {
+    expand(amount: number): this {
         this.lower.x -= amount;
         this.lower.y -= amount;
         this.upper.x += amount;
         this.upper.y += amount;
+        return this;
     }
 
     clone(): S2AABB {
@@ -51,8 +65,9 @@ export class S2AABB {
         return aabb;
     }
 
-    copy(aabb: S2AABB): void {
+    copy(aabb: S2AABB): this {
         this.lower.copy(aabb.lower);
         this.upper.copy(aabb.upper);
+        return this;
     }
 }

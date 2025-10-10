@@ -1,24 +1,25 @@
-import './s2-example-style.css';
-import { S2Vec2 } from '../core/math/s2-vec2.ts';
-import { S2Camera } from '../core/math/s2-camera.ts';
-import { MTL } from '../utils/mtl-colors.ts';
-import { S2MathUtils } from '../core/math/s2-utils.ts';
-import { S2Memory } from '../extension/s2-memory.ts';
+import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
+import { S2Camera } from '../../src/core/math/s2-camera.ts';
+import { MTL } from '../../src/utils/mtl-colors.ts';
+import { S2MathUtils } from '../../src/core/math/s2-utils.ts';
+import { S2Memory } from '../../src/extension/s2-memory.ts';
 import { BaseMemoryScene } from './base-memory-scene.ts';
-import { S2Code, tokenizeAlgorithm } from '../core/element/s2-code.ts';
+import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
 
+const titleString = 'Etat de la mémoire : instructions simples 2';
 const codeString =
     '**type:int** **fn:main**(**type:void**)\n' +
     '{\n' +
-    '    **type:int** **var:a** = **num:10**, **var:b** = **num:5**;\n' +
-    "    **type:char** **var:c**, **var:d**, **var:e**, **var:f** = **str:'s'**;\n" +
-    '    **var:a** = **var:b** + **num:2**;\n' +
-    '    **var:b** += **var:a**;\n' +
-    '    **var:c** = **var:d** = **var:f**;\n' +
-    '    **var:e** = **var:f** - **num:1**;\n' +
-    '    **var:a**++;\n' +
-    '    **var:b**--;\n' +
-    '    **kw:return** **num:0**;\n' +
+    '   **type:short** **var:a** = **num:7**;\n' +
+    '   **type:float** **var:f** = **num:3.14f**;\n' +
+    '   **type:double** **var:d**, **var:g** = **num:2**;\n' +
+    '   **type:int** **var:i** = **num:0**;\n' +
+    '   \n' +
+    '   **var:f** += **var:a**;\n' +
+    '   **var:g** = **var:a** + **var:i**;\n' +
+    '   **var:i**++;\n' +
+    '   **var:f** = **var:a** - **var:i**;\n' +
+    '   **kw:return** **num:0**;\n' +
     '}';
 
 const viewportScale = 1.5;
@@ -57,81 +58,74 @@ class SceneFigure extends BaseMemoryScene {
     createAnimation(): void {
         this.animator.makeStep();
         const numberColor = MTL.LIME_2;
-        const charColor = MTL.DEEP_ORANGE_2;
+        //const charColor = MTL.DEEP_ORANGE_2;
         let currLine = 1;
 
-        // int a = 10, b = 5;
+        // short a = 7;
         currLine = 2;
         this.code.animateSetCurrentLine(currLine++, this.animator);
         const varA = this.memory.createMemoryId();
-        const varB = this.memory.createMemoryId();
-        let label = this.animator.createLabelAtCurrentTime();
-        varA.animateSetNameAndValue('a', '10', this.animator, { label: label, valueColor: numberColor });
-        varB.animateSetNameAndValue('b', '5', this.animator, {
-            label: label,
-            offset: 200,
+        varA.animateSetNameAndValue('a', '7', this.animator, { valueColor: numberColor });
+        this.animator.makeStep();
+        this.update();
+
+        // float f = 3.14f;
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        const varF = this.memory.createMemoryId();
+        varF.animateSetNameAndValue('f', '3.14f', this.animator, {
             valueColor: numberColor,
         });
         this.animator.makeStep();
         this.update();
 
-        // char c, d, e, f = 's';
+        // double d, g = 2;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        const varC = this.memory.createMemoryId();
         const varD = this.memory.createMemoryId();
-        const varE = this.memory.createMemoryId();
-        const varF = this.memory.createMemoryId();
-        label = this.animator.createLabelAtCurrentTime();
-        varC.animateSetNameAndValue('c', '?', this.animator, { label: label, offset: 100, valueColor: charColor });
-        varD.animateSetNameAndValue('d', '?', this.animator, { label: label, offset: 200, valueColor: charColor });
-        varE.animateSetNameAndValue('e', '?', this.animator, { label: label, offset: 300, valueColor: charColor });
-        varF.animateSetNameAndValue('f', '115', this.animator, {
+        const varG = this.memory.createMemoryId();
+        let label = this.animator.createLabelAtCurrentTime();
+        varD.animateSetNameAndValue('d', '?', this.animator, { label: label, valueColor: numberColor });
+        varG.animateSetNameAndValue('g', '2', this.animator, {
             label: label,
-            offset: 400,
-            valueColor: charColor,
+            offset: 100,
+            valueColor: numberColor,
         });
         this.animator.makeStep();
         this.update();
 
-        // a = b + 2;
+        // int i = 0;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varA.animateSetValue('7', this.animator, { color: numberColor });
+        const varI = this.memory.createMemoryId();
+        label = this.animator.createLabelAtCurrentTime();
+        varI.animateSetNameAndValue('i', '0', this.animator, { label: label, valueColor: numberColor });
         this.animator.makeStep();
         this.update();
 
-        // b += a;
+        // f += a;
+        currLine++;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varB.animateSetValue('12', this.animator, { color: numberColor });
+        varF.animateSetValue('10.14f', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        // c = d = f;
+        // g = a + i;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varD.animateCopyValue(varF, this.animator, { color: charColor });
-        this.animator.makeStep();
-        this.update();
-        varC.animateCopyValue(varD, this.animator, { color: charColor });
+        varG.animateSetValue('7', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        // e = f - 1;
+        // i++;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varE.animateSetValue('114', this.animator, { color: charColor });
+        varI.animateSetValue('1', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        // a++;
+        // f = a - i;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varA.animateSetValue('8', this.animator, { color: numberColor });
+        varF.animateSetValue('6', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
-        // b--;
-        this.code.animateSetCurrentLine(currLine++, this.animator);
-        varB.animateSetValue('11', this.animator, { color: numberColor });
-        this.animator.makeStep();
-        this.update();
-
+        // return 0;
         this.code.animateSetCurrentLine(currLine++, this.animator);
         this.animator.makeStep();
         this.update();
@@ -142,7 +136,7 @@ const appDiv = document.querySelector<HTMLDivElement>('#app');
 if (appDiv) {
     appDiv.innerHTML = `
         <div>
-            <h1>Etat de la mémoire</h1>
+            <h1>${titleString}</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
                 <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>

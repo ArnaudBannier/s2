@@ -63,11 +63,17 @@ export class S2MemoryId {
     ): { name: S2PlainText; value: S2PlainText } {
         const offset = options.offset ?? 0;
         const delay = options.delay ?? 100;
-        const nameOptions = { ...options, color: options.nameColor, offset: offset + delay };
-        const valueOptions = { ...options, color: options.valueColor, offset: offset };
+        const label = animator.ensureLabel(options.label);
+        const valueOptions = { duration: options.duration, label: label, color: options.valueColor, offset: offset };
+        const nameOptions = {
+            duration: options.duration,
+            label: label,
+            color: options.nameColor,
+            offset: offset + delay,
+        };
         return {
-            name: this.memoryRef.getRow(this.index).animateSetName(name, animator, nameOptions),
             value: this.memoryRef.getRow(this.index).animateSetValue(value, animator, valueOptions),
+            name: this.memoryRef.getRow(this.index).animateSetName(name, animator, nameOptions),
         };
     }
 
@@ -133,6 +139,32 @@ export class S2MemoryId {
         options: { label?: string; offset?: number; duration?: number } = {},
     ): void {
         this.memoryRef.getRow(this.index).animateHighlightOut(animator, options);
+    }
+
+    animateHLine(
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            color?: S2Color;
+            width?: number;
+        } = {},
+    ): void {
+        this.memoryRef.getRow(this.index).animateHLine(animator, options);
+    }
+
+    animateRestoreHLine(
+        animator: S2StepAnimator,
+        options: { label?: string; offset?: number; duration?: number } = {},
+    ): void {
+        const camera = this.memoryRef.getScene().getActiveCamera();
+        const hLineOptions = {
+            ...options,
+            color: this.memoryRef.data.background.stroke.color,
+            width: this.memoryRef.data.background.stroke.width.get('view', camera),
+        };
+        this.memoryRef.getRow(this.index).animateHLine(animator, hLineOptions);
     }
 }
 
@@ -295,27 +327,3 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.clearDirty();
     }
 }
-
-// class S2MemoryText {
-//     public text: S2PlainText;
-//     public shift: S2Extents;
-//     protected scene: S2BaseScene;
-
-//     constructor(parent: S2Memory) {
-//         const scene = parent.getScene();
-//         this.scene = scene;
-//         this.text = new S2PlainText(scene);
-//         this.shift = new S2Extents(0, 0, 'view');
-
-//         this.text.setParent(parent);
-//         this.shift.setOwner(parent);
-//     }
-
-//     updatePosition(basePosition: S2Position): void {
-//         const space: S2Space = 'world';
-//         const camera = this.scene.getActiveCamera();
-//         const shift = this.shift.toSpace(space, camera);
-//         const position = basePosition.toSpace(space, camera).addV(shift);
-//         this.text.data.position.setV(position, space);
-//     }
-// }

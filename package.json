@@ -11,7 +11,8 @@
         "format:check": "prettier --check .",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
-        "deploy": "gh-pages -d dist"
+        "deploy": "gh-pages -d dist",
+        "depcruise": "depcruise src"
     },
     "devDependencies": {
         "@eslint/js": "^9.33.0",

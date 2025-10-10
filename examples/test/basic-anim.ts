@@ -1,16 +1,15 @@
-import './s2-example-style.css';
-import { S2Vec2 } from '../core/math/s2-vec2.ts';
-import { S2Camera } from '../core/math/s2-camera.ts';
-import { MTL } from '../utils/mtl-colors.ts';
-import { S2Circle } from '../core/element/s2-circle.ts';
-import { S2Path } from '../core/element/s2-path.ts';
-import { S2Scene } from '../core/scene/s2-scene.ts';
-import { S2StepAnimator } from '../core/animation/s2-step-animator.ts';
-import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim.ts';
-import { ease } from '../core/animation/s2-easing.ts';
-import { S2MathUtils } from '../core/math/s2-utils.ts';
-import { S2DataSetter } from '../core/element/base/s2-data-setter.ts';
-import { S2AnimGroup } from '../core/animation/s2-anim-group.ts';
+import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
+import { S2Camera } from '../../src/core/math/s2-camera.ts';
+import { MTL } from '../../src/utils/mtl-colors.ts';
+import { S2Circle } from '../../src/core/element/s2-circle.ts';
+import { S2Path } from '../../src/core/element/s2-path.ts';
+import { S2Scene } from '../../src/core/scene/s2-scene.ts';
+import { S2StepAnimator } from '../../src/core/animation/s2-step-animator.ts';
+import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
+import { ease } from '../../src/core/animation/s2-easing.ts';
+import { S2MathUtils } from '../../src/core/math/s2-utils.ts';
+import { S2DataSetter } from '../../src/core/element/base/s2-data-setter.ts';
+import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);

@@ -18,6 +18,8 @@ import { S2Length } from '../shared/s2-length';
 import type { S2StepAnimator } from '../animation/s2-step-animator';
 import { S2LerpAnimFactory } from '../animation/s2-lerp-anim';
 import { ease } from '../animation/s2-easing';
+import { S2TextHighlight } from './text/s2-text-highlight';
+import type { S2Color } from '../shared/s2-color';
 
 export type S2CodeToken = {
     type: string;
@@ -203,7 +205,7 @@ export class S2CodeCurrentLineData extends S2BaseData {
     }
 }
 
-type S2TokenStyleSetter = (tspan: S2TSpan, type: string) => void;
+export type S2TokenStyleSetter = (tspan: S2TSpan, type: string) => void;
 
 export class S2Code extends S2Element<S2CodeData> {
     protected element: SVGGElement;
@@ -212,7 +214,7 @@ export class S2Code extends S2Element<S2CodeData> {
     protected lineBackground: S2Rect;
     protected extents: S2Extents;
     protected tokenStyleSetter: S2TokenStyleSetter = S2Code.defaultTokenStyleSetter;
-    protected tokenRects: S2TextEmphasis[];
+    protected highlights: S2TextHighlight[];
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2CodeData());
@@ -221,7 +223,7 @@ export class S2Code extends S2Element<S2CodeData> {
         this.codeBackground = new S2Rect(scene);
         this.lineBackground = new S2Rect(scene);
         this.extents = new S2Extents(0, 0, 'view');
-        this.tokenRects = [];
+        this.highlights = [];
 
         this.textGroup.setParent(this);
         this.codeBackground.setParent(this);
@@ -291,29 +293,60 @@ export class S2Code extends S2Element<S2CodeData> {
         return this.textGroup.getLine(lineIndex).findTSpan(options);
     }
 
-    createEmphasisForToken(lineIndex: number, options: { content?: string; category?: string }): S2TextEmphasis | null {
+    createTokenHighlight(
+        tokens: { lineIndex: number; content?: string; category?: string }[],
+        color?: S2Color,
+    ): S2TextHighlight {
+        const highlightColor = color ?? MTL.BLUE_5;
+        const highlight = new S2TextHighlight(this.scene);
+        highlight.data.fill.opacity.set(0.15);
+        highlight.data.fill.color.copyIfUnlocked(highlightColor);
+        highlight.data.stroke.color.copyIfUnlocked(highlightColor);
+        highlight.data.stroke.width.set(1, 'view');
+        highlight.data.layer.set(1);
+        highlight.setParent(this);
+
+        for (const token of tokens) {
+            const span = this.findTokenTSpan(token.lineIndex, {
+                content: token.content,
+                category: token.category,
+            });
+            if (span) {
+                highlight.addReference(span);
+            } else {
+                console.warn('Token not found for highlight:', token);
+            }
+        }
+        this.highlights.push(highlight);
+        return highlight;
+    }
+
+    createEmphasisForToken(
+        lineIndex: number,
+        options: { content?: string; category?: string },
+    ): S2TextHighlight | null {
         const span = this.findTokenTSpan(lineIndex, options);
         if (!span) return null;
 
-        const emph = new S2TextEmphasis(this.scene);
+        const emph = new S2TextHighlight(this.scene);
         emph.data.fill.opacity.set(0.2);
         emph.data.fill.color.copyIfUnlocked(MTL.BLUE_9);
         emph.data.stroke.color.copyIfUnlocked(MTL.BLUE_5);
         emph.data.stroke.width.set(1, 'view');
         emph.data.layer.set(1);
         emph.setParent(this);
-        emph.setTextReference(span);
+        emph.addReference(span);
         emph.update();
-        this.tokenRects.push(emph);
+        this.highlights.push(emph);
         return emph;
     }
 
-    detachEmphasisRect(emph: S2TextEmphasis): this {
-        const index = this.tokenRects.indexOf(emph);
+    detachEmphasisRect(highlight: S2TextHighlight): this {
+        const index = this.highlights.indexOf(highlight);
         if (index !== -1) {
-            this.tokenRects.splice(index, 1);
+            this.highlights.splice(index, 1);
         }
-        emph.setParent(null);
+        highlight.setParent(null);
         return this;
     }
 
@@ -411,87 +444,9 @@ export class S2Code extends S2Element<S2CodeData> {
             this.lineBackground.update();
         }
 
-        for (const rect of this.tokenRects) {
-            rect.update();
+        for (const highlight of this.highlights) {
+            highlight.update();
         }
-
-        this.clearDirty();
-    }
-}
-
-export class S2TextEmphasisData extends S2ElementData {
-    public readonly fill: S2FillData;
-    public readonly stroke: S2StrokeData;
-    public readonly opacity: S2Number;
-    public readonly cornerRadius: S2Length;
-    public readonly padding: S2Extents;
-
-    constructor() {
-        super();
-        this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1);
-        this.cornerRadius = new S2Length(5, 'view');
-        this.padding = new S2Extents(4, 2, 'view');
-        this.stroke.opacity.set(1);
-        this.fill.opacity.set(1);
-    }
-
-    setOwner(owner: S2Dirtyable | null = null): void {
-        this.fill.setOwner(owner);
-        this.stroke.setOwner(owner);
-        this.opacity.setOwner(owner);
-        this.cornerRadius.setOwner(owner);
-        this.padding.setOwner(owner);
-    }
-
-    clearDirty(): void {
-        super.clearDirty();
-        this.fill.clearDirty();
-        this.stroke.clearDirty();
-        this.opacity.clearDirty();
-        this.cornerRadius.clearDirty();
-        this.padding.clearDirty();
-    }
-}
-
-export class S2TextEmphasis extends S2Element<S2TextEmphasisData> {
-    protected rect: S2Rect;
-    protected textReference: S2TSpan | null;
-
-    constructor(scene: S2BaseScene) {
-        super(scene, new S2TextEmphasisData());
-        this.rect = new S2Rect(scene);
-        this.textReference = null;
-        this.children = [];
-    }
-
-    setTextReference(text: S2TSpan): this {
-        this.textReference = text;
-        return this;
-    }
-
-    getSVGElement(): SVGElement {
-        return this.rect.getSVGElement();
-    }
-
-    update(): void {
-        if (!this.isDirty()) return;
-        if (this.textReference === null) return;
-
-        const camera = this.scene.getActiveCamera();
-        const space: S2Space = 'view';
-        const position = this.textReference.getCenter(space);
-        const textExtents = this.textReference.getExtents(space);
-        const padding = this.data.padding.toSpace(space, camera);
-        this.rect.data.position.setV(position, space);
-        this.rect.data.extents.set(textExtents.x + padding.x, textExtents.y + padding.y, space);
-        this.rect.data.anchor.set('center');
-        this.rect.data.fill.copyIfUnlocked(this.data.fill);
-        this.rect.data.stroke.copyIfUnlocked(this.data.stroke);
-        this.rect.data.opacity.copyIfUnlocked(this.data.opacity);
-        this.rect.data.cornerRadius.copyIfUnlocked(this.data.cornerRadius);
-        this.rect.update();
 
         this.clearDirty();
     }

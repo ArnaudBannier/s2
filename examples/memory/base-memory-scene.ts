@@ -1,11 +1,11 @@
-import { S2StepAnimator } from '../core/animation/s2-step-animator';
-import { S2FontData } from '../core/element/base/s2-base-data';
-import { S2Code } from '../core/element/s2-code';
-import type { S2FillRect } from '../core/element/s2-fill-rect';
-import type { S2Camera } from '../core/math/s2-camera';
-import { S2Scene } from '../core/scene/s2-scene';
-import type { S2Memory } from '../extension/s2-memory';
-import { MTL } from '../utils/mtl-colors';
+import { S2StepAnimator } from '../../src/core/animation/s2-step-animator';
+import { S2FontData } from '../../src/core/element/base/s2-base-data';
+import { S2Code } from '../../src/core/element/s2-code';
+import type { S2FillRect } from '../../src/core/element/s2-fill-rect';
+import type { S2Camera } from '../../src/core/math/s2-camera';
+import { S2Scene } from '../../src/core/scene/s2-scene';
+import type { S2Memory } from '../../src/extension/s2-memory';
+import { MTL } from '../../src/utils/mtl-colors';
 
 export class BaseMemoryScene extends S2Scene {
     public animator: S2StepAnimator;

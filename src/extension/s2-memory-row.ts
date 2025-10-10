@@ -245,7 +245,7 @@ export class S2MemoryRow {
         const duration = options.duration ?? 500;
 
         this.highlight.data.opacity.set(0.0);
-        this.highlight.data.fill.opacity.set(0.25);
+        this.highlight.data.fill.opacity.set(0.15);
         this.highlight.data.stroke.width.set(1, 'view');
         const opacityAnim = S2LerpAnimFactory.create(this.scene, this.highlight.data.opacity)
             .setCycleDuration(duration)
@@ -281,6 +281,39 @@ export class S2MemoryRow {
         opacityAnim.commitFinalState();
         animator.addAnimation(opacityAnim, label, offset);
         animator.enableElement(this.highlight, false, label, offset + duration);
+    }
+
+    animateHLine(
+        animator: S2StepAnimator,
+        options: {
+            label?: string;
+            offset?: number;
+            duration?: number;
+            color?: S2Color;
+            width?: number;
+        } = {},
+    ): void {
+        const label = animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
+
+        if (options.color) {
+            const colorAnim = S2LerpAnimFactory.create(this.scene, this.hLine.data.stroke.color).setCycleDuration(
+                duration,
+            );
+            this.hLine.data.stroke.color.copy(options.color).lock();
+            colorAnim.commitFinalState();
+            animator.addAnimation(colorAnim, label, offset);
+        }
+
+        if (options.width) {
+            const widthAnim = S2LerpAnimFactory.create(this.scene, this.hLine.data.stroke.width)
+                .setCycleDuration(duration)
+                .setEasing(ease.inOut);
+            this.hLine.data.stroke.width.set(options.width, 'view').lock();
+            widthAnim.commitFinalState();
+            animator.addAnimation(widthAnim, label, offset);
+        }
     }
 
     protected animateCopy(
@@ -409,7 +442,7 @@ export class S2MemoryRow {
         this.upperBound.setV(upperBound, 'world');
     }
 
-    updateGeometry(): void {
+    protected updateGeometry(): void {
         const parentData = this.parentMemory.data;
         const isDirty =
             this.lowerBound.isDirty() ||

@@ -1,40 +1,82 @@
 <!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8" />
-    <title>Exemples S2</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <style>
-        body { font-family: system-ui, sans-serif; margin: 2rem; }
-        h1 { margin-top: 0; }
-        ul { list-style: none; padding: 0; display: grid; gap: .75rem; }
-        li { border: 1px solid #757575; padding: .75rem 1rem; border-radius: 6px; background:#424242; }
-        a { text-decoration: none; font-weight: 600; color:#81D4FA; }
-        a:hover { text-decoration: underline; }
-        .desc { font-size: .85rem; color:#9E9E9E; margin-top:.25rem; }
-        :root {
-            color-scheme: light dark;
-            color: #EEEEEE;
-            background-color: #212121;
-        }
-    </style>
-</head>
-<body>
-    <h1>Exemples S2</h1>
-    <ul id="examples"></ul>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Exemples S2</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <style>
+            body {
+                font-family: system-ui, sans-serif;
+                margin: 2rem;
+            }
+            h1 {
+                margin-top: 0;
+            }
+            ul {
+                list-style: none;
+                padding: 0;
+                display: grid;
+                gap: 0.75rem;
+            }
+            li {
+                border: 1px solid #757575;
+                padding: 0.75rem 1rem;
+                border-radius: 6px;
+                background: #424242;
+            }
+            a {
+                text-decoration: none;
+                font-weight: 600;
+                color: #81d4fa;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            .desc {
+                font-size: 0.85rem;
+                color: #9e9e9e;
+                margin-top: 0.25rem;
+            }
+            :root {
+                color-scheme: light dark;
+                color: #eeeeee;
+                background-color: #212121;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Exemples S2</h1>
+        <ul id="examples"></ul>
 
-    <script type="module">
-        import examples from  '/src/example/s2-example.ts';
+        <script type="module">
+            import { examples } from '/examples/examples.ts';
 
-        const ul = document.getElementById('examples');
-        for (const ex of examples) {
-            const li = document.createElement('li');
-            li.innerHTML = `
+            const exUl = document.getElementById('examples');
+            for (const ex of examples) {
+                const li = document.createElement('li');
+                li.innerHTML = `
                 <a href="${ex.path}">${ex.title}</a>
-                ${ex.description ? `<div class="desc">${ex.description}</div>` : '' }
+                ${ex.description ? `<div class="desc">${ex.description}</div>` : ''}
             `;
-            ul.appendChild(li);
-        }
-    </script>
-</body>
+                exUl.appendChild(li);
+            }
+        </script>
+
+        <h1>Tests</h1>
+        <ul id="tests"></ul>
+
+        <script type="module">
+            import { tests } from '/examples/examples.ts';
+
+            const testsUl = document.getElementById('tests');
+            for (const ex of tests) {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                <a href="${ex.path}">${ex.title}</a>
+                ${ex.description ? `<div class="desc">${ex.description}</div>` : ''}
+            `;
+                testsUl.appendChild(li);
+            }
+        </script>
+    </body>
 </html>
