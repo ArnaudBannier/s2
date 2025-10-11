@@ -14,6 +14,7 @@ export type S2TextAnchor = 'start' | 'middle' | 'end';
 export type S2HorizontalAlign = 'left' | 'center' | 'right';
 export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 export type S2FontStyle = 'normal' | 'italic' | 'oblique';
+export type S2PointerEvents = 'auto' | 'none';
 
 export interface S2Dirtyable {
     isDirty(): boolean;

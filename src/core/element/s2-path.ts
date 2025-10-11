@@ -14,9 +14,9 @@ import { S2Position } from '../shared/s2-position';
 import { S2Length } from '../shared/s2-length';
 
 export class S2PathData extends S2ElementData {
+    public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly fill: S2FillData;
     public readonly transform: S2Transform;
     public readonly space: S2Enum<S2Space>;
     public readonly polyCurve: S2PolyCurve;
@@ -38,6 +38,7 @@ export class S2PathData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
@@ -287,6 +288,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     update(): void {
         if (this.skipUpdate()) return;
 
+        S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

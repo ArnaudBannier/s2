@@ -1,6 +1,6 @@
 import type { S2FillData, S2FontData, S2StrokeData } from './s2-base-data.ts';
 import type { S2Enum } from '../../shared/s2-enum.ts';
-import { S2AnchorUtils, type S2Anchor, type S2TextAnchor } from '../../shared/s2-globals.ts';
+import { S2AnchorUtils, type S2Anchor, type S2PointerEvents, type S2TextAnchor } from '../../shared/s2-globals.ts';
 import type { S2BaseScene } from '../../scene/s2-base-scene.ts';
 import { S2CubicCurve, S2LineCurve, type S2PolyCurve } from '../../math/s2-curve.ts';
 import type { S2Color } from '../../shared/s2-color.ts';
@@ -16,6 +16,13 @@ import type { S2Camera } from '../../math/s2-camera.ts';
 import { S2Vec2 } from '../../math/s2-vec2.ts';
 
 export class S2DataUtils {
+    static applyPointerEvents(pointerEvents: S2Enum<S2PointerEvents>, element: SVGElement, scene: S2BaseScene): void {
+        void scene;
+        if (pointerEvents.isDirty()) {
+            element.style.pointerEvents = pointerEvents.value;
+        }
+    }
+
     static applyStroke(stroke: S2StrokeData, element: SVGElement, scene: S2BaseScene): void {
         if (stroke.isDirty() === false) return;
         if (stroke.width.isDirty()) {

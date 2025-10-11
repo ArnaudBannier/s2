@@ -77,6 +77,7 @@ export class S2CodeData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.position.setOwner(owner);
         this.anchor.setOwner(owner);
         this.padding.setOwner(owner);

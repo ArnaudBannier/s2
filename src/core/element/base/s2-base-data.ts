@@ -1,7 +1,7 @@
 import { S2Boolean } from '../../shared/s2-boolean';
 import { S2Color } from '../../shared/s2-color';
 import { S2Enum } from '../../shared/s2-enum';
-import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin } from '../../shared/s2-globals';
+import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin, S2PointerEvents } from '../../shared/s2-globals';
 import { S2Length } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2String } from '../../shared/s2-string';
@@ -14,21 +14,25 @@ export abstract class S2BaseData {
 export class S2ElementData extends S2BaseData {
     public readonly layer: S2Number;
     public readonly isEnabled: S2Boolean;
+    public readonly pointerEvents: S2Enum<S2PointerEvents>;
 
     constructor() {
         super();
         this.layer = new S2Number(0);
         this.isEnabled = new S2Boolean(true);
+        this.pointerEvents = new S2Enum<S2PointerEvents>('none');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         this.layer.setOwner(owner);
         this.isEnabled.setOwner(owner);
+        this.pointerEvents.setOwner(owner);
     }
 
     clearDirty(): void {
         this.layer.clearDirty();
         this.isEnabled.clearDirty();
+        this.pointerEvents.clearDirty();
     }
 }
 

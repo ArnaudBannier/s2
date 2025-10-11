@@ -37,6 +37,7 @@ export class S2ArrowTipData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
@@ -167,6 +168,7 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
         if (this.skipUpdate()) return;
 
         this.updateTipTransform();
+        S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

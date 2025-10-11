@@ -32,9 +32,11 @@ export class S2CircleData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
+        this.transform.setOwner(owner);
         this.position.setOwner(owner);
         this.radius.setOwner(owner);
     }
@@ -81,6 +83,7 @@ export class S2Circle extends S2Element<S2CircleData> {
     update(): void {
         if (this.skipUpdate()) return;
 
+        S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

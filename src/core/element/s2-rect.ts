@@ -40,6 +40,7 @@ export class S2RectData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
@@ -101,6 +102,7 @@ export class S2Rect extends S2Element<S2RectData> {
     update(): void {
         if (this.skipUpdate()) return;
 
+        S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

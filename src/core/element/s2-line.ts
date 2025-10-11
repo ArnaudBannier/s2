@@ -24,6 +24,7 @@ export class S2LineData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
         this.transform.setOwner(owner);
@@ -56,6 +57,7 @@ export class S2Line extends S2Element<S2LineData> {
     update(): void {
         if (this.skipUpdate()) return;
 
+        S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);

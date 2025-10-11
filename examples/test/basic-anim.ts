@@ -10,6 +10,8 @@ import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2MathUtils } from '../../src/core/math/s2-utils.ts';
 import { S2DataSetter } from '../../src/core/element/base/s2-data-setter.ts';
 import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
+import { S2DraggableCircle } from '../../src/core/element/s2-draggable-circle.ts';
+import type { S2BaseDraggable } from '../../src/core/element/s2-draggable.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -39,6 +41,10 @@ class SceneFigure extends S2Scene {
         const grid = this.addWorldGrid();
         S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);
 
+        const handle = new S2DraggableCircle(this);
+        handle.setParent(this.getSVG());
+        handle.data.position.set(-7, 0, 'world');
+
         // const svg = this.getSVG();
         // svg.getSVGElement().addEventListener('mouseover', (event: MouseEvent) => {
         //     const point = svg.convertDOMPoint(event.clientX, event.clientY, 'view');
@@ -60,11 +66,11 @@ class SceneFigure extends S2Scene {
         this.circle.data.position.set(0, 0, 'world');
         this.circle.data.opacity.set(0.0);
 
-        this.circle.getSVGElement().addEventListener('mouseover', (event: MouseEvent) => {
-            console.log('Circle mouse enter');
-            this.circle.data.stroke.width.set(8, 'view');
-            this.update();
-        });
+        // this.circle.getSVGElement().addEventListener('mouseover', (event: MouseEvent) => {
+        //     console.log('Circle mouse enter');
+        //     this.circle.data.stroke.width.set(8, 'view');
+        //     this.update();
+        // });
 
         // const svg = this.getSVG();
         // svg.getSVGElement().addEventListener('mousemove', (event: MouseEvent) => {
@@ -76,12 +82,23 @@ class SceneFigure extends S2Scene {
         //     }
         // });
 
-        const circle = this.addCircle();
-        this.setCircleDefaultStyle(circle);
-        circle.data.position.set(0.5, 0, 'world');
-        circle.data.radius.set(1.5, 'world');
-        circle.data.opacity.set(0.1);
-        //circle.getSVGElement().style.pointerEvents = '';
+        const line = this.addLine();
+        line.data.startPosition.set(0, 0, 'world');
+        line.data.endPosition.copy(handle.data.position);
+        line.data.stroke.color.copy(MTL.LIGHT_BLUE_5);
+        line.data.stroke.width.set(2, 'view');
+        line.data.pointerEvents.set('none');
+
+        handle.setOnDrag((handle: S2BaseDraggable, event: PointerEvent) => {
+            void event;
+            const pos = handle.getPosition('world');
+            line.data.endPosition.set(Math.round(pos.x * 2) / 2, Math.round(pos.y * 2) / 2, 'world');
+        });
+
+        handle.setOnRelease((handle: S2BaseDraggable, event: PointerEvent) => {
+            void event;
+            handle.data.position.copy(line.data.endPosition);
+        });
 
         const tip = this.path.createArrowTip();
         tip.setParent(this.getSVG());

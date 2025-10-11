@@ -17,6 +17,7 @@ export class S2FillRectData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.opacity.setOwner(owner);
         this.color.setOwner(owner);
     }
@@ -48,6 +49,7 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         this.element.setAttribute('y', '0');
         this.element.setAttribute('width', camera.viewport.x.toString());
         this.element.setAttribute('height', camera.viewport.y.toString());
+        S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyColor(this.data.color, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
 
