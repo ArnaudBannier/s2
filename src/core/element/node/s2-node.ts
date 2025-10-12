@@ -16,7 +16,7 @@ import { S2Position } from '../../shared/s2-position';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
-import { S2MathUtils } from '../../math/s2-utils';
+import { S2MathUtils } from '../../math/s2-math-utils';
 
 export class S2RichNodeData extends S2ElementData {
     public readonly position: S2Position;
@@ -270,7 +270,7 @@ export class S2Node extends S2Element<S2RichNodeData> {
         );
 
         const nodeExtents = new S2Vec2(Math.max(maxPartWidth / 2 + padding.x, nodeMinExtents.x), height / 2);
-        this.extents.setValueFromSpace('view', camera, nodeExtents.x, nodeExtents.y);
+        this.extents.setValueFromSpace(nodeExtents.x, nodeExtents.y, 'view', camera);
 
         const nodeCenter = S2AnchorUtils.getCenter(
             this.data.anchor.get(),

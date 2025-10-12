@@ -7,7 +7,7 @@ import { S2Group } from '../../src/core/element/s2-group.ts';
 import { S2StepAnimator } from '../../src/core/animation/s2-step-animator.ts';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
-import { S2MathUtils } from '../../src/core/math/s2-utils.ts';
+import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2ElementData, S2FontData } from '../../src/core/element/base/s2-base-data.ts';
 import { S2DataSetter } from '../../src/core/element/base/s2-data-setter.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';

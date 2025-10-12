@@ -11,7 +11,7 @@ import type { S2Extents } from '../shared/s2-extents';
 import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';
 import type { S2Space } from '../shared/s2-base-type';
-import { S2MathUtils } from '../math/s2-utils';
+import { S2MathUtils } from '../math/s2-math-utils';
 import { ease } from './s2-easing';
 
 export type S2AnimProperty =

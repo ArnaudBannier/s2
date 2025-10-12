@@ -1,6 +1,6 @@
 import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
 import { S2BaseType } from './s2-base-type';
-import { S2MathUtils } from '../math/s2-utils';
+import { S2MathUtils } from '../math/s2-math-utils';
 
 export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCopy<S2Color>, S2HasLerp<S2Color> {
     readonly kind = 'color' as const;

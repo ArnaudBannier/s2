@@ -55,15 +55,15 @@ export class S2Direction
         return this;
     }
 
-    setV(position: S2Vec2, space?: S2Space): this {
-        if (S2Vec2.eq(this.value, position) && this.space === space) return this;
-        this.value.copy(position);
+    setV(direction: S2Vec2, space?: S2Space): this {
+        if (S2Vec2.eq(this.value, direction) && this.space === space) return this;
+        this.value.copy(direction);
         if (space) this.space = space;
         this.markDirty();
         return this;
     }
 
-    setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {
+    setValueFromSpace(x: number, y: number, space: S2Space, camera: S2Camera): this {
         if (this.value.x === x && this.value.y === y && this.space === space) return this;
         if (this.space === space) {
             // this = other
@@ -77,6 +77,10 @@ export class S2Direction
         }
         this.markDirty();
         return this;
+    }
+
+    setValueFromSpaceV(direction: S2Vec2, space: S2Space, camera: S2Camera): this {
+        return this.setValueFromSpace(direction.x, direction.y, space, camera);
     }
 
     get(space: S2Space, camera: S2Camera): S2Vec2 {

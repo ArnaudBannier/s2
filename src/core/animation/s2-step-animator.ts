@@ -2,7 +2,7 @@ import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2BaseAnimation } from './s2-base-animation';
 import type { S2TimelineTrigger } from './s2-timeline-trigger';
 import type { S2BaseElement } from '../element/base/s2-element';
-import { S2MathUtils } from '../math/s2-utils';
+import { S2MathUtils } from '../math/s2-math-utils';
 import { S2Timeline } from './s2-timeline';
 import { S2Playable } from './s2-playable';
 

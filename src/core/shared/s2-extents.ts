@@ -63,7 +63,7 @@ export class S2Extents
         return this;
     }
 
-    setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {
+    setValueFromSpace(x: number, y: number, space: S2Space, camera: S2Camera): this {
         if (this.value.x === x && this.value.y === y && this.space === space) return this;
         if (this.space === space) {
             // this = other

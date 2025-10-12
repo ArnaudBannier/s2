@@ -63,7 +63,25 @@ export class S2Position
         return this;
     }
 
-    setValueFromSpace(space: S2Space, camera: S2Camera, x: number, y: number): this {
+    setXFromSpace(x: number, space: S2Space, camera: S2Camera): this {
+        if (space === 'world' && this.space === 'view') x = camera.worldToViewX(x);
+        if (space === 'view' && this.space === 'world') x = camera.viewToWorldX(x);
+        if (this.value.x === x) return this;
+        this.value.x = x;
+        this.markDirty();
+        return this;
+    }
+
+    setYFromSpace(y: number, space: S2Space, camera: S2Camera): this {
+        if (space === 'world' && this.space === 'view') y = camera.worldToViewY(y);
+        if (space === 'view' && this.space === 'world') y = camera.viewToWorldY(y);
+        if (this.value.y === y) return this;
+        this.value.y = y;
+        this.markDirty();
+        return this;
+    }
+
+    setValueFromSpace(x: number, y: number, space: S2Space, camera: S2Camera): this {
         if (this.value.x === x && this.value.y === y && this.space === space) return this;
         if (this.space === space) {
             // this = other
@@ -79,6 +97,10 @@ export class S2Position
         }
         this.markDirty();
         return this;
+    }
+
+    setValueFromSpaceV(position: S2Vec2, space: S2Space, camera: S2Camera): this {
+        return this.setValueFromSpace(position.x, position.y, space, camera);
     }
 
     get(space: S2Space, camera: S2Camera): S2Vec2 {
@@ -107,15 +129,12 @@ export class S2Position
     }
 
     static toSpace(position: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
-        if (currSpace === nextSpace) {
-            // this = other
-            return position.clone();
-        } else if (currSpace === 'world') {
-            // this: world, other: view
-            return camera.worldToViewV(position);
-        } else {
-            // this: view, other: world
-            return camera.viewToWorldV(position);
+        if (currSpace === nextSpace) return position.clone();
+        switch (currSpace) {
+            case 'world':
+                return camera.worldToViewV(position);
+            case 'view':
+                return camera.viewToWorldV(position);
         }
     }
 }

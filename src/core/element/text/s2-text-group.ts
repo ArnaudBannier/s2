@@ -201,8 +201,8 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         const extents = this.data.minExtents.toSpace(space, camera);
         extents.maxV(textExtents);
 
-        this.contentExtents.setValueFromSpace(space, camera, textExtents.x, textExtents.y);
-        this.extents.setValueFromSpace(space, camera, extents.x, extents.y);
+        this.contentExtents.setValueFromSpace(textExtents.x, textExtents.y, space, camera);
+        this.extents.setValueFromSpace(extents.x, extents.y, space, camera);
 
         const groupNW = this.getCenter(space).subV(extents); // TODO
 

@@ -35,11 +35,11 @@ export class S2SVG extends S2Element<S2ElementData> {
         const pt = new DOMPoint(x, y);
         const ctm = this.element.getScreenCTM();
         if (!ctm) {
-            out.set(0, 0, 'view');
+            out.set(0, 0);
             return;
         }
         const local = pt.matrixTransform(ctm.inverse());
-        out.set(local.x, local.y, 'view');
+        out.setValueFromSpace(local.x, local.y, 'view', this.scene.getActiveCamera());
     }
 
     update(): void {

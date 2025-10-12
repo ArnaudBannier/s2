@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { S2Camera } from '../../src/core/math/s2-camera.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
-import { S2MathUtils } from '../../src/core/math/s2-utils.ts';
+import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2Memory } from '../../src/extension/s2-memory.ts';
 import { BaseMemoryScene } from './base-memory-scene.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
@@ -118,7 +118,7 @@ class SceneFigure extends BaseMemoryScene {
         // if (a = b) {
         this.code.animateSetCurrentLine(currLine++, this.animator);
         label = this.animator.createLabelAtCurrentTime();
-        let codeHighlight = this.code.createTokenHighlight(
+        const codeHighlight = this.code.createTokenHighlight(
             [
                 { lineIndex: currLine - 1, content: 'a' },
                 { lineIndex: currLine - 1, content: 'b' },

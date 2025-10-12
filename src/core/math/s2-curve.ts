@@ -1,5 +1,5 @@
 import { S2Vec2 } from './s2-vec2';
-import { S2MathUtils } from './s2-utils';
+import { S2MathUtils } from './s2-math-utils';
 
 export interface S2Curve {
     getStart(): S2Vec2;

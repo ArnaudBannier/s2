@@ -12,7 +12,7 @@ import { S2TextGroup } from './text/s2-text-group';
 import { S2Rect } from './s2-rect';
 import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
-import { S2MathUtils } from '../math/s2-utils';
+import { S2MathUtils } from '../math/s2-math-utils';
 import { S2Position } from '../shared/s2-position';
 import { S2Enum } from '../shared/s2-enum';
 import { S2Extents } from '../shared/s2-extents';

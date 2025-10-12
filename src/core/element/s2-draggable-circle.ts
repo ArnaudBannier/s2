@@ -7,7 +7,7 @@ import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Length } from '../shared/s2-length';
 import { S2Draggable, S2DraggableData } from './s2-draggable';
-import { S2MathUtils } from '../math/s2-utils';
+import { S2MathUtils } from '../math/s2-math-utils';
 
 export type S2HandleEventListener = (handle: S2DraggableCircle, event: PointerEvent) => void;
 
@@ -59,7 +59,6 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
 
         S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyOpacity(this.opacity, this.element, this.scene);
-        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');
         S2DataUtils.applyRadius(this.data.radius, this.element, this.scene);
 

@@ -1,7 +1,7 @@
 import type { S2HasClone, S2HasCopy, S2HasLerpWithCamera, S2Space } from './s2-base-type';
 import type { S2Camera } from '../math/s2-camera';
 import { S2BaseType } from './s2-base-type';
-import { S2MathUtils } from '../math/s2-utils';
+import { S2MathUtils } from '../math/s2-math-utils';
 
 export class S2Length
     extends S2BaseType
@@ -55,7 +55,7 @@ export class S2Length
         return this;
     }
 
-    setValueFromSpace(space: S2Space, camera: S2Camera, value: number): this {
+    setValueFromSpace(value: number, space: S2Space, camera: S2Camera): this {
         if (this.value === value && this.space === space) return this;
         if (this.space === space) {
             // this = other
