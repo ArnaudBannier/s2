@@ -1,15 +1,15 @@
+import type { S2StepAnimator } from '../core/animation/s2-step-animator';
+import type { S2BaseScene } from '../core/scene/s2-base-scene';
+import type { S2Space } from '../core/shared/s2-base-type';
+import type { S2Color } from '../core/shared/s2-color';
+import type { S2Memory } from './s2-memory';
 import { ease } from '../core/animation/s2-easing';
 import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim';
-import type { S2StepAnimator } from '../core/animation/s2-step-animator';
 import { S2Line } from '../core/element/s2-line';
 import { S2PlainText } from '../core/element/text/s2-plain-text';
 import { S2Vec2 } from '../core/math/s2-vec2';
-import type { S2BaseScene } from '../core/scene/s2-base-scene';
-import { type S2Space } from '../core/shared/s2-base-type';
 import { S2Position } from '../core/shared/s2-position';
 import { S2MotionPathDirection } from '../core/animation/s2-motion-path';
-import type { S2Color } from '../core/shared/s2-color';
-import type { S2Memory } from './s2-memory';
 import { S2Rect } from '../core/element/s2-rect';
 import { S2TriggerColor } from '../core/animation/s2-timeline-trigger';
 

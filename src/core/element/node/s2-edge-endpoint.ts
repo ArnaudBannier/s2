@@ -1,11 +1,11 @@
-import { S2Vec2 } from '../../math/s2-vec2';
-import { type S2Space } from '../../shared/s2-base-type';
-import { S2Camera } from '../../math/s2-camera';
-import { type S2Dirtyable } from '../../shared/s2-globals';
-import { S2BaseNode } from './s2-base-node';
+import type { S2Space } from '../../shared/s2-base-type';
+import type { S2Camera } from '../../math/s2-camera';
+import type { S2Dirtyable } from '../../shared/s2-globals';
 import type { S2BaseEdge } from './s2-base-edge';
-import { S2Position } from '../../shared/s2-position';
 import type { S2Length } from '../../shared/s2-length';
+import { S2Vec2 } from '../../math/s2-vec2';
+import { S2Position } from '../../shared/s2-position';
+import { S2BaseNode } from './s2-base-node';
 
 export class S2EdgeEndpoint implements S2Dirtyable {
     protected mode: 'node' | 'position';

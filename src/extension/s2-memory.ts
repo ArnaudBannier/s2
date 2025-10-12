@@ -1,14 +1,14 @@
+import type { S2BaseScene } from '../core/scene/s2-base-scene';
+import type { S2Space } from '../core/shared/s2-base-type';
+import type { S2Color } from '../core/shared/s2-color';
 import type { S2StepAnimator } from '../core/animation/s2-step-animator';
 import { S2Element } from '../core/element/base/s2-element';
 import { S2Line } from '../core/element/s2-line';
 import { S2Rect } from '../core/element/s2-rect';
 import { S2PlainText } from '../core/element/text/s2-plain-text';
 import { S2Vec2 } from '../core/math/s2-vec2';
-import type { S2BaseScene } from '../core/scene/s2-base-scene';
 import { S2AnchorUtils, svgNS } from '../core/shared/s2-globals';
-import { type S2Space } from '../core/shared/s2-base-type';
 import { S2MemoryData } from './s2-memory-data';
-import type { S2Color } from '../core/shared/s2-color';
 import { S2MemoryRow } from './s2-memory-row';
 
 export class S2MemoryId {

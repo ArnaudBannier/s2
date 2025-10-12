@@ -1,8 +1,10 @@
+import type { S2BaseScene } from '../scene/s2-base-scene';
+import type { S2Dirtyable } from '../shared/s2-globals';
+import type { S2BaseTipable } from './base/s2-element';
 import { ease } from '../animation/s2-easing';
 import { S2Mat2x3Builder } from '../math/s2-mat2x3-builder';
-import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2Extents } from '../shared/s2-extents';
-import { S2TipTransform, svgNS, type S2Dirtyable } from '../shared/s2-globals';
+import { S2TipTransform, svgNS } from '../shared/s2-globals';
 import { S2Length } from '../shared/s2-length';
 import { S2Number } from '../shared/s2-number';
 import { S2Position } from '../shared/s2-position';
@@ -10,7 +12,6 @@ import { S2Transform } from '../shared/s2-transform';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Element } from './base/s2-element';
-import { type S2BaseTipable } from './base/s2-element';
 
 export class S2ArrowTipData extends S2ElementData {
     public readonly fill: S2FillData;

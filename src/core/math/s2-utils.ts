@@ -18,4 +18,24 @@ export class S2MathUtils {
     static remap(origFrom: number, origTo: number, targetFrom: number, targetTo: number, value: number): number {
         return S2MathUtils.lerp(targetFrom, targetTo, S2MathUtils.invLerp(origFrom, origTo, value));
     }
+
+    static mod(x: number, n: number): number {
+        return ((x % n) + n) % n;
+    }
+
+    static damp(x: number, y: number, lambda: number, dt: number): number {
+        return S2MathUtils.lerp(x, y, 1 - Math.exp(-lambda * dt));
+    }
+
+    static snap(value: number, step: number): number {
+        if (step === 0) return value;
+        return Math.round(value / step) * step;
+    }
+
+    static snapToArray(value: number, array: number[]): number {
+        if (array.length === 0) return value;
+        return array.reduce((closest, currValue) =>
+            Math.abs(currValue - value) < Math.abs(closest - value) ? currValue : closest,
+        );
+    }
 }

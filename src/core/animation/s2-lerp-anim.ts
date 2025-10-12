@@ -1,12 +1,12 @@
-import { S2BaseScene } from '../scene/s2-base-scene';
-import { type S2HasClone, type S2HasCopy, type S2HasLerp, type S2HasLerpWithCamera } from '../shared/s2-base-type';
+import type { S2BaseScene } from '../scene/s2-base-scene';
+import type { S2HasClone, S2HasCopy, S2HasLerp, S2HasLerpWithCamera } from '../shared/s2-base-type';
 import type { S2Color } from '../shared/s2-color';
 import type { S2Direction } from '../shared/s2-direction';
 import type { S2Extents } from '../shared/s2-extents';
 import type { S2Length } from '../shared/s2-length';
 import type { S2Number } from '../shared/s2-number';
 import type { S2Position } from '../shared/s2-position';
-import { type S2AnimProperty } from './s2-base-animation';
+import type { S2AnimProperty } from './s2-base-animation';
 import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 
 // Factory class

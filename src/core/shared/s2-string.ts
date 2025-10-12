@@ -1,4 +1,5 @@
-import { S2BaseType, type S2HasClone, type S2HasCopy } from './s2-base-type';
+import type { S2HasClone, S2HasCopy } from './s2-base-type';
+import { S2BaseType } from './s2-base-type';
 
 export class S2String extends S2BaseType implements S2HasClone<S2String>, S2HasCopy<S2String> {
     readonly kind = 'string' as const;

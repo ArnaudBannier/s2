@@ -7,6 +7,7 @@ import { S2Element } from './base/s2-element';
 import { S2Transform } from '../shared/s2-transform';
 import { S2Position } from '../shared/s2-position';
 import { S2Direction } from '../shared/s2-direction';
+import { S2AnimationManager } from '../animation/s2-animation-manager';
 
 export type S2BaseDraggable = S2Draggable<S2DraggableData>;
 export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEvent) => void;
@@ -45,9 +46,6 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
     protected userOnGrab: S2HandleEventListener | null = null;
     protected userOnDrag: S2HandleEventListener | null = null;
     protected userOnRelease: S2HandleEventListener | null = null;
-    protected boundOnGrab = this.onGrab.bind(this);
-    protected boundOnDrag = this.onDrag.bind(this);
-    protected boundOnRelease = this.onRelease.bind(this);
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
@@ -58,9 +56,9 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
 
     protected initSVGElement(element: SVGElement): void {
         element.style.touchAction = 'none';
-        element.addEventListener('pointerdown', this.boundOnGrab);
         element.style.cursor = 'pointer';
         element.role = 'handle';
+        element.addEventListener('pointerdown', this.onGrab, { passive: false });
     }
 
     setOnGrab(listener: S2HandleEventListener | null): void {
@@ -91,9 +89,9 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
-    private onGrab(event: PointerEvent) {
+    private onGrab = (event: PointerEvent): void => {
         // check for left button only (if button is defined)
-        if (event.button && event.button !== 0) return;
+        if (event.button !== undefined && event.button !== 0) return;
         event.preventDefault();
 
         this.scene.convertDOMPointInto(event.clientX, event.clientY, this.currPointerPosition);
@@ -106,14 +104,15 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         this.dragging = true;
 
         // register global move/up to ensure we get events
-        window.addEventListener('pointermove', this.boundOnDrag);
-        window.addEventListener('pointerup', this.boundOnRelease);
+        window.addEventListener('pointermove', this.onDrag, { passive: false });
+        window.addEventListener('pointerup', this.onRelease, { passive: false });
 
+        this.onGrabImpl(event);
         this.userOnGrab?.(this, event);
-        this.scene.update();
-    }
+        S2AnimationManager.requestUpdate(this.scene);
+    };
 
-    private onDrag(event: PointerEvent) {
+    private onDrag = (event: PointerEvent): void => {
         if (!this.dragging || event.pointerId !== this.pointerId) return;
         event.preventDefault();
 
@@ -130,23 +129,28 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         position.addV(delta);
         this.data.position.setV(position, space);
 
+        this.onDragImpl(event);
         this.userOnDrag?.(this, event);
-        this.scene.update();
-    }
+        S2AnimationManager.requestUpdate(this.scene);
+    };
 
-    private onRelease(event: PointerEvent) {
+    private onRelease = (event: PointerEvent): void => {
         if (!this.dragging || event.pointerId !== this.pointerId) return;
         event.preventDefault();
 
         this.dragging = false;
         this.pointerId = null;
-        window.removeEventListener('pointermove', this.boundOnDrag);
-        window.removeEventListener('pointerup', this.boundOnRelease);
-        if (this.pointerId !== null) {
-            this.getSVGElement().releasePointerCapture(event.pointerId);
-        }
+        window.removeEventListener('pointermove', this.onDrag);
+        window.removeEventListener('pointerup', this.onRelease);
 
+        this.getSVGElement().releasePointerCapture(event.pointerId);
+
+        this.onReleaseImpl(event);
         this.userOnRelease?.(this, event);
-        this.scene.update();
-    }
+        S2AnimationManager.requestUpdate(this.scene);
+    };
+
+    protected abstract onGrabImpl(event: PointerEvent): void;
+    protected abstract onDragImpl(event: PointerEvent): void;
+    protected abstract onReleaseImpl(event: PointerEvent): void;
 }

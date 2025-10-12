@@ -1,7 +1,9 @@
+import type { S2BaseScene } from '../scene/s2-base-scene';
+import type { S2Space } from '../shared/s2-base-type';
+import type { S2Anchor, S2Dirtyable } from '../shared/s2-globals';
 import { S2ShapeUtils } from '../math/s2-shape-utils';
-import { S2BaseScene } from '../scene/s2-base-scene';
 import { S2Vec2 } from '../math/s2-vec2';
-import { svgNS, type S2Anchor, S2AnchorUtils, type S2Dirtyable } from '../shared/s2-globals';
+import { svgNS, S2AnchorUtils } from '../shared/s2-globals';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -11,7 +13,6 @@ import { S2Position } from '../shared/s2-position';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Enum } from '../shared/s2-enum';
 import { S2Length } from '../shared/s2-length';
-import type { S2Space } from '../shared/s2-base-type';
 
 export class S2RectData extends S2ElementData {
     public readonly fill: S2FillData;

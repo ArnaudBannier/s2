@@ -1,15 +1,15 @@
-import { S2MathUtils } from '../math/s2-utils';
-import { S2BaseScene } from '../scene/s2-base-scene';
-import { S2BaseAnimation } from './s2-base-animation';
-import { S2PlayableAnimation } from './s2-animation-manager';
-import { S2Timeline } from './s2-timeline';
+import type { S2BaseScene } from '../scene/s2-base-scene';
+import type { S2BaseAnimation } from './s2-base-animation';
 import type { S2TimelineTrigger } from './s2-timeline-trigger';
 import type { S2BaseElement } from '../element/base/s2-element';
+import { S2MathUtils } from '../math/s2-utils';
+import { S2Timeline } from './s2-timeline';
+import { S2Playable } from './s2-playable';
 
 export class S2StepAnimator {
     protected scene: S2BaseScene;
     protected timeline: S2Timeline;
-    protected playable: S2PlayableAnimation;
+    protected playable: S2Playable;
     protected stepTimes: number[];
 
     private labelId: number;
@@ -17,7 +17,7 @@ export class S2StepAnimator {
     constructor(scene: S2BaseScene) {
         this.scene = scene;
         this.timeline = new S2Timeline(this.scene);
-        this.playable = new S2PlayableAnimation(this.timeline);
+        this.playable = new S2Playable(this.timeline);
         this.stepTimes = [0];
         this.labelId = 0;
     }
@@ -171,12 +171,12 @@ export class S2StepAnimator {
         return this.timeline;
     }
 
-    getStepPlayable(index: number): S2PlayableAnimation {
+    getStepPlayable(index: number): S2Playable {
         this.playable.setRange(this.stepTimes[index], this.stepTimes[index + 1]);
         return this.playable;
     }
 
-    getMasterPlayable(): S2PlayableAnimation {
+    getMasterPlayable(): S2Playable {
         return this.playable;
     }
 }

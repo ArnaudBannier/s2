@@ -63,6 +63,26 @@ function easeInOutQuart(t: number): number {
     }
 }
 
+// Exponential easing functions (2^t)
+function easeInExpo(t: number): number {
+    return t <= 0 ? 0 : Math.pow(2, 10 * t - 10);
+}
+
+function easeOutExpo(t: number): number {
+    return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
+}
+
+function easeInOutExpo(t: number): number {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+
+    if (t < 0.5) {
+        return Math.pow(2, 20 * t - 10) / 2;
+    } else {
+        return (2 - Math.pow(2, -20 * t + 10)) / 2;
+    }
+}
+
 // Sine easing functions
 function easeInSine(t: number): number {
     return 1 - Math.cos(t * (Math.PI / 2));
@@ -91,16 +111,19 @@ export const ease: Record<string, S2EaseType> = {
     inQuad: easeInQuad,
     inCubic: easeInCubic,
     inQuart: easeInQuart,
+    inExpo: easeInExpo,
     out: easeOutQuad,
     outSine: easeOutSine,
     outQuad: easeOutQuad,
     outCubic: easeOutCubic,
     outQuart: easeOutQuart,
+    outExpo: easeOutExpo,
     inOut: easeInOutQuad,
     inOutSine: easeInOutSine,
     inOutQuad: easeInOutQuad,
     inOutCubic: easeInOutCubic,
     inOutQuart: easeInOutQuart,
+    inOutExpo: easeInOutExpo,
     smoothStep: easeSmoothStep,
     smootherStep: easeSmootherStep,
 } as const;

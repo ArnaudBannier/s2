@@ -7,6 +7,7 @@ import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Length } from '../shared/s2-length';
 import { S2Draggable, S2DraggableData } from './s2-draggable';
+import { S2MathUtils } from '../math/s2-utils';
 
 export type S2HandleEventListener = (handle: S2DraggableCircle, event: PointerEvent) => void;
 
@@ -63,5 +64,34 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
         S2DataUtils.applyRadius(this.data.radius, this.element, this.scene);
 
         this.clearDirty();
+    }
+
+    protected onGrabImpl(event: PointerEvent): void {
+        void event;
+    }
+
+    protected onDragImpl(event: PointerEvent): void {
+        void event;
+        const camera = this.scene.getActiveCamera();
+        const lower = camera.getLower();
+        const upper = camera.getUpper();
+        const center = this.getCenter('world');
+        const radius = this.getRadius('world');
+        lower.add(radius, radius);
+        upper.sub(radius, radius);
+        center.x = S2MathUtils.clamp(center.x, lower.x, upper.x);
+        center.y = S2MathUtils.clamp(center.y, lower.y, upper.y);
+        this.data.position.setV(center, 'world');
+    }
+
+    protected onReleaseImpl(event: PointerEvent): void {
+        void event;
+        const camera = this.scene.getActiveCamera();
+        const lower = camera.getLower();
+        const upper = camera.getUpper();
+        const center = this.getCenter('world');
+        center.x = S2MathUtils.clamp(center.x, lower.x, upper.x);
+        center.y = S2MathUtils.clamp(center.y, lower.y, upper.y);
+        this.data.position.setV(center, 'world');
     }
 }

@@ -1,4 +1,4 @@
-import { type S2Dirtyable, type S2TextAnchor } from '../../shared/s2-globals';
+import type { S2Dirtyable, S2TextAnchor } from '../../shared/s2-globals';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2Number } from '../../shared/s2-number';

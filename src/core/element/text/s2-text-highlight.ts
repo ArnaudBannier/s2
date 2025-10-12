@@ -1,17 +1,17 @@
+import type { S2BaseScene } from '../../scene/s2-base-scene';
+import type { S2StepAnimator } from '../../animation/s2-step-animator';
+import type { S2Space } from '../../shared/s2-base-type';
+import type { S2Dirtyable } from '../../shared/s2-globals';
+import type { S2TSpan } from './s2-tspan';
 import { ease } from '../../animation/s2-easing';
 import { S2LerpAnimFactory } from '../../animation/s2-lerp-anim';
-import type { S2StepAnimator } from '../../animation/s2-step-animator';
 import { S2AABB } from '../../math/s2-aabb';
-import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Space } from '../../shared/s2-base-type';
 import { S2Extents } from '../../shared/s2-extents';
-import type { S2Dirtyable } from '../../shared/s2-globals';
 import { S2Length } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2ElementData, S2FillData, S2StrokeData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
 import { S2Rect } from '../s2-rect';
-import type { S2TSpan } from './s2-tspan';
 
 export class S2TextHighlightData extends S2ElementData {
     public readonly fill: S2FillData;

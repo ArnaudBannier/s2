@@ -1,10 +1,9 @@
 import type { S2BaseElement } from '../element/base/s2-element';
-import { S2BaseScene } from '../scene/s2-base-scene';
-import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
-import { S2TriggerBoolean, type S2TimelineTrigger } from './s2-timeline-trigger';
-
-// export type S2TimelinePosition = 'absolute' | 'previous-start' | 'previous-end';
-// export type S2TimelineLabel = 'timeline-start' | 'timeline-end' | 'absolute' | 'previous-start' | 'previous-end';
+import type { S2AnimProperty } from './s2-base-animation';
+import type { S2TimelineTrigger } from './s2-timeline-trigger';
+import type { S2BaseScene } from '../scene/s2-base-scene';
+import { S2BaseAnimation } from './s2-base-animation';
+import { S2TriggerBoolean } from './s2-timeline-trigger';
 
 class S2TimelinePart {
     protected animation: S2BaseAnimation | null;

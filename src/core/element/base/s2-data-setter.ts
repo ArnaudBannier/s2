@@ -1,6 +1,4 @@
-import { S2BaseData, S2FontData } from './s2-base-data.ts';
-import { type S2Space } from '../../shared/s2-base-type.ts';
-import { S2Vec2 } from '../../math/s2-vec2';
+import type { S2Space } from '../../shared/s2-base-type.ts';
 import type {
     S2Anchor,
     S2FontStyle,
@@ -9,8 +7,12 @@ import type {
     S2LineJoin,
     S2VerticalAlign,
 } from '../../shared/s2-globals.ts';
-import { S2DataSetterUtils } from './s2-data-setter-utils.ts';
 import type { S2Color } from '../../shared/s2-color.ts';
+import type { S2BaseData } from './s2-base-data.ts';
+
+import { S2Vec2 } from '../../math/s2-vec2';
+import { S2FontData } from './s2-base-data.ts';
+import { S2DataSetterUtils } from './s2-data-setter-utils.ts';
 
 export class S2DataSetter {
     public readonly targets: S2BaseData[] = [];

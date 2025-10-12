@@ -1,6 +1,6 @@
+import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Extents } from '../../shared/s2-extents';
-import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
 import { S2Length } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2Position } from '../../shared/s2-position';

@@ -1,6 +1,7 @@
+import type { S2HasClone, S2HasCopy, S2HasLerpWithCamera, S2Space } from './s2-base-type';
 import type { S2Camera } from '../math/s2-camera';
+import { S2BaseType } from './s2-base-type';
 import { S2MathUtils } from '../math/s2-utils';
-import { S2BaseType, type S2HasClone, type S2HasCopy, type S2HasLerpWithCamera, type S2Space } from './s2-base-type';
 
 export class S2Length
     extends S2BaseType

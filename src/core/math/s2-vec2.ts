@@ -1,5 +1,5 @@
-import { S2Mat2 } from './s2-mat2';
-import { S2Mat2x3 } from './s2-mat2x3';
+import type { S2Mat2 } from './s2-mat2';
+import type { S2Mat2x3 } from './s2-mat2x3';
 
 export class S2Vec2 {
     public x: number;

@@ -1,16 +1,16 @@
+import type {
+    S2Anchor,
+    S2FontStyle,
+    S2HorizontalAlign,
+    S2LineCap,
+    S2LineJoin,
+    S2VerticalAlign,
+} from '../../shared/s2-globals.ts';
+import type { S2Space } from '../../shared/s2-base-type.ts';
 import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './s2-base-data.ts';
 import { S2Vec2 } from '../../math/s2-vec2';
-import {
-    type S2Anchor,
-    type S2FontStyle,
-    type S2HorizontalAlign,
-    type S2LineCap,
-    type S2LineJoin,
-    type S2VerticalAlign,
-} from '../../shared/s2-globals.ts';
 import { S2Enum } from '../../shared/s2-enum.ts';
 import { S2Color } from '../../shared/s2-color.ts';
-import type { S2Space } from '../../shared/s2-base-type.ts';
 import { S2Length } from '../../shared/s2-length.ts';
 import { S2Number } from '../../shared/s2-number.ts';
 import { S2Position } from '../../shared/s2-position.ts';

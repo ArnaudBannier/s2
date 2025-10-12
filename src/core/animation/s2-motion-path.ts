@@ -1,10 +1,10 @@
-import { S2PolyCurve } from '../math/s2-curve';
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Space } from '../shared/s2-base-type';
 import type { S2Direction } from '../shared/s2-direction';
 import type { S2Position } from '../shared/s2-position';
 import type { S2AnimProperty } from './s2-base-animation';
 import { S2BaseDurationAnimation } from './s2-base-duration-animation';
+import { S2PolyCurve } from '../math/s2-curve';
 
 export abstract class S2BaseMotionPath extends S2BaseDurationAnimation {
     protected space: S2Space;

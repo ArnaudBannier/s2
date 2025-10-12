@@ -1,4 +1,5 @@
-import { S2BaseType, type S2HasClone, type S2HasCopy } from './s2-base-type';
+import type { S2HasClone, S2HasCopy } from './s2-base-type';
+import { S2BaseType } from './s2-base-type';
 
 export class S2Enum<T> extends S2BaseType implements S2HasClone<S2Enum<T>>, S2HasCopy<S2Enum<T>> {
     readonly kind = 'enum' as const;

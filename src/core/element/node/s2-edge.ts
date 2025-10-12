@@ -1,6 +1,6 @@
-import { S2BaseScene } from '../../scene/s2-base-scene';
-import { type S2Space } from '../../shared/s2-base-type';
-import { type S2Dirtyable } from '../../shared/s2-globals';
+import type { S2BaseScene } from '../../scene/s2-base-scene';
+import type { S2Space } from '../../shared/s2-base-type';
+import type { S2Dirtyable } from '../../shared/s2-globals';
 import { S2Number } from '../../shared/s2-number';
 import { S2Edge, S2EdgeData } from './s2-base-edge';
 

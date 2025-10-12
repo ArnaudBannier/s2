@@ -1,6 +1,11 @@
-import { S2BaseScene } from '../scene/s2-base-scene';
-import { S2AnchorUtils, svgNS, type S2Anchor, type S2Dirtyable, type S2VerticalAlign } from '../shared/s2-globals';
+import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Space } from '../shared/s2-base-type';
+import type { S2TSpan } from './text/s2-tspan';
+import type { S2Vec2 } from '../math/s2-vec2';
+import type { S2StepAnimator } from '../animation/s2-step-animator';
+import type { S2Color } from '../shared/s2-color';
+import type { S2Anchor, S2Dirtyable, S2VerticalAlign } from '../shared/s2-globals';
+import { S2AnchorUtils, svgNS } from '../shared/s2-globals';
 import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
@@ -8,18 +13,14 @@ import { S2Rect } from './s2-rect';
 import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-utils';
-import type { S2TSpan } from './text/s2-tspan';
-import type { S2Vec2 } from '../math/s2-vec2';
 import { S2Position } from '../shared/s2-position';
 import { S2Enum } from '../shared/s2-enum';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Number } from '../shared/s2-number';
 import { S2Length } from '../shared/s2-length';
-import type { S2StepAnimator } from '../animation/s2-step-animator';
 import { S2LerpAnimFactory } from '../animation/s2-lerp-anim';
 import { ease } from '../animation/s2-easing';
 import { S2TextHighlight } from './text/s2-text-highlight';
-import type { S2Color } from '../shared/s2-color';
 
 export type S2CodeToken = {
     type: string;

@@ -1,5 +1,6 @@
+import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
+import { S2BaseType } from './s2-base-type';
 import { S2MathUtils } from '../math/s2-utils';
-import { S2BaseType, type S2HasClone, type S2HasCopy, type S2HasLerp } from './s2-base-type';
 
 export class S2Number extends S2BaseType implements S2HasClone<S2Number>, S2HasCopy<S2Number>, S2HasLerp<S2Number> {
     readonly kind = 'number' as const;

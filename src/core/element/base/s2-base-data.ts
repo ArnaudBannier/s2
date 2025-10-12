@@ -1,7 +1,7 @@
+import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin, S2PointerEvents } from '../../shared/s2-globals';
 import { S2Boolean } from '../../shared/s2-boolean';
 import { S2Color } from '../../shared/s2-color';
 import { S2Enum } from '../../shared/s2-enum';
-import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin, S2PointerEvents } from '../../shared/s2-globals';
 import { S2Length } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2String } from '../../shared/s2-string';

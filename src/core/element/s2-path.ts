@@ -1,6 +1,8 @@
-import { S2Vec2 } from '../math/s2-vec2';
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import { S2TipTransform, svgNS, type S2Dirtyable, type S2Tipable } from '../shared/s2-globals';
+import type { S2Space } from '../shared/s2-base-type';
+import type { S2Dirtyable, S2Tipable } from '../shared/s2-globals';
+import { S2TipTransform, svgNS } from '../shared/s2-globals';
+import { S2Vec2 } from '../math/s2-vec2';
 import { S2CubicCurve, S2PolyCurve } from '../math/s2-curve';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -9,7 +11,6 @@ import { S2ArrowTip } from './s2-arrow-tip';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2Enum } from '../shared/s2-enum';
-import type { S2Space } from '../shared/s2-base-type';
 import { S2Position } from '../shared/s2-position';
 import { S2Length } from '../shared/s2-length';
 

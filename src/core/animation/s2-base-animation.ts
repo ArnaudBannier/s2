@@ -1,8 +1,7 @@
-import { S2MathUtils } from '../math/s2-utils';
-import { S2BaseScene } from '../scene/s2-base-scene';
+import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Anchor, S2HorizontalAlign, S2TextAnchor, S2VerticalAlign } from '../shared/s2-globals';
-import { S2Enum } from '../shared/s2-enum';
-import { ease, type S2EaseType } from './s2-easing';
+import type { S2Enum } from '../shared/s2-enum';
+import type { S2EaseType } from './s2-easing';
 import type { S2Number } from '../shared/s2-number';
 import type { S2Color } from '../shared/s2-color';
 import type { S2Position } from '../shared/s2-position';
@@ -12,6 +11,8 @@ import type { S2Extents } from '../shared/s2-extents';
 import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';
 import type { S2Space } from '../shared/s2-base-type';
+import { S2MathUtils } from '../math/s2-utils';
+import { ease } from './s2-easing';
 
 export type S2AnimProperty =
     | S2Number
@@ -21,8 +22,8 @@ export type S2AnimProperty =
     | S2Length
     | S2Extents
     | S2Boolean
-    | S2String
     | S2Enum<S2Space>
+    | S2String
     | S2Enum<S2Anchor>
     | S2Enum<S2TextAnchor>
     | S2Enum<S2VerticalAlign>
