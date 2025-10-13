@@ -208,8 +208,8 @@ export class S2Vec2 {
 
     apply2x2(matrix: S2Mat2): this {
         const me = matrix.elements;
-        const x = this.x,
-            y = this.y;
+        const x = this.x;
+        const y = this.y;
         this.x = me[0] * x + me[2] * y;
         this.y = me[1] * x + me[3] * y;
         return this;
@@ -221,6 +221,15 @@ export class S2Vec2 {
             y = this.y;
         this.x = me[0] * x + me[2] * y + me[4];
         this.y = me[1] * x + me[3] * y + me[5];
+        return this;
+    }
+
+    apply2x3Direction(matrix: S2Mat2x3): this {
+        const me = matrix.elements;
+        const x = this.x;
+        const y = this.y;
+        this.x = me[0] * x + me[2] * y;
+        this.y = me[1] * x + me[3] * y;
         return this;
     }
 
