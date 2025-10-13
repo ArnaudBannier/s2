@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Space } from '../shared/s2-base-type';
+import type { S2Space } from '../math/s2-camera';
 import type { S2TSpan } from './text/s2-tspan';
 import type { S2Vec2 } from '../math/s2-vec2';
 import type { S2StepAnimator } from '../animation/s2-step-animator';

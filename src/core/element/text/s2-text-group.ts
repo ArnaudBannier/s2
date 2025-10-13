@@ -1,6 +1,6 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
-import type { S2Space } from '../../shared/s2-base-type';
+import type { S2Space } from '../../math/s2-camera';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2AnchorUtils, svgNS } from '../../shared/s2-globals';
 import { S2BaseRichText } from './s2-rich-text';

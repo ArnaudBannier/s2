@@ -1,5 +1,7 @@
 import { S2Vec2 } from './s2-vec2.ts';
 
+export type S2Space = 'world' | 'view';
+
 export class S2Camera {
     position: S2Vec2;
     viewExtents: S2Vec2;

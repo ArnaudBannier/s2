@@ -1,6 +1,6 @@
 import type { S2ArrowTip } from '../element/s2-arrow-tip';
 import type { S2Camera } from '../math/s2-camera';
-import type { S2Space } from './s2-base-type';
+import type { S2Space } from '../math/s2-camera';
 import type { S2Extents } from './s2-extents';
 import type { S2Position } from './s2-position';
 import { S2Vec2 } from '../math/s2-vec2';

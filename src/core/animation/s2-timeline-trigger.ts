@@ -1,5 +1,5 @@
 import type { S2Anchor } from '../shared/s2-globals';
-import type { S2Space } from '../shared/s2-base-type';
+import type { S2Space } from '../math/s2-camera';
 import type { S2AnimProperty } from './s2-base-animation';
 import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';

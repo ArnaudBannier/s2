@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Space } from '../shared/s2-base-type';
+import type { S2Space } from '../math/s2-camera';
 import type { S2Position } from '../shared/s2-position';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2ElementData } from './base/s2-base-data';

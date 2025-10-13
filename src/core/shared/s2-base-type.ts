@@ -1,8 +1,6 @@
 import type { S2Camera } from '../math/s2-camera';
 import type { S2Dirtyable } from './s2-globals';
 
-export type S2Space = 'world' | 'view';
-
 export interface S2HasClone<T> {
     clone(): T;
 }

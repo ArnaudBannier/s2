@@ -1,6 +1,6 @@
 import type { S2StepAnimator } from '../core/animation/s2-step-animator';
 import type { S2BaseScene } from '../core/scene/s2-base-scene';
-import type { S2Space } from '../core/shared/s2-base-type';
+import type { S2Space } from '../core/math/s2-camera';
 import type { S2Color } from '../core/shared/s2-color';
 import type { S2Memory } from './s2-memory';
 import { ease } from '../core/animation/s2-easing';

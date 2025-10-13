@@ -1,5 +1,5 @@
-import type { S2HasClone, S2HasCopy, S2HasLerpWithCamera, S2Space } from './s2-base-type';
-import type { S2Camera } from '../math/s2-camera';
+import type { S2HasClone, S2HasCopy, S2HasLerpWithCamera } from './s2-base-type';
+import type { S2Camera, S2Space } from '../math/s2-camera';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
 

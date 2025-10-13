@@ -1,4 +1,4 @@
-import type { S2Space } from '../../shared/s2-base-type.ts';
+import type { S2Space } from '../../math/s2-camera.ts';
 import type {
     S2Anchor,
     S2FontStyle,

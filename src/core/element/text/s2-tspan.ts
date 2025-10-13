@@ -1,6 +1,6 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
-import type { S2Space } from '../../shared/s2-base-type';
+import type { S2Space } from '../../math/s2-camera';
 import type { S2BaseRichText } from './s2-rich-text';
 import type { S2TextData } from './s2-text-data';
 import { S2Vec2 } from '../../math/s2-vec2';

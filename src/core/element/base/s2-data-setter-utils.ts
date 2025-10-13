@@ -6,7 +6,7 @@ import type {
     S2LineJoin,
     S2VerticalAlign,
 } from '../../shared/s2-globals.ts';
-import type { S2Space } from '../../shared/s2-base-type.ts';
+import type { S2Space } from '../../math/s2-camera.ts';
 import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './s2-base-data.ts';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2Enum } from '../../shared/s2-enum.ts';

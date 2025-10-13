@@ -1,4 +1,4 @@
-import type { S2Space } from '../../shared/s2-base-type';
+import type { S2Space } from '../../math/s2-camera';
 import type { S2Camera } from '../../math/s2-camera';
 import type { S2Dirtyable } from '../../shared/s2-globals';
 import type { S2BaseEdge } from './s2-base-edge';
