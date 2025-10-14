@@ -4,13 +4,13 @@ import type { S2Dirtyable } from '../../shared/s2-globals';
 import type { S2BaseEdge } from './s2-base-edge';
 import type { S2Length } from '../../shared/s2-length';
 import { S2Vec2 } from '../../math/s2-vec2';
-import { S2Position } from '../../shared/s2-position';
+import { S2Point } from '../../shared/s2-point';
 import { S2BaseNode } from './s2-base-node';
 
 export class S2EdgeEndpoint implements S2Dirtyable {
     protected mode: 'node' | 'position';
     public node: S2BaseNode | null;
-    public position: S2Position;
+    public position: S2Point;
     private owner: S2Dirtyable | null;
     public dirty: boolean = true;
     public edge: S2BaseEdge | null;
@@ -19,7 +19,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         this.mode = 'position';
         this.node = null;
         this.owner = null;
-        this.position = new S2Position(0, 0, 'world');
+        this.position = new S2Point(0, 0, 'world');
         this.edge = null;
 
         this.position.setOwner(this);
@@ -44,7 +44,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         this.position.clearDirty();
     }
 
-    set(endpoint: S2BaseNode | S2Position): this {
+    set(endpoint: S2BaseNode | S2Point): this {
         if (endpoint instanceof S2BaseNode) {
             this.mode = 'node';
             this.node = endpoint;

@@ -3,14 +3,14 @@ import { S2Enum } from '../../shared/s2-enum';
 import { S2Extents } from '../../shared/s2-extents';
 import { S2Length } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
-import { S2Position } from '../../shared/s2-position';
+import { S2Point } from '../../shared/s2-point';
 import { S2Transform } from '../../shared/s2-transform';
 import { S2FontData, S2ElementData, S2FillData, S2StrokeData, S2BaseData } from '../base/s2-base-data';
 
 export type S2NodeShape = 'none' | 'rectangle' | 'circle';
 
 export class S2NodeData extends S2ElementData {
-    public readonly position: S2Position;
+    public readonly position: S2Point;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly background: S2NodeBackgroundData;
     public readonly text: S2NodeTextData;
@@ -19,7 +19,7 @@ export class S2NodeData extends S2ElementData {
 
     constructor() {
         super();
-        this.position = new S2Position(0, 0, 'world');
+        this.position = new S2Point(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.background = new S2NodeBackgroundData();

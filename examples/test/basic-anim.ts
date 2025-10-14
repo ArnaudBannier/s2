@@ -41,15 +41,23 @@ class SceneFigure extends S2Scene {
 
         const grid = this.addWorldGrid();
         S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);
+        grid.data.geometry.boundA.set(-7, -4, 'world');
+        grid.data.geometry.boundB.set(+7, +4, 'world');
+        grid.data.geometry.space.set('world');
 
         const draggable = new S2DraggableCircle(this);
         draggable.setParent(this.getSVG());
-        draggable.data.position.set(-7, 0, 'world');
+        draggable.data.space.set('world');
+        draggable.data.position.set(-3, 0, 'world');
         draggable.data.radius.set(1, 'world');
         draggable.data.xEnabled.set(true);
-        draggable.data.yEnabled.set(true);
-        draggable.data.containerBoundA.set(-5, -3, 'world');
-        draggable.data.containerBoundB.set(+5, +3, 'world');
+        draggable.data.yEnabled.set(false);
+        draggable.data.containerBoundA.set(-7, -4, 'world');
+        draggable.data.containerBoundB.set(+7, +4, 'world');
+
+        const path = this.addPath();
+        path.moveTo(-7, -4).lineTo(-7, +4).lineTo(+7, +4).lineTo(+7, -4).close();
+        path.data.stroke.width.set(4, 'view');
 
         // const svg = this.getSVG();
         // svg.getSVGElement().addEventListener('mouseover', (event: MouseEvent) => {

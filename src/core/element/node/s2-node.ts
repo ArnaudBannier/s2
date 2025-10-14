@@ -12,14 +12,14 @@ import { S2DataUtils } from '../base/s2-data-utils';
 import { S2Extents } from '../../shared/s2-extents';
 import { S2Length } from '../../shared/s2-length';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
-import { S2Position } from '../../shared/s2-position';
+import { S2Point } from '../../shared/s2-point';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
 import { S2MathUtils } from '../../math/s2-math-utils';
 
 export class S2RichNodeData extends S2ElementData {
-    public readonly position: S2Position;
+    public readonly position: S2Point;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly background: S2RichNodeBackgroundData;
     public readonly text: S2RichNodeTextData;
@@ -30,7 +30,7 @@ export class S2RichNodeData extends S2ElementData {
 
     constructor() {
         super();
-        this.position = new S2Position(0, 0, 'world');
+        this.position = new S2Point(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.background = new S2RichNodeBackgroundData();

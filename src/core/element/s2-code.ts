@@ -13,7 +13,7 @@ import { S2Rect } from './s2-rect';
 import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-math-utils';
-import { S2Position } from '../shared/s2-position';
+import { S2Point } from '../shared/s2-point';
 import { S2Enum } from '../shared/s2-enum';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Number } from '../shared/s2-number';
@@ -56,7 +56,7 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
 }
 
 export class S2CodeData extends S2ElementData {
-    public readonly position: S2Position;
+    public readonly position: S2Point;
     public readonly opacity: S2Number;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly padding: S2Extents;
@@ -67,7 +67,7 @@ export class S2CodeData extends S2ElementData {
 
     constructor() {
         super();
-        this.position = new S2Position(0, 0, 'world');
+        this.position = new S2Point(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.padding = new S2Extents(10, 5, 'view');
         this.minExtents = new S2Extents(0, 0, 'view');

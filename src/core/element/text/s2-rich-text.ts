@@ -7,20 +7,20 @@ import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TSpan } from './s2-tspan';
 import { S2TextData } from './s2-text-data';
 import { S2Extents } from '../../shared/s2-extents';
-import { S2Position } from '../../shared/s2-position';
+import { S2Point } from '../../shared/s2-point';
 
 export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
     protected element: SVGTextElement;
     protected tspans: Array<S2TSpan>;
     protected extents: S2Extents;
-    protected localCenter: S2Position;
+    protected localCenter: S2Point;
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
         this.element = document.createElementNS(svgNS, 'text');
         this.tspans = [];
         this.extents = new S2Extents(0, 0, 'view');
-        this.localCenter = new S2Position(0, 0, 'view');
+        this.localCenter = new S2Point(0, 0, 'view');
 
         this.extents.setOwner(this);
         this.localCenter.setOwner(this);

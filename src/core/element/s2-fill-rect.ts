@@ -48,8 +48,8 @@ export class S2FillRect extends S2Element<S2FillRectData> {
         const camera = this.scene.getActiveCamera();
         this.element.setAttribute('x', '0');
         this.element.setAttribute('y', '0');
-        this.element.setAttribute('width', camera.viewport.x.toString());
-        this.element.setAttribute('height', camera.viewport.y.toString());
+        this.element.setAttribute('width', camera.viewportSize.x.toString());
+        this.element.setAttribute('height', camera.viewportSize.y.toString());
         S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyColor(this.data.color, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);

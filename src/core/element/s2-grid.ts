@@ -6,8 +6,10 @@ import { S2BaseData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Position } from '../shared/s2-position';
+import { S2Point } from '../shared/s2-point';
 import { S2Extents } from '../shared/s2-extents';
+import { S2Enum } from '../shared/s2-enum';
+import type { S2Space } from '../math/s2-camera';
 
 export class S2GridData extends S2ElementData {
     public readonly stroke: S2StrokeData;
@@ -43,17 +45,18 @@ export class S2GridData extends S2ElementData {
 }
 
 export class S2GridGeometryData extends S2BaseData {
-    public readonly boundA: S2Position;
-    public readonly boundB: S2Position;
+    public readonly boundA: S2Point;
+    public readonly boundB: S2Point;
     public readonly steps: S2Extents;
-    public readonly referencePoint: S2Position;
+    public readonly referencePoint: S2Point;
+    public readonly space: S2Enum<S2Space> = new S2Enum<S2Space>('world');
 
     constructor() {
         super();
-        this.boundA = new S2Position(-8, -4.5, 'world');
-        this.boundB = new S2Position(+8, +4.5, 'world');
+        this.boundA = new S2Point(-8, -4.5, 'world');
+        this.boundB = new S2Point(+8, +4.5, 'world');
         this.steps = new S2Extents(1, 1, 'world');
-        this.referencePoint = new S2Position(0, 0, 'world');
+        this.referencePoint = new S2Point(0, 0, 'world');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -61,6 +64,7 @@ export class S2GridGeometryData extends S2BaseData {
         this.boundB.setOwner(owner);
         this.steps.setOwner(owner);
         this.referencePoint.setOwner(owner);
+        this.space.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -68,6 +72,7 @@ export class S2GridGeometryData extends S2BaseData {
         this.boundB.clearDirty();
         this.steps.clearDirty();
         this.referencePoint.clearDirty();
+        this.space.clearDirty();
     }
 }
 
@@ -91,11 +96,12 @@ export class S2Grid extends S2Element<S2GridData> {
         const data = this.data.geometry;
         const epsilon = 1e-5;
         const camera = scene.getActiveCamera();
+        const space = data.space.get();
 
-        const boundA = data.boundA.toSpace('view', camera);
-        const boundB = data.boundB.toSpace('view', camera);
-        const steps = data.steps.toSpace('view', camera);
-        const anchor = data.referencePoint.toSpace('view', camera);
+        const boundA = data.boundA.get(space, camera);
+        const boundB = data.boundB.get(space, camera);
+        const steps = data.steps.get(space, camera);
+        const anchor = data.referencePoint.get(space, camera);
         const lowerX = Math.min(boundA.x, boundB.x);
         const upperX = Math.max(boundA.x, boundB.x);
         const lowerY = Math.min(boundA.y, boundB.y);
@@ -104,10 +110,14 @@ export class S2Grid extends S2Element<S2GridData> {
         const startY = anchor.y - Math.floor((anchor.y - lowerY) / steps.y) * steps.y;
         let d = '';
         for (let x = startX; x < upperX + epsilon; x += steps.x) {
-            d += `M${x},${lowerY} V ${upperY} `;
+            const pointA = scene.getActiveCamera().convertPosition(x, lowerY, space, 'view');
+            const pointB = scene.getActiveCamera().convertPosition(x, upperY, space, 'view');
+            d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
         }
         for (let y = startY; y < upperY + epsilon; y += steps.y) {
-            d += `M${lowerX},${y} H ${upperX} `;
+            const pointA = scene.getActiveCamera().convertPosition(lowerX, y, space, 'view');
+            const pointB = scene.getActiveCamera().convertPosition(upperX, y, space, 'view');
+            d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
         }
         element.setAttribute('d', d.trimEnd());
     }

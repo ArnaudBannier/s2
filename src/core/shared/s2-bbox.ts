@@ -3,20 +3,20 @@ import type { S2Space } from '../math/s2-camera';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2Extents } from './s2-extents';
-import { S2Position } from './s2-position';
+import { S2Point } from './s2-point';
 
 export class S2BBox extends S2BaseType {
     readonly kind = 'bbox' as const;
-    protected center: S2Position;
+    protected center: S2Point;
     protected extents: S2Extents;
 
     constructor() {
         super();
-        this.center = new S2Position(0, 0, 'view');
+        this.center = new S2Point(0, 0, 'view');
         this.extents = new S2Extents(0, 0, 'view');
     }
 
-    set(graphics: SVGGraphicsElement, parentPosition: S2Position | null, camera: S2Camera): void {
+    set(graphics: SVGGraphicsElement, parentPosition: S2Point | null, camera: S2Camera): void {
         if (!graphics.isConnected) {
             console.warn('Element is not connected to DOM, cannot compute bbox', graphics.isConnected);
             return;

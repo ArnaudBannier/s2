@@ -8,7 +8,7 @@ import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Position } from '../shared/s2-position';
+import { S2Point } from '../shared/s2-point';
 import { S2Length } from '../shared/s2-length';
 
 export class S2CircleData extends S2ElementData {
@@ -16,7 +16,7 @@ export class S2CircleData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
-    public readonly position: S2Position;
+    public readonly position: S2Point;
     public readonly radius: S2Length;
 
     constructor() {
@@ -25,7 +25,7 @@ export class S2CircleData extends S2ElementData {
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
-        this.position = new S2Position(0, 0, 'world');
+        this.position = new S2Point(0, 0, 'world');
         this.radius = new S2Length(1, 'world');
 
         this.stroke.opacity.set(1);

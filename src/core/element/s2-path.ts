@@ -11,7 +11,7 @@ import { S2ArrowTip } from './s2-arrow-tip';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2Enum } from '../shared/s2-enum';
-import { S2Position } from '../shared/s2-position';
+import { S2Point } from '../shared/s2-point';
 import { S2Length } from '../shared/s2-length';
 
 export class S2PathData extends S2ElementData {
@@ -143,7 +143,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getStart(space: S2Space): S2Vec2 {
-        return S2Position.toSpace(
+        return S2Point.toSpace(
             this.data.polyCurve.getStart(),
             this.data.space.get(),
             space,
@@ -152,7 +152,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getEnd(space: S2Space): S2Vec2 {
-        return S2Position.toSpace(
+        return S2Point.toSpace(
             this.data.polyCurve.getEnd(),
             this.data.space.get(),
             space,
@@ -161,7 +161,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getPointAt(t: number, space: S2Space): S2Vec2 {
-        return S2Position.toSpace(
+        return S2Point.toSpace(
             this.data.polyCurve.getPointAt(t),
             this.data.space.get(),
             space,
@@ -170,7 +170,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getTangentAt(t: number, space: S2Space): S2Vec2 {
-        return S2Position.toSpace(
+        return S2Point.toSpace(
             this.data.polyCurve.getTangentAt(t),
             this.data.space.get(),
             space,
@@ -179,7 +179,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getStartTangent(space: S2Space): S2Vec2 {
-        return S2Position.toSpace(
+        return S2Point.toSpace(
             this.data.polyCurve.getStartTangent(),
             this.data.space.get(),
             space,
@@ -188,7 +188,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getEndTangent(space: S2Space): S2Vec2 {
-        return S2Position.toSpace(
+        return S2Point.toSpace(
             this.data.polyCurve.getEndTangent(),
             this.data.space.get(),
             space,

@@ -471,9 +471,9 @@ class SceneFigure extends S2Scene {
             code.data.position.setV(position, 'world');
         }
 
-        const outputPadding = this.getActiveCamera().viewToWorldLength(20);
-        const fontHeight = this.getActiveCamera().viewToWorldLength(21);
-        const fontAscender = this.getActiveCamera().viewToWorldLength(16);
+        const outputPadding = 20 * this.getActiveCamera().getViewToWorldScale().y;
+        const fontHeight = 21 * this.getActiveCamera().getViewToWorldScale().y;
+        const fontAscender = 16 * this.getActiveCamera().getViewToWorldScale().y;
         const outputHeight = 2 * fontHeight + 1 * outputPadding;
         const outputNW = new S2Vec2(codeNW.x, -codeNW.y + outputHeight);
         this.outputBackground.data.position.setV(outputNW, 'world');

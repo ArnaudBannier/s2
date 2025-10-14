@@ -4,10 +4,10 @@ import { S2Enum } from '../core/shared/s2-enum';
 import { S2Extents } from '../core/shared/s2-extents';
 import { S2Length } from '../core/shared/s2-length';
 import { S2Number } from '../core/shared/s2-number';
-import { S2Position } from '../core/shared/s2-position';
+import { S2Point } from '../core/shared/s2-point';
 
 export class S2MemoryData extends S2ElementData {
-    public readonly position: S2Position;
+    public readonly position: S2Point;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly extents: S2Extents;
     public readonly valueWidth: S2Length;
@@ -18,7 +18,7 @@ export class S2MemoryData extends S2ElementData {
 
     constructor() {
         super();
-        this.position = new S2Position(0, 0, 'world');
+        this.position = new S2Point(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.extents = new S2Extents(0, 0, 'view');
         this.valueWidth = new S2Length(2, 'world');

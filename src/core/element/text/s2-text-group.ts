@@ -12,7 +12,7 @@ import { S2Length } from '../../shared/s2-length';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
-import { S2Position } from '../../shared/s2-position';
+import { S2Point } from '../../shared/s2-point';
 import { S2Extents } from '../../shared/s2-extents';
 
 export class S2TextLineData extends S2TextData {
@@ -49,7 +49,7 @@ export class S2TextGroupData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
-    public readonly position: S2Position;
+    public readonly position: S2Point;
 
     public readonly font: S2FontData;
     public readonly skip: S2Length;
@@ -64,7 +64,7 @@ export class S2TextGroupData extends S2ElementData {
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
-        this.position = new S2Position(0, 0, 'world');
+        this.position = new S2Point(0, 0, 'world');
         this.font = new S2FontData();
         this.skip = new S2Length(0, 'view');
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left');

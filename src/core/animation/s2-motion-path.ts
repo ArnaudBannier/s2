@@ -1,7 +1,7 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Space } from '../math/s2-camera';
-import type { S2Direction } from '../shared/s2-direction';
-import type { S2Position } from '../shared/s2-position';
+import type { S2Offset } from '../shared/s2-offset';
+import type { S2Point } from '../shared/s2-point';
 import type { S2AnimProperty } from './s2-base-animation';
 import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 import { S2PolyCurve } from '../math/s2-curve';
@@ -30,9 +30,9 @@ export abstract class S2BaseMotionPath extends S2BaseDurationAnimation {
 }
 
 export class S2MotionPathPosition extends S2BaseMotionPath {
-    protected property: S2Position;
+    protected property: S2Point;
 
-    constructor(scene: S2BaseScene, property: S2Position) {
+    constructor(scene: S2BaseScene, property: S2Point) {
         super(scene);
         this.property = property;
         this.properties.add(property);
@@ -47,9 +47,9 @@ export class S2MotionPathPosition extends S2BaseMotionPath {
 }
 
 export class S2MotionPathDirection extends S2BaseMotionPath {
-    protected property: S2Direction;
+    protected property: S2Offset;
 
-    constructor(scene: S2BaseScene, property: S2Direction) {
+    constructor(scene: S2BaseScene, property: S2Offset) {
         super(scene);
         this.property = property;
         this.properties.add(property);

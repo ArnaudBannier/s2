@@ -2,7 +2,7 @@ import type { S2ArrowTip } from '../element/s2-arrow-tip';
 import type { S2Camera } from '../math/s2-camera';
 import type { S2Space } from '../math/s2-camera';
 import type { S2Extents } from './s2-extents';
-import type { S2Position } from './s2-position';
+import type { S2Point } from './s2-point';
 import { S2Vec2 } from '../math/s2-vec2';
 
 export const svgNS = 'http://www.w3.org/2000/svg';
@@ -56,7 +56,7 @@ export class S2AnchorUtils {
         anchor: S2Anchor,
         space: S2Space,
         camera: S2Camera,
-        position: S2Position,
+        position: S2Point,
         extents: S2Extents,
     ): S2Vec2 {
         const sign = space === 'world' ? +1 : -1;
@@ -97,7 +97,7 @@ export class S2AnchorUtils {
         anchor: S2Anchor,
         space: S2Space,
         camera: S2Camera,
-        position: S2Position,
+        position: S2Point,
         extents: S2Extents,
     ): S2Vec2 {
         const sign = space === 'world' ? +1 : -1;

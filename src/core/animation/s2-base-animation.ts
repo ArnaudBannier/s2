@@ -4,8 +4,8 @@ import type { S2Enum } from '../shared/s2-enum';
 import type { S2EaseType } from './s2-easing';
 import type { S2Number } from '../shared/s2-number';
 import type { S2Color } from '../shared/s2-color';
-import type { S2Position } from '../shared/s2-position';
-import type { S2Direction } from '../shared/s2-direction';
+import type { S2Point } from '../shared/s2-point';
+import type { S2Offset } from '../shared/s2-offset';
 import type { S2Length } from '../shared/s2-length';
 import type { S2Extents } from '../shared/s2-extents';
 import type { S2Boolean } from '../shared/s2-boolean';
@@ -17,8 +17,8 @@ import { ease } from './s2-easing';
 export type S2AnimProperty =
     | S2Number
     | S2Color
-    | S2Position
-    | S2Direction
+    | S2Point
+    | S2Offset
     | S2Length
     | S2Extents
     | S2Boolean

@@ -80,11 +80,11 @@ export class S2Vec2 {
         return this;
     }
 
-    setFromPolarRad(theta: number, r: number = 1.0): S2Vec2 {
+    setFromPolarRad(theta: number, r: number = 1.0): this {
         return this.set(r * Math.cos(theta), r * Math.sin(theta));
     }
 
-    setFromPolarDeg(theta: number, r: number = 1.0): S2Vec2 {
+    setFromPolarDeg(theta: number, r: number = 1.0): this {
         theta *= Math.PI / 180.0;
         return this.set(r * Math.cos(theta), r * Math.sin(theta));
     }
@@ -224,7 +224,7 @@ export class S2Vec2 {
         return this;
     }
 
-    apply2x3Direction(matrix: S2Mat2x3): this {
+    apply2x3Offset(matrix: S2Mat2x3): this {
         const me = matrix.elements;
         const x = this.x;
         const y = this.y;

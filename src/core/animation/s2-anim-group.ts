@@ -3,7 +3,7 @@ import { S2Color } from '../shared/s2-color';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Length } from '../shared/s2-length';
 import { S2Number } from '../shared/s2-number';
-import { S2Position } from '../shared/s2-position';
+import { S2Point } from '../shared/s2-point';
 import { S2BaseAnimation, type S2AnimProperty } from './s2-base-animation';
 import type { S2EaseType } from './s2-easing';
 import { S2LerpAnim, S2LerpAnimFactory } from './s2-lerp-anim';
@@ -46,7 +46,7 @@ export class S2AnimGroup extends S2BaseAnimation {
                 this.addAnimation(
                     S2LerpAnimFactory.create(this.scene, property).setCycleDuration(duration).setEasing(easing),
                 );
-            } else if (property instanceof S2Position) {
+            } else if (property instanceof S2Point) {
                 this.addAnimation(
                     S2LerpAnimFactory.create(this.scene, property).setCycleDuration(duration).setEasing(easing),
                 );

@@ -1,7 +1,6 @@
-import type { S2Camera } from '../math/s2-camera';
-import type { S2Space } from '../shared/s2-base-type';
+import type { S2Camera, S2Space } from '../math/s2-camera';
 import type { S2Vec2 } from '../math/s2-vec2';
-import type { S2Position } from '../shared/s2-position';
+import type { S2Point } from '../shared/s2-point';
 import { S2SVG } from '../element/s2-svg';
 
 export abstract class S2BaseScene {
@@ -45,7 +44,7 @@ export abstract class S2BaseScene {
         return this.svg.convertDOMPoint(x, y, space);
     }
 
-    convertDOMPointInto(x: number, y: number, out: S2Position): void {
+    convertDOMPointInto(x: number, y: number, out: S2Point): void {
         this.svg.convertDOMPointInto(x, y, out);
     }
 }

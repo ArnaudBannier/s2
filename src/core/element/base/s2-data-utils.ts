@@ -7,7 +7,7 @@ import type { S2PolyCurve } from '../../math/s2-curve.ts';
 import type { S2Color } from '../../shared/s2-color.ts';
 import type { S2Number } from '../../shared/s2-number.ts';
 import type { S2Transform } from '../../shared/s2-transform.ts';
-import type { S2Direction } from '../../shared/s2-direction.ts';
+import type { S2Offset } from '../../shared/s2-offset.ts';
 import type { S2Extents } from '../../shared/s2-extents.ts';
 import type { S2Length } from '../../shared/s2-length.ts';
 import type { S2Boolean } from '../../shared/s2-boolean.ts';
@@ -15,7 +15,7 @@ import type { S2Camera } from '../../math/s2-camera.ts';
 import { S2Vec2 } from '../../math/s2-vec2.ts';
 import { S2AnchorUtils } from '../../shared/s2-globals.ts';
 import { S2CubicCurve, S2LineCurve } from '../../math/s2-curve.ts';
-import { S2Position } from '../../shared/s2-position.ts';
+import { S2Point } from '../../shared/s2-point.ts';
 
 export class S2DataUtils {
     static applyPointerEvents(pointerEvents: S2Enum<S2PointerEvents>, element: SVGElement, scene: S2BaseScene): void {
@@ -111,7 +111,7 @@ export class S2DataUtils {
     }
 
     static applyPosition(
-        position: S2Position,
+        position: S2Point,
         element: SVGElement,
         scene: S2BaseScene,
         xAttribute: string = 'x',
@@ -125,8 +125,8 @@ export class S2DataUtils {
     }
 
     static applyShiftedPosition(
-        position: S2Position,
-        shift: S2Direction,
+        position: S2Point,
+        shift: S2Offset,
         element: SVGElement,
         scene: S2BaseScene,
         xAttribute: string = 'x',
@@ -142,7 +142,7 @@ export class S2DataUtils {
     }
 
     static applyAnchoredPosition(
-        position: S2Position,
+        position: S2Point,
         extents: S2Extents,
         anchor: S2Enum<S2Anchor>,
         element: SVGElement,
@@ -233,18 +233,18 @@ export class S2DataUtils {
             const curve = polyCurve.getCurve(i);
 
             if (!S2Vec2.eq(prevEnd, curve.getStart())) {
-                const point = S2Position.toSpace(currStart, space, 'view', camera);
+                const point = S2Point.toSpace(currStart, space, 'view', camera);
                 svgPath += `M ${point.x},${point.y} `;
             }
 
             if (curve instanceof S2LineCurve) {
-                const point = S2Position.toSpace(curve.getEnd(), space, 'view', camera);
+                const point = S2Point.toSpace(curve.getEnd(), space, 'view', camera);
                 svgPath += `L ${point.x},${point.y} `;
             } else if (curve instanceof S2CubicCurve) {
                 const bezierPoints = curve.getBezierPoints();
                 svgPath += 'C ';
                 for (let j = 1; j < bezierPoints.length; j++) {
-                    const point = S2Position.toSpace(bezierPoints[j], space, 'view', camera);
+                    const point = S2Point.toSpace(bezierPoints[j], space, 'view', camera);
                     svgPath += `${point.x},${point.y} `;
                 }
             }

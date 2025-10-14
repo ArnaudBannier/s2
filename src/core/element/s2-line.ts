@@ -6,22 +6,22 @@ import { S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Position } from '../shared/s2-position';
+import { S2Point } from '../shared/s2-point';
 
 export class S2LineData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
-    public readonly startPosition: S2Position;
-    public readonly endPosition: S2Position;
+    public readonly startPosition: S2Point;
+    public readonly endPosition: S2Point;
 
     constructor() {
         super();
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
-        this.startPosition = new S2Position();
-        this.endPosition = new S2Position();
+        this.startPosition = new S2Point();
+        this.endPosition = new S2Point();
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {

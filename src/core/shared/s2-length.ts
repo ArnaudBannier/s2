@@ -62,10 +62,10 @@ export class S2Length
             this.value = value;
         } else if (this.space === 'world') {
             // this: world, other: view
-            this.value = camera.viewToWorldLength(value);
+            this.value = value * camera.getViewToWorldScale().x; // assuming uniform scale
         } else {
             // this: view, other: world
-            this.value = camera.worldToViewLength(value);
+            this.value = value * camera.getWorldToViewScale().x; // assuming uniform scale
         }
         this.markDirty();
         return this;
@@ -81,10 +81,10 @@ export class S2Length
             return this;
         } else if (this.space === 'world') {
             // this: world, other: view
-            this.value = camera.worldToViewLength(this.value);
+            this.value *= camera.getWorldToViewScale().x; // assuming uniform scale
         } else {
             // this: view, other: world
-            this.value = camera.viewToWorldLength(this.value);
+            this.value *= camera.getViewToWorldScale().x; // assuming uniform scale
         }
         this.space = space;
         return this;
@@ -100,10 +100,10 @@ export class S2Length
             return length;
         } else if (currSpace === 'world') {
             // this: world, other: view
-            return camera.worldToViewLength(length);
+            return length * camera.getWorldToViewScale().x; // assuming uniform scale
         } else {
             // this: view, other: world
-            return camera.viewToWorldLength(length);
+            return length * camera.getViewToWorldScale().x; // assuming uniform scale
         }
     }
 }

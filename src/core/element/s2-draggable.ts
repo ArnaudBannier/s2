@@ -4,21 +4,22 @@ import type { S2Space } from '../math/s2-camera';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2ElementData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
-import { S2Position } from '../shared/s2-position';
-import { S2Direction } from '../shared/s2-direction';
+import { S2Point } from '../shared/s2-point';
+import { S2Offset } from '../shared/s2-offset';
 import { S2AnimationManager } from '../animation/s2-animation-manager';
 import { S2Boolean } from '../shared/s2-boolean';
-import { S2MathUtils } from '../math/s2-math-utils';
+import { S2Enum } from '../shared/s2-enum';
 
 export type S2BaseDraggable = S2Draggable<S2DraggableData>;
 export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEvent) => void;
 
 export class S2DraggableData extends S2ElementData {
-    public readonly position: S2Position = new S2Position(0, 0, 'world');
+    public readonly position: S2Point = new S2Point(0, 0, 'world');
     public readonly xEnabled: S2Boolean = new S2Boolean(true);
     public readonly yEnabled: S2Boolean = new S2Boolean(true);
-    public readonly containerBoundA: S2Position = new S2Position(-Infinity, -Infinity, 'world');
-    public readonly containerBoundB: S2Position = new S2Position(+Infinity, +Infinity, 'world');
+    public readonly containerBoundA: S2Point = new S2Point(-Infinity, -Infinity, 'world');
+    public readonly containerBoundB: S2Point = new S2Point(+Infinity, +Infinity, 'world');
+    public readonly space: S2Enum<S2Space> = new S2Enum<S2Space>('world');
 
     constructor() {
         super();
@@ -32,6 +33,7 @@ export class S2DraggableData extends S2ElementData {
         this.yEnabled.setOwner(owner);
         this.containerBoundA.setOwner(owner);
         this.containerBoundB.setOwner(owner);
+        this.space.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -41,6 +43,7 @@ export class S2DraggableData extends S2ElementData {
         this.yEnabled.clearDirty();
         this.containerBoundA.clearDirty();
         this.containerBoundB.clearDirty();
+        this.space.clearDirty();
     }
 }
 
@@ -57,11 +60,11 @@ export class S2DraggableData extends S2ElementData {
 // }
 
 export abstract class S2Draggable<Data extends S2DraggableData> extends S2Element<Data> {
-    protected grabDelta: S2Direction = new S2Direction(0, 0, 'view');
-    protected pointerPosition: S2Position = new S2Position(0, 0, 'view');
-    protected pointerDelta: S2Direction = new S2Direction(0, 0, 'view');
+    protected grabDelta: S2Offset = new S2Offset(0, 0, 'view');
+    protected pointerPosition: S2Point = new S2Point(0, 0, 'view');
+    protected pointerDelta: S2Offset = new S2Offset(0, 0, 'view');
     protected pointerId: number | null = null;
-    protected delta: S2Direction = new S2Direction(0, 0, 'view');
+    protected delta: S2Offset = new S2Offset(0, 0, 'view');
     protected dragging = false;
     protected userOnGrab: S2HandleEventListener | null = null;
     protected userOnDrag: S2HandleEventListener | null = null;
@@ -122,7 +125,7 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
     }
 
     protected updatePositionFromPointer(): void {
-        const space = 'view';
+        const space = this.data.space.get();
         const camera = this.scene.getActiveCamera();
 
         const pointerPosition = this.pointerPosition.get(space, camera);
@@ -134,12 +137,20 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         const upperX = Math.max(boundA.x, boundB.x);
         const lowerY = Math.min(boundA.y, boundB.y);
         const upperY = Math.max(boundA.y, boundB.y);
-        if (this.data.xEnabled.get()) {
-            this.data.position.setXFromSpace(S2MathUtils.clamp(currPosition.x, lowerX, upperX), space, camera);
-        }
-        if (this.data.yEnabled.get()) {
-            this.data.position.setYFromSpace(S2MathUtils.clamp(currPosition.y, lowerY, upperY), space, camera);
-        }
+
+        currPosition.max(lowerX, lowerY);
+        currPosition.min(upperX, upperY);
+
+        if (this.data.xEnabled.get() === false) currPosition.x = prevPosition.x;
+        if (this.data.yEnabled.get() === false) currPosition.y = prevPosition.y;
+
+        this.data.position.setV(currPosition, space);
+        // if (this.data.xEnabled.get()) {
+        //     this.data.position.setXFromSpace(S2MathUtils.clamp(currPosition.x, lowerX, upperX), space, camera);
+        // }
+        // if (this.data.yEnabled.get()) {
+        //     this.data.position.setYFromSpace(S2MathUtils.clamp(currPosition.y, lowerY, upperY), space, camera);
+        // }
 
         const delta = S2Vec2.sub(this.data.position.get(space, camera), prevPosition);
         this.delta.setV(delta, space);

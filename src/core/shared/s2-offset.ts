@@ -3,9 +3,9 @@ import type { S2HasClone, S2HasCopy, S2HasLerpWithCamera } from './s2-base-type'
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
 
-export class S2Direction
+export class S2Offset
     extends S2BaseType
-    implements S2HasClone<S2Direction>, S2HasCopy<S2Direction>, S2HasLerpWithCamera<S2Direction>
+    implements S2HasClone<S2Offset>, S2HasCopy<S2Offset>, S2HasLerpWithCamera<S2Offset>
 {
     readonly kind = 'direction' as const;
     public value: S2Vec2;
@@ -18,16 +18,16 @@ export class S2Direction
         this.locked = locked;
     }
 
-    clone(): S2Direction {
-        return new S2Direction(this.value.x, this.value.y, this.space, this.locked);
+    clone(): S2Offset {
+        return new S2Offset(this.value.x, this.value.y, this.space, this.locked);
     }
 
-    copyIfUnlocked(other: S2Direction): this {
+    copyIfUnlocked(other: S2Offset): this {
         if (this.locked) return this;
         return this.copy(other);
     }
 
-    copy(other: S2Direction): this {
+    copy(other: S2Offset): this {
         if (S2Vec2.eq(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
@@ -35,7 +35,7 @@ export class S2Direction
         return this;
     }
 
-    lerp(state0: S2Direction, state1: S2Direction, t: number, camera: S2Camera): this {
+    lerp(state0: S2Offset, state1: S2Offset, t: number, camera: S2Camera): this {
         const space = state1.space;
         const value0 = state0.get(space, camera);
         const value1 = state1.get(space, camera);
@@ -43,8 +43,8 @@ export class S2Direction
         return this;
     }
 
-    static lerp(state0: S2Direction, state1: S2Direction, t: number, camera: S2Camera): S2Direction {
-        return new S2Direction().lerp(state0, state1, t, camera);
+    static lerp(state0: S2Offset, state1: S2Offset, t: number, camera: S2Camera): S2Offset {
+        return new S2Offset().lerp(state0, state1, t, camera);
     }
 
     set(x: number = 0, y: number = 0, space?: S2Space): this {
@@ -55,9 +55,9 @@ export class S2Direction
         return this;
     }
 
-    setV(direction: S2Vec2, space?: S2Space): this {
-        if (S2Vec2.eq(this.value, direction) && this.space === space) return this;
-        this.value.copy(direction);
+    setV(offset: S2Vec2, space?: S2Space): this {
+        if (S2Vec2.eq(this.value, offset) && this.space === space) return this;
+        this.value.copy(offset);
         if (space) this.space = space;
         this.markDirty();
         return this;
@@ -70,17 +70,17 @@ export class S2Direction
             this.value.set(x, y);
         } else if (this.space === 'world') {
             // this: world, other: view
-            camera.viewToWorldDirectionInto(x, y, this.value);
+            camera.viewToWorldOffset(x, y, this.value);
         } else {
             // this: view, other: world
-            camera.worldToViewDirectionInto(x, y, this.value);
+            camera.worldToViewOffset(x, y, this.value);
         }
         this.markDirty();
         return this;
     }
 
-    setValueFromSpaceV(direction: S2Vec2, space: S2Space, camera: S2Camera): this {
-        return this.setValueFromSpace(direction.x, direction.y, space, camera);
+    setValueFromSpaceV(offset: S2Vec2, space: S2Space, camera: S2Camera): this {
+        return this.setValueFromSpace(offset.x, offset.y, space, camera);
     }
 
     get(space: S2Space, camera: S2Camera): S2Vec2 {
@@ -93,29 +93,29 @@ export class S2Direction
             return this;
         } else if (this.space === 'world') {
             // this: world, other: view
-            camera.worldToViewDirectionInto(this.value.x, this.value.y, this.value);
+            camera.worldToViewOffset(this.value.x, this.value.y, this.value);
         } else {
             // this: view, other: world
-            camera.viewToWorldDirectionInto(this.value.x, this.value.y, this.value);
+            camera.viewToWorldOffset(this.value.x, this.value.y, this.value);
         }
         this.space = space;
         return this;
     }
 
     toSpace(space: S2Space, camera: S2Camera): S2Vec2 {
-        return S2Direction.toSpace(this.value, this.space, space, camera);
+        return S2Offset.toSpace(this.value, this.space, space, camera);
     }
 
-    static toSpace(direction: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
+    static toSpace(offset: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
         if (currSpace === nextSpace) {
             // this = other
-            return direction.clone();
+            return offset.clone();
         } else if (currSpace === 'world') {
             // this: world, other: view
-            return camera.worldToViewDirectionV(direction);
+            return camera.worldToViewOffsetV(offset);
         } else {
             // this: view, other: world
-            return camera.viewToWorldDirectionV(direction);
+            return camera.viewToWorldOffsetV(offset);
         }
     }
 }

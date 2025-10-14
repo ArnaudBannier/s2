@@ -70,12 +70,10 @@ export class S2Extents
             this.value.set(x, y);
         } else if (this.space === 'world') {
             // this: world, other: view
-            this.value.x = camera.viewToWorldLength(x);
-            this.value.y = camera.viewToWorldLength(y);
+            this.value.set(x, y).mulV(camera.getViewToWorldScale());
         } else {
             // this: view, other: world
-            this.value.x = camera.worldToViewLength(x);
-            this.value.y = camera.worldToViewLength(y);
+            this.value.set(x, y).mulV(camera.getWorldToViewScale());
         }
         this.markDirty();
         return this;
@@ -91,12 +89,10 @@ export class S2Extents
             return this;
         } else if (this.space === 'world') {
             // this: world, other: view
-            this.value.x = camera.worldToViewLength(this.value.x);
-            this.value.y = camera.worldToViewLength(this.value.y);
+            this.value.mulV(camera.getWorldToViewScale());
         } else {
             // this: view, other: world
-            this.value.x = camera.viewToWorldLength(this.value.x);
-            this.value.y = camera.viewToWorldLength(this.value.y);
+            this.value.mulV(camera.getViewToWorldScale());
         }
         this.space = space;
         this.markDirty();
@@ -113,10 +109,10 @@ export class S2Extents
             return extents.clone();
         } else if (currSpace === 'world') {
             // this: world, other: view
-            return new S2Vec2(camera.worldToViewLength(extents.x), camera.worldToViewLength(extents.y));
+            return extents.clone().mulV(camera.getWorldToViewScale());
         } else {
             // this: view, other: world
-            return new S2Vec2(camera.viewToWorldLength(extents.x), camera.viewToWorldLength(extents.y));
+            return extents.clone().mulV(camera.getViewToWorldScale());
         }
     }
 }
