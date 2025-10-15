@@ -152,11 +152,11 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
     }
 
     getTextExtents(space: S2Space): S2Vec2 {
-        return this.contentExtents.toSpace(space, this.scene.getActiveCamera());
+        return this.contentExtents.get(space, this.scene.getActiveCamera());
     }
 
     getExtents(space: S2Space): S2Vec2 {
-        return this.extents.toSpace(space, this.scene.getActiveCamera());
+        return this.extents.get(space, this.scene.getActiveCamera());
     }
 
     getCenter(space: S2Space): S2Vec2 {
@@ -198,7 +198,7 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         }
         textExtents.y /= 2;
 
-        const extents = this.data.minExtents.toSpace(space, camera);
+        const extents = this.data.minExtents.get(space, camera);
         extents.maxV(textExtents);
 
         this.contentExtents.setValueFromSpace(textExtents.x, textExtents.y, space, camera);

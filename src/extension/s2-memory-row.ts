@@ -362,7 +362,7 @@ export class S2MemoryRow {
         path.clear()
             .addCubic(
                 shift,
-                S2Vec2.add(shift, S2Vec2.fromPolarDeg(srcAngle, tension * distance)),
+                S2Vec2.addV(shift, S2Vec2.fromPolarDeg(srcAngle, tension * distance)),
                 S2Vec2.fromPolarDeg(dstAngle, tension * distance),
                 new S2Vec2(0, 0),
                 sampleCount,
@@ -399,7 +399,7 @@ export class S2MemoryRow {
         animator.enableElement(text, true, label, offset);
         animator.addAnimation(opacityAnim, label, offset);
 
-        if (S2Vec2.isZero(shift) === false) {
+        if (S2Vec2.isZeroV(shift) === false) {
             text.data.localShift.setV(shift, 'view');
             const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.localShift)
                 .setCycleDuration(duration)
@@ -425,7 +425,7 @@ export class S2MemoryRow {
         text.data.opacity.set(0.0);
         opacityAnim.commitFinalState();
         animator.addAnimation(opacityAnim, label, offset);
-        if (S2Vec2.isZero(shift) === false) {
+        if (S2Vec2.isZeroV(shift) === false) {
             text.data.localShift.set(0, 0, 'view');
             const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.localShift)
                 .setCycleDuration(duration)
@@ -453,16 +453,16 @@ export class S2MemoryRow {
 
         const space: S2Space = 'world';
         const camera = this.scene.getActiveCamera();
-        const lowerBound = this.lowerBound.toSpace(space, camera);
-        const upperBound = this.upperBound.toSpace(space, camera);
+        const lowerBound = this.lowerBound.get(space, camera);
+        const upperBound = this.upperBound.get(space, camera);
         const height = upperBound.y - lowerBound.y;
         const width = upperBound.x - lowerBound.x;
 
         const font = parentData.text.font;
-        const ascenderHeight = font.relativeAscenderHeight.value * font.size.toSpace(space, camera);
+        const ascenderHeight = font.relativeAscenderHeight.value * font.size.get(space, camera);
         const textY = lowerBound.y + height / 2 - ascenderHeight / 2;
-        const padding = parentData.padding.toSpace(space, camera).x;
-        const valueWidth = parentData.valueWidth.toSpace(space, camera);
+        const padding = parentData.padding.get(space, camera).x;
+        const valueWidth = parentData.valueWidth.get(space, camera);
         const nameWidth = width - valueWidth;
 
         this.address.data.position.set(lowerBound.x - padding, textY, space);
@@ -486,14 +486,14 @@ export class S2MemoryRow {
         const highlightCenter = new S2Vec2(lowerBound.x + 0.75 * width, lowerBound.y + 0.5 * height);
         this.highlight.data.position.setV(highlightCenter, space);
 
-        const highlightPadding = parentData.highlight.padding.toSpace(space, camera);
+        const highlightPadding = parentData.highlight.padding.get(space, camera);
         this.highlight.data.position.setV(highlightCenter, space);
         this.highlight.data.extents.set(
             0.5 * nameWidth - 2 * highlightPadding.x,
             0.5 * height - 2 * highlightPadding.y,
             space,
         );
-        this.highlight.data.cornerRadius.set(parentData.highlight.cornerRadius.toSpace(space, camera), space);
+        this.highlight.data.cornerRadius.set(parentData.highlight.cornerRadius.get(space, camera), space);
         this.highlight.data.anchor.set('center');
     }
 

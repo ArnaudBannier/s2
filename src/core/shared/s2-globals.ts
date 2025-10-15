@@ -60,8 +60,8 @@ export class S2AnchorUtils {
         extents: S2Extents,
     ): S2Vec2 {
         const sign = space === 'world' ? +1 : -1;
-        const ext = extents.toSpace(space, camera);
-        const center = position.toSpace(space, camera);
+        const ext = extents.get(space, camera);
+        const center = position.get(space, camera);
         switch (anchor) {
             case 'north-west':
                 center.shiftY(-sign * ext.y).shiftX(+ext.x);
@@ -101,8 +101,8 @@ export class S2AnchorUtils {
         extents: S2Extents,
     ): S2Vec2 {
         const sign = space === 'world' ? +1 : -1;
-        const ext = extents.toSpace(space, camera);
-        const nw = position.toSpace(space, camera);
+        const ext = extents.get(space, camera);
+        const nw = position.get(space, camera);
         switch (anchor) {
             case 'north-west':
                 break;

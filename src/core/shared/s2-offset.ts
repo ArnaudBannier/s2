@@ -28,7 +28,7 @@ export class S2Offset
     }
 
     copy(other: S2Offset): this {
-        if (S2Vec2.eq(this.value, other.value) && this.space === other.space) return this;
+        if (S2Vec2.eqV(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
         this.markDirty();
@@ -39,7 +39,7 @@ export class S2Offset
         const space = state1.space;
         const value0 = state0.get(space, camera);
         const value1 = state1.get(space, camera);
-        this.setV(S2Vec2.lerp(value0, value1, t), space);
+        this.setV(S2Vec2.lerpV(value0, value1, t), space);
         return this;
     }
 
@@ -56,7 +56,7 @@ export class S2Offset
     }
 
     setV(offset: S2Vec2, space?: S2Space): this {
-        if (S2Vec2.eq(this.value, offset) && this.space === space) return this;
+        if (S2Vec2.eqV(this.value, offset) && this.space === space) return this;
         this.value.copy(offset);
         if (space) this.space = space;
         this.markDirty();
@@ -64,17 +64,8 @@ export class S2Offset
     }
 
     setValueFromSpace(x: number, y: number, space: S2Space, camera: S2Camera): this {
-        if (this.value.x === x && this.value.y === y && this.space === space) return this;
-        if (this.space === space) {
-            // this = other
-            this.value.set(x, y);
-        } else if (this.space === 'world') {
-            // this: world, other: view
-            camera.viewToWorldOffset(x, y, this.value);
-        } else {
-            // this: view, other: world
-            camera.worldToViewOffset(x, y, this.value);
-        }
+        if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
+        camera.convertOffset(x, y, space, this.space, this.value);
         this.markDirty();
         return this;
     }
@@ -83,39 +74,15 @@ export class S2Offset
         return this.setValueFromSpace(offset.x, offset.y, space, camera);
     }
 
-    get(space: S2Space, camera: S2Camera): S2Vec2 {
-        return this.toSpace(space, camera);
+    get(space: S2Space, camera: S2Camera, out?: S2Vec2): S2Vec2 {
+        return camera.convertOffsetV(this.value, this.space, space, out);
     }
 
     changeSpace(space: S2Space, camera: S2Camera): this {
-        if (this.space === space) {
-            // this = other
-            return this;
-        } else if (this.space === 'world') {
-            // this: world, other: view
-            camera.worldToViewOffset(this.value.x, this.value.y, this.value);
-        } else {
-            // this: view, other: world
-            camera.viewToWorldOffset(this.value.x, this.value.y, this.value);
-        }
+        if (this.space === space) return this;
+        camera.convertOffsetV(this.value, this.space, space, this.value);
         this.space = space;
+        // No markDirty() because the point value did not change
         return this;
-    }
-
-    toSpace(space: S2Space, camera: S2Camera): S2Vec2 {
-        return S2Offset.toSpace(this.value, this.space, space, camera);
-    }
-
-    static toSpace(offset: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
-        if (currSpace === nextSpace) {
-            // this = other
-            return offset.clone();
-        } else if (currSpace === 'world') {
-            // this: world, other: view
-            return camera.worldToViewOffsetV(offset);
-        } else {
-            // this: view, other: world
-            return camera.viewToWorldOffsetV(offset);
-        }
     }
 }

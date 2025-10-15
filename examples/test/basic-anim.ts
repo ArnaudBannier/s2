@@ -10,13 +10,19 @@ import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2DataSetter } from '../../src/core/element/base/s2-data-setter.ts';
 import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
-import { S2DraggableCircle } from '../../src/core/element/s2-draggable-circle.ts';
-import type { S2BaseDraggable } from '../../src/core/element/s2-draggable.ts';
+import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable-circle.ts';
+import type { S2BaseDraggable } from '../../src/core/element/draggable/s2-draggable.ts';
 import { S2Playable } from '../../src/core/animation/s2-playable.ts';
+import {
+    S2DraggableContainerBox,
+    S2DraggableContainerBoxData,
+} from '../../src/core/element/draggable/s2-draggable-container-box.ts';
+import { S2DraggableContainerLine } from '../../src/core/element/draggable/s2-draggable-container-line.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport, 1.0);
+const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport);
+camera.setRotationDeg(-30);
 
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
@@ -47,23 +53,25 @@ class SceneFigure extends S2Scene {
 
         const draggable = new S2DraggableCircle(this);
         draggable.setParent(this.getSVG());
-        draggable.data.space.set('world');
         draggable.data.position.set(-3, 0, 'world');
         draggable.data.radius.set(1, 'world');
-        draggable.data.xEnabled.set(true);
-        draggable.data.yEnabled.set(false);
-        draggable.data.containerBoundA.set(-7, -4, 'world');
-        draggable.data.containerBoundB.set(+7, +4, 'world');
+
+        // const container = new S2DraggableContainerBox(this);
+        // container.data.space.set('view');
+        // container.data.boundA.set(-7, -4, 'world');
+        // container.data.boundB.set(+7, +4, 'world');
+        // draggable.setContainer(container);
+
+        const container = new S2DraggableContainerLine(this);
+        container.data.space.set('world');
+        container.data.boundA.set(-3, 3, 'world');
+        //container.data.boundA.set(0, 0, 'view');
+        container.data.boundB.set(+3, -3, 'world');
+        draggable.setContainer(container);
 
         const path = this.addPath();
         path.moveTo(-7, -4).lineTo(-7, +4).lineTo(+7, +4).lineTo(+7, -4).close();
         path.data.stroke.width.set(4, 'view');
-
-        // const svg = this.getSVG();
-        // svg.getSVGElement().addEventListener('mouseover', (event: MouseEvent) => {
-        //     const point = svg.convertDOMPoint(event.clientX, event.clientY, 'view');
-        //     console.log(`Mouse at: ${point.x.toFixed(2)}, ${point.y.toFixed(2)}`);
-        // });
 
         this.path = this.addPath();
         this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
@@ -80,22 +88,6 @@ class SceneFigure extends S2Scene {
         this.circle.data.position.set(0, 0, 'world');
         this.circle.data.opacity.set(0.0);
 
-        // this.circle.getSVGElement().addEventListener('mouseover', (event: MouseEvent) => {
-        //     console.log('Circle mouse enter');
-        //     this.circle.data.stroke.width.set(8, 'view');
-        //     this.update();
-        // });
-
-        // const svg = this.getSVG();
-        // svg.getSVGElement().addEventListener('mousemove', (event: MouseEvent) => {
-        //     const point = svg.convertDOMPoint(event.clientX, event.clientY, 'world');
-        //     console.log(`Mouse at: ${point.x.toFixed(2)}, ${point.y.toFixed(2)}`);
-        //     if (this.circle.isEnabled() && point.distanceSq(this.circle.getCenter('world')) < 1) {
-        //         this.circle.data.stroke.width.set(8, 'view');
-        //         this.update();
-        //     }
-        // });
-
         const line = this.addLine();
         line.data.startPosition.set(0, 0, 'world');
         line.data.endPosition.copy(draggable.data.position);
@@ -108,7 +100,7 @@ class SceneFigure extends S2Scene {
         circle.data.fill.color.copy(MTL.LIGHT_BLUE_5);
 
         const lerpAnim = S2LerpAnimFactory.create(this, circle.data.position)
-            .setCycleDuration(500)
+            .setCycleDuration(1500)
             .setEasing(ease.outExpo);
         lerpAnim.commitFinalState();
         const playable = new S2Playable(lerpAnim);
@@ -116,7 +108,7 @@ class SceneFigure extends S2Scene {
         draggable.setOnDrag((handle: S2BaseDraggable, event: PointerEvent) => {
             void event;
             const pos = handle.getPosition('world');
-            line.data.endPosition.set(S2MathUtils.snap(pos.x, 1), S2MathUtils.snap(pos.y, 1), 'world');
+            line.data.endPosition.set(S2MathUtils.snap(pos.x, 0.5), S2MathUtils.snap(pos.y, 1), 'world');
 
             lerpAnim.commitInitialState();
             circle.data.position.setV(pos, 'world');
@@ -124,10 +116,15 @@ class SceneFigure extends S2Scene {
             playable.play();
         });
 
-        // handle.setOnRelease((handle: S2BaseDraggable, event: PointerEvent) => {
-        //     void event;
-        //     handle.data.position.copy(line.data.endPosition);
-        // });
+        draggable.setOnRelease((draggable: S2BaseDraggable, event: PointerEvent) => {
+            void event;
+            draggable.data.position.copy(line.data.endPosition);
+
+            lerpAnim.commitInitialState();
+            circle.data.position.copy(line.data.endPosition);
+            lerpAnim.commitFinalState();
+            playable.play();
+        });
 
         const tip = this.path.createArrowTip();
         tip.setParent(this.getSVG());

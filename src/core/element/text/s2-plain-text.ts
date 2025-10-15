@@ -33,7 +33,7 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
     }
 
     getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+        return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
     getExtents(space: S2Space): S2Vec2 {

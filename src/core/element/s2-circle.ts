@@ -62,11 +62,11 @@ export class S2Circle extends S2Element<S2CircleData> {
     }
 
     getRadius(space: S2Space): number {
-        return this.data.radius.toSpace(space, this.scene.getActiveCamera());
+        return this.data.radius.get(space, this.scene.getActiveCamera());
     }
 
     getCenter(space: S2Space): S2Vec2 {
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+        return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
     getSVGElement(): SVGElement {
@@ -75,10 +75,10 @@ export class S2Circle extends S2Element<S2CircleData> {
 
     getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
         const camera = this.scene.getActiveCamera();
-        const d = distance.toSpace(space, camera);
-        const radius = Math.max(this.data.radius.toSpace(space, camera) + d, 0);
+        const d = distance.get(space, camera);
+        const radius = Math.max(this.data.radius.get(space, camera) + d, 0);
         const point = direction.clone().normalize().scale(radius);
-        return point.addV(this.data.position.toSpace(space, camera));
+        return point.addV(this.data.position.get(space, camera));
     }
 
     update(): void {

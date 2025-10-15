@@ -74,11 +74,11 @@ export class S2Rect extends S2Element<S2RectData> {
     }
 
     getExtents(space: S2Space): S2Vec2 {
-        return this.data.extents.toSpace(space, this.scene.getActiveCamera());
+        return this.data.extents.get(space, this.scene.getActiveCamera());
     }
 
     getCornerRadius(space: S2Space): number {
-        return this.data.cornerRadius.toSpace(space, this.scene.getActiveCamera());
+        return this.data.cornerRadius.get(space, this.scene.getActiveCamera());
     }
 
     getSVGElement(): SVGElement {
@@ -87,9 +87,9 @@ export class S2Rect extends S2Element<S2RectData> {
 
     getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
         const camera = this.scene.getActiveCamera();
-        const d = distance.toSpace(space, camera);
-        const extents = this.data.extents.toSpace(space, camera).add(d, d).max(0, 0);
-        const radius = Math.min(Math.max(this.data.cornerRadius.toSpace(space, camera) + d, 0), extents.x, extents.y);
+        const d = distance.get(space, camera);
+        const extents = this.data.extents.get(space, camera).add(d, d).max(0, 0);
+        const radius = Math.min(Math.max(this.data.cornerRadius.get(space, camera) + d, 0), extents.x, extents.y);
         const center = S2AnchorUtils.getCenter(
             this.data.anchor.get(),
             space,

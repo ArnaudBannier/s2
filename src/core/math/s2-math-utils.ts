@@ -3,6 +3,10 @@ export class S2MathUtils {
         return Math.max(min, Math.min(max, value));
     }
 
+    static clamp01(value: number): number {
+        return S2MathUtils.clamp(value, 0, 1);
+    }
+
     static lerp(x: number, y: number, t: number): number {
         return (1 - t) * x + t * y;
     }
@@ -28,7 +32,7 @@ export class S2MathUtils {
     }
 
     static snap(value: number, step: number): number {
-        if (step === 0) return value;
+        if (step <= 0) return value;
         return Math.round(value / step) * step;
     }
 

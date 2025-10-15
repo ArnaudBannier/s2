@@ -45,7 +45,7 @@ const postOrderAlgorithm =
     '  **fn:traiter**(**var:n**)';
 
 const viewport = new S2Vec2(720.0, 360.0).scale(1.5);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(9.0, 4.5), viewport, 1.0);
+const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(9.0, 4.5), viewport);
 
 class BTreeStyle {
     public scene: S2Scene;

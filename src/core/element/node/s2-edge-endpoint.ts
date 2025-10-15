@@ -68,7 +68,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         if (this.mode === 'node' && this.node) {
             return this.node.getCenter(space);
         } else {
-            return this.position.toSpace(space, camera);
+            return this.position.get(space, camera);
         }
     }
 
@@ -80,8 +80,8 @@ export class S2EdgeEndpoint implements S2Dirtyable {
                 return this.node.getCenter(space);
             }
         } else {
-            const point = this.position.toSpace(space, camera);
-            const d = distance.toSpace(space, camera);
+            const point = this.position.get(space, camera);
+            const d = distance.get(space, camera);
             return point.addV(direction.clone().normalize().scale(d));
         }
     }

@@ -133,7 +133,7 @@ export class S2TextHighlight extends S2Element<S2TextHighlightData> {
         const extents = aabb.getExtents();
         const position = aabb.getCenter();
 
-        const padding = this.data.padding.toSpace(space, camera);
+        const padding = this.data.padding.get(space, camera);
         this.rect.data.position.setV(position, space);
         this.rect.data.extents.set(extents.x + padding.x, extents.y + padding.y, space);
         this.rect.data.anchor.set('center');

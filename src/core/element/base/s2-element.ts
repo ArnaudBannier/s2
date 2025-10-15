@@ -9,20 +9,16 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
     public readonly data: Data;
     public readonly id: number;
 
-    protected dirty: boolean;
-    protected scene: S2BaseScene;
-    protected parent: S2BaseElement | null;
-    protected children: S2BaseElement[];
-    protected childrenChanged: boolean;
+    protected readonly scene: S2BaseScene;
+    protected dirty: boolean = true;
+    protected parent: S2BaseElement | null = null;
+    protected children: S2BaseElement[] = [];
+    protected childrenChanged: boolean = false;
 
     constructor(scene: S2BaseScene, data: Data) {
         this.data = data;
         this.scene = scene;
         this.id = scene.getNextElementId();
-        this.parent = null;
-        this.children = [];
-        this.childrenChanged = false;
-        this.dirty = true;
         this.data.setOwner(this);
     }
 

@@ -96,7 +96,7 @@ export class S2DataUtils {
     static applyFont(font: S2FontData, element: SVGElement, scene: S2BaseScene): void {
         if (font.isDirty() === false) return;
         if (font.size.isDirty()) {
-            const size = font.size.toSpace('view', scene.getActiveCamera());
+            const size = font.size.get('view', scene.getActiveCamera());
             element.setAttribute('font-size', size.toFixed(1));
         }
         if (font.weight.isDirty()) {
@@ -118,7 +118,7 @@ export class S2DataUtils {
         yAttribute: string = 'y',
     ): void {
         if (position.isDirty()) {
-            const p = position.toSpace('view', scene.getActiveCamera());
+            const p = position.get('view', scene.getActiveCamera());
             element.setAttribute(xAttribute, p.x.toFixed(2));
             element.setAttribute(yAttribute, p.y.toFixed(2));
         }
@@ -134,8 +134,8 @@ export class S2DataUtils {
     ): void {
         if (position.isDirty() || shift.isDirty()) {
             const camera = scene.getActiveCamera();
-            const p = position.toSpace('view', camera);
-            const s = shift.toSpace('view', camera);
+            const p = position.get('view', camera);
+            const s = shift.get('view', camera);
             element.setAttribute(xAttribute, (p.x + s.x).toFixed(2));
             element.setAttribute(yAttribute, (p.y + s.y).toFixed(2));
         }
@@ -163,7 +163,7 @@ export class S2DataUtils {
 
     static applyExtents(extents: S2Extents, element: SVGElement, scene: S2BaseScene): void {
         if (extents.isDirty()) {
-            const e = extents.toSpace('view', scene.getActiveCamera()).scale(2);
+            const e = extents.get('view', scene.getActiveCamera()).scale(2);
             element.setAttribute('width', e.width.toFixed(2));
             element.setAttribute('height', e.height.toFixed(2));
         }
@@ -171,14 +171,14 @@ export class S2DataUtils {
 
     static applyRadius(radius: S2Length, element: SVGElement, scene: S2BaseScene): void {
         if (radius.isDirty()) {
-            const r = radius.toSpace('view', scene.getActiveCamera());
+            const r = radius.get('view', scene.getActiveCamera());
             element.setAttribute('r', r.toFixed(2));
         }
     }
 
     static applyCornerRadius(radius: S2Length, element: SVGElement, scene: S2BaseScene): void {
         if (radius.isDirty()) {
-            const r = radius.toSpace('view', scene.getActiveCamera());
+            const r = radius.get('view', scene.getActiveCamera());
             element.setAttribute('rx', r.toFixed(2));
             element.setAttribute('ry', r.toFixed(2));
         }
@@ -228,28 +228,29 @@ export class S2DataUtils {
         let svgPath = '';
         const currStart = polyCurve.getCurve(0).getStart();
         const prevEnd = new S2Vec2(Infinity, Infinity);
+        const point = new S2Vec2();
 
         for (let i = 0; i < curveCount; i++) {
             const curve = polyCurve.getCurve(i);
 
-            if (!S2Vec2.eq(prevEnd, curve.getStart())) {
-                const point = S2Point.toSpace(currStart, space, 'view', camera);
+            if (!S2Vec2.eqV(prevEnd, curve.getStart())) {
+                camera.convertPointV(currStart, space, 'view', point);
                 svgPath += `M ${point.x},${point.y} `;
             }
 
             if (curve instanceof S2LineCurve) {
-                const point = S2Point.toSpace(curve.getEnd(), space, 'view', camera);
+                camera.convertPointV(curve.getEnd(), space, 'view', point);
                 svgPath += `L ${point.x},${point.y} `;
             } else if (curve instanceof S2CubicCurve) {
                 const bezierPoints = curve.getBezierPoints();
                 svgPath += 'C ';
                 for (let j = 1; j < bezierPoints.length; j++) {
-                    const point = S2Point.toSpace(bezierPoints[j], space, 'view', camera);
+                    camera.convertPointV(bezierPoints[j], space, 'view', point);
                     svgPath += `${point.x},${point.y} `;
                 }
             }
             const end = curve.getEnd();
-            if (S2Vec2.eq(currStart, end)) {
+            if (S2Vec2.eqV(currStart, end)) {
                 svgPath += 'Z ';
                 currStart.copy(end);
             }

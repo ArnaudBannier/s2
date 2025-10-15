@@ -369,7 +369,7 @@ export class S2Code extends S2Element<S2CodeData> {
     }
 
     getExtents(space: S2Space): S2Vec2 {
-        return this.extents.toSpace(space, this.scene.getActiveCamera());
+        return this.extents.get(space, this.scene.getActiveCamera());
     }
 
     getSVGElement(): SVGElement {
@@ -394,9 +394,9 @@ export class S2Code extends S2Element<S2CodeData> {
         this.textGroup.update();
 
         const textExtents = this.textGroup.getExtents(space);
-        const padding = this.data.padding.toSpace(space, camera);
+        const padding = this.data.padding.get(space, camera);
 
-        const minExtents = this.data.minExtents.toSpace(space, camera);
+        const minExtents = this.data.minExtents.get(space, camera);
         const extents = textExtents.addV(padding);
         extents.maxV(minExtents);
         this.extents.setV(extents, space);
@@ -428,7 +428,7 @@ export class S2Code extends S2Element<S2CodeData> {
 
         const lineCount = this.textGroup.getLineCount();
         if (lineCount > 0) {
-            const linePadding = this.data.currentLine.padding.toSpace(space, camera);
+            const linePadding = this.data.currentLine.padding.get(space, camera);
             const currIndex = S2MathUtils.clamp(this.data.currentLine.index.get(), 0, lineCount - 1);
             const index0 = S2MathUtils.clamp(Math.floor(currIndex), 0, lineCount - 1);
             const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);

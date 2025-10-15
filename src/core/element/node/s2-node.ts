@@ -136,15 +136,15 @@ export class S2Node extends S2Element<S2RichNodeData> {
     }
 
     getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+        return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
     getMinExtents(space: S2Space): S2Vec2 {
-        return this.data.minExtents.toSpace(space, this.scene.getActiveCamera());
+        return this.data.minExtents.get(space, this.scene.getActiveCamera());
     }
 
     getPadding(space: S2Space): S2Vec2 {
-        return this.data.padding.toSpace(space, this.scene.getActiveCamera());
+        return this.data.padding.get(space, this.scene.getActiveCamera());
     }
 
     getSVGElement(): SVGElement {
@@ -208,7 +208,7 @@ export class S2Node extends S2Element<S2RichNodeData> {
         if (this.background) {
             return this.background.getPointInDirection(direction, space, distance);
         }
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+        return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
     // refreshExtents(): void {
@@ -257,9 +257,9 @@ export class S2Node extends S2Element<S2RichNodeData> {
             partHeights.push(2 * extents.y);
         }
 
-        const nodeMinExtents = this.data.minExtents.toSpace('view', camera);
-        const padding = this.data.padding.toSpace('view', camera);
-        const partSep = this.data.partSep.toSpace('view', camera);
+        const nodeMinExtents = this.data.minExtents.get('view', camera);
+        const padding = this.data.padding.get('view', camera);
+        const partSep = this.data.partSep.get('view', camera);
 
         const height = S2FlexUtils.computeSizes(
             partHeights,

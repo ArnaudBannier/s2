@@ -5,26 +5,25 @@ import { S2Vec2 } from './s2-vec2.ts';
 export type S2Space = 'world' | 'view';
 
 export class S2Camera implements S2Dirtyable {
-    position: S2Vec2;
-    viewExtents: S2Vec2;
-    viewScale: number;
-    viewportSize: S2Vec2;
+    protected position: S2Vec2;
+    protected extents: S2Vec2;
+    protected scaleFactor: number = 1.0;
+    protected viewportSize: S2Vec2;
 
-    private worldToViewScale: S2Vec2 = new S2Vec2(1, 1);
-    private viewToWorldScale: S2Vec2 = new S2Vec2(1, 1);
+    protected worldToViewScale: S2Vec2 = new S2Vec2(1, 1);
+    protected viewToWorldScale: S2Vec2 = new S2Vec2(1, 1);
 
-    private worldToViewMat: S2Mat2x3 = new S2Mat2x3();
-    private viewToWorldMat: S2Mat2x3 = new S2Mat2x3();
+    protected worldToViewMat: S2Mat2x3 = new S2Mat2x3();
+    protected viewToWorldMat: S2Mat2x3 = new S2Mat2x3();
 
     protected dirty: boolean = true;
-    private rotation: number = 0.2 * Math.PI; // en radians
+    protected rotation: number = 0 * Math.PI; // en radians
 
-    constructor(position: S2Vec2, extents: S2Vec2, viewport: S2Vec2, viewScale: number = 1.0) {
+    constructor(position: S2Vec2, extents: S2Vec2, viewport: S2Vec2) {
         this.position = position;
-        this.viewExtents = extents;
+        this.extents = extents;
         this.viewportSize = viewport;
-        this.viewScale = viewScale;
-        this.updateMatrices();
+        this.update();
     }
 
     isDirty(): boolean {
@@ -44,48 +43,84 @@ export class S2Camera implements S2Dirtyable {
         return this.viewportSize;
     }
 
-    getRotation(): number {
+    getRotationRad(): number {
         return this.rotation;
     }
 
+    getRotationDeg(): number {
+        return (this.rotation * 180.0) / Math.PI;
+    }
+
     getWorldToViewMatrix(): S2Mat2x3 {
-        this.updateMatrices();
+        this.update();
         return this.worldToViewMat;
     }
 
     getViewToWorldMatrix(): S2Mat2x3 {
-        this.updateMatrices();
+        this.update();
         return this.viewToWorldMat;
+    }
+
+    getWorldToViewScale(): S2Vec2 {
+        this.update();
+        return this.worldToViewScale;
+    }
+
+    getViewToWorldScale(): S2Vec2 {
+        this.update();
+        return this.viewToWorldScale;
+    }
+
+    getLower(): S2Vec2 {
+        this.update();
+        return S2Vec2.subV(this.position, S2Vec2.scaleV(this.extents, this.scaleFactor));
+    }
+
+    getUpper(): S2Vec2 {
+        this.update();
+        return S2Vec2.addV(this.position, S2Vec2.scaleV(this.extents, this.scaleFactor));
     }
 
     setPosition(x: number, y: number): this {
         this.position.set(x, y);
-        this.updateMatrices();
+        this.markDirty();
         return this;
     }
 
     setExtents(x: number, y: number): this {
-        this.viewExtents.set(x, y);
-        this.updateMatrices();
+        this.extents.set(x, y);
+        this.markDirty();
         return this;
     }
 
-    setExtentsScale(scale: number): this {
-        this.viewScale = scale;
-        this.updateMatrices();
+    setZoom(zoom: number): this {
+        this.scaleFactor = 1.0 / zoom;
+        this.markDirty();
         return this;
     }
 
-    private updateMatrices(): void {
+    setRotationRad(angleRad: number): this {
+        this.rotation = angleRad;
+        this.markDirty();
+        return this;
+    }
+
+    setRotationDeg(angleDeg: number): this {
+        this.rotation = (angleDeg * Math.PI) / 180.0;
+        this.markDirty();
+        return this;
+    }
+
+    update(): void {
         if (!this.isDirty()) return;
 
         this.worldToViewScale.set(
-            (0.5 * this.viewportSize.x) / (this.viewExtents.x * this.viewScale),
-            (0.5 * this.viewportSize.y) / (this.viewExtents.y * this.viewScale),
+            (0.5 * this.viewportSize.x) / (this.extents.x * this.scaleFactor),
+            (0.5 * this.viewportSize.y) / (this.extents.y * this.scaleFactor),
         );
         this.viewToWorldScale.set(
-            (2.0 * (this.viewExtents.x * this.viewScale)) / this.viewportSize.x,
-            (2.0 * (this.viewExtents.y * this.viewScale)) / this.viewportSize.y,
+            (2.0 * (this.extents.x * this.scaleFactor)) / this.viewportSize.x,
+            (2.0 * (this.extents.y * this.scaleFactor)) / this.viewportSize.y,
         );
 
         const cx = this.viewportSize.x / 2;
@@ -122,93 +157,94 @@ export class S2Camera implements S2Dirtyable {
         this.clearDirty();
     }
 
-    getWorldToViewScale(): S2Vec2 {
-        this.updateMatrices();
-        return this.worldToViewScale;
-    }
-
-    getViewToWorldScale(): S2Vec2 {
-        this.updateMatrices();
-        return this.viewToWorldScale;
-    }
-
     viewToWorld(x: number, y: number, out?: S2Vec2): S2Vec2 {
-        this.updateMatrices();
         out = out ?? new S2Vec2();
         return out.set(x, y).apply2x3(this.viewToWorldMat);
     }
 
     viewToWorldV(v: S2Vec2, out?: S2Vec2): S2Vec2 {
-        this.updateMatrices();
-        out = out ?? new S2Vec2();
-        return out.copy(v).apply2x3(this.viewToWorldMat);
+        return this.viewToWorld(v.x, v.y, out);
     }
 
     viewToWorldOffset(x: number, y: number, out?: S2Vec2): S2Vec2 {
-        this.updateMatrices();
         out = out ?? new S2Vec2();
         return out.set(x, y).apply2x3Offset(this.viewToWorldMat);
     }
 
     viewToWorldOffsetV(v: S2Vec2, out?: S2Vec2): S2Vec2 {
-        this.updateMatrices();
-        out = out ?? new S2Vec2();
-        return out.copy(v).apply2x3Offset(this.viewToWorldMat);
+        return this.viewToWorldOffset(v.x, v.y, out);
     }
 
     worldToView(x: number, y: number, out?: S2Vec2): S2Vec2 {
-        this.updateMatrices();
         out = out ?? new S2Vec2();
         return out.set(x, y).apply2x3(this.worldToViewMat);
     }
 
     worldToViewV(v: S2Vec2, out?: S2Vec2): S2Vec2 {
-        this.updateMatrices();
-        out = out ?? new S2Vec2();
-        return out.copy(v).apply2x3(this.worldToViewMat);
+        return this.worldToView(v.x, v.y, out);
     }
 
     worldToViewOffset(x: number, y: number, out?: S2Vec2): S2Vec2 {
-        this.updateMatrices();
         out = out ?? new S2Vec2();
         return out.set(x, y).apply2x3Offset(this.worldToViewMat);
     }
 
     worldToViewOffsetV(v: S2Vec2, out?: S2Vec2): S2Vec2 {
-        this.updateMatrices();
+        return this.worldToViewOffset(v.x, v.y, out);
+    }
+
+    convertPoint(x: number, y: number, currSpace: S2Space, nextSpace: S2Space, out?: S2Vec2): S2Vec2 {
         out = out ?? new S2Vec2();
-        return out.copy(v).apply2x3Offset(this.worldToViewMat);
-    }
-
-    getLower(): S2Vec2 {
-        this.updateMatrices();
-        return S2Vec2.sub(this.position, S2Vec2.scale(this.viewExtents, this.viewScale));
-    }
-
-    getUpper(): S2Vec2 {
-        this.updateMatrices();
-        return S2Vec2.add(this.position, S2Vec2.scale(this.viewExtents, this.viewScale));
-    }
-
-    convertPosition(x: number, y: number, currSpace: S2Space, nextSpace: S2Space): S2Vec2 {
-        this.updateMatrices();
-        if (currSpace === nextSpace) return new S2Vec2(x, y);
+        if (currSpace === nextSpace) return out.set(x, y);
         switch (currSpace) {
             case 'world':
-                return this.worldToView(x, y);
+                return this.worldToView(x, y, out);
             case 'view':
-                return this.viewToWorld(x, y);
+                return this.viewToWorld(x, y, out);
         }
     }
 
-    convertPositionV(position: S2Vec2, currSpace: S2Space, nextSpace: S2Space): S2Vec2 {
-        this.updateMatrices();
-        if (currSpace === nextSpace) return position.clone();
+    convertPointV(point: S2Vec2, currSpace: S2Space, nextSpace: S2Space, out?: S2Vec2): S2Vec2 {
+        return this.convertPoint(point.x, point.y, currSpace, nextSpace, out);
+    }
+
+    convertOffset(x: number, y: number, currSpace: S2Space, nextSpace: S2Space, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        if (currSpace === nextSpace) return out.set(x, y);
         switch (currSpace) {
             case 'world':
-                return this.worldToViewV(position);
+                return this.worldToViewOffset(x, y, out);
             case 'view':
-                return this.viewToWorldV(position);
+                return this.viewToWorldOffset(x, y, out);
+        }
+    }
+
+    convertOffsetV(point: S2Vec2, currSpace: S2Space, nextSpace: S2Space, out?: S2Vec2): S2Vec2 {
+        return this.convertOffset(point.x, point.y, currSpace, nextSpace, out);
+    }
+
+    convertExtents(x: number, y: number, currSpace: S2Space, nextSpace: S2Space, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        if (currSpace === nextSpace) return out.set(x, y);
+        switch (currSpace) {
+            case 'world':
+                return out.set(x, y).mulV(this.worldToViewScale);
+            case 'view':
+                return out.set(x, y).mulV(this.viewToWorldScale);
+        }
+    }
+
+    convertExtentsV(point: S2Vec2, currSpace: S2Space, nextSpace: S2Space, out?: S2Vec2): S2Vec2 {
+        return this.convertExtents(point.x, point.y, currSpace, nextSpace, out);
+    }
+
+    convertLength(length: number, currSpace: S2Space, nextSpace: S2Space): number {
+        if (currSpace === nextSpace) return length;
+        switch (currSpace) {
+            case 'world':
+                return length * this.worldToViewScale.x;
+            case 'view':
+                return length * this.viewToWorldScale.x;
         }
     }
 }

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Vecteurs propres</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+        <link rel="stylesheet" href="../base-style.css" />
+
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css"
+            integrity="sha384-5TcZemv2l/9On385z///+d7MSYlvIEw9FuZTIdZ14vJLqWphw7e7ZPuOiCHJcFCP"
+            crossorigin="anonymous"
+        />
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"
+            integrity="sha384-cMkvdD8LoxVzGF/RPUKAcvmm49FQ0oxwDF3BGKtDXcEc+T1b2N+teh/OJfpU0jr6"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"
+            integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false },
+                        { left: '\\(', right: '\\)', display: false },
+                        { left: '\\[', right: '\\]', display: true },
+                        { left: '\\begin{equation}', right: '\\end{equation}', display: true },
+                        { left: '\\begin{align}', right: '\\end{align}', display: true },
+                        { left: '\\begin{alignat}', right: '\\end{alignat}', display: true },
+                        { left: '\\begin{gather}', right: '\\end{gather}', display: true },
+                        { left: '\\begin{CD}', right: '\\end{CD}', display: true },
+                    ],
+                    throwOnError: false,
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <a class="back-btn" href="%BASE_URL%">Retour</a>
+        <div id="app"></div>
+        <script type="module" src="./s03-eigenvector-01.ts"></script>
+    </body>
+</html>

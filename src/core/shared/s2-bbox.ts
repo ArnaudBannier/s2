@@ -23,7 +23,7 @@ export class S2BBox extends S2BaseType {
         }
 
         const bbox = graphics.getBBox();
-        const parentPos = parentPosition ? parentPosition.toSpace('view', camera) : new S2Vec2(0, 0);
+        const parentPos = parentPosition ? parentPosition.get('view', camera) : new S2Vec2(0, 0);
         const center = new S2Vec2(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2).subV(parentPos);
         this.center.setV(center, 'view');
         this.extents.set(bbox.width / 2, bbox.height / 2, 'view');
@@ -31,11 +31,11 @@ export class S2BBox extends S2BaseType {
     }
 
     getCenter(space: S2Space, camera: S2Camera): S2Vec2 {
-        return this.center.toSpace(space, camera);
+        return this.center.get(space, camera);
     }
 
     getExtents(space: S2Space, camera: S2Camera): S2Vec2 {
-        return this.extents.toSpace(space, camera);
+        return this.extents.get(space, camera);
     }
 
     getLower(space: S2Space, camera: S2Camera): S2Vec2 {

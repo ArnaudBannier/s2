@@ -28,7 +28,7 @@ export class S2Extents
     }
 
     copy(other: S2Extents): this {
-        if (S2Vec2.eq(this.value, other.value) && this.space === other.space) return this;
+        if (S2Vec2.eqV(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
         this.markDirty();
@@ -39,7 +39,7 @@ export class S2Extents
         const space = state1.space;
         const value0 = state0.get(space, camera);
         const value1 = state1.get(space, camera);
-        this.setV(S2Vec2.lerp(value0, value1, t), space);
+        this.setV(S2Vec2.lerpV(value0, value1, t), space);
         return this;
     }
 
@@ -56,7 +56,7 @@ export class S2Extents
     }
 
     setV(extents: S2Vec2, space?: S2Space): this {
-        if (S2Vec2.eq(this.value, extents) && this.space === space) return this;
+        if (S2Vec2.eqV(this.value, extents) && this.space === space) return this;
         this.value.copy(extents);
         if (space) this.space = space;
         this.markDirty();
@@ -64,55 +64,25 @@ export class S2Extents
     }
 
     setValueFromSpace(x: number, y: number, space: S2Space, camera: S2Camera): this {
-        if (this.value.x === x && this.value.y === y && this.space === space) return this;
-        if (this.space === space) {
-            // this = other
-            this.value.set(x, y);
-        } else if (this.space === 'world') {
-            // this: world, other: view
-            this.value.set(x, y).mulV(camera.getViewToWorldScale());
-        } else {
-            // this: view, other: world
-            this.value.set(x, y).mulV(camera.getWorldToViewScale());
-        }
+        if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
+        camera.convertExtents(x, y, space, this.space, this.value);
         this.markDirty();
         return this;
     }
 
-    get(space: S2Space, camera: S2Camera): S2Vec2 {
-        return this.toSpace(space, camera);
+    setValueFromSpaceV(extents: S2Vec2, space: S2Space, camera: S2Camera): this {
+        return this.setValueFromSpace(extents.x, extents.y, space, camera);
+    }
+
+    get(space: S2Space, camera: S2Camera, out?: S2Vec2): S2Vec2 {
+        return camera.convertExtentsV(this.value, this.space, space, out);
     }
 
     changeSpace(space: S2Space, camera: S2Camera): this {
-        if (this.space === space) {
-            // this = other
-            return this;
-        } else if (this.space === 'world') {
-            // this: world, other: view
-            this.value.mulV(camera.getWorldToViewScale());
-        } else {
-            // this: view, other: world
-            this.value.mulV(camera.getViewToWorldScale());
-        }
+        if (this.space === space) return this;
+        camera.convertExtentsV(this.value, this.space, space, this.value);
         this.space = space;
-        this.markDirty();
+        // No markDirty() because the point value did not change
         return this;
-    }
-
-    toSpace(space: S2Space, camera: S2Camera): S2Vec2 {
-        return S2Extents.toSpace(this.value, this.space, space, camera);
-    }
-
-    static toSpace(extents: S2Vec2, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): S2Vec2 {
-        if (currSpace === nextSpace) {
-            // this = other
-            return extents.clone();
-        } else if (currSpace === 'world') {
-            // this: world, other: view
-            return extents.clone().mulV(camera.getWorldToViewScale());
-        } else {
-            // this: view, other: world
-            return extents.clone().mulV(camera.getViewToWorldScale());
-        }
     }
 }

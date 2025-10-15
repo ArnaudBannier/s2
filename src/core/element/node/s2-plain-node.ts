@@ -33,8 +33,8 @@ export class S2PlainNode extends S2BaseNode {
         this.text.update();
 
         const textExtents = this.text.getExtents(space);
-        const padding = this.data.padding.toSpace(space, camera);
-        const extents = this.data.minExtents.toSpace(space, camera);
+        const padding = this.data.padding.get(space, camera);
+        const extents = this.data.minExtents.get(space, camera);
         extents.max(textExtents.x + padding.x, textExtents.y + padding.y);
         const contentExtents = extents.clone().subV(padding);
 

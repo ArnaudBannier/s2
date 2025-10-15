@@ -129,7 +129,7 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         if (nodeOrPos instanceof S2Node) {
             return nodeOrPos.getCenter(space);
         } else {
-            return nodeOrPos.toSpace(space, this.scene.getActiveCamera());
+            return nodeOrPos.get(space, this.scene.getActiveCamera());
         }
     }
 
@@ -141,9 +141,9 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
             return nodeOrPos.getCenter(space);
         } else {
             const camera = this.scene.getActiveCamera();
-            const point = nodeOrPos.toSpace(space, camera);
+            const point = nodeOrPos.get(space, camera);
             if (distance.value !== -Infinity) {
-                const d = distance.toSpace(space, camera);
+                const d = distance.get(space, camera);
                 point.addV(direction.clone().normalize().scale(d));
             }
             return point;

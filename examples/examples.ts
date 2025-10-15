@@ -30,6 +30,12 @@ export const examples: S2Example[] = [
         path: '/s2/examples/algorithm/btree.html',
         description: "Parcours préfixe/infixe/suffixe d'un arbre binaire.",
     },
+    {
+        id: 'linear-algebra-s03-eigenvector-01',
+        title: 'MAT2051 : Vecteurs propres',
+        path: '/s2/examples/linear-algebra/s03-eigenvector-01.html',
+        description: 'Introduction aux vecteurs propres et valeurs propres.',
+    },
 ];
 
 export const tests: S2Example[] = [

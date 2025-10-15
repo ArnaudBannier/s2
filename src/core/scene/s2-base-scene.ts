@@ -36,7 +36,9 @@ export abstract class S2BaseScene {
     }
 
     update(): this {
+        this.activeCamera.update();
         this.svg.update();
+        this.activeCamera.update();
         return this;
     }
 

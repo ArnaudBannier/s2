@@ -40,19 +40,19 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
     }
 
     getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+        return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
     getExtents(space: S2Space): S2Vec2 {
-        return this.extents.toSpace(space, this.scene.getActiveCamera());
+        return this.extents.get(space, this.scene.getActiveCamera());
     }
 
     getMinExtents(space: S2Space): S2Vec2 {
-        return this.data.minExtents.toSpace(space, this.scene.getActiveCamera());
+        return this.data.minExtents.get(space, this.scene.getActiveCamera());
     }
 
     getPadding(space: S2Space): S2Vec2 {
-        return this.data.padding.toSpace(space, this.scene.getActiveCamera());
+        return this.data.padding.get(space, this.scene.getActiveCamera());
     }
 
     getSVGElement(): SVGElement {
@@ -77,7 +77,7 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         if (this.background) {
             return this.background.getPointInDirection(direction, space, distance);
         }
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+        return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
     protected updateBackground(): void {
@@ -109,7 +109,7 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         const camera = this.scene.getActiveCamera();
         const space: S2Space = 'view';
         const nodeCenter = this.getCenter(space);
-        const extents = this.extents.toSpace(space, camera);
+        const extents = this.extents.get(space, camera);
 
         this.background.data.stroke.copyIfUnlocked(this.data.background.stroke);
         this.background.data.fill.copyIfUnlocked(this.data.background.fill);

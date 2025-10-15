@@ -212,7 +212,7 @@ export class S2Memory extends S2Element<S2MemoryData> {
     }
 
     getExtents(space: S2Space): S2Vec2 {
-        return this.data.extents.toSpace(space, this.scene.getActiveCamera());
+        return this.data.extents.get(space, this.scene.getActiveCamera());
     }
 
     getCenter(space: S2Space): S2Vec2 {
@@ -270,7 +270,7 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.background.data.anchor.set('center');
 
         // Vertical line
-        const valueWidth = this.data.valueWidth.toSpace(space, this.scene.getActiveCamera());
+        const valueWidth = this.data.valueWidth.get(space, this.scene.getActiveCamera());
         const vLineX = center.x - extents.x + valueWidth;
         this.vLine.data.startPosition.set(vLineX, center.y + extents.y, space);
         this.vLine.data.endPosition.set(vLineX, center.y - extents.y, space);

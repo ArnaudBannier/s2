@@ -31,7 +31,7 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
     }
 
     getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+        return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
     addTSpan(content: string, category?: string): S2TSpan {
@@ -47,11 +47,11 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
     }
 
     getExtents(space: S2Space): S2Vec2 {
-        return this.extents.toSpace(space, this.scene.getActiveCamera());
+        return this.extents.get(space, this.scene.getActiveCamera());
     }
 
     getCenter(space: S2Space): S2Vec2 {
-        const localCenter = this.localCenter.toSpace(space, this.scene.getActiveCamera());
+        const localCenter = this.localCenter.get(space, this.scene.getActiveCamera());
         const position = this.getPosition(space);
         return localCenter.addV(position);
     }

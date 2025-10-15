@@ -10,6 +10,10 @@ export class S2Vec2 {
         this.y = y;
     }
 
+    static set(x: number, y: number): S2Vec2 {
+        return new S2Vec2(x, y);
+    }
+
     static fromPolarRad(theta: number, r: number = 1.0): S2Vec2 {
         return new S2Vec2(r * Math.cos(theta), r * Math.sin(theta));
     }
@@ -19,32 +23,56 @@ export class S2Vec2 {
         return new S2Vec2(r * Math.cos(theta), r * Math.sin(theta));
     }
 
-    static add(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+    static add(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
+        return new S2Vec2(x1 + x2, y1 + y2);
+    }
+
+    static addV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
         return new S2Vec2(v1.x + v2.x, v1.y + v2.y);
     }
 
-    static sub(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+    static sub(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
+        return new S2Vec2(x1 - x2, y1 - y2);
+    }
+
+    static subV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
         return new S2Vec2(v1.x - v2.x, v1.y - v2.y);
     }
 
-    static mul(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+    static mul(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
+        return new S2Vec2(x1 * x2, y1 * y2);
+    }
+
+    static mulV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
         return new S2Vec2(v1.x * v2.x, v1.y * v2.y);
     }
 
-    static scale(v: S2Vec2, s: number): S2Vec2 {
+    static scale(x: number, y: number, s: number): S2Vec2 {
+        return new S2Vec2(x * s, y * s);
+    }
+
+    static scaleV(v: S2Vec2, s: number): S2Vec2 {
         return new S2Vec2(v.x * s, v.y * s);
     }
 
-    static lerp(v1: S2Vec2, v2: S2Vec2, t: number): S2Vec2 {
+    static lerp(x1: number, y1: number, x2: number, y2: number, t: number): S2Vec2 {
         const s = 1 - t;
-        return new S2Vec2(s * v1.x + t * v2.x, s * v1.y + t * v2.y);
+        return new S2Vec2(s * x1 + t * x2, s * y1 + t * y2);
     }
 
-    static eq(v1: S2Vec2, v2: S2Vec2, epsilon: number = 1e-4): boolean {
+    static lerpV(v1: S2Vec2, v2: S2Vec2, t: number): S2Vec2 {
+        return S2Vec2.lerp(v1.x, v1.y, v2.x, v2.y, t);
+    }
+
+    static eq(x1: number, y1: number, x2: number, y2: number, epsilon: number = 1e-4): boolean {
+        return Math.abs(x1 - x2) < epsilon && Math.abs(y1 - y2) < epsilon;
+    }
+
+    static eqV(v1: S2Vec2, v2: S2Vec2, epsilon: number = 1e-4): boolean {
         return Math.abs(v1.x - v2.x) < epsilon && Math.abs(v1.y - v2.y) < epsilon;
     }
 
-    static isZero(v: S2Vec2, epsilon: number = 1e-4): boolean {
+    static isZeroV(v: S2Vec2, epsilon: number = 1e-4): boolean {
         return Math.abs(v.x) < epsilon && Math.abs(v.y) < epsilon;
     }
 
@@ -77,6 +105,12 @@ export class S2Vec2 {
 
     setY(y: number): this {
         this.y = y;
+        return this;
+    }
+
+    setV(v: S2Vec2): this {
+        this.x = v.x;
+        this.y = v.y;
         return this;
     }
 
@@ -129,9 +163,7 @@ export class S2Vec2 {
     }
 
     copy(v: S2Vec2): this {
-        this.x = v.x;
-        this.y = v.y;
-        return this;
+        return this.setV(v);
     }
 
     add(x: number, y: number): this {
@@ -270,13 +302,13 @@ export class S2Vec2 {
         return this.scale(length / this.length());
     }
 
-    fromArray(array: Array<number>, offset: number = 0): this {
+    fromArray(array: number[], offset: number = 0): this {
         this.x = array[offset];
         this.y = array[offset + 1];
         return this;
     }
 
-    toArray(array: Array<number> = [], offset: number = 0): Array<number> {
+    toArray(array: number[] = [], offset: number = 0): number[] {
         array[offset] = this.x;
         array[offset + 1] = this.y;
         return array;

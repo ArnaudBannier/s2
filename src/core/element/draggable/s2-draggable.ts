@@ -1,14 +1,15 @@
-import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Dirtyable } from '../shared/s2-globals';
-import type { S2Space } from '../math/s2-camera';
-import { S2Vec2 } from '../math/s2-vec2';
-import { S2ElementData } from './base/s2-base-data';
-import { S2Element } from './base/s2-element';
-import { S2Point } from '../shared/s2-point';
-import { S2Offset } from '../shared/s2-offset';
-import { S2AnimationManager } from '../animation/s2-animation-manager';
-import { S2Boolean } from '../shared/s2-boolean';
-import { S2Enum } from '../shared/s2-enum';
+import type { S2BaseScene } from '../../scene/s2-base-scene';
+import type { S2Dirtyable } from '../../shared/s2-globals';
+import type { S2Space } from '../../math/s2-camera';
+import { S2Vec2 } from '../../math/s2-vec2';
+import { S2ElementData } from '../base/s2-base-data';
+import { S2Element } from '../base/s2-element';
+import { S2Point } from '../../shared/s2-point';
+import { S2Offset } from '../../shared/s2-offset';
+import { S2AnimationManager } from '../../animation/s2-animation-manager';
+import { S2Boolean } from '../../shared/s2-boolean';
+import { S2Enum } from '../../shared/s2-enum';
+import type { S2BaseDraggableContainer } from './s2-draggable-container';
 
 export type S2BaseDraggable = S2Draggable<S2DraggableData>;
 export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEvent) => void;
@@ -60,15 +61,16 @@ export class S2DraggableData extends S2ElementData {
 // }
 
 export abstract class S2Draggable<Data extends S2DraggableData> extends S2Element<Data> {
-    protected grabDelta: S2Offset = new S2Offset(0, 0, 'view');
-    protected pointerPosition: S2Point = new S2Point(0, 0, 'view');
-    protected pointerDelta: S2Offset = new S2Offset(0, 0, 'view');
+    protected readonly grabDelta: S2Offset = new S2Offset(0, 0, 'view');
+    protected readonly pointerPosition: S2Point = new S2Point(0, 0, 'view');
+    protected readonly pointerDelta: S2Offset = new S2Offset(0, 0, 'view');
+    protected readonly delta: S2Offset = new S2Offset(0, 0, 'view');
     protected pointerId: number | null = null;
-    protected delta: S2Offset = new S2Offset(0, 0, 'view');
     protected dragging = false;
     protected userOnGrab: S2HandleEventListener | null = null;
     protected userOnDrag: S2HandleEventListener | null = null;
     protected userOnRelease: S2HandleEventListener | null = null;
+    protected container: S2BaseDraggableContainer | null = null;
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
@@ -79,6 +81,13 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         element.style.cursor = 'pointer';
         element.role = 'handle';
         element.addEventListener('pointerdown', this.onGrab, { passive: false });
+    }
+
+    setContainer(container: S2BaseDraggableContainer | null): void {
+        if (this.container === container) return;
+        this.container = container;
+        container?.setOwner(this);
+        this.markDirty();
     }
 
     setOnGrab(listener: S2HandleEventListener | null): void {
@@ -102,7 +111,7 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
     }
 
     getCenter(space: S2Space): S2Vec2 {
-        return this.data.position.toSpace(space, this.scene.getActiveCamera());
+        return this.data.position.get(space, this.scene.getActiveCamera());
     }
 
     getPointerDelta(space: S2Space): S2Vec2 {
@@ -120,40 +129,23 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         const prevPointerPosition = this.pointerPosition.get(space, camera);
         this.scene.convertDOMPointInto(x, y, this.pointerPosition);
         const currPointerPosition = this.pointerPosition.get(space, camera);
-        const pointerDelta = S2Vec2.sub(currPointerPosition, prevPointerPosition);
+        const pointerDelta = S2Vec2.subV(currPointerPosition, prevPointerPosition);
         this.pointerDelta.setValueFromSpaceV(pointerDelta, space, camera);
     }
 
     protected updatePositionFromPointer(): void {
-        const space = this.data.space.get();
+        const space = this.data.position.space;
         const camera = this.scene.getActiveCamera();
 
-        const pointerPosition = this.pointerPosition.get(space, camera);
         const prevPosition = this.data.position.get(space, camera);
-        const currPosition = S2Vec2.add(pointerPosition, this.grabDelta.get(space, camera));
-        const boundA = this.data.containerBoundA.get(space, camera);
-        const boundB = this.data.containerBoundB.get(space, camera);
-        const lowerX = Math.min(boundA.x, boundB.x);
-        const upperX = Math.max(boundA.x, boundB.x);
-        const lowerY = Math.min(boundA.y, boundB.y);
-        const upperY = Math.max(boundA.y, boundB.y);
-
-        currPosition.max(lowerX, lowerY);
-        currPosition.min(upperX, upperY);
-
-        if (this.data.xEnabled.get() === false) currPosition.x = prevPosition.x;
-        if (this.data.yEnabled.get() === false) currPosition.y = prevPosition.y;
-
-        this.data.position.setV(currPosition, space);
-        // if (this.data.xEnabled.get()) {
-        //     this.data.position.setXFromSpace(S2MathUtils.clamp(currPosition.x, lowerX, upperX), space, camera);
-        // }
-        // if (this.data.yEnabled.get()) {
-        //     this.data.position.setYFromSpace(S2MathUtils.clamp(currPosition.y, lowerY, upperY), space, camera);
-        // }
-
-        const delta = S2Vec2.sub(this.data.position.get(space, camera), prevPosition);
-        this.delta.setV(delta, space);
+        let currPosition = this.pointerPosition.get(space, camera);
+        currPosition.addV(this.grabDelta.get(space, camera));
+        this.data.position.setValueFromSpaceV(currPosition, space, camera);
+        if (this.container) {
+            this.container.updatePosition(this.data.position);
+            currPosition = this.data.position.get(space, camera);
+        }
+        this.delta.setV(currPosition.subV(prevPosition), space);
     }
 
     private onGrab = (event: PointerEvent): void => {
@@ -166,7 +158,7 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
 
         this.updatePointerPosition(event.clientX, event.clientY);
         const position = this.data.position.get(space, camera);
-        this.grabDelta.setV(S2Vec2.sub(position, this.pointerPosition.value), space);
+        this.grabDelta.setV(S2Vec2.subV(position, this.pointerPosition.value), space);
         this.pointerDelta.set(0, 0, space);
         this.delta.set(0, 0, space);
 

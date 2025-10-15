@@ -110,13 +110,13 @@ export class S2Grid extends S2Element<S2GridData> {
         const startY = anchor.y - Math.floor((anchor.y - lowerY) / steps.y) * steps.y;
         let d = '';
         for (let x = startX; x < upperX + epsilon; x += steps.x) {
-            const pointA = scene.getActiveCamera().convertPosition(x, lowerY, space, 'view');
-            const pointB = scene.getActiveCamera().convertPosition(x, upperY, space, 'view');
+            const pointA = scene.getActiveCamera().convertPoint(x, lowerY, space, 'view');
+            const pointB = scene.getActiveCamera().convertPoint(x, upperY, space, 'view');
             d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
         }
         for (let y = startY; y < upperY + epsilon; y += steps.y) {
-            const pointA = scene.getActiveCamera().convertPosition(lowerX, y, space, 'view');
-            const pointB = scene.getActiveCamera().convertPosition(upperX, y, space, 'view');
+            const pointA = scene.getActiveCamera().convertPoint(lowerX, y, space, 'view');
+            const pointB = scene.getActiveCamera().convertPoint(upperX, y, space, 'view');
             d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
         }
         element.setAttribute('d', d.trimEnd());

@@ -57,53 +57,20 @@ export class S2Length
 
     setValueFromSpace(value: number, space: S2Space, camera: S2Camera): this {
         if (this.value === value && this.space === space) return this;
-        if (this.space === space) {
-            // this = other
-            this.value = value;
-        } else if (this.space === 'world') {
-            // this: world, other: view
-            this.value = value * camera.getViewToWorldScale().x; // assuming uniform scale
-        } else {
-            // this: view, other: world
-            this.value = value * camera.getWorldToViewScale().x; // assuming uniform scale
-        }
+        this.value = camera.convertLength(value, space, this.space);
         this.markDirty();
         return this;
     }
 
     get(space: S2Space, camera: S2Camera): number {
-        return this.toSpace(space, camera);
+        return camera.convertLength(this.value, this.space, space);
     }
 
     changeSpace(space: S2Space, camera: S2Camera): this {
-        if (this.space === space) {
-            // this = other
-            return this;
-        } else if (this.space === 'world') {
-            // this: world, other: view
-            this.value *= camera.getWorldToViewScale().x; // assuming uniform scale
-        } else {
-            // this: view, other: world
-            this.value *= camera.getViewToWorldScale().x; // assuming uniform scale
-        }
+        if (this.space === space) return this;
+        this.value = camera.convertLength(this.value, this.space, space);
         this.space = space;
+        // No markDirty() because the point value did not change
         return this;
-    }
-
-    toSpace(space: S2Space, camera: S2Camera): number {
-        return S2Length.toSpace(this.value, this.space, space, camera);
-    }
-
-    static toSpace(length: number, currSpace: S2Space, nextSpace: S2Space, camera: S2Camera): number {
-        if (currSpace === nextSpace) {
-            // this = other
-            return length;
-        } else if (currSpace === 'world') {
-            // this: world, other: view
-            return length * camera.getWorldToViewScale().x; // assuming uniform scale
-        } else {
-            // this: view, other: world
-            return length * camera.getViewToWorldScale().x; // assuming uniform scale
-        }
     }
 }

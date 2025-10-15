@@ -48,7 +48,7 @@ export class S2Scene extends S2BaseScene {
 
     addWorldGrid(parent: S2BaseElement = this.svg): S2Grid {
         const child = new S2Grid(this);
-        const viewport = this.getActiveCamera().viewportSize;
+        const viewport = this.getActiveCamera().getViewportSize();
         S2DataSetter.setTargets(child.data)
             .setStrokeWidth(1, 'view')
             .setTargets(child.data.geometry)
