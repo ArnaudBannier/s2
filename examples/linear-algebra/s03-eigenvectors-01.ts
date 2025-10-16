@@ -72,7 +72,7 @@ class SceneFigure extends S2Scene {
         this.htmlFinalText = finalText;
 
         const fillRect = this.addFillRect();
-        S2DataSetter.setTargets(fillRect.data).setColor(MTL.GREY_9);
+        S2DataSetter.setTargets(fillRect.data).setColor(MTL.BLUE_GREY_9);
 
         const gridHalf = this.addWorldGrid();
         gridHalf.data.geometry.space.set('world');
@@ -89,7 +89,7 @@ class SceneFigure extends S2Scene {
             const text = new S2PlainText(this);
             text.data.position.set(i - 0.1, -0.25, 'world');
             text.data.font.size.set(12, 'view');
-            text.data.fill.color.copy(MTL.GREY_2);
+            text.data.fill.color.copy(MTL.BLUE_GREY_2);
             text.data.layer.set(10);
             text.data.textAnchor.set('end');
             text.setParent(this.getSVG());
@@ -100,7 +100,7 @@ class SceneFigure extends S2Scene {
             const text = new S2PlainText(this);
             text.data.position.set(-0.1, j - 0.25, 'world');
             text.data.font.size.set(12, 'view');
-            text.data.fill.color.copy(MTL.GREY_2);
+            text.data.fill.color.copy(MTL.BLUE_GREY_2);
             text.data.layer.set(10);
             text.data.textAnchor.set('end');
             text.setParent(this.getSVG());
@@ -264,7 +264,6 @@ class SceneFigure extends S2Scene {
         this.colorAnim.commitInitialState();
         const isEigenvector =
             S2Vec2.isZeroV(u) === false && (S2Vec2.isZeroV(v) || Math.abs(u.det(v)) < 1e-2 * u.length() * v.length());
-        const eigenValue = u.length() < 1e-6 ? 0 : v.length() / u.length();
         if (isEigenvector) {
             this.vecV.data.stroke.color.copy(MTL.LIGHT_GREEN_5);
         } else {
@@ -284,9 +283,15 @@ class SceneFigure extends S2Scene {
                 },
             );
 
-            this.htmlFinalText.innerHTML = isEigenvector
-                ? `Le vecteur est un vecteur propre de valeur propre ${eigenValue.toFixed(1)}.`
-                : "Le vecteur n'est pas un vecteur propre.";
+            if (S2Vec2.isZeroV(u)) {
+                this.htmlFinalText.innerHTML = "Le vecteur nul n'est pas un vecteur propre par définition.";
+                return u;
+            } else {
+                const eigenValue = Math.abs(u.x) > 1e-6 ? v.x / u.x : v.y / u.y;
+                this.htmlFinalText.innerHTML = isEigenvector
+                    ? `Le vecteur est un vecteur propre de valeur propre ${eigenValue.toFixed(1)}.`
+                    : "Le vecteur n'est pas un vecteur propre.";
+            }
         }
         return u;
     }
