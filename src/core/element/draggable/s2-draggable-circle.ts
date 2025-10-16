@@ -70,26 +70,9 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
 
     protected onDragImpl(event: PointerEvent): void {
         void event;
-        // const camera = this.scene.getActiveCamera();
-        // const lower = camera.getLower();
-        // const upper = camera.getUpper();
-        // const center = this.getCenter('world');
-        // const radius = this.getRadius('world');
-        // lower.add(radius, radius);
-        // upper.sub(radius, radius);
-        // center.x = S2MathUtils.clamp(center.x, lower.x, upper.x);
-        // center.y = S2MathUtils.clamp(center.y, lower.y, upper.y);
-        // this.data.position.setV(center, 'world');
     }
 
     protected onReleaseImpl(event: PointerEvent): void {
         void event;
-        // const camera = this.scene.getActiveCamera();
-        // const lower = camera.getLower();
-        // const upper = camera.getUpper();
-        // const center = this.getCenter('world');
-        // center.x = S2MathUtils.clamp(center.x, lower.x, upper.x);
-        // center.y = S2MathUtils.clamp(center.y, lower.y, upper.y);
-        // this.data.position.setV(center, 'world');
     }
 }

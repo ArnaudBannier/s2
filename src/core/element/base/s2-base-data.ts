@@ -12,16 +12,9 @@ export abstract class S2BaseData {
 }
 
 export class S2ElementData extends S2BaseData {
-    public readonly layer: S2Number;
-    public readonly isEnabled: S2Boolean;
-    public readonly pointerEvents: S2Enum<S2PointerEvents>;
-
-    constructor() {
-        super();
-        this.layer = new S2Number(0);
-        this.isEnabled = new S2Boolean(true);
-        this.pointerEvents = new S2Enum<S2PointerEvents>('none');
-    }
+    public readonly layer: S2Number = new S2Number(0);
+    public readonly isEnabled: S2Boolean = new S2Boolean(true);
+    public readonly pointerEvents: S2Enum<S2PointerEvents> = new S2Enum<S2PointerEvents>('none');
 
     setOwner(owner: S2Dirtyable | null = null): void {
         this.layer.setOwner(owner);

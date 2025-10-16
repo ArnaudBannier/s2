@@ -79,7 +79,7 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
     protected initSVGElement(element: SVGElement): void {
         element.style.touchAction = 'none';
         element.style.cursor = 'pointer';
-        element.role = 'handle';
+        element.role = 'draggable';
         element.addEventListener('pointerdown', this.onGrab, { passive: false });
     }
 
@@ -168,8 +168,11 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         this.dragging = true;
 
         // register global move/up to ensure we get events
-        window.addEventListener('pointermove', this.onDrag, { passive: false });
-        window.addEventListener('pointerup', this.onRelease, { passive: false });
+        const element = this.getSVGElement();
+        element.addEventListener('pointermove', this.onDrag);
+        element.addEventListener('pointerup', this.onRelease);
+
+        this.scene.getSVG().getSVGElement().style.touchAction = 'none';
 
         this.onGrabImpl(event);
         this.userOnGrab?.(this, event);
@@ -199,10 +202,11 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
 
         this.dragging = false;
         this.pointerId = null;
-        window.removeEventListener('pointermove', this.onDrag);
-        window.removeEventListener('pointerup', this.onRelease);
 
-        this.getSVGElement().releasePointerCapture(event.pointerId);
+        const element = this.getSVGElement();
+        element.releasePointerCapture(event.pointerId);
+        element.removeEventListener('pointermove', this.onDrag);
+        element.removeEventListener('pointerup', this.onRelease);
 
         this.onReleaseImpl(event);
         this.userOnRelease?.(this, event);
