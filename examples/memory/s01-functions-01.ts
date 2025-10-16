@@ -96,7 +96,7 @@ class SceneFigure extends BaseMemoryScene {
         // b = func(a, b);
         this.codeMain.animateSetCurrentLine(currLine++, this.animator);
         let label = this.animator.createLabelAtCurrentTime();
-        let codeHighlight = this.codeMain.createTokenHighlight(
+        const codeHighlight = this.codeMain.createTokenHighlight(
             [{ lineIndex: currLine - 1, content: 'func' }],
             MTL.CYAN,
         );
@@ -148,8 +148,8 @@ class SceneFigure extends BaseMemoryScene {
         this.codeFunc.animateSetCurrentLine(4, this.animator);
         varFuncI.animateColor(freeColor, this.animator);
 
-        let codeHighlightB = this.codeMain.createTokenHighlight([{ lineIndex: 3, content: 'b' }], MTL.PURPLE_4);
-        let codeHighlightRes = this.codeFunc.createTokenHighlight([{ lineIndex: 4, content: 'res' }], MTL.PURPLE_4);
+        const codeHighlightB = this.codeMain.createTokenHighlight([{ lineIndex: 3, content: 'b' }], MTL.PURPLE_4);
+        const codeHighlightRes = this.codeFunc.createTokenHighlight([{ lineIndex: 4, content: 'res' }], MTL.PURPLE_4);
         label = this.animator.createLabelAtCurrentTime();
         codeHighlightB.animateFadeIn(this.animator, { label: label });
         codeHighlightRes.animateFadeIn(this.animator, { label: label });
