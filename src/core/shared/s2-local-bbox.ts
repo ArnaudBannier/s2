@@ -1,18 +1,19 @@
 import type { S2Camera } from '../math/s2-camera';
 import type { S2Space } from '../math/s2-camera';
+import type { S2Point } from './s2-point';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2Extents } from './s2-extents';
-import { S2Point } from './s2-point';
+import { S2Offset } from './s2-offset';
 
-export class S2BBox extends S2BaseType {
+export class S2LocalBBox extends S2BaseType {
     readonly kind = 'bbox' as const;
-    protected center: S2Point;
+    protected center: S2Offset;
     protected extents: S2Extents;
 
     constructor() {
         super();
-        this.center = new S2Point(0, 0, 'view');
+        this.center = new S2Offset(0, 0, 'view');
         this.extents = new S2Extents(0, 0, 'view');
     }
 

@@ -1,3 +1,5 @@
+import { ease } from '../../src/core/animation/s2-easing';
+import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim';
 import { S2StepAnimator } from '../../src/core/animation/s2-step-animator';
 import { S2FontData } from '../../src/core/element/base/s2-base-data';
 import { S2Code } from '../../src/core/element/s2-code';
@@ -37,8 +39,9 @@ export class BaseMemoryScene extends S2Scene {
         data.currentLine.stroke.opacity.set(0.2);
         data.currentLine.padding.set(-0.5, 2, 'view');
         data.currentLine.index.set(0);
-        data.position.set(-5.5, 0, 'world');
-        data.anchor.set('west');
+        data.position.set(-6, 4, 'world');
+        data.anchor.set('north-west');
+        data.minExtents.set(2.5, 1.0, 'world');
     }
 
     protected setDefaultMemoryStyle(memory: S2Memory): void {
@@ -55,7 +58,7 @@ export class BaseMemoryScene extends S2Scene {
         data.background.cornerRadius.set(10, 'view');
         data.highlight.cornerRadius.set(7, 'view');
         data.highlight.padding.set(3, 3, 'view');
-        data.position.set(+5.5, 0, 'world');
+        data.position.set(+6, 0, 'world');
         data.anchor.set('east');
     }
 
@@ -67,5 +70,64 @@ export class BaseMemoryScene extends S2Scene {
         this.fillRect.data.color.copy(S2Color.lerp(MTL.GREY_8, MTL.GREY_9, 0.7));
 
         this.setDefaultFont(16);
+    }
+
+    protected animateCallIn(
+        mainCode: S2Code,
+        funcCode: S2Code,
+        funcIndex: number,
+        options: { label?: string; offset?: number; duration?: number } = {},
+    ): void {
+        const camera = this.getActiveCamera();
+        const funcTSpan = mainCode.findTokenTSpan(funcIndex, { category: 'fn' });
+        if (!funcTSpan) return;
+
+        const label = this.animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
+        const shift = 30;
+
+        const codeMainPos = mainCode.data.position.get('view', camera);
+        const funcPos = funcTSpan.getUpper('view');
+
+        funcCode.data.position.set(codeMainPos.x + 10 + shift, funcPos.y + 5, 'view');
+        funcCode.data.anchor.set('north-west');
+        funcCode.data.opacity.set(0);
+
+        const posAnim = S2LerpAnimFactory.create(this, funcCode.data.position)
+            .setCycleDuration(duration)
+            .setEasing(ease.inOut);
+        const opacityAnim = S2LerpAnimFactory.create(this, funcCode.data.opacity)
+            .setCycleDuration(duration)
+            .setEasing(ease.inOut);
+        funcCode.data.position.set(codeMainPos.x + 10, funcPos.y + 5, 'view');
+        funcCode.data.opacity.set(1);
+        this.animator.enableElement(funcCode, true, label, offset);
+        this.animator.addAnimation(posAnim.commitFinalState(), label, offset);
+        this.animator.addAnimation(opacityAnim.commitFinalState(), label, offset);
+    }
+
+    protected animateCallOut(
+        funcCode: S2Code,
+        options: { label?: string; offset?: number; duration?: number } = {},
+    ): void {
+        const camera = this.getActiveCamera();
+        const label = this.animator.ensureLabel(options.label);
+        const offset = options.offset ?? 0;
+        const duration = options.duration ?? 500;
+        const shift = 30;
+
+        const posAnim = S2LerpAnimFactory.create(this, funcCode.data.position)
+            .setCycleDuration(duration)
+            .setEasing(ease.inOut);
+        const opacityAnim = S2LerpAnimFactory.create(this, funcCode.data.opacity)
+            .setCycleDuration(duration)
+            .setEasing(ease.inOut);
+        const position = funcCode.data.position.get('view', camera);
+        funcCode.data.position.set(position.x + shift, position.y, 'view');
+        funcCode.data.opacity.set(0);
+        this.animator.addAnimation(posAnim.commitFinalState(), label, offset);
+        this.animator.addAnimation(opacityAnim.commitFinalState(), label, offset);
+        this.animator.enableElement(funcCode, false, label, offset + duration);
     }
 }

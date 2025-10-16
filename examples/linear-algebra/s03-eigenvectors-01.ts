@@ -273,19 +273,21 @@ class SceneFigure extends S2Scene {
         this.colorAnim.commitFinalState();
         this.playableColor.play();
 
-        this.htmlEq.innerHTML = window.katex.renderToString(
-            `\\begin{aligned}
+        if (snap === 'snap') {
+            this.htmlEq.innerHTML = window.katex.renderToString(
+                `\\begin{aligned}
             u &= (${u.x.toFixed(1)}, ${u.y.toFixed(1)}) \\\\
             Mu &= (${v.x.toFixed(1)}, ${v.y.toFixed(1)})
         \\end{aligned}`,
-            {
-                throwOnError: false,
-            },
-        );
+                {
+                    throwOnError: false,
+                },
+            );
 
-        this.htmlFinalText.innerHTML = isEigenvector
-            ? `Le vecteur est un vecteur propre de valeur propre ${eigenValue.toFixed(1)}.`
-            : "Le vecteur n'est pas un vecteur propre.";
+            this.htmlFinalText.innerHTML = isEigenvector
+                ? `Le vecteur est un vecteur propre de valeur propre ${eigenValue.toFixed(1)}.`
+                : "Le vecteur n'est pas un vecteur propre.";
+        }
         return u;
     }
 

@@ -5,16 +5,16 @@ import { svgNS } from '../../shared/s2-globals';
 import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TextData } from './s2-text-data';
-import { S2BBox } from '../../shared/s2-bbox';
+import { S2LocalBBox } from '../../shared/s2-local-bbox';
 
 export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
     protected element: SVGTextElement;
-    protected localBBox: S2BBox;
+    protected localBBox: S2LocalBBox;
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
         this.element = document.createElementNS(svgNS, 'text');
-        this.localBBox = new S2BBox();
+        this.localBBox = new S2LocalBBox();
         this.localBBox.setOwner(this);
     }
 

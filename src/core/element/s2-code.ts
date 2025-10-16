@@ -447,6 +447,9 @@ export class S2Code extends S2Element<S2CodeData> {
         }
 
         for (const highlight of this.highlights) {
+            if (this.data.position.isDirty() || this.data.anchor.isDirty() || this.data.padding.isDirty()) {
+                highlight.markDirty();
+            }
             highlight.update();
         }
 

@@ -10,7 +10,7 @@ import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
-import { S2BBox } from '../../shared/s2-bbox';
+import { S2LocalBBox } from '../../shared/s2-local-bbox';
 
 export class S2TSpanData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -53,7 +53,7 @@ export class S2TSpan extends S2Element<S2TSpanData> {
     public category: string;
     protected content: string;
     protected element: SVGTSpanElement;
-    protected localBBox: S2BBox;
+    protected localBBox: S2LocalBBox;
     protected parentText: S2BaseRichText<S2TextData>;
 
     constructor(scene: S2BaseScene, parentText: S2BaseRichText<S2TextData>) {
@@ -61,7 +61,7 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         this.element = document.createElementNS(svgNS, 'tspan');
         this.category = '';
         this.content = '';
-        this.localBBox = new S2BBox();
+        this.localBBox = new S2LocalBBox();
         this.parentText = parentText;
 
         this.localBBox.setOwner(this);
