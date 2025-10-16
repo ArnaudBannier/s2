@@ -1,4 +1,4 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{S as r,a as D,b as C,c as R,d as O,M as i,e as x,f as G,g as U,h as W,i as o,j as c,k as B}from"./s2-lerp-anim-3QYG2S63.js";import{S as _}from"./s2-step-animator-CW7k99Oi.js";import{S as Y,t as H}from"./s2-code-BcztgbOy.js";import{S as I}from"./s2-anim-group-BPiEYpRj.js";const M="Parcours infixe, préfixe et suffixe",V=`**kw:fonction** **fn:parcoursInfixe**(**var:n**: **type:Noeud**):
+import"./modulepreload-polyfill-B5Qt9EMX.js";import{S as r,a as D,b as C,c as R,d as O,M as i,e as x,f as G,g as U,h as W,i as o,j as c,k as B}from"./s2-lerp-anim-Del0poW1.js";import{S as _}from"./s2-step-animator-CFLkTpzR.js";import{S as Y,t as H}from"./s2-code-DN5aJOX6.js";import{S as I}from"./s2-anim-group-BE2wCQZp.js";const M="Parcours infixe, préfixe et suffixe",V=`**kw:fonction** **fn:parcoursInfixe**(**var:n**: **type:Noeud**):
   **kw:si** **var:n**.**var:gauche** existe **kw:alors**
     **fn:parcoursInfixe**(**var:n**.**var:gauche**)
   **fn:traiter**(**var:n**)
