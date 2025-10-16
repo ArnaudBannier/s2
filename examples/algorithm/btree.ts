@@ -17,6 +17,7 @@ import type { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
 import { S2RichText } from '../../src/core/element/text/s2-rich-text.ts';
 import type { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { S2PlainText } from '../../src/core/element/text/s2-plain-text.ts';
+import { S2Color } from '../../src/core/shared/s2-color.ts';
 
 const titleString = 'Parcours infixe, préfixe et suffixe';
 
@@ -61,8 +62,8 @@ class BTreeStyle {
 
     setNodeDefault(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copyIfUnlocked(MTL.GREY_6);
-        data.background.stroke.color.copyIfUnlocked(MTL.GREY_4);
+        data.background.fill.color.copyIfUnlocked(MTL.GREY_8);
+        data.background.stroke.color.copyIfUnlocked(MTL.GREY_6);
         data.background.stroke.width.set(4, 'view');
         data.background.cornerRadius.set(10, 'view');
         data.text.fill.color.copyIfUnlocked(MTL.WHITE);
@@ -77,7 +78,7 @@ class BTreeStyle {
 
     setNodeSelected(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copyIfUnlocked(MTL.GREY_8);
+        data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
         data.background.stroke.color.copyIfUnlocked(MTL.BLUE_5);
         data.text.fill.color.copyIfUnlocked(MTL.BLUE_2);
     }
@@ -410,7 +411,7 @@ class SceneFigure extends S2Scene {
         this.animator = new S2StepAnimator(this);
 
         const fillRect = this.addFillRect();
-        S2DataSetter.setTargets(fillRect.data).setColor(MTL.GREY_8);
+        fillRect.data.color.copy(S2Color.lerp(MTL.GREY_8, MTL.GREY_9, 0.7));
 
         // const grid = this.addWorldGrid();
         // S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);

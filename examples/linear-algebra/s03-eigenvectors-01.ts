@@ -13,11 +13,14 @@ import { S2Playable } from '../../src/core/animation/s2-playable.ts';
 import { S2DraggableContainerBox } from '../../src/core/element/draggable/s2-draggable-container-box.ts';
 import { S2Line } from '../../src/core/element/s2-line.ts';
 import { S2Mat2 } from '../../src/core/math/s2-mat2.ts';
+import { S2PlainText } from '../../src/core/element/text/s2-plain-text.ts';
 
 declare global {
     interface Window {
         katex: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             renderToString: (formula: string, options?: any) => string;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             render: (formula: string, element: HTMLElement, options?: any) => void;
         };
     }
@@ -25,7 +28,7 @@ declare global {
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport);
+const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(6.0, (6.0 * 9) / 16), viewport);
 
 class SceneFigure extends S2Scene {
     protected vecU: S2Line;
@@ -42,9 +45,10 @@ class SceneFigure extends S2Scene {
     protected htmlEqMatrix: HTMLSpanElement;
     protected htmlFinalText: HTMLSpanElement;
 
+    protected circleU: S2Circle;
     protected circleEigen1: S2Circle;
     protected circleEigen2: S2Circle;
-    protected precision: number = 0.1;
+    protected precision: number = 0.5;
     protected draggable: S2DraggableCircle;
 
     setCircleDefaultStyle(circle: S2Circle): void {
@@ -72,13 +76,36 @@ class SceneFigure extends S2Scene {
 
         const gridHalf = this.addWorldGrid();
         gridHalf.data.geometry.space.set('world');
-        gridHalf.data.geometry.steps.set(0.5, 0.5, 'world');
-        gridHalf.data.stroke.color.copy(MTL.GREY_6);
+        gridHalf.data.geometry.steps.set(1, 1, 'world');
+        gridHalf.data.geometry.referencePoint.set(0.5, 0.5, 'world');
+        gridHalf.data.stroke.color.copy(MTL.CYAN_7);
         gridHalf.data.stroke.width.set(1, 'view');
         gridHalf.data.opacity.set(0.3);
 
         const grid = this.addWorldGrid();
-        S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);
+        grid.data.stroke.color.copy(MTL.CYAN_7);
+
+        for (let i = -5; i <= 5; i++) {
+            const text = new S2PlainText(this);
+            text.data.position.set(i - 0.1, -0.25, 'world');
+            text.data.font.size.set(12, 'view');
+            text.data.fill.color.copy(MTL.GREY_2);
+            text.data.layer.set(10);
+            text.data.textAnchor.set('end');
+            text.setParent(this.getSVG());
+            text.setContent(i.toString());
+        }
+        for (let j = -3; j <= 3; j++) {
+            if (j === 0) continue;
+            const text = new S2PlainText(this);
+            text.data.position.set(-0.1, j - 0.25, 'world');
+            text.data.font.size.set(12, 'view');
+            text.data.fill.color.copy(MTL.GREY_4);
+            text.data.layer.set(10);
+            text.data.textAnchor.set('end');
+            text.setParent(this.getSVG());
+            text.setContent(j.toString());
+        }
 
         this.matrix = new S2Mat2(1, 0, 0, 1);
 
@@ -86,7 +113,7 @@ class SceneFigure extends S2Scene {
         this.vecU.data.startPosition.set(0, 0, 'world');
         this.vecU.data.endPosition.set(0, 0, 'world');
         this.vecU.data.stroke.color.copy(MTL.LIGHT_BLUE_5);
-        this.vecU.data.stroke.width.set(4, 'view');
+        this.vecU.data.stroke.width.set(6, 'view');
         this.vecU.data.endPadding.set(10, 'view');
         this.vecU.data.layer.set(1);
 
@@ -98,10 +125,20 @@ class SceneFigure extends S2Scene {
         this.vecV.data.endPadding.set(10, 'view');
         this.vecV.data.layer.set(2);
 
+        this.circleU = this.addCircle();
+        this.circleU.data.fill.color.copy(MTL.LIGHT_BLUE_5);
+        this.circleU.data.radius.set(0.15, 'world');
+        this.circleU.data.opacity.set(0.5);
+        this.circleU.data.layer.set(0);
+
         this.circleEigen1 = this.addCircle();
         this.circleEigen2 = this.addCircle();
-        this.setCircleDefaultStyle(this.circleEigen1);
-        this.setCircleDefaultStyle(this.circleEigen2);
+        for (const data of [this.circleEigen1.data, this.circleEigen2.data]) {
+            data.stroke.color.copy(MTL.WHITE);
+            data.stroke.width.set(2, 'view');
+            data.fill.opacity.set(0);
+            data.radius.set(0.15, 'world');
+        }
 
         const tipU = this.vecU.createArrowTip();
         tipU.setAnchorAlignment(-1);
@@ -110,17 +147,20 @@ class SceneFigure extends S2Scene {
         tipV.setAnchorAlignment(-1);
         tipV.data.layer.set(2);
 
+        const lower = this.getActiveCamera().getLower();
+        const upper = this.getActiveCamera().getUpper();
+
         const lineX = this.addLine();
-        lineX.data.startPosition.set(-8, 0, 'world');
-        lineX.data.endPosition.set(7.5, 0, 'world');
-        lineX.data.stroke.color.copy(MTL.GREY_5);
+        lineX.data.startPosition.set(lower.x, 0, 'world');
+        lineX.data.endPosition.set(upper.x - 0.25, 0, 'world');
+        lineX.data.stroke.color.copy(MTL.GREY_1);
         lineX.data.stroke.width.set(4, 'view');
         lineX.createArrowTip();
 
         const lineY = this.addLine();
-        lineY.data.startPosition.set(0, -5, 'world');
-        lineY.data.endPosition.set(0, 4, 'world');
-        lineY.data.stroke.color.copy(MTL.GREY_5);
+        lineY.data.startPosition.set(0, lower.y, 'world');
+        lineY.data.endPosition.set(0, upper.y - 0.25, 'world');
+        lineY.data.stroke.color.copy(MTL.GREY_1);
         lineY.data.stroke.width.set(4, 'view');
         lineY.createArrowTip();
 
@@ -131,8 +171,8 @@ class SceneFigure extends S2Scene {
 
         const container = new S2DraggableContainerBox(this);
         container.data.space.set('view');
-        container.data.boundA.set(-7, -4, 'world');
-        container.data.boundB.set(+7, +4, 'world');
+        container.data.boundA.set(Math.ceil(lower.x), Math.ceil(lower.y), 'world');
+        container.data.boundB.set(Math.floor(upper.x), Math.floor(upper.y), 'world');
         this.draggable.setContainer(container);
 
         this.lerpAnimU = S2LerpAnimFactory.create(this, this.vecU.data.endPosition);
@@ -147,14 +187,12 @@ class SceneFigure extends S2Scene {
 
         this.draggable.setOnDrag((draggable: S2BaseDraggable, event: PointerEvent) => {
             void event;
-            this.precision = 0.0;
-            this.setPosition(draggable.getPosition('world'));
+            this.setPosition(draggable.getPosition('world'), 'free');
         });
 
         this.draggable.setOnRelease((draggable: S2BaseDraggable, event: PointerEvent) => {
             void event;
-            this.precision = 0.5;
-            const u = this.setPosition(draggable.getPosition('world'));
+            const u = this.setPosition(draggable.getPosition('world'), 'snap');
             draggable.data.position.setV(u, 'world');
         });
 
@@ -188,17 +226,28 @@ class SceneFigure extends S2Scene {
             default:
                 this.matrix = new S2Mat2(1, -1, -1, 1);
                 this.circleEigen1.data.position.set(1, 1, 'world');
-                this.circleEigen2.data.position.set(1, 1, 'world');
+                this.circleEigen2.data.position.set(1, -1, 'world');
         }
-        this.setPosition(new S2Vec2(1, 0));
+        this.setPosition(new S2Vec2(1, 0), 'snap');
         this.draggable.data.position.set(1, 0, 'world');
+
+        this.htmlEqMatrix.innerHTML = window.katex.renderToString(
+            `M = \\begin{pmatrix}
+            ${this.matrix.elements[0]} & ${this.matrix.elements[2]} \\\\
+            ${this.matrix.elements[1]} & ${this.matrix.elements[3]}
+        \\end{pmatrix}`,
+            {
+                throwOnError: false,
+            },
+        );
     }
 
-    setPosition(position: S2Vec2): S2Vec2 {
-        const u = new S2Vec2(
+    setPosition(position: S2Vec2, snap: 'snap' | 'free'): S2Vec2 {
+        const snappedPosition = new S2Vec2(
             S2MathUtils.snap(position.x, this.precision),
             S2MathUtils.snap(position.y, this.precision),
         );
+        const u = snap === 'snap' ? snappedPosition : position;
         this.lerpAnimU.commitInitialState();
         this.vecU.data.endPosition.setV(u, 'world');
         this.lerpAnimU.commitFinalState();
@@ -209,6 +258,8 @@ class SceneFigure extends S2Scene {
         this.vecV.data.endPosition.setV(v, 'world');
         this.lerpAnimV.commitFinalState();
         this.playableV.play();
+
+        this.circleU.data.position.setV(snappedPosition, 'world');
 
         this.colorAnim.commitInitialState();
         const isEigenvector = Math.abs(u.det(v)) < 1e-1 && S2Vec2.isZeroV(u) === false;
@@ -230,15 +281,6 @@ class SceneFigure extends S2Scene {
                 throwOnError: false,
             },
         );
-        this.htmlEqMatrix.innerHTML = window.katex.renderToString(
-            `M = \\begin{pmatrix}
-            ${this.matrix.elements[0]} & ${this.matrix.elements[2]} \\\\
-            ${this.matrix.elements[1]} & ${this.matrix.elements[3]}
-        \\end{pmatrix}`,
-            {
-                throwOnError: false,
-            },
-        );
 
         this.htmlFinalText.innerHTML = isEigenvector
             ? `Le vecteur est un vecteur propre de valeur propre ${eigenValue.toFixed(1)}.`
@@ -256,6 +298,16 @@ if (appDiv) {
     appDiv.innerHTML = `
         <div>
             <h1>Vecteurs propres</h1>
+            <div>
+            Choix de la matrice :
+            <select id="matrix-select">
+                <option value="0">M = [[0.5, 3], [0.75, 0.5]]</option>
+                <option value="1">M = [[2, 1], [1, 2]]</option>
+                <option value="2">M = [[2, -0.5], [1, 0.5]]</option>
+                <option value="3">M = [[1, 0], [2, -2]]</option>
+                <option value="4">M = [[1, -1], [-1, 1]]</option>
+            </select>
+            </div>
             <p>Vous pouvez déplacer le vecteur $u$ (en bleu) avec la souris. Le vecteur $v = Mu$ est calculé en fonction de la matrice $M$.<br>
             Lorsque les deux vecteurs sont colinéaires, le vecteur $u$ est un vecteur propre de la matrice $M$.</p>
             </p>
@@ -279,44 +331,10 @@ if (svgElement && eqU && eqMatrix && finalText) {
     const scene = new SceneFigure(svgElement, eqU, eqMatrix, finalText);
     void scene;
 
-    // let index = -1;
-    // scene.animator.reset();
+    const selectElement = document.getElementById('matrix-select') as HTMLSelectElement;
 
-    // document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
-    //     index = -1;
-    //     scene.animator.stop();
-    //     scene.animator.reset();
-    //     slider.value = '0';
-    // });
-    // document.querySelector<HTMLButtonElement>('#prev-button')?.addEventListener('click', () => {
-    //     index = S2MathUtils.clamp(index - 1, 0, scene.animator.getStepCount() - 1);
-    //     scene.animator.resetStep(index);
-    //     scene.update();
-    //     const stepStart = scene.animator.getStepStartTime(index);
-    //     const ratio = stepStart / scene.animator.getMasterDuration();
-    //     slider.value = (ratio * 100).toString();
-    // });
-    // document.querySelector<HTMLButtonElement>('#next-button')?.addEventListener('click', () => {
-    //     index = S2MathUtils.clamp(index + 1, 0, scene.animator.getStepCount() - 1);
-    //     scene.animator.playStep(index);
-    //     const stepStart = scene.animator.getStepStartTime(index);
-    //     const ratio = stepStart / scene.animator.getMasterDuration();
-    //     slider.value = (ratio * 100).toString();
-    // });
-    // document.querySelector<HTMLButtonElement>('#play-button')?.addEventListener('click', () => {
-    //     scene.animator.playStep(index);
-    // });
-    // document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
-    //     scene.animator.playMaster();
-    //     slider.value = '0';
-    // });
-
-    // slider.addEventListener('input', () => {
-    //     const ratio = slider.valueAsNumber / 100;
-    //     const elapsed = ratio * scene.animator.getMasterDuration();
-    //     scene.animator.stop();
-    //     scene.animator.setMasterElapsed(elapsed);
-    //     index = scene.animator.getStepIndexFromElapsed(elapsed);
-    //     scene.getSVG().update();
-    // });
+    selectElement.addEventListener('change', (event) => {
+        const target = event.target as HTMLSelectElement;
+        scene.setMatrix(parseInt(target.value, 10));
+    });
 }

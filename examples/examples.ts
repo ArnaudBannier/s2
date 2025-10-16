@@ -33,7 +33,7 @@ export const examples: S2Example[] = [
     {
         id: 'linear-algebra-s03-eigenvector-01',
         title: 'MAT2051 : Vecteurs propres',
-        path: '/s2/examples/linear-algebra/s03-eigenvector-01.html',
+        path: '/s2/examples/linear-algebra/s03-eigenvectors-01.html',
         description: 'Introduction aux vecteurs propres et valeurs propres.',
     },
 ];

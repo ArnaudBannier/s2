@@ -13,10 +13,6 @@ import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
 import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable-circle.ts';
 import type { S2BaseDraggable } from '../../src/core/element/draggable/s2-draggable.ts';
 import { S2Playable } from '../../src/core/animation/s2-playable.ts';
-import {
-    S2DraggableContainerBox,
-    S2DraggableContainerBoxData,
-} from '../../src/core/element/draggable/s2-draggable-container-box.ts';
 import { S2DraggableContainerLine } from '../../src/core/element/draggable/s2-draggable-container-line.ts';
 
 const viewportScale = 1.5;

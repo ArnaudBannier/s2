@@ -4,6 +4,7 @@ import { S2Code } from '../../src/core/element/s2-code';
 import type { S2FillRect } from '../../src/core/element/s2-fill-rect';
 import type { S2Camera } from '../../src/core/math/s2-camera';
 import { S2Scene } from '../../src/core/scene/s2-scene';
+import { S2Color } from '../../src/core/shared/s2-color';
 import type { S2Memory } from '../../src/extension/s2-memory';
 import { MTL } from '../../src/utils/mtl-colors';
 
@@ -63,7 +64,7 @@ export class BaseMemoryScene extends S2Scene {
         this.animator = new S2StepAnimator(this);
         this.font = new S2FontData();
         this.fillRect = this.addFillRect();
-        this.fillRect.data.color.copy(MTL.GREY_8);
+        this.fillRect.data.color.copy(S2Color.lerp(MTL.GREY_8, MTL.GREY_9, 0.7));
 
         this.setDefaultFont(16);
     }
