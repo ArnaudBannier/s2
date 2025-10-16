@@ -4,7 +4,7 @@
     font-weight: 400;
 
     color-scheme: light dark;
-    color: #eeeeee;
+    color: #c0c0c0;
     background-color: #212121;
 
     font-synthesis: none;
@@ -49,6 +49,7 @@ body {
 }
 
 h1 {
+    color: #eeeeee;
     font-size: 2.2em;
     line-height: 1.1;
 }
