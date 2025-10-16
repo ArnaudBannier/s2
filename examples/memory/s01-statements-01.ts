@@ -57,7 +57,8 @@ class SceneFigure extends BaseMemoryScene {
     createAnimation(): void {
         this.animator.makeStep();
         const numberColor = MTL.LIME_2;
-        const charColor = MTL.DEEP_ORANGE_2;
+        const undefinedColor = MTL.RED_3;
+        const freeColor = MTL.GREY_5;
         let currLine = 1;
 
         // int a = 10, b = 5;
@@ -81,13 +82,13 @@ class SceneFigure extends BaseMemoryScene {
         const varE = this.memory.createMemoryId();
         const varF = this.memory.createMemoryId();
         label = this.animator.createLabelAtCurrentTime();
-        varC.animateSetNameAndValue('c', '?', this.animator, { label: label, offset: 100, valueColor: charColor });
-        varD.animateSetNameAndValue('d', '?', this.animator, { label: label, offset: 200, valueColor: charColor });
-        varE.animateSetNameAndValue('e', '?', this.animator, { label: label, offset: 300, valueColor: charColor });
+        varC.animateSetNameAndValue('c', '?', this.animator, { label: label, offset: 100, valueColor: undefinedColor });
+        varD.animateSetNameAndValue('d', '?', this.animator, { label: label, offset: 200, valueColor: undefinedColor });
+        varE.animateSetNameAndValue('e', '?', this.animator, { label: label, offset: 300, valueColor: undefinedColor });
         varF.animateSetNameAndValue('f', '115', this.animator, {
             label: label,
             offset: 400,
-            valueColor: charColor,
+            valueColor: numberColor,
         });
         this.animator.makeStep();
         this.update();
@@ -117,7 +118,7 @@ class SceneFigure extends BaseMemoryScene {
         codeHighlight.animateFadeIn(this.animator, { label: label });
         varF.animateHighlightIn(this.animator, { label: label, offset: 100, color: MTL.CYAN });
         varD.animateHighlightIn(this.animator, { label: label, offset: 200, color: MTL.CYAN });
-        varD.animateCopyValue(varF, this.animator, { color: charColor });
+        varD.animateCopyValue(varF, this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
@@ -134,7 +135,7 @@ class SceneFigure extends BaseMemoryScene {
         codeHighlight.animateFadeIn(this.animator, { label: label });
         varF.animateHighlightOut(this.animator, { label: label, offset: 100 });
         varC.animateHighlightIn(this.animator, { label: label, offset: 200, color: MTL.CYAN });
-        varC.animateCopyValue(varD, this.animator, { color: charColor });
+        varC.animateCopyValue(varD, this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
@@ -145,7 +146,7 @@ class SceneFigure extends BaseMemoryScene {
 
         // e = f - 1;
         this.code.animateSetCurrentLine(currLine++, this.animator);
-        varE.animateSetValue('114', this.animator, { color: charColor });
+        varE.animateSetValue('114', this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
 
@@ -163,6 +164,18 @@ class SceneFigure extends BaseMemoryScene {
 
         // return 0;
         this.code.animateSetCurrentLine(currLine++, this.animator);
+        this.animator.makeStep();
+        this.update();
+
+        // END
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        label = this.animator.createLabelAtCurrentTime();
+        varF.animateColor(freeColor, this.animator, { label: label });
+        varE.animateColor(freeColor, this.animator, { label: label });
+        varD.animateColor(freeColor, this.animator, { label: label });
+        varC.animateColor(freeColor, this.animator, { label: label });
+        varB.animateColor(freeColor, this.animator, { label: label });
+        varA.animateColor(freeColor, this.animator, { label: label });
         this.animator.makeStep();
         this.update();
     }

@@ -73,7 +73,7 @@ class SceneFigure extends BaseMemoryScene {
         this.animator.makeStep();
         const numberColor = MTL.LIME_2;
         //const undefinedColor = MTL.RED_3;
-        const charColor = MTL.DEEP_ORANGE_2;
+        const freeColor = MTL.GREY_5;
         let currLine = 1;
 
         // int a = 10, b = 5;
@@ -93,7 +93,7 @@ class SceneFigure extends BaseMemoryScene {
         // char c = 'c';
         this.code.animateSetCurrentLine(currLine++, this.animator);
         const varC = this.memory.createMemoryId();
-        varC.animateSetNameAndValue('c', '99', this.animator, { valueColor: charColor });
+        varC.animateSetNameAndValue('c', '99', this.animator, { valueColor: numberColor });
         this.animator.makeStep();
         this.update();
 
@@ -152,6 +152,8 @@ class SceneFigure extends BaseMemoryScene {
         currLine++;
         this.code.animateSetCurrentLine(currLine++, this.animator);
         varB.animateSetValue('0', this.animator, { color: numberColor });
+        this.animator.makeStep();
+        this.update();
 
         // switch (b) {
         this.code.animateSetCurrentLine(currLine++, this.animator);
@@ -192,6 +194,17 @@ class SceneFigure extends BaseMemoryScene {
 
         // return 0;
         this.code.animateSetCurrentLine(currLine++, this.animator);
+        this.animator.makeStep();
+        this.update();
+
+        // END
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+
+        label = this.animator.createLabelAtCurrentTime();
+        varF.animateColor(freeColor, this.animator, { label: label });
+        varC.animateColor(freeColor, this.animator, { label: label });
+        varB.animateColor(freeColor, this.animator, { label: label });
+        varA.animateColor(freeColor, this.animator, { label: label });
         this.animator.makeStep();
         this.update();
     }

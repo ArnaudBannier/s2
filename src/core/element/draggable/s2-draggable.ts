@@ -163,14 +163,13 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         this.delta.set(0, 0, space);
 
         // capture the pointer
-        this.getSVGElement().setPointerCapture(event.pointerId);
-        this.pointerId = event.pointerId;
-        this.dragging = true;
-
-        // register global move/up to ensure we get events
         const element = this.getSVGElement();
+        element.setPointerCapture(event.pointerId);
         element.addEventListener('pointermove', this.onDrag);
         element.addEventListener('pointerup', this.onRelease);
+
+        this.pointerId = event.pointerId;
+        this.dragging = true;
 
         this.scene.getSVG().getSVGElement().style.touchAction = 'none';
 

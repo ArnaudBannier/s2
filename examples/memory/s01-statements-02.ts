@@ -59,6 +59,7 @@ class SceneFigure extends BaseMemoryScene {
         this.animator.makeStep();
         const numberColor = MTL.LIME_2;
         const undefinedColor = MTL.RED_3;
+        const freeColor = MTL.GREY_5;
         //const charColor = MTL.DEEP_ORANGE_2;
         let currLine = 1;
 
@@ -127,6 +128,17 @@ class SceneFigure extends BaseMemoryScene {
 
         // return 0;
         this.code.animateSetCurrentLine(currLine++, this.animator);
+        this.animator.makeStep();
+        this.update();
+
+        // END
+        this.code.animateSetCurrentLine(currLine++, this.animator);
+        label = this.animator.createLabelAtCurrentTime();
+        varI.animateColor(freeColor, this.animator, { label: label });
+        varG.animateColor(freeColor, this.animator, { label: label });
+        varD.animateColor(freeColor, this.animator, { label: label });
+        varF.animateColor(freeColor, this.animator, { label: label });
+        varA.animateColor(freeColor, this.animator, { label: label });
         this.animator.makeStep();
         this.update();
     }

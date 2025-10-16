@@ -100,7 +100,7 @@ class SceneFigure extends S2Scene {
             const text = new S2PlainText(this);
             text.data.position.set(-0.1, j - 0.25, 'world');
             text.data.font.size.set(12, 'view');
-            text.data.fill.color.copy(MTL.GREY_4);
+            text.data.fill.color.copy(MTL.GREY_2);
             text.data.layer.set(10);
             text.data.textAnchor.set('end');
             text.setParent(this.getSVG());
@@ -262,7 +262,8 @@ class SceneFigure extends S2Scene {
         this.circleU.data.position.setV(snappedPosition, 'world');
 
         this.colorAnim.commitInitialState();
-        const isEigenvector = Math.abs(u.det(v)) < 1e-1 && S2Vec2.isZeroV(u) === false;
+        const isEigenvector =
+            S2Vec2.isZeroV(u) === false && (S2Vec2.isZeroV(v) || Math.abs(u.det(v)) < 1e-2 * u.length() * v.length());
         const eigenValue = u.length() < 1e-6 ? 0 : v.length() / u.length();
         if (isEigenvector) {
             this.vecV.data.stroke.color.copy(MTL.LIGHT_GREEN_5);
@@ -308,7 +309,7 @@ if (appDiv) {
                 <option value="4">M = [[1, -1], [-1, 1]]</option>
             </select>
             </div>
-            <p>Vous pouvez déplacer le vecteur $u$ (en bleu) avec la souris. Le vecteur $v = Mu$ est calculé en fonction de la matrice $M$.<br>
+            <p>Vous pouvez déplacer le vecteur $u$ (en bleu) avec la souris. Le vecteur $v = Mu$ (en rouge ou vert) est calculé en fonction de la matrice $M$.<br>
             Lorsque les deux vecteurs sont colinéaires, le vecteur $u$ est un vecteur propre de la matrice $M$.</p>
             </p>
             <p>
