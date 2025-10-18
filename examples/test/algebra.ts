@@ -5,7 +5,10 @@ import { S2Scene } from '../../src/core/scene/s2-scene.ts';
 import { S2StepAnimator } from '../../src/core/animation/s2-step-animator.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
-import { S2FunctionGraph } from '../../src/core/element/s2-function-graph.ts';
+import { S2CurvePlot } from '../../src/core/element/plot/s2-curve-plot.ts';
+import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
+import { ease } from '../../src/core/animation/s2-easing.ts';
+import { S2Number } from '../../src/core/shared/s2-number.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -14,6 +17,9 @@ camera.setRotationDeg(0);
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
+
+    protected plot: S2CurvePlot;
+    protected param: S2Number = new S2Number(0);
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
@@ -25,21 +31,43 @@ class SceneFigure extends S2Scene {
         const grid = this.addWorldGrid();
         grid.data.stroke.color.copy(MTL.GREY_7);
 
-        const funcGraph = new S2FunctionGraph(this);
-        funcGraph.setParent(this.getSVG());
-        funcGraph.data.stroke.color.copy(MTL.CYAN_5);
-        funcGraph.data.stroke.width.set(4, 'view');
-        funcGraph.data.step.set(0.1, 'world');
-        funcGraph.setFunction((t: number, out: S2Vec2) => {
-            out.set(Math.sin(4 * t), Math.sin(3 * t));
+        const curvePlot = new S2CurvePlot(this);
+        curvePlot.setParent(this.getSVG());
+        curvePlot.data.stroke.color.copy(MTL.CYAN_5);
+        curvePlot.data.stroke.width.set(4, 'view');
+        curvePlot.data.step.set(0.1, 'world');
+        curvePlot.data.derivativeEpsilon.set(1e-6, 'world');
+        curvePlot.data.paramCurve.set((t: number, out: S2Vec2) => {
+            out.set(Math.sin(6 * t), Math.sin(5 * t));
         });
-        funcGraph.setFunctionModifier((v: S2Vec2) => {
-            v.x *= 4;
-            v.y *= 4.0;
-        });
-        funcGraph.setRanges([[0, 2 * Math.PI]]);
+        curvePlot.setRanges([[0, 2 * Math.PI]]);
+        this.plot = curvePlot;
 
         this.update();
+
+        this.createAnimation();
+    }
+
+    update(): this {
+        this.plot.data.plotModifier.set((v: S2Vec2) => {
+            v.x = v.x * S2MathUtils.lerp(7.0, 1.0, this.param.get());
+            v.y = v.y * S2MathUtils.lerp(4.0, 1.0, this.param.get());
+        });
+        super.update();
+        return this;
+    }
+
+    createAnimation(): void {
+        this.plot.data.pathTo.set(1.0);
+        let anim = S2LerpAnimFactory.create(this, this.plot.data.pathTo).setCycleDuration(10000).setEasing(ease.inOut);
+        this.plot.data.pathTo.set(0.0);
+        anim.commitFinalState();
+        this.animator.addAnimation(anim);
+
+        anim = S2LerpAnimFactory.create(this, this.param).setCycleDuration(10000).setEasing(ease.inOut);
+        this.param.set(1.0);
+        anim.commitFinalState();
+        this.animator.addAnimation(anim, 'previous-start');
     }
 }
 
@@ -105,6 +133,6 @@ if (svgElement && slider) {
         scene.animator.stop();
         scene.animator.setMasterElapsed(elapsed);
         index = scene.animator.getStepIndexFromElapsed(elapsed);
-        scene.getSVG().update();
+        scene.update();
     });
 }

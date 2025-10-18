@@ -100,7 +100,7 @@ export class S2Playable {
         } else {
             this.animation.setElapsed(rawElapsed);
         }
-        this.animation.getScene().update();
+        S2AnimationManager.requestUpdate(this.animation.getScene());
         return this;
     }
 }
