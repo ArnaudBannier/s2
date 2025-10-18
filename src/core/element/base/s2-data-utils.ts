@@ -235,18 +235,18 @@ export class S2DataUtils {
 
             if (!S2Vec2.eqV(prevEnd, curve.getStart())) {
                 camera.convertPointV(currStart, space, 'view', point);
-                svgPath += `M ${point.x},${point.y} `;
+                svgPath += `M ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
             }
 
             if (curve instanceof S2LineCurve) {
                 camera.convertPointV(curve.getEnd(), space, 'view', point);
-                svgPath += `L ${point.x},${point.y} `;
+                svgPath += `L ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
             } else if (curve instanceof S2CubicCurve) {
                 const bezierPoints = curve.getBezierPoints();
                 svgPath += 'C ';
                 for (let j = 1; j < bezierPoints.length; j++) {
                     camera.convertPointV(bezierPoints[j], space, 'view', point);
-                    svgPath += `${point.x},${point.y} `;
+                    svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
                 }
             }
             const end = curve.getEnd();

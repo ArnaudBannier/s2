@@ -12,18 +12,13 @@ import { S2Enum } from '../shared/s2-enum';
 import type { S2Space } from '../math/s2-camera';
 
 export class S2GridData extends S2ElementData {
-    public readonly stroke: S2StrokeData;
-    public readonly opacity: S2Number;
-    public readonly transform: S2Transform;
-    public readonly geometry: S2GridGeometryData;
+    public readonly stroke: S2StrokeData = new S2StrokeData();
+    public readonly opacity: S2Number = new S2Number(1);
+    public readonly transform: S2Transform = new S2Transform();
+    public readonly geometry: S2GridGeometryData = new S2GridGeometryData();
 
     constructor() {
         super();
-        this.stroke = new S2StrokeData();
-        this.opacity = new S2Number(1);
-        this.transform = new S2Transform();
-        this.geometry = new S2GridGeometryData();
-
         this.stroke.opacity.set(1);
     }
 

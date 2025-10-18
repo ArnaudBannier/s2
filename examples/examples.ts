@@ -51,4 +51,10 @@ export const tests: S2Example[] = [
         path: '/s2/examples/test/basic-anim.html',
         description: "Animation d'un S2Path et d'un S2Circle.",
     },
+    {
+        id: 'algebra',
+        title: "Test d'algèbre",
+        path: '/s2/examples/test/algebra.html',
+        description: "Test d'algèbre sur les fonctions.",
+    },
 ];
