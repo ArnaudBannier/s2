@@ -234,6 +234,7 @@ export class S2DataUtils {
             const curve = polyCurve.getCurve(i);
 
             if (!S2Vec2.eqV(prevEnd, curve.getStart())) {
+                currStart.copy(curve.getStart());
                 camera.convertPointV(currStart, space, 'view', point);
                 svgPath += `M ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
             }
@@ -252,7 +253,6 @@ export class S2DataUtils {
             const end = curve.getEnd();
             if (S2Vec2.eqV(currStart, end)) {
                 svgPath += 'Z ';
-                currStart.copy(end);
             }
             prevEnd.copy(end);
         }

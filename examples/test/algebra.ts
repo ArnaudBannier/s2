@@ -35,8 +35,9 @@ class SceneFigure extends S2Scene {
         curvePlot.setParent(this.getSVG());
         curvePlot.data.stroke.color.copy(MTL.CYAN_5);
         curvePlot.data.stroke.width.set(4, 'view');
-        curvePlot.data.step.set(0.1, 'world');
+        curvePlot.data.step.set(0.2, 'world');
         curvePlot.data.derivativeEpsilon.set(1e-6, 'world');
+        curvePlot.data.useSmoothing.set(true);
         curvePlot.data.paramCurve.set((t: number, out: S2Vec2) => {
             out.set(Math.sin(6 * t), Math.sin(5 * t));
         });
