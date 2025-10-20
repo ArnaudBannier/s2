@@ -93,6 +93,33 @@ export class S2Mat2x3 {
         return this.multiplyMatrices(m, this);
     }
 
+    invert(): this {
+        const te = this.elements;
+        const a00 = te[0];
+        const a10 = te[1];
+        const a01 = te[2];
+        const a11 = te[3];
+        const a02 = te[4];
+        const a12 = te[5];
+        const det = a00 * a11 - a01 * a10;
+
+        if (det === 0) {
+            console.warn('S2Mat2x3: .inverse() can not invert matrix, determinant is 0');
+            return this.makeIdentity();
+        }
+
+        const invDet = 1 / det;
+        this.set(
+            a11 * invDet,
+            -a01 * invDet,
+            (a01 * a12 - a11 * a02) * invDet,
+            -a10 * invDet,
+            a00 * invDet,
+            (a10 * a02 - a00 * a12) * invDet,
+        );
+        return this;
+    }
+
     copy(m: S2Mat2x3): this {
         for (let i = 0; i < 6; i++) {
             this.elements[i] = m.elements[i];

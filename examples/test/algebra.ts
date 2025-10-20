@@ -8,7 +8,7 @@ import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2CurvePlot } from '../../src/core/element/plot/s2-curve-plot.ts';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
-import { S2Number } from '../../src/core/shared/s2-number.ts';
+import { S2CoordinateSystem } from '../../src/core/element/plot/s2-coordinate-system.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -19,7 +19,7 @@ class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
 
     protected plot: S2CurvePlot;
-    protected param: S2Number = new S2Number(0);
+    protected coordSystem: S2CoordinateSystem;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement, camera);
@@ -31,8 +31,23 @@ class SceneFigure extends S2Scene {
         const grid = this.addWorldGrid();
         grid.data.stroke.color.copy(MTL.GREY_7);
 
+        this.coordSystem = new S2CoordinateSystem(this);
+        this.coordSystem.setParent(this.getSVG());
+        this.coordSystem.data.extents.set(2.0, 2.0, 'world');
+        this.coordSystem.data.axisX.min.set(-1.0);
+        this.coordSystem.data.axisX.max.set(1.0);
+        this.coordSystem.data.axisX.majorStep.set(0.5);
+        this.coordSystem.data.axisY.min.set(-1.0);
+        this.coordSystem.data.axisY.max.set(1.0);
+        this.coordSystem.data.axisY.majorStep.set(0.3);
+        this.coordSystem.data.position.set(0.0, 0.0, 'world');
+        this.coordSystem.data.anchor.set('west');
+
+        const majorGrid = this.coordSystem.createMajorGrid();
+        majorGrid.data.stroke.color.copy(MTL.RED);
+
         const curvePlot = new S2CurvePlot(this);
-        curvePlot.setParent(this.getSVG());
+        curvePlot.setParent(this.coordSystem);
         curvePlot.data.stroke.color.copy(MTL.CYAN_5);
         curvePlot.data.stroke.width.set(4, 'view');
         curvePlot.data.step.set(0.2, 'world');
@@ -49,15 +64,6 @@ class SceneFigure extends S2Scene {
         this.createAnimation();
     }
 
-    update(): this {
-        this.plot.data.plotModifier.set((v: S2Vec2) => {
-            v.x = v.x * S2MathUtils.lerp(7.0, 1.0, this.param.get());
-            v.y = v.y * S2MathUtils.lerp(4.0, 1.0, this.param.get());
-        });
-        super.update();
-        return this;
-    }
-
     createAnimation(): void {
         this.plot.data.pathTo.set(1.0);
         let anim = S2LerpAnimFactory.create(this, this.plot.data.pathTo).setCycleDuration(10000).setEasing(ease.inOut);
@@ -65,10 +71,12 @@ class SceneFigure extends S2Scene {
         anim.commitFinalState();
         this.animator.addAnimation(anim);
 
-        anim = S2LerpAnimFactory.create(this, this.param).setCycleDuration(10000).setEasing(ease.inOut);
-        this.param.set(1.0);
-        anim.commitFinalState();
-        this.animator.addAnimation(anim, 'previous-start');
+        let posAnim = S2LerpAnimFactory.create(this, this.coordSystem.data.position)
+            .setCycleDuration(5000)
+            .setEasing(ease.inOut);
+        this.coordSystem.data.position.set(-2.0, 0.0, 'world');
+        posAnim.commitFinalState();
+        this.animator.addAnimation(posAnim, 'previous-start');
     }
 }
 
