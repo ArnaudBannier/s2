@@ -7,24 +7,24 @@ import { S2Enum } from '../../shared/s2-enum';
 import { S2Extents } from '../../shared/s2-extents';
 import { S2AnchorUtils, svgNS } from '../../shared/s2-globals';
 import { S2Number } from '../../shared/s2-number';
-import { S2Point } from '../../shared/s2-point';
+import { S2OldPoint } from '../../shared/s2-point';
 import { S2BaseData, S2ElementData, S2StrokeData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
 import { S2Grid } from '../s2-grid';
 import type { S2Line } from '../s2-line';
 import { S2CurvePlot } from './s2-curve-plot';
 import { S2PlotModifier } from './s2-plot-modifier';
-import { S2Length } from '../../shared/s2-length';
+import { S2LengthOld } from '../../shared/s2-length';
 
 export class S2CoordinateSystemData extends S2ElementData {
     public readonly stroke: S2StrokeData = new S2StrokeData();
     public readonly opacity: S2Number = new S2Number(1);
-    public readonly position: S2Point = new S2Point(0, 0, 'world');
+    public readonly position: S2OldPoint = new S2OldPoint(0, 0, 'world');
     public readonly extents: S2Extents = new S2Extents(1, 1, 'world');
     public readonly anchor: S2Enum<S2Anchor> = new S2Enum<S2Anchor>('center');
     public readonly axisX: S2AxisData = new S2AxisData();
     public readonly axisY: S2AxisData = new S2AxisData();
-    public readonly lineEndPadding: S2Length = new S2Length(20, 'view');
+    public readonly lineEndPadding: S2LengthOld = new S2LengthOld(20, 'view');
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
@@ -83,9 +83,9 @@ export class S2CoordinateSystem extends S2Element<S2CoordinateSystemData> {
     protected lineY: S2Line | null = null;
     protected coordToPointMatrix: S2Mat2x3 = new S2Mat2x3();
     protected pointToCoordMatrix: S2Mat2x3 = new S2Mat2x3();
-    protected origin: S2Point = new S2Point(0, 0, 'world');
-    protected lower: S2Point = new S2Point(0, 0, 'world');
-    protected upper: S2Point = new S2Point(0, 0, 'world');
+    protected origin: S2OldPoint = new S2OldPoint(0, 0, 'world');
+    protected lower: S2OldPoint = new S2OldPoint(0, 0, 'world');
+    protected upper: S2OldPoint = new S2OldPoint(0, 0, 'world');
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2CoordinateSystemData());

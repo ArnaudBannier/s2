@@ -3,9 +3,9 @@ import type { S2HasClone, S2HasCopy, S2HasLerp, S2HasLerpWithCamera } from '../s
 import type { S2Color } from '../shared/s2-color';
 import type { S2Offset } from '../shared/s2-offset';
 import type { S2Extents } from '../shared/s2-extents';
-import type { S2Length } from '../shared/s2-length';
+import type { S2LengthOld } from '../shared/s2-length';
 import type { S2Number } from '../shared/s2-number';
-import type { S2Point } from '../shared/s2-point';
+import type { S2OldPoint } from '../shared/s2-point';
 import type { S2AnimProperty } from './s2-base-animation';
 import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 
@@ -13,13 +13,13 @@ import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 export class S2LerpAnimFactory {
     static create(scene: S2BaseScene, property: S2Number): S2LerpAnim;
     static create(scene: S2BaseScene, property: S2Color): S2LerpAnim;
-    static create(scene: S2BaseScene, property: S2Point): S2LerpAnim;
+    static create(scene: S2BaseScene, property: S2OldPoint): S2LerpAnim;
     static create(scene: S2BaseScene, property: S2Offset): S2LerpAnim;
-    static create(scene: S2BaseScene, property: S2Length): S2LerpAnim;
+    static create(scene: S2BaseScene, property: S2LengthOld): S2LerpAnim;
     static create(scene: S2BaseScene, property: S2Extents): S2LerpAnim;
     static create(
         scene: S2BaseScene,
-        property: S2Number | S2Color | S2Point | S2Offset | S2Length | S2Extents,
+        property: S2Number | S2Color | S2OldPoint | S2Offset | S2LengthOld | S2Extents,
     ): S2LerpAnim {
         switch (property.kind) {
             case 'number':
@@ -27,11 +27,11 @@ export class S2LerpAnimFactory {
             case 'color':
                 return new S2BaseLerpAnim<S2Color>(scene, property as S2Color);
             case 'position':
-                return new S2BaseLerpAnimWithCamera<S2Point>(scene, property as S2Point);
+                return new S2BaseLerpAnimWithCamera<S2OldPoint>(scene, property as S2OldPoint);
             case 'direction':
                 return new S2BaseLerpAnimWithCamera<S2Offset>(scene, property as S2Offset);
             case 'length':
-                return new S2BaseLerpAnimWithCamera<S2Length>(scene, property as S2Length);
+                return new S2BaseLerpAnimWithCamera<S2LengthOld>(scene, property as S2LengthOld);
             case 'extents':
                 return new S2BaseLerpAnimWithCamera<S2Extents>(scene, property as S2Extents);
             default:
@@ -107,7 +107,7 @@ export class S2BaseLerpAnimWithCamera<
 
 export class S2LerpAnimNumber extends S2BaseLerpAnim<S2Number> {}
 export class S2LerpAnimColor extends S2BaseLerpAnim<S2Color> {}
-export class S2LerpAnimPosition extends S2BaseLerpAnimWithCamera<S2Point> {}
+export class S2LerpAnimPosition extends S2BaseLerpAnimWithCamera<S2OldPoint> {}
 export class S2LerpAnimDirection extends S2BaseLerpAnimWithCamera<S2Offset> {}
-export class S2LerpAnimLength extends S2BaseLerpAnimWithCamera<S2Length> {}
+export class S2LerpAnimLength extends S2BaseLerpAnimWithCamera<S2LengthOld> {}
 export class S2LerpAnimExtents extends S2BaseLerpAnimWithCamera<S2Extents> {}

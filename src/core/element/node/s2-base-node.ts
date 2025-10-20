@@ -1,7 +1,7 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Space } from '../../math/s2-camera';
 import type { S2EdgeEndpoint } from './s2-edge-endpoint';
-import type { S2Length } from '../../shared/s2-length';
+import type { S2LengthOld } from '../../shared/s2-length';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2AnchorUtils, svgNS } from '../../shared/s2-globals';
 import { S2Rect } from '../s2-rect';
@@ -73,7 +73,7 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         );
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2LengthOld): S2Vec2 {
         if (this.background) {
             return this.background.getPointInDirection(direction, space, distance);
         }

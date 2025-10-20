@@ -11,9 +11,9 @@ import { S2FillData, S2BaseData, S2StrokeData, S2FontData } from './s2-base-data
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2Enum } from '../../shared/s2-enum.ts';
 import { S2Color } from '../../shared/s2-color.ts';
-import { S2Length } from '../../shared/s2-length.ts';
+import { S2LengthOld } from '../../shared/s2-length.ts';
 import { S2Number } from '../../shared/s2-number.ts';
-import { S2Point } from '../../shared/s2-point.ts';
+import { S2OldPoint } from '../../shared/s2-point.ts';
 import { S2Extents } from '../../shared/s2-extents.ts';
 
 export class S2DataSetterUtils {
@@ -71,19 +71,19 @@ export class S2DataSetterUtils {
     }
 
     static setCornerRadius(data: S2BaseData, radius: number, space?: S2Space): void {
-        if ('cornerRadius' in data && data.cornerRadius instanceof S2Length) {
+        if ('cornerRadius' in data && data.cornerRadius instanceof S2LengthOld) {
             data.cornerRadius.set(radius, space);
         }
     }
 
     static setEdgeStartDistance(data: S2BaseData, distance: number, space: S2Space = 'view'): void {
-        if ('startDistance' in data && data.startDistance instanceof S2Length) {
+        if ('startDistance' in data && data.startDistance instanceof S2LengthOld) {
             data.startDistance.set(distance, space);
         }
     }
 
     static setEdgeEndDistance(data: S2BaseData, distance: number, space: S2Space = 'view'): void {
-        if ('endDistance' in data && data.endDistance instanceof S2Length) {
+        if ('endDistance' in data && data.endDistance instanceof S2LengthOld) {
             data.endDistance.set(distance, space);
         }
     }
@@ -128,13 +128,13 @@ export class S2DataSetterUtils {
     }
 
     static setEndPosition(data: S2BaseData, x: number, y: number, space?: S2Space): void {
-        if ('endPosition' in data && data.endPosition instanceof S2Point) {
+        if ('endPosition' in data && data.endPosition instanceof S2OldPoint) {
             data.endPosition.set(x, y, space);
         }
     }
 
     static setEndPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
-        if ('endPosition' in data && data.endPosition instanceof S2Point) {
+        if ('endPosition' in data && data.endPosition instanceof S2OldPoint) {
             data.endPosition.setV(v, space);
         }
     }
@@ -278,31 +278,31 @@ export class S2DataSetterUtils {
     }
 
     static setPosition(data: S2BaseData, x: number, y: number, space?: S2Space): void {
-        if ('position' in data && data.position instanceof S2Point) {
+        if ('position' in data && data.position instanceof S2OldPoint) {
             data.position.set(x, y, space);
         }
     }
 
     static setPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
-        if ('position' in data && data.position instanceof S2Point) {
+        if ('position' in data && data.position instanceof S2OldPoint) {
             data.position.setV(v, space);
         }
     }
 
     static setStartPosition(data: S2BaseData, x: number, y: number, space?: S2Space): void {
-        if ('startPosition' in data && data.startPosition instanceof S2Point) {
+        if ('startPosition' in data && data.startPosition instanceof S2OldPoint) {
             data.startPosition.set(x, y, space);
         }
     }
 
     static setStartPositionV(data: S2BaseData, v: S2Vec2, space?: S2Space): void {
-        if ('startPosition' in data && data.startPosition instanceof S2Point) {
+        if ('startPosition' in data && data.startPosition instanceof S2OldPoint) {
             data.startPosition.setV(v, space);
         }
     }
 
     static setRadius(data: S2BaseData, radius: number, space?: S2Space): void {
-        if ('radius' in data && data.radius instanceof S2Length) {
+        if ('radius' in data && data.radius instanceof S2LengthOld) {
             data.radius.set(radius, space);
         }
     }
@@ -356,19 +356,19 @@ export class S2DataSetterUtils {
     }
 
     static setGridBoundA(data: S2BaseData, x: number, y: number, space?: S2Space): void {
-        if ('boundA' in data && data.boundA instanceof S2Point) {
+        if ('boundA' in data && data.boundA instanceof S2OldPoint) {
             data.boundA.set(x, y, space);
         }
     }
 
     static setGridBoundB(data: S2BaseData, x: number, y: number, space?: S2Space): void {
-        if ('boundB' in data && data.boundB instanceof S2Point) {
+        if ('boundB' in data && data.boundB instanceof S2OldPoint) {
             data.boundB.set(x, y, space);
         }
     }
 
     static setGridReferencePoint(data: S2BaseData, x: number, y: number, space?: S2Space): void {
-        if ('referencePoint' in data && data.referencePoint instanceof S2Point) {
+        if ('referencePoint' in data && data.referencePoint instanceof S2OldPoint) {
             data.referencePoint.set(x, y, space);
         }
     }

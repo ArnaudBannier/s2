@@ -1,7 +1,7 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Space } from '../../math/s2-camera';
 import type { S2Dirtyable, S2Tipable } from '../../shared/s2-globals';
-import type { S2Point } from '../../shared/s2-point';
+import type { S2OldPoint } from '../../shared/s2-point';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2Node } from './s2-node';
 import { S2Path } from '../s2-path';
@@ -11,7 +11,7 @@ import { S2TipTransform, svgNS } from '../../shared/s2-globals';
 import { S2ArrowTip } from '../s2-arrow-tip';
 import { S2EdgeEndpoint } from './s2-edge-endpoint';
 import { S2Number } from '../../shared/s2-number';
-import { S2Length } from '../../shared/s2-length';
+import { S2LengthOld } from '../../shared/s2-length';
 
 // S2NodeArcManhattan
 
@@ -23,8 +23,8 @@ export class S2EdgeData extends S2ElementData {
     public readonly pathFrom: S2Number;
     public readonly pathTo: S2Number;
 
-    public readonly startDistance: S2Length;
-    public readonly endDistance: S2Length;
+    public readonly startDistance: S2LengthOld;
+    public readonly endDistance: S2LengthOld;
     public readonly startAngle: S2Number;
     public readonly endAngle: S2Number;
     public readonly start: S2EdgeEndpoint;
@@ -36,8 +36,8 @@ export class S2EdgeData extends S2ElementData {
         this.opacity = new S2Number(1);
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
-        this.startDistance = new S2Length(-Infinity, 'view');
-        this.endDistance = new S2Length(-Infinity, 'view');
+        this.startDistance = new S2LengthOld(-Infinity, 'view');
+        this.endDistance = new S2LengthOld(-Infinity, 'view');
         this.startAngle = new S2Number(-Infinity);
         this.endAngle = new S2Number(-Infinity);
         this.start = new S2EdgeEndpoint();
@@ -125,7 +125,7 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         return this.element;
     }
 
-    protected getPointCenter(nodeOrPos: S2Node | S2Point, space: S2Space) {
+    protected getPointCenter(nodeOrPos: S2Node | S2OldPoint, space: S2Space) {
         if (nodeOrPos instanceof S2Node) {
             return nodeOrPos.getCenter(space);
         } else {
@@ -133,7 +133,12 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         }
     }
 
-    protected getPoint(nodeOrPos: S2Node | S2Point, space: S2Space, distance: S2Length, direction: S2Vec2): S2Vec2 {
+    protected getPoint(
+        nodeOrPos: S2Node | S2OldPoint,
+        space: S2Space,
+        distance: S2LengthOld,
+        direction: S2Vec2,
+    ): S2Vec2 {
         if (nodeOrPos instanceof S2Node) {
             if (distance.value !== -Infinity) {
                 return nodeOrPos.getPointInDirection(direction, space, distance);

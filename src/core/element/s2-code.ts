@@ -13,11 +13,11 @@ import { S2Rect } from './s2-rect';
 import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-math-utils';
-import { S2Point } from '../shared/s2-point';
+import { S2OldPoint } from '../shared/s2-point';
 import { S2Enum } from '../shared/s2-enum';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Number } from '../shared/s2-number';
-import { S2Length } from '../shared/s2-length';
+import { S2LengthOld } from '../shared/s2-length';
 import { S2LerpAnimFactory } from '../animation/s2-lerp-anim';
 import { ease } from '../animation/s2-easing';
 import { S2TextHighlight } from './text/s2-text-highlight';
@@ -56,7 +56,7 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
 }
 
 export class S2CodeData extends S2ElementData {
-    public readonly position: S2Point;
+    public readonly position: S2OldPoint;
     public readonly opacity: S2Number;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly padding: S2Extents;
@@ -67,7 +67,7 @@ export class S2CodeData extends S2ElementData {
 
     constructor() {
         super();
-        this.position = new S2Point(0, 0, 'world');
+        this.position = new S2OldPoint(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.padding = new S2Extents(10, 5, 'view');
         this.minExtents = new S2Extents(0, 0, 'view');
@@ -143,14 +143,14 @@ export class S2CodeBackgroundData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly cornerRadius: S2Length;
+    public readonly cornerRadius: S2LengthOld;
 
     constructor() {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
-        this.cornerRadius = new S2Length(5, 'view');
+        this.cornerRadius = new S2LengthOld(5, 'view');
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);

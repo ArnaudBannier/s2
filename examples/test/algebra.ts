@@ -9,6 +9,7 @@ import { S2CurvePlot } from '../../src/core/element/plot/s2-curve-plot.ts';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2CoordinateSystem } from '../../src/core/element/plot/s2-coordinate-system.ts';
+import { S2AbstractSpace } from '../../src/core/math/s2-abstract-space.ts';
 
 const viewportScale = 1.5;
 const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
@@ -30,6 +31,24 @@ class SceneFigure extends S2Scene {
 
         const grid = this.addWorldGrid();
         grid.data.stroke.color.copy(MTL.GREY_7);
+
+        camera.scene = this;
+        camera.markDirty();
+        camera.update();
+
+        console.log(this.getViewSpace());
+
+        const world = this.getWorldSpace();
+        const view = this.getViewSpace();
+        const newSpace = new S2AbstractSpace(this.getWorldSpace());
+        newSpace.setFromSpace(this.getWorldSpace(), new S2Vec2(-3, -3), new S2Vec2(-2, 0), new S2Vec2(0, 2));
+
+        const circle = this.addCircle();
+        circle.data.position.set(1, 0.5, newSpace);
+        circle.data.radius.set(10, view);
+        circle.data.fill.color.copy(MTL.YELLOW_5);
+        circle.data.stroke.color.copy(MTL.RED);
+        circle.data.stroke.width.set(2, 'view');
 
         this.coordSystem = new S2CoordinateSystem(this);
         this.coordSystem.setParent(this.getSVG());

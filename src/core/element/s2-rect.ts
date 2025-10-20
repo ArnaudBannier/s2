@@ -9,10 +9,10 @@ import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Point } from '../shared/s2-point';
+import { S2OldPoint } from '../shared/s2-point';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Enum } from '../shared/s2-enum';
-import { S2Length } from '../shared/s2-length';
+import { S2LengthOld } from '../shared/s2-length';
 
 export class S2RectData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -20,10 +20,10 @@ export class S2RectData extends S2ElementData {
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
 
-    public readonly position: S2Point;
+    public readonly position: S2OldPoint;
     public readonly extents: S2Extents;
     public readonly anchor: S2Enum<S2Anchor>;
-    public readonly cornerRadius: S2Length;
+    public readonly cornerRadius: S2LengthOld;
 
     constructor() {
         super();
@@ -31,10 +31,10 @@ export class S2RectData extends S2ElementData {
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
-        this.position = new S2Point(0, 0, 'world');
+        this.position = new S2OldPoint(0, 0, 'world');
         this.extents = new S2Extents(1, 1, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
-        this.cornerRadius = new S2Length(0, 'view');
+        this.cornerRadius = new S2LengthOld(0, 'view');
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -85,7 +85,7 @@ export class S2Rect extends S2Element<S2RectData> {
         return this.element;
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2LengthOld): S2Vec2 {
         const camera = this.scene.getActiveCamera();
         const d = distance.get(space, camera);
         const extents = this.data.extents.get(space, camera).add(d, d).max(0, 0);

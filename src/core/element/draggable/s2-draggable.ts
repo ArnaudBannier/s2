@@ -4,7 +4,7 @@ import type { S2Space } from '../../math/s2-camera';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2ElementData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
-import { S2Point } from '../../shared/s2-point';
+import { S2OldPoint } from '../../shared/s2-point';
 import { S2Offset } from '../../shared/s2-offset';
 import { S2AnimationManager } from '../../animation/s2-animation-manager';
 import { S2Boolean } from '../../shared/s2-boolean';
@@ -15,11 +15,11 @@ export type S2BaseDraggable = S2Draggable<S2DraggableData>;
 export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEvent) => void;
 
 export class S2DraggableData extends S2ElementData {
-    public readonly position: S2Point = new S2Point(0, 0, 'world');
+    public readonly position: S2OldPoint = new S2OldPoint(0, 0, 'world');
     public readonly xEnabled: S2Boolean = new S2Boolean(true);
     public readonly yEnabled: S2Boolean = new S2Boolean(true);
-    public readonly containerBoundA: S2Point = new S2Point(-Infinity, -Infinity, 'world');
-    public readonly containerBoundB: S2Point = new S2Point(+Infinity, +Infinity, 'world');
+    public readonly containerBoundA: S2OldPoint = new S2OldPoint(-Infinity, -Infinity, 'world');
+    public readonly containerBoundB: S2OldPoint = new S2OldPoint(+Infinity, +Infinity, 'world');
     public readonly space: S2Enum<S2Space> = new S2Enum<S2Space>('world');
 
     constructor() {
@@ -62,7 +62,7 @@ export class S2DraggableData extends S2ElementData {
 
 export abstract class S2Draggable<Data extends S2DraggableData> extends S2Element<Data> {
     protected readonly grabDelta: S2Offset = new S2Offset(0, 0, 'view');
-    protected readonly pointerPosition: S2Point = new S2Point(0, 0, 'view');
+    protected readonly pointerPosition: S2OldPoint = new S2OldPoint(0, 0, 'view');
     protected readonly pointerDelta: S2Offset = new S2Offset(0, 0, 'view');
     protected readonly delta: S2Offset = new S2Offset(0, 0, 'view');
     protected pointerId: number | null = null;

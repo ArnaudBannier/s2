@@ -8,20 +8,20 @@ import { S2Element } from '../base/s2-element';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TextData } from './s2-text-data';
-import { S2Length } from '../../shared/s2-length';
+import { S2LengthOld } from '../../shared/s2-length';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
-import { S2Point } from '../../shared/s2-point';
+import { S2OldPoint } from '../../shared/s2-point';
 import { S2Extents } from '../../shared/s2-extents';
 
 export class S2TextLineData extends S2TextData {
-    public readonly skip: S2Length;
+    public readonly skip: S2LengthOld;
     public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
 
     constructor() {
         super();
-        this.skip = new S2Length(0, 'view');
+        this.skip = new S2LengthOld(0, 'view');
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left');
     }
 
@@ -49,10 +49,10 @@ export class S2TextGroupData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
-    public readonly position: S2Point;
+    public readonly position: S2OldPoint;
 
     public readonly font: S2FontData;
-    public readonly skip: S2Length;
+    public readonly skip: S2LengthOld;
     public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
     public readonly verticalAlign: S2Enum<S2VerticalAlign>;
     public readonly minExtents: S2Extents;
@@ -64,9 +64,9 @@ export class S2TextGroupData extends S2ElementData {
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
-        this.position = new S2Point(0, 0, 'world');
+        this.position = new S2OldPoint(0, 0, 'world');
         this.font = new S2FontData();
-        this.skip = new S2Length(0, 'view');
+        this.skip = new S2LengthOld(0, 'view');
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left');
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
         this.minExtents = new S2Extents(0, 0, 'view');

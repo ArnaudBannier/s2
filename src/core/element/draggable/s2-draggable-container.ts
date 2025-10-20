@@ -1,6 +1,6 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
-import type { S2Point } from '../../shared/s2-point';
+import type { S2OldPoint } from '../../shared/s2-point';
 import type { S2BaseData } from '../base/s2-base-data';
 
 export type S2BaseDraggableContainer = S2DraggableContainer<S2BaseData>;
@@ -41,5 +41,5 @@ export abstract class S2DraggableContainer<Data extends S2BaseData> implements S
         this.data.clearDirty();
     }
 
-    abstract updatePosition(position: S2Point): void;
+    abstract updatePosition(position: S2OldPoint): void;
 }

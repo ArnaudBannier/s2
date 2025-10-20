@@ -8,7 +8,7 @@ import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim';
 import { S2Line } from '../core/element/s2-line';
 import { S2PlainText } from '../core/element/text/s2-plain-text';
 import { S2Vec2 } from '../core/math/s2-vec2';
-import { S2Point } from '../core/shared/s2-point';
+import { S2OldPoint } from '../core/shared/s2-point';
 import { S2MotionPathDirection } from '../core/animation/s2-motion-path';
 import { S2Rect } from '../core/element/s2-rect';
 import { S2TriggerColor } from '../core/animation/s2-timeline-trigger';
@@ -23,10 +23,10 @@ export class S2MemoryRow {
     public highlight: S2Rect;
     public hLine: S2Line;
     public isStacked: boolean;
-    public lowerBound: S2Point;
-    public upperBound: S2Point;
-    protected basePosName: S2Point;
-    protected basePosValue: S2Point;
+    public lowerBound: S2OldPoint;
+    public upperBound: S2OldPoint;
+    protected basePosName: S2OldPoint;
+    protected basePosValue: S2OldPoint;
     protected available: boolean;
 
     constructor(parent: S2Memory, index: number) {
@@ -38,10 +38,10 @@ export class S2MemoryRow {
         this.names = [];
         this.address = new S2PlainText(scene);
         this.hLine = new S2Line(scene);
-        this.lowerBound = new S2Point();
-        this.upperBound = new S2Point();
-        this.basePosName = new S2Point();
-        this.basePosValue = new S2Point();
+        this.lowerBound = new S2OldPoint();
+        this.upperBound = new S2OldPoint();
+        this.basePosName = new S2OldPoint();
+        this.basePosValue = new S2OldPoint();
         this.highlight = new S2Rect(scene);
 
         this.hLine.setParent(parent);

@@ -1,10 +1,13 @@
 import type { S2Camera, S2Space } from '../math/s2-camera';
 import type { S2Vec2 } from '../math/s2-vec2';
-import type { S2Point } from '../shared/s2-point';
+import type { S2OldPoint } from '../shared/s2-point';
 import { S2SVG } from '../element/s2-svg';
+import { S2AbstractSpace } from '../math/s2-abstract-space';
 
 export abstract class S2BaseScene {
     public readonly svg: S2SVG;
+    private readonly worldSpace: S2AbstractSpace = new S2AbstractSpace();
+    private readonly viewSpace: S2AbstractSpace = new S2AbstractSpace();
     protected activeCamera: S2Camera;
     private nextElementId: number;
     private nextUpdateId: number;
@@ -31,6 +34,14 @@ export abstract class S2BaseScene {
         return this.activeCamera;
     }
 
+    getWorldSpace(): S2AbstractSpace {
+        return this.worldSpace;
+    }
+
+    getViewSpace(): S2AbstractSpace {
+        return this.viewSpace;
+    }
+
     getSVG(): S2SVG {
         return this.svg;
     }
@@ -46,7 +57,7 @@ export abstract class S2BaseScene {
         return this.svg.convertDOMPoint(x, y, space);
     }
 
-    convertDOMPointInto(x: number, y: number, out: S2Point): void {
+    convertDOMPointInto(x: number, y: number, out: S2OldPoint): void {
         this.svg.convertDOMPointInto(x, y, out);
     }
 }

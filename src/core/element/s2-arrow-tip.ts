@@ -5,7 +5,7 @@ import { ease } from '../animation/s2-easing';
 import { S2Mat2x3Builder } from '../math/s2-mat2x3-builder';
 import { S2Extents } from '../shared/s2-extents';
 import { S2TipTransform, svgNS } from '../shared/s2-globals';
-import { S2Length } from '../shared/s2-length';
+import { S2LengthOld } from '../shared/s2-length';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
@@ -18,7 +18,7 @@ export class S2ArrowTipData extends S2ElementData {
     public readonly opacity: S2Number;
     public readonly extents: S2Extents;
     public readonly pathPosition: S2Number;
-    public readonly pathThreshold: S2Length;
+    public readonly pathThreshold: S2LengthOld;
     public readonly pathStrokeFactor: S2Number;
 
     constructor() {
@@ -27,7 +27,7 @@ export class S2ArrowTipData extends S2ElementData {
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
         this.pathPosition = new S2Number(1);
-        this.pathThreshold = new S2Length(30, 'view');
+        this.pathThreshold = new S2LengthOld(30, 'view');
         this.extents = new S2Extents(5, 5, 'view');
         this.pathStrokeFactor = new S2Number(1);
 

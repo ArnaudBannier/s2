@@ -5,17 +5,17 @@ import { S2Vec2 } from '../../math/s2-vec2';
 import { svgNS } from '../../shared/s2-globals';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2Number } from '../../shared/s2-number';
-import { S2Length } from '../../shared/s2-length';
+import { S2LengthOld } from '../../shared/s2-length';
 import { S2Draggable, S2DraggableData } from './s2-draggable';
 
 export type S2HandleEventListener = (handle: S2DraggableCircle, event: PointerEvent) => void;
 
 export class S2DraggableCircleData extends S2DraggableData {
-    public readonly radius: S2Length;
+    public readonly radius: S2LengthOld;
 
     constructor() {
         super();
-        this.radius = new S2Length(1, 'world');
+        this.radius = new S2LengthOld(1, 'world');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -58,8 +58,8 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
 
         S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyOpacity(this.opacity, this.element, this.scene);
-        S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');
-        S2DataUtils.applyRadius(this.data.radius, this.element, this.scene);
+        S2DataUtils.applyPositionOld(this.data.position, this.element, this.scene, 'cx', 'cy');
+        S2DataUtils.applyRadiusOld(this.data.radius, this.element, this.scene);
 
         this.clearDirty();
     }

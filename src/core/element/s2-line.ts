@@ -6,19 +6,19 @@ import { S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Point } from '../shared/s2-point';
+import { S2OldPoint } from '../shared/s2-point';
 import { S2ArrowTip } from './s2-arrow-tip';
 import { S2Vec2 } from '../math/s2-vec2';
-import { S2Length } from '../shared/s2-length';
+import { S2LengthOld } from '../shared/s2-length';
 
 export class S2LineData extends S2ElementData {
     public readonly stroke: S2StrokeData = new S2StrokeData();
     public readonly opacity: S2Number = new S2Number(1);
     public readonly transform: S2Transform = new S2Transform();
-    public readonly startPosition: S2Point = new S2Point();
-    public readonly endPosition: S2Point = new S2Point();
-    public readonly startPadding: S2Length = new S2Length(0);
-    public readonly endPadding: S2Length = new S2Length(0);
+    public readonly startPosition: S2OldPoint = new S2OldPoint();
+    public readonly endPosition: S2OldPoint = new S2OldPoint();
+    public readonly startPadding: S2LengthOld = new S2LengthOld(0);
+    public readonly endPadding: S2LengthOld = new S2LengthOld(0);
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
@@ -46,8 +46,8 @@ export class S2LineData extends S2ElementData {
 export class S2Line extends S2Element<S2LineData> implements S2Tipable {
     protected element: SVGLineElement;
     protected arrowTips: S2ArrowTip[] = [];
-    protected position0: S2Point = new S2Point();
-    protected position1: S2Point = new S2Point();
+    protected position0: S2OldPoint = new S2OldPoint();
+    protected position1: S2OldPoint = new S2OldPoint();
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2LineData());
@@ -148,8 +148,8 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
                 this.position1.setV(pos1, space);
             }
 
-            S2DataUtils.applyPosition(this.position0, this.element, this.scene, 'x1', 'y1');
-            S2DataUtils.applyPosition(this.position1, this.element, this.scene, 'x2', 'y2');
+            S2DataUtils.applyPositionOld(this.position0, this.element, this.scene, 'x1', 'y1');
+            S2DataUtils.applyPositionOld(this.position1, this.element, this.scene, 'x2', 'y2');
             this.position0.clearDirty();
             this.position1.clearDirty();
         }

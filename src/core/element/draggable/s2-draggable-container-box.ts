@@ -2,13 +2,13 @@ import type { S2Space } from '../../math/s2-camera';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
 import { S2Enum } from '../../shared/s2-enum';
-import { S2Point } from '../../shared/s2-point';
+import { S2OldPoint } from '../../shared/s2-point';
 import { S2BaseData } from '../base/s2-base-data';
 import { S2DraggableContainer } from './s2-draggable-container';
 
 export class S2DraggableContainerBoxData extends S2BaseData {
-    public readonly boundA: S2Point = new S2Point(-Infinity, -Infinity, 'world');
-    public readonly boundB: S2Point = new S2Point(+Infinity, +Infinity, 'world');
+    public readonly boundA: S2OldPoint = new S2OldPoint(-Infinity, -Infinity, 'world');
+    public readonly boundB: S2OldPoint = new S2OldPoint(+Infinity, +Infinity, 'world');
     public readonly space: S2Enum<S2Space> = new S2Enum<S2Space>('world');
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -29,7 +29,7 @@ export class S2DraggableContainerBox extends S2DraggableContainer<S2DraggableCon
         super(scene, new S2DraggableContainerBoxData());
     }
 
-    updatePosition(position: S2Point): void {
+    updatePosition(position: S2OldPoint): void {
         const space = this.data.space.get();
         const camera = this.scene.getActiveCamera();
         const currPosition = position.get(space, camera);

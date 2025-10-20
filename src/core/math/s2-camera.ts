@@ -1,3 +1,4 @@
+import type { S2BaseScene } from '../scene/s2-base-scene.ts';
 import type { S2Dirtyable } from '../shared/s2-globals.ts';
 import { S2Mat2x3 } from './s2-mat2x3.ts';
 import { S2Vec2 } from './s2-vec2.ts';
@@ -5,6 +6,7 @@ import { S2Vec2 } from './s2-vec2.ts';
 export type S2Space = 'world' | 'view';
 
 export class S2Camera implements S2Dirtyable {
+    public scene: S2BaseScene | null = null;
     protected position: S2Vec2;
     protected extents: S2Vec2;
     protected scaleFactor: number = 1.0;
@@ -153,6 +155,10 @@ export class S2Camera implements S2Dirtyable {
             +isy * cos,
             +cx * sin * isx - cy * cos * isy + py,
         );
+
+        if (this.scene) {
+            this.scene.getViewSpace().setLocalTransform(this.viewToWorldMat);
+        }
 
         this.clearDirty();
     }

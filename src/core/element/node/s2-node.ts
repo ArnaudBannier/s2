@@ -10,34 +10,34 @@ import { S2Line } from '../s2-line';
 import { S2Element } from '../base/s2-element';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2Extents } from '../../shared/s2-extents';
-import { S2Length } from '../../shared/s2-length';
+import { S2LengthOld } from '../../shared/s2-length';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
-import { S2Point } from '../../shared/s2-point';
+import { S2OldPoint } from '../../shared/s2-point';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
 import { S2MathUtils } from '../../math/s2-math-utils';
 
 export class S2RichNodeData extends S2ElementData {
-    public readonly position: S2Point;
+    public readonly position: S2OldPoint;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly background: S2RichNodeBackgroundData;
     public readonly text: S2RichNodeTextData;
     public readonly separator: S2RichNodeSeparatorData;
     public readonly padding: S2Extents;
-    public readonly partSep: S2Length;
+    public readonly partSep: S2LengthOld;
     public readonly minExtents: S2Extents;
 
     constructor() {
         super();
-        this.position = new S2Point(0, 0, 'world');
+        this.position = new S2OldPoint(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.minExtents = new S2Extents(0, 0, 'view');
         this.background = new S2RichNodeBackgroundData();
         this.separator = new S2RichNodeSeparatorData();
         this.text = new S2RichNodeTextData();
         this.padding = new S2Extents(10, 5, 'view');
-        this.partSep = new S2Length(5, 'view');
+        this.partSep = new S2LengthOld(5, 'view');
     }
 }
 
@@ -46,7 +46,7 @@ export class S2RichNodeBackgroundData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
-    public readonly cornerRadius: S2Length;
+    public readonly cornerRadius: S2LengthOld;
 
     constructor() {
         super();
@@ -54,7 +54,7 @@ export class S2RichNodeBackgroundData extends S2ElementData {
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
-        this.cornerRadius = new S2Length(5, 'view');
+        this.cornerRadius = new S2LengthOld(5, 'view');
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -204,7 +204,7 @@ export class S2Node extends S2Element<S2RichNodeData> {
         return this.textGroups.length;
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2LengthOld): S2Vec2 {
         if (this.background) {
             return this.background.getPointInDirection(direction, space, distance);
         }

@@ -1,17 +1,15 @@
-import type { S2HasClone, S2HasCopy, S2HasLerpWithCamera } from './s2-base-type';
+import type { S2HasClone, S2HasCopy, S2HasLerp, S2HasLerpWithCamera } from './s2-base-type';
 import type { S2Camera, S2Space } from '../math/s2-camera';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
 
-export class S2Point
-    extends S2BaseType
-    implements S2HasClone<S2Point>, S2HasCopy<S2Point>, S2HasLerpWithCamera<S2Point>
-{
+export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCopy<S2Point>, S2HasLerp<S2Point> {
     readonly kind = 'position' as const;
     public value: S2Vec2;
-    public space: S2Space;
+    public space: S2AbstractSpace;
 
-    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', locked: boolean = false) {
+    constructor(x: number = 0, y: number = 0, space: S2AbstractSpace, locked: boolean = false) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
@@ -35,7 +33,92 @@ export class S2Point
         return this;
     }
 
-    lerp(state0: S2Point, state1: S2Point, t: number, camera: S2Camera): this {
+    lerp(state0: S2Point, state1: S2Point, t: number): this {
+        const space = state1.space;
+        const value0 = state0.get(space);
+        const value1 = state1.get(space);
+        this.setV(S2Vec2.lerpV(value0, value1, t), space);
+        return this;
+    }
+
+    static lerp(state0: S2Point, state1: S2Point, t: number): S2Point {
+        return new S2Point(0, 0, state1.space).lerp(state0, state1, t);
+    }
+
+    set(x: number = 0, y: number = 0, space?: S2AbstractSpace): this {
+        if (this.value.x === x && this.value.y === y && this.space === space) return this;
+        this.value.set(x, y);
+        if (space) this.space = space;
+        this.markDirty();
+        return this;
+    }
+
+    setV(point: S2Vec2, space?: S2AbstractSpace): this {
+        if (S2Vec2.eqV(this.value, point) && this.space === space) return this;
+        this.value.copy(point);
+        if (space) this.space = space;
+        this.markDirty();
+        return this;
+    }
+
+    setValueFromSpace(x: number, y: number, space: S2AbstractSpace): this {
+        if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
+        space.convertPointTo(x, y, this.space, this.value);
+        this.markDirty();
+        return this;
+    }
+
+    setValueFromSpaceV(point: S2Vec2, space: S2AbstractSpace): this {
+        return this.setValueFromSpace(point.x, point.y, space);
+    }
+
+    get(space: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
+        return this.space.convertPointToV(this.value, space, out);
+    }
+
+    changeSpace(space: S2AbstractSpace): this {
+        if (this.space === space) return this;
+        this.space.convertPointToV(this.value, space, this.value);
+        this.space = space;
+        // No markDirty() because the point value did not change
+        return this;
+    }
+}
+
+export class S2OldPoint
+    extends S2BaseType
+    implements S2HasClone<S2OldPoint>, S2HasCopy<S2OldPoint>, S2HasLerpWithCamera<S2OldPoint>
+{
+    readonly kind = 'position' as const;
+    public value: S2Vec2;
+    public space: S2Space;
+    //public newSpace: S2AbstractSpace;
+
+    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', locked: boolean = false) {
+        super();
+        this.value = new S2Vec2(x, y);
+        this.space = space;
+        this.locked = locked;
+    }
+
+    clone(): S2OldPoint {
+        return new S2OldPoint(this.value.x, this.value.y, this.space, this.locked);
+    }
+
+    copyIfUnlocked(other: S2OldPoint): this {
+        if (this.locked) return this;
+        return this.copy(other);
+    }
+
+    copy(other: S2OldPoint): this {
+        if (S2Vec2.eqV(this.value, other.value) && this.space === other.space) return this;
+        this.value.copy(other.value);
+        this.space = other.space;
+        this.markDirty();
+        return this;
+    }
+
+    lerp(state0: S2OldPoint, state1: S2OldPoint, t: number, camera: S2Camera): this {
         const space = state1.space;
         const value0 = state0.get(space, camera);
         const value1 = state1.get(space, camera);
@@ -43,8 +126,8 @@ export class S2Point
         return this;
     }
 
-    static lerp(state0: S2Point, state1: S2Point, t: number, camera: S2Camera): S2Point {
-        return new S2Point().lerp(state0, state1, t, camera);
+    static lerp(state0: S2OldPoint, state1: S2OldPoint, t: number, camera: S2Camera): S2OldPoint {
+        return new S2OldPoint().lerp(state0, state1, t, camera);
     }
 
     set(x: number = 0, y: number = 0, space?: S2Space): this {

@@ -8,8 +8,9 @@ import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Point } from '../shared/s2-point';
-import { S2Length } from '../shared/s2-length';
+import { S2OldPoint, S2Point } from '../shared/s2-point';
+import { S2Length, S2LengthOld } from '../shared/s2-length';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
 
 export class S2CircleData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -19,14 +20,14 @@ export class S2CircleData extends S2ElementData {
     public readonly position: S2Point;
     public readonly radius: S2Length;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
-        this.position = new S2Point(0, 0, 'world');
-        this.radius = new S2Length(1, 'world');
+        this.position = new S2Point(0, 0, scene.getWorldSpace());
+        this.radius = new S2Length(1, scene.getWorldSpace());
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -57,28 +58,27 @@ export class S2Circle extends S2Element<S2CircleData> {
     protected element: SVGCircleElement;
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2CircleData());
+        super(scene, new S2CircleData(scene));
         this.element = document.createElementNS(svgNS, 'circle');
     }
 
-    getRadius(space: S2Space): number {
-        return this.data.radius.get(space, this.scene.getActiveCamera());
+    getRadius(space: S2AbstractSpace): number {
+        return this.data.radius.get(space);
     }
 
-    getCenter(space: S2Space): S2Vec2 {
-        return this.data.position.get(space, this.scene.getActiveCamera());
+    getCenter(space: S2AbstractSpace): S2Vec2 {
+        return this.data.position.get(space);
     }
 
     getSVGElement(): SVGElement {
         return this.element;
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
-        const camera = this.scene.getActiveCamera();
-        const d = distance.get(space, camera);
-        const radius = Math.max(this.data.radius.get(space, camera) + d, 0);
+    getPointInDirection(direction: S2Vec2, space: S2AbstractSpace, distance: S2Length): S2Vec2 {
+        const d = distance.get(space);
+        const radius = Math.max(this.data.radius.get(space) + d, 0);
         const point = direction.clone().normalize().scale(radius);
-        return point.addV(this.data.position.get(space, camera));
+        return point.addV(this.data.position.get(space));
     }
 
     update(): void {

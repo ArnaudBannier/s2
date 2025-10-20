@@ -1,6 +1,6 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Space } from '../math/s2-camera';
-import type { S2Point } from '../shared/s2-point';
+import type { S2OldPoint } from '../shared/s2-point';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2ElementData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -31,7 +31,7 @@ export class S2SVG extends S2Element<S2ElementData> {
         return new S2Vec2(local.x, local.y);
     }
 
-    convertDOMPointInto(x: number, y: number, out: S2Point): void {
+    convertDOMPointInto(x: number, y: number, out: S2OldPoint): void {
         const pt = new DOMPoint(x, y);
         const ctm = this.element.getScreenCTM();
         if (!ctm) {

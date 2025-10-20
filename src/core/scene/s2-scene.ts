@@ -1,6 +1,6 @@
 import type { S2BaseElement } from '../element/base/s2-element';
 import type { S2BaseNode } from '../element/node/s2-base-node';
-import type { S2Point } from '../shared/s2-point';
+import type { S2OldPoint } from '../shared/s2-point';
 import type { S2Camera } from '../math/s2-camera';
 import { S2Circle } from '../element/s2-circle';
 import { S2Rect } from '../element/s2-rect';
@@ -96,7 +96,11 @@ export class S2Scene extends S2BaseScene {
         return child;
     }
 
-    addLineEdge(start: S2BaseNode | S2Point, end: S2BaseNode | S2Point, parent: S2BaseElement = this.svg): S2LineEdge {
+    addLineEdge(
+        start: S2BaseNode | S2OldPoint,
+        end: S2BaseNode | S2OldPoint,
+        parent: S2BaseElement = this.svg,
+    ): S2LineEdge {
         const child = new S2LineEdge(this);
         child.data.start.set(start);
         child.data.end.set(end);
@@ -105,8 +109,8 @@ export class S2Scene extends S2BaseScene {
     }
 
     addCubicEdge(
-        start: S2BaseNode | S2Point,
-        end: S2BaseNode | S2Point,
+        start: S2BaseNode | S2OldPoint,
+        end: S2BaseNode | S2OldPoint,
         parent: S2BaseElement = this.svg,
     ): S2CubicEdge {
         const child = new S2CubicEdge(this);

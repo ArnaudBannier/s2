@@ -7,7 +7,7 @@ import { ease } from '../../animation/s2-easing';
 import { S2LerpAnimFactory } from '../../animation/s2-lerp-anim';
 import { S2AABB } from '../../math/s2-aabb';
 import { S2Extents } from '../../shared/s2-extents';
-import { S2Length } from '../../shared/s2-length';
+import { S2LengthOld } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2ElementData, S2FillData, S2StrokeData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
@@ -17,7 +17,7 @@ export class S2TextHighlightData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly cornerRadius: S2Length;
+    public readonly cornerRadius: S2LengthOld;
     public readonly padding: S2Extents;
 
     constructor() {
@@ -25,7 +25,7 @@ export class S2TextHighlightData extends S2ElementData {
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
-        this.cornerRadius = new S2Length(5, 'view');
+        this.cornerRadius = new S2LengthOld(5, 'view');
         this.padding = new S2Extents(4, 2, 'view');
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);

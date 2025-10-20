@@ -9,13 +9,13 @@ import type { S2Number } from '../../shared/s2-number.ts';
 import type { S2Transform } from '../../shared/s2-transform.ts';
 import type { S2Offset } from '../../shared/s2-offset.ts';
 import type { S2Extents } from '../../shared/s2-extents.ts';
-import type { S2Length } from '../../shared/s2-length.ts';
+import type { S2Length, S2LengthOld } from '../../shared/s2-length.ts';
 import type { S2Boolean } from '../../shared/s2-boolean.ts';
 import type { S2Camera } from '../../math/s2-camera.ts';
 import { S2Vec2 } from '../../math/s2-vec2.ts';
 import { S2AnchorUtils } from '../../shared/s2-globals.ts';
 import { S2CubicCurve, S2LineCurve } from '../../math/s2-curve.ts';
-import { S2Point } from '../../shared/s2-point.ts';
+import { S2OldPoint, S2Point } from '../../shared/s2-point.ts';
 
 export class S2DataUtils {
     static applyPointerEvents(pointerEvents: S2Enum<S2PointerEvents>, element: SVGElement, scene: S2BaseScene): void {
@@ -110,8 +110,8 @@ export class S2DataUtils {
         }
     }
 
-    static applyPosition(
-        position: S2Point,
+    static applyPositionOld(
+        position: S2OldPoint,
         element: SVGElement,
         scene: S2BaseScene,
         xAttribute: string = 'x',
@@ -124,8 +124,22 @@ export class S2DataUtils {
         }
     }
 
-    static applyShiftedPosition(
+    static applyPosition(
         position: S2Point,
+        element: SVGElement,
+        scene: S2BaseScene,
+        xAttribute: string = 'x',
+        yAttribute: string = 'y',
+    ): void {
+        if (position.isDirty()) {
+            const p = position.get(scene.getViewSpace());
+            element.setAttribute(xAttribute, p.x.toFixed(2));
+            element.setAttribute(yAttribute, p.y.toFixed(2));
+        }
+    }
+
+    static applyShiftedPosition(
+        position: S2OldPoint,
         shift: S2Offset,
         element: SVGElement,
         scene: S2BaseScene,
@@ -142,7 +156,7 @@ export class S2DataUtils {
     }
 
     static applyAnchoredPosition(
-        position: S2Point,
+        position: S2OldPoint,
         extents: S2Extents,
         anchor: S2Enum<S2Anchor>,
         element: SVGElement,
@@ -169,14 +183,21 @@ export class S2DataUtils {
         }
     }
 
-    static applyRadius(radius: S2Length, element: SVGElement, scene: S2BaseScene): void {
+    static applyRadiusOld(radius: S2LengthOld, element: SVGElement, scene: S2BaseScene): void {
         if (radius.isDirty()) {
             const r = radius.get('view', scene.getActiveCamera());
             element.setAttribute('r', r.toFixed(2));
         }
     }
 
-    static applyCornerRadius(radius: S2Length, element: SVGElement, scene: S2BaseScene): void {
+    static applyRadius(radius: S2Length, element: SVGElement, scene: S2BaseScene): void {
+        if (radius.isDirty()) {
+            const r = radius.get(scene.getViewSpace());
+            element.setAttribute('r', r.toFixed(2));
+        }
+    }
+
+    static applyCornerRadius(radius: S2LengthOld, element: SVGElement, scene: S2BaseScene): void {
         if (radius.isDirty()) {
             const r = radius.get('view', scene.getActiveCamera());
             element.setAttribute('rx', r.toFixed(2));

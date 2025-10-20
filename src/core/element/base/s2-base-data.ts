@@ -2,7 +2,7 @@ import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin, S2PointerEvents }
 import { S2Boolean } from '../../shared/s2-boolean';
 import { S2Color } from '../../shared/s2-color';
 import { S2Enum } from '../../shared/s2-enum';
-import { S2Length } from '../../shared/s2-length';
+import { S2LengthOld } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2String } from '../../shared/s2-string';
 
@@ -31,7 +31,7 @@ export class S2ElementData extends S2BaseData {
 
 export class S2StrokeData extends S2BaseData implements S2Dirtyable {
     public readonly color: S2Color;
-    public readonly width: S2Length;
+    public readonly width: S2LengthOld;
     public readonly opacity: S2Number;
     public readonly lineCap: S2Enum<S2LineCap>;
     public readonly lineJoin: S2Enum<S2LineJoin>;
@@ -42,7 +42,7 @@ export class S2StrokeData extends S2BaseData implements S2Dirtyable {
     constructor() {
         super();
         this.color = new S2Color(0, 0, 0);
-        this.width = new S2Length(0, 'view');
+        this.width = new S2LengthOld(0, 'view');
         this.opacity = new S2Number(1);
         this.lineCap = new S2Enum<S2LineCap>('round');
         this.lineJoin = new S2Enum<S2LineJoin>('miter');
@@ -147,7 +147,7 @@ export class S2FillData extends S2BaseData implements S2Dirtyable {
 }
 
 export class S2FontData extends S2BaseData implements S2Dirtyable {
-    public readonly size: S2Length;
+    public readonly size: S2LengthOld;
     public readonly weight: S2Number;
     public readonly relativeLineHeight: S2Number;
     public readonly relativeAscenderHeight: S2Number;
@@ -159,7 +159,7 @@ export class S2FontData extends S2BaseData implements S2Dirtyable {
 
     constructor() {
         super();
-        this.size = new S2Length(16, 'view');
+        this.size = new S2LengthOld(16, 'view');
         this.weight = new S2Number(400);
         this.relativeLineHeight = new S2Number(21 / 16);
         this.relativeAscenderHeight = new S2Number(16 / 16);

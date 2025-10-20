@@ -2,15 +2,15 @@ import type { S2Anchor, S2Dirtyable } from '../core/shared/s2-globals';
 import { S2BaseData, S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../core/element/base/s2-base-data';
 import { S2Enum } from '../core/shared/s2-enum';
 import { S2Extents } from '../core/shared/s2-extents';
-import { S2Length } from '../core/shared/s2-length';
+import { S2LengthOld } from '../core/shared/s2-length';
 import { S2Number } from '../core/shared/s2-number';
-import { S2Point } from '../core/shared/s2-point';
+import { S2OldPoint } from '../core/shared/s2-point';
 
 export class S2MemoryData extends S2ElementData {
-    public readonly position: S2Point;
+    public readonly position: S2OldPoint;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly extents: S2Extents;
-    public readonly valueWidth: S2Length;
+    public readonly valueWidth: S2LengthOld;
     public readonly background: S2MemoryBackgroundData;
     public readonly highlight: S2MemoryHighlightData;
     public readonly text: S2MemoryTextData;
@@ -18,10 +18,10 @@ export class S2MemoryData extends S2ElementData {
 
     constructor() {
         super();
-        this.position = new S2Point(0, 0, 'world');
+        this.position = new S2OldPoint(0, 0, 'world');
         this.anchor = new S2Enum<S2Anchor>('center');
         this.extents = new S2Extents(0, 0, 'view');
-        this.valueWidth = new S2Length(2, 'world');
+        this.valueWidth = new S2LengthOld(2, 'world');
         this.background = new S2MemoryBackgroundData();
         this.highlight = new S2MemoryHighlightData();
         this.text = new S2MemoryTextData();
@@ -57,14 +57,14 @@ export class S2MemoryBackgroundData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly cornerRadius: S2Length;
+    public readonly cornerRadius: S2LengthOld;
 
     constructor() {
         super();
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData();
         this.opacity = new S2Number(1);
-        this.cornerRadius = new S2Length(5, 'view');
+        this.cornerRadius = new S2LengthOld(5, 'view');
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -86,12 +86,12 @@ export class S2MemoryBackgroundData extends S2BaseData {
 }
 
 export class S2MemoryHighlightData extends S2BaseData {
-    public readonly cornerRadius: S2Length;
+    public readonly cornerRadius: S2LengthOld;
     public readonly padding: S2Extents;
 
     constructor() {
         super();
-        this.cornerRadius = new S2Length(7, 'view');
+        this.cornerRadius = new S2LengthOld(7, 'view');
         this.padding = new S2Extents(2, 2, 'view');
     }
 

@@ -1,6 +1,6 @@
 import type { S2Camera } from '../math/s2-camera';
 import type { S2Space } from '../math/s2-camera';
-import type { S2Point } from './s2-point';
+import type { S2OldPoint } from './s2-point';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2Extents } from './s2-extents';
@@ -17,7 +17,7 @@ export class S2LocalBBox extends S2BaseType {
         this.extents = new S2Extents(0, 0, 'view');
     }
 
-    set(graphics: SVGGraphicsElement, parentPosition: S2Point | null, camera: S2Camera): void {
+    set(graphics: SVGGraphicsElement, parentPosition: S2OldPoint | null, camera: S2Camera): void {
         if (!graphics.isConnected) {
             console.warn('Element is not connected to DOM, cannot compute bbox', graphics.isConnected);
             return;

@@ -6,7 +6,7 @@ import { S2BaseData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Point } from '../shared/s2-point';
+import { S2OldPoint } from '../shared/s2-point';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Enum } from '../shared/s2-enum';
 import type { S2Space } from '../math/s2-camera';
@@ -40,18 +40,18 @@ export class S2GridData extends S2ElementData {
 }
 
 export class S2GridGeometryData extends S2BaseData {
-    public readonly boundA: S2Point;
-    public readonly boundB: S2Point;
+    public readonly boundA: S2OldPoint;
+    public readonly boundB: S2OldPoint;
     public readonly steps: S2Extents;
-    public readonly referencePoint: S2Point;
+    public readonly referencePoint: S2OldPoint;
     public readonly space: S2Enum<S2Space> = new S2Enum<S2Space>('world');
 
     constructor() {
         super();
-        this.boundA = new S2Point(-8, -4.5, 'world');
-        this.boundB = new S2Point(+8, +4.5, 'world');
+        this.boundA = new S2OldPoint(-8, -4.5, 'world');
+        this.boundB = new S2OldPoint(+8, +4.5, 'world');
         this.steps = new S2Extents(1, 1, 'world');
-        this.referencePoint = new S2Point(0, 0, 'world');
+        this.referencePoint = new S2OldPoint(0, 0, 'world');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
