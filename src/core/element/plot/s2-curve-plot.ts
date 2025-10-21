@@ -1,13 +1,13 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Space } from '../../math/s2-camera';
 import type { S2Dirtyable } from '../../shared/s2-globals';
+import type { S2AbstractSpace } from '../../math/s2-abstract-space';
 import { svgNS } from '../../shared/s2-globals';
 import { S2ElementData, S2StrokeData } from '../base/s2-base-data';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
 import { S2Element } from '../base/s2-element';
 import { S2Enum } from '../../shared/s2-enum';
-import { S2LengthOld } from '../../shared/s2-length';
+import { S2Length } from '../../shared/s2-length';
 import { S2PolyCurve } from '../../math/s2-curve';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2DataUtils } from '../base/s2-data-utils';
@@ -16,17 +16,26 @@ import { S2PlotModifier } from './s2-plot-modifier';
 import { S2Boolean } from '../../shared/s2-boolean';
 
 export class S2CurvePlotData extends S2ElementData {
-    public readonly stroke: S2StrokeData = new S2StrokeData();
+    public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number = new S2Number(1);
     public readonly transform: S2Transform = new S2Transform();
-    public readonly space: S2Enum<S2Space> = new S2Enum<S2Space>('world');
-    public readonly step: S2LengthOld = new S2LengthOld(0.2, 'world');
-    public readonly derivativeEpsilon: S2LengthOld = new S2LengthOld(1e-5, 'world');
+    public readonly space: S2Enum<S2AbstractSpace>;
+    public readonly step: S2Length;
+    public readonly derivativeEpsilon: S2Length;
     public readonly pathFrom: S2Number = new S2Number(0);
     public readonly pathTo: S2Number = new S2Number(1);
     public readonly paramCurve: S2ParamCurve = new S2ParamCurve();
     public readonly plotModifier: S2PlotModifier = new S2PlotModifier();
     public readonly useSmoothing: S2Boolean = new S2Boolean(true);
+
+    constructor(scene: S2BaseScene) {
+        super();
+        const worldSpace = scene.getWorldSpace();
+        this.stroke = new S2StrokeData(scene);
+        this.space = new S2Enum<S2AbstractSpace>(worldSpace);
+        this.step = new S2Length(0.2, worldSpace);
+        this.derivativeEpsilon = new S2Length(1e-5, worldSpace);
+    }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
@@ -66,9 +75,9 @@ export class S2CurvePlot extends S2Element<S2CurvePlotData> {
     protected cubicSampleCount: number = 8;
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2CurvePlotData());
+        super(scene, new S2CurvePlotData(scene));
         this.element = document.createElementNS(svgNS, 'path');
-        this.data.stroke.width.set(2, 'view');
+        this.data.stroke.width.set(2, scene.getViewSpace());
         this.data.stroke.opacity.set(1);
     }
 
@@ -83,11 +92,10 @@ export class S2CurvePlot extends S2Element<S2CurvePlotData> {
 
     protected updateCurve(): void {
         const space = this.data.space.get();
-        const camera = this.scene.getActiveCamera();
         const paramCurve = this.data.paramCurve;
         const plotModifier = this.data.plotModifier;
-        const step = this.data.step.get(space, camera);
-        const epsilon = this.data.derivativeEpsilon.get(space, camera);
+        const step = this.data.step.get(space);
+        const epsilon = this.data.derivativeEpsilon.get(space);
 
         this.curve.clear();
         if (this.data.useSmoothing.get()) {

@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Space } from '../math/s2-camera';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
 import type { S2TSpan } from './text/s2-tspan';
 import type { S2Vec2 } from '../math/s2-vec2';
 import type { S2StepAnimator } from '../animation/s2-step-animator';
@@ -13,11 +13,11 @@ import { S2Rect } from './s2-rect';
 import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-math-utils';
-import { S2OldPoint } from '../shared/s2-point';
+import { S2Point } from '../shared/s2-point';
 import { S2Enum } from '../shared/s2-enum';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Number } from '../shared/s2-number';
-import { S2LengthOld } from '../shared/s2-length';
+import { S2Length } from '../shared/s2-length';
 import { S2LerpAnimFactory } from '../animation/s2-lerp-anim';
 import { ease } from '../animation/s2-easing';
 import { S2TextHighlight } from './text/s2-text-highlight';
@@ -56,7 +56,7 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
 }
 
 export class S2CodeData extends S2ElementData {
-    public readonly position: S2OldPoint;
+    public readonly position: S2Point;
     public readonly opacity: S2Number;
     public readonly anchor: S2Enum<S2Anchor>;
     public readonly padding: S2Extents;
@@ -65,15 +65,15 @@ export class S2CodeData extends S2ElementData {
     public readonly background: S2CodeBackgroundData;
     public readonly currentLine: S2CodeCurrentLineData;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
-        this.position = new S2OldPoint(0, 0, 'world');
+        this.position = new S2Point(0, 0, scene.getWorldSpace());
         this.anchor = new S2Enum<S2Anchor>('center');
-        this.padding = new S2Extents(10, 5, 'view');
-        this.minExtents = new S2Extents(0, 0, 'view');
-        this.text = new S2CodeTextData();
-        this.background = new S2CodeBackgroundData();
-        this.currentLine = new S2CodeCurrentLineData();
+        this.padding = new S2Extents(10, 5, scene.getViewSpace());
+        this.minExtents = new S2Extents(0, 0, scene.getViewSpace());
+        this.text = new S2CodeTextData(scene);
+        this.background = new S2CodeBackgroundData(scene);
+        this.currentLine = new S2CodeCurrentLineData(scene);
         this.opacity = new S2Number(1);
     }
 
@@ -110,15 +110,15 @@ export class S2CodeTextData extends S2BaseData {
     public readonly font: S2FontData;
     public readonly verticalAlign: S2Enum<S2VerticalAlign>;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
         this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
-        this.font = new S2FontData();
+        this.font = new S2FontData(scene);
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
 
-        this.stroke.width.set(0, 'view');
+        this.stroke.width.set(0, scene.getViewSpace());
         this.fill.opacity.set(1);
     }
 
@@ -143,14 +143,14 @@ export class S2CodeBackgroundData extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly cornerRadius: S2LengthOld;
+    public readonly cornerRadius: S2Length;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
         this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
-        this.cornerRadius = new S2LengthOld(5, 'view');
+        this.cornerRadius = new S2Length(5, scene.getViewSpace());
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -178,13 +178,13 @@ export class S2CodeCurrentLineData extends S2BaseData {
     public readonly index: S2Number;
     public readonly padding: S2Extents;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
         this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(0);
         this.index = new S2Number(0);
-        this.padding = new S2Extents(0, 1, 'view');
+        this.padding = new S2Extents(0, 1, scene.getViewSpace());
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -219,12 +219,12 @@ export class S2Code extends S2Element<S2CodeData> {
     protected highlights: S2TextHighlight[];
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2CodeData());
+        super(scene, new S2CodeData(scene));
         this.element = document.createElementNS(svgNS, 'g');
         this.textGroup = new S2TextGroup(scene);
         this.codeBackground = new S2Rect(scene);
         this.lineBackground = new S2Rect(scene);
-        this.extents = new S2Extents(0, 0, 'view');
+        this.extents = new S2Extents(0, 0, scene.getViewSpace());
         this.highlights = [];
 
         this.textGroup.setParent(this);
@@ -304,7 +304,7 @@ export class S2Code extends S2Element<S2CodeData> {
         highlight.data.fill.opacity.set(0.15);
         highlight.data.fill.color.copyIfUnlocked(highlightColor);
         highlight.data.stroke.color.copyIfUnlocked(highlightColor);
-        highlight.data.stroke.width.set(1, 'view');
+        highlight.data.stroke.width.set(1, this.scene.getViewSpace());
         highlight.data.layer.set(1);
         highlight.setParent(this);
 
@@ -334,7 +334,7 @@ export class S2Code extends S2Element<S2CodeData> {
         emph.data.fill.opacity.set(0.2);
         emph.data.fill.color.copyIfUnlocked(MTL.BLUE_9);
         emph.data.stroke.color.copyIfUnlocked(MTL.BLUE_5);
-        emph.data.stroke.width.set(1, 'view');
+        emph.data.stroke.width.set(1, this.scene.getViewSpace());
         emph.data.layer.set(1);
         emph.setParent(this);
         emph.addReference(span);
@@ -368,8 +368,8 @@ export class S2Code extends S2Element<S2CodeData> {
         }
     }
 
-    getExtents(space: S2Space): S2Vec2 {
-        return this.extents.get(space, this.scene.getActiveCamera());
+    getExtents(space: S2AbstractSpace): S2Vec2 {
+        return this.extents.get(space);
     }
 
     getSVGElement(): SVGElement {
@@ -379,8 +379,7 @@ export class S2Code extends S2Element<S2CodeData> {
     update(): void {
         if (this.skipUpdate()) return;
 
-        const camera = this.scene.getActiveCamera();
-        const space: S2Space = 'view';
+        const viewSpace = this.scene.getViewSpace();
         this.updateSVGChildren();
 
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
@@ -393,29 +392,29 @@ export class S2Code extends S2Element<S2CodeData> {
         this.textGroup.data.stroke.copyIfUnlocked(this.data.text.stroke);
         this.textGroup.update();
 
-        const textExtents = this.textGroup.getExtents(space);
-        const padding = this.data.padding.get(space, camera);
+        const textExtents = this.textGroup.getExtents(viewSpace);
+        const padding = this.data.padding.get(viewSpace);
 
-        const minExtents = this.data.minExtents.get(space, camera);
+        const minExtents = this.data.minExtents.get(viewSpace);
         const extents = textExtents.addV(padding);
         extents.maxV(minExtents);
-        this.extents.setV(extents, space);
+        this.extents.setV(extents, viewSpace);
         const textMinExtents = extents.clone().subV(padding);
 
         const codeCenter = S2AnchorUtils.getCenter(
             this.data.anchor.get(),
-            space,
-            camera,
+            viewSpace,
+            this.scene,
             this.data.position,
             this.extents,
         );
 
-        this.textGroup.data.minExtents.setV(textMinExtents, space);
-        this.textGroup.data.position.setV(codeCenter, space);
+        this.textGroup.data.minExtents.setV(textMinExtents, viewSpace);
+        this.textGroup.data.position.setV(codeCenter, viewSpace);
         this.textGroup.update();
 
-        this.codeBackground.data.position.setV(codeCenter, 'view');
-        this.codeBackground.data.extents.setV(extents, 'view');
+        this.codeBackground.data.position.setV(codeCenter, viewSpace);
+        this.codeBackground.data.extents.setV(extents, viewSpace);
         this.codeBackground.data.cornerRadius.copyIfUnlocked(this.data.background.cornerRadius);
         this.codeBackground.data.fill.copyIfUnlocked(this.data.background.fill);
         this.codeBackground.data.stroke.copyIfUnlocked(this.data.background.stroke);
@@ -428,20 +427,20 @@ export class S2Code extends S2Element<S2CodeData> {
 
         const lineCount = this.textGroup.getLineCount();
         if (lineCount > 0) {
-            const linePadding = this.data.currentLine.padding.get(space, camera);
+            const linePadding = this.data.currentLine.padding.get(viewSpace);
             const currIndex = S2MathUtils.clamp(this.data.currentLine.index.get(), 0, lineCount - 1);
             const index0 = S2MathUtils.clamp(Math.floor(currIndex), 0, lineCount - 1);
             const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
 
             const t = currIndex - index0;
-            const extents0 = this.textGroup.getLine(index0).getExtents(space);
-            const extents1 = this.textGroup.getLine(index1).getExtents(space);
-            const position0 = this.textGroup.getLine(index0).getCenter(space);
-            const position1 = this.textGroup.getLine(index1).getCenter(space);
+            const extents0 = this.textGroup.getLine(index0).getExtents(viewSpace);
+            const extents1 = this.textGroup.getLine(index1).getExtents(viewSpace);
+            const position0 = this.textGroup.getLine(index0).getCenter(viewSpace);
+            const position1 = this.textGroup.getLine(index1).getCenter(viewSpace);
             const extentsY = extents0.y * (1 - t) + extents1.y * t;
             const y = position0.y * (1 - t) + position1.y * t;
-            this.lineBackground.data.position.set(codeCenter.x, y, 'view');
-            this.lineBackground.data.extents.set(extents.x + linePadding.x, extentsY + linePadding.y, 'view');
+            this.lineBackground.data.position.set(codeCenter.x, y, viewSpace);
+            this.lineBackground.data.extents.set(extents.x + linePadding.x, extentsY + linePadding.y, viewSpace);
             this.lineBackground.data.anchor.set('center');
             this.lineBackground.update();
         }

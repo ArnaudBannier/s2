@@ -1,7 +1,7 @@
+import type { S2AbstractSpace } from '../../math/s2-abstract-space';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Dirtyable } from '../../shared/s2-globals';
-import type { S2Space } from '../../math/s2-camera';
 import type { S2BaseRichText } from './s2-rich-text';
+import type { S2Dirtyable } from '../../shared/s2-globals';
 import type { S2TextData } from './s2-text-data';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { svgNS } from '../../shared/s2-globals';
@@ -19,16 +19,16 @@ export class S2TSpanData extends S2ElementData {
     public readonly transform: S2Transform;
     public readonly font: S2FontData;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
         this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
-        this.font = new S2FontData();
+        this.font = new S2FontData(scene);
 
         this.fill.opacity.set(1);
-        this.stroke.width.set(0, 'view');
+        this.stroke.width.set(0, scene.getViewSpace());
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -57,11 +57,11 @@ export class S2TSpan extends S2Element<S2TSpanData> {
     protected parentText: S2BaseRichText<S2TextData>;
 
     constructor(scene: S2BaseScene, parentText: S2BaseRichText<S2TextData>) {
-        super(scene, new S2TSpanData());
+        super(scene, new S2TSpanData(scene));
         this.element = document.createElementNS(svgNS, 'tspan');
         this.category = '';
         this.content = '';
-        this.localBBox = new S2LocalBBox();
+        this.localBBox = new S2LocalBBox(scene.getViewSpace());
         this.parentText = parentText;
 
         this.localBBox.setOwner(this);
@@ -87,26 +87,26 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         return this.content;
     }
 
-    getLocalCenter(space: S2Space): S2Vec2 {
-        return this.localBBox.getCenter(space, this.scene.getActiveCamera());
+    getLocalCenter(space: S2AbstractSpace): S2Vec2 {
+        return this.localBBox.getCenter(space);
     }
 
-    getCenter(space: S2Space): S2Vec2 {
+    getCenter(space: S2AbstractSpace): S2Vec2 {
         const localCenter = this.getLocalCenter(space);
         return localCenter.addV(this.parentText.getPosition(space));
     }
 
-    getExtents(space: S2Space): S2Vec2 {
-        return this.localBBox.getExtents(space, this.scene.getActiveCamera());
+    getExtents(space: S2AbstractSpace): S2Vec2 {
+        return this.localBBox.getExtents(space);
     }
 
-    getLower(space: S2Space): S2Vec2 {
-        const localLower = this.localBBox.getLower(space, this.scene.getActiveCamera());
+    getLower(space: S2AbstractSpace): S2Vec2 {
+        const localLower = this.localBBox.getLower(space);
         return localLower.addV(this.parentText.getPosition(space));
     }
 
-    getUpper(space: S2Space): S2Vec2 {
-        const localUpper = this.localBBox.getUpper(space, this.scene.getActiveCamera());
+    getUpper(space: S2AbstractSpace): S2Vec2 {
+        const localUpper = this.localBBox.getUpper(space);
         return localUpper.addV(this.parentText.getPosition(space));
     }
 
@@ -123,7 +123,7 @@ export class S2TSpan extends S2Element<S2TSpanData> {
             this.localBBox.isDirty() || this.data.font.isDirty() || this.parentText.data.preserveWhitespace.isDirty();
 
         if (isBBoxDirty) {
-            this.localBBox.set(this.element, this.parentText.data.position, this.scene.getActiveCamera());
+            this.localBBox.set(this.element, this.parentText.data.position, this.scene);
         }
 
         this.clearDirty();

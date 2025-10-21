@@ -5,7 +5,7 @@ import { ease } from '../animation/s2-easing';
 import { S2Mat2x3Builder } from '../math/s2-mat2x3-builder';
 import { S2Extents } from '../shared/s2-extents';
 import { S2TipTransform, svgNS } from '../shared/s2-globals';
-import { S2LengthOld } from '../shared/s2-length';
+import { S2Length } from '../shared/s2-length';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
@@ -18,20 +18,21 @@ export class S2ArrowTipData extends S2ElementData {
     public readonly opacity: S2Number;
     public readonly extents: S2Extents;
     public readonly pathPosition: S2Number;
-    public readonly pathThreshold: S2LengthOld;
+    public readonly pathThreshold: S2Length;
     public readonly pathStrokeFactor: S2Number;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
+        const viewSpace = scene.getViewSpace();
         this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
         this.pathPosition = new S2Number(1);
-        this.pathThreshold = new S2LengthOld(30, 'view');
-        this.extents = new S2Extents(5, 5, 'view');
+        this.pathThreshold = new S2Length(30, viewSpace);
+        this.extents = new S2Extents(5, 5, viewSpace);
         this.pathStrokeFactor = new S2Number(1);
 
-        this.stroke.width.set(0, 'view');
+        this.stroke.width.set(0, viewSpace);
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
     }
@@ -70,10 +71,10 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
     protected isReversed: boolean;
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2ArrowTipData());
+        super(scene, new S2ArrowTipData(scene));
         this.element = document.createElementNS(svgNS, 'path');
         this.transform = new S2Transform();
-        this.tipTransform = new S2TipTransform();
+        this.tipTransform = new S2TipTransform(scene);
         this.isReversed = false;
         this.tipInset = 0.25;
         this.tipShape = '';
@@ -129,21 +130,23 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
 
     protected updateTipTransform(): void {
         if (this.tipableReference === null) return;
-        const camera = this.scene.getActiveCamera();
+
+        const viewSpace = this.scene.getViewSpace();
+        const tipSpace = this.tipTransform.space;
         this.tipTransform = this.tipableReference.getTipTransformAt(this.data.pathPosition.get());
-        const extents = this.data.extents.get('view', camera);
-        const strokeWidth = camera.convertLength(this.tipTransform.strokeWidth, this.tipTransform.space, 'view');
+        const extents = this.data.extents.get(viewSpace);
+        const strokeWidth = tipSpace.convertLengthTo(this.tipTransform.strokeWidth, viewSpace);
         extents.x += strokeWidth * this.data.pathStrokeFactor.get();
         extents.y += strokeWidth * this.data.pathStrokeFactor.get();
-        const pathLength = camera.convertLength(this.tipTransform.pathLength, this.tipTransform.space, 'view');
-        const pathThreshold = this.data.pathThreshold.get('view', camera);
+        const pathLength = tipSpace.convertLengthTo(this.tipTransform.pathLength, viewSpace);
+        const pathThreshold = this.data.pathThreshold.get(viewSpace);
         if (pathThreshold > 0 && pathLength < pathThreshold) {
             extents.scale(ease.out(pathLength / pathThreshold));
         }
-        const viewPosition = camera.convertPointV(this.tipTransform.position, this.tipTransform.space, 'view');
+        const viewPosition = tipSpace.convertPointToV(this.tipTransform.position, viewSpace);
 
         const xScaleSign = this.isReversed ? -1 : +1;
-        const angle = this.tipTransform.tangent.angle() + camera.getRotationRad();
+        const angle = this.tipTransform.tangent.angle() + this.scene.getActiveCamera().getRotationRad();
         S2Mat2x3Builder.setTarget(this.transform.value)
             .translate(this.anchorAlignment * 10, 0)
             .scale((xScaleSign * extents.x) / 10, extents.y / 10)

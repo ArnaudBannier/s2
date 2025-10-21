@@ -54,7 +54,7 @@ class SceneFigure extends BaseMemoryScene {
         this.setDefaultCodeStyle(this.code);
         this.code.setContent(tokenizeAlgorithm(codeString));
 
-        this.code.data.minExtents.set(2.5, 4.0, 'world');
+        this.code.data.minExtents.set(2.5, 4.0, this.getWorldSpace());
 
         this.setDefaultFont(16);
         const addressCount = 10;

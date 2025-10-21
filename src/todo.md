@@ -1,7 +1,8 @@
 # TODO
 
-- Ajouter un système d'event au S2Element
-- Coder une interaction avec la souris dans le monde
+- Renommer S2Enum en S2Ref ?
+- Revoir la TipTransform
+- Revoir le AnchorUtils
 
 - Possibilité d'ajouter des labels sur un edge (qui devient un groupe)
 - Tracer une fonction

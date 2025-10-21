@@ -9,6 +9,8 @@ export class S2AbstractSpace implements S2Dirtyable {
     protected spaceToWorld: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
     protected worldToSpace: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
     protected dirty: boolean = true;
+    protected scaleToParent: number = 1.0;
+    protected scaleToWorld: number = 1.0;
 
     constructor(parent: S2AbstractSpace | null = null) {
         this.parent = parent;
@@ -30,11 +32,14 @@ export class S2AbstractSpace implements S2Dirtyable {
     update(): void {
         if (!this.isDirty()) return;
 
+        this.scaleToParent = Math.sqrt(Math.abs(S2Mat2x3.det(this.spaceToParent)));
+        this.scaleToWorld = this.scaleToParent;
         this.parentToSpace.copy(this.spaceToParent).invert();
         if (this.parent) {
             this.parent.update();
             this.spaceToWorld.multiplyMatrices(this.parent.spaceToWorld, this.spaceToParent);
             this.worldToSpace.multiplyMatrices(this.parentToSpace, this.parent.worldToSpace);
+            this.scaleToWorld *= this.parent.scaleToWorld;
         } else {
             this.spaceToWorld.copy(this.spaceToParent);
             this.worldToSpace.copy(this.parentToSpace);
@@ -73,11 +78,10 @@ export class S2AbstractSpace implements S2Dirtyable {
     }
 
     convertPointTo(x: number, y: number, space?: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        out.set(x, y).apply2x3(this.spaceToWorld);
-        if (space) {
-            out.apply2x3(space.getWorldToSpace());
-        }
+        out = out ? out.set(x, y) : new S2Vec2(x, y);
+        if (space === this) return out;
+        out.apply2x3(this.spaceToWorld);
+        if (space) out.apply2x3(space.getWorldToSpace());
         return out;
     }
 
@@ -86,11 +90,10 @@ export class S2AbstractSpace implements S2Dirtyable {
     }
 
     convertOffsetTo(x: number, y: number, space?: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        out.set(x, y).apply2x3Offset(this.spaceToWorld);
-        if (space) {
-            out.apply2x3Offset(space.getWorldToSpace());
-        }
+        out = out ? out.set(x, y) : new S2Vec2(x, y);
+        if (space === this) return out;
+        out.apply2x3Offset(this.spaceToWorld);
+        if (space) out.apply2x3Offset(space.getWorldToSpace());
         return out;
     }
 
@@ -99,10 +102,17 @@ export class S2AbstractSpace implements S2Dirtyable {
     }
 
     convertLengthTo(length: number, space: S2AbstractSpace): number {
-        length *= this.spaceToWorld.elements[0]; // scale x
-        if (space) {
-            length *= space.worldToSpace.elements[0]; // scale x
-        }
+        if (space === this) return Math.abs(length);
+        length *= this.scaleToWorld;
+        if (space) length /= space.scaleToWorld;
         return Math.abs(length);
+    }
+
+    convertExtentsTo(x: number, y: number, space: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
+        return this.convertOffsetTo(x, y, space, out).abs();
+    }
+
+    convertExtentsToV(extent: S2Vec2, space: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
+        return this.convertExtentsTo(extent.x, extent.y, space, out);
     }
 }

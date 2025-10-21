@@ -1,7 +1,7 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Space } from '../../math/s2-camera';
+import type { S2AbstractSpace } from '../../math/s2-abstract-space';
 import type { S2Dirtyable, S2Tipable } from '../../shared/s2-globals';
-import type { S2OldPoint } from '../../shared/s2-point';
+import type { S2Point } from '../../shared/s2-point';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2Node } from './s2-node';
 import { S2Path } from '../s2-path';
@@ -11,7 +11,7 @@ import { S2TipTransform, svgNS } from '../../shared/s2-globals';
 import { S2ArrowTip } from '../s2-arrow-tip';
 import { S2EdgeEndpoint } from './s2-edge-endpoint';
 import { S2Number } from '../../shared/s2-number';
-import { S2LengthOld } from '../../shared/s2-length';
+import { S2Length } from '../../shared/s2-length';
 
 // S2NodeArcManhattan
 
@@ -23,27 +23,28 @@ export class S2EdgeData extends S2ElementData {
     public readonly pathFrom: S2Number;
     public readonly pathTo: S2Number;
 
-    public readonly startDistance: S2LengthOld;
-    public readonly endDistance: S2LengthOld;
+    public readonly startDistance: S2Length;
+    public readonly endDistance: S2Length;
     public readonly startAngle: S2Number;
     public readonly endAngle: S2Number;
     public readonly start: S2EdgeEndpoint;
     public readonly end: S2EdgeEndpoint;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
-        this.stroke = new S2StrokeData();
+        const viewSpace = scene.getViewSpace();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
-        this.startDistance = new S2LengthOld(-Infinity, 'view');
-        this.endDistance = new S2LengthOld(-Infinity, 'view');
+        this.startDistance = new S2Length(-Infinity, viewSpace);
+        this.endDistance = new S2Length(-Infinity, viewSpace);
         this.startAngle = new S2Number(-Infinity);
         this.endAngle = new S2Number(-Infinity);
-        this.start = new S2EdgeEndpoint();
-        this.end = new S2EdgeEndpoint();
+        this.start = new S2EdgeEndpoint(scene);
+        this.end = new S2EdgeEndpoint(scene);
 
-        this.stroke.width.set(4, 'view');
+        this.stroke.width.set(4, viewSpace);
         this.stroke.color.set(0, 0, 0);
         this.opacity.set(1);
     }
@@ -125,18 +126,18 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         return this.element;
     }
 
-    protected getPointCenter(nodeOrPos: S2Node | S2OldPoint, space: S2Space) {
+    protected getPointCenter(nodeOrPos: S2Node | S2Point, space: S2AbstractSpace) {
         if (nodeOrPos instanceof S2Node) {
             return nodeOrPos.getCenter(space);
         } else {
-            return nodeOrPos.get(space, this.scene.getActiveCamera());
+            return nodeOrPos.get(space);
         }
     }
 
     protected getPoint(
-        nodeOrPos: S2Node | S2OldPoint,
-        space: S2Space,
-        distance: S2LengthOld,
+        nodeOrPos: S2Node | S2Point,
+        space: S2AbstractSpace,
+        distance: S2Length,
         direction: S2Vec2,
     ): S2Vec2 {
         if (nodeOrPos instanceof S2Node) {
@@ -145,20 +146,18 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
             }
             return nodeOrPos.getCenter(space);
         } else {
-            const camera = this.scene.getActiveCamera();
-            const point = nodeOrPos.get(space, camera);
+            const point = nodeOrPos.get(space);
             if (distance.value !== -Infinity) {
-                const d = distance.get(space, camera);
+                const d = distance.get(space);
                 point.addV(direction.clone().normalize().scale(d));
             }
             return point;
         }
     }
 
-    protected getStartToEnd(space: S2Space): S2Vec2 {
-        const camera = this.scene.getActiveCamera();
-        const start = this.data.start.getCenter(space, camera);
-        const end = this.data.end.getCenter(space, camera);
+    protected getStartToEnd(space: S2AbstractSpace): S2Vec2 {
+        const start = this.data.start.getCenter(space);
+        const end = this.data.end.getCenter(space);
         return end.subV(start);
     }
 

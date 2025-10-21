@@ -1,25 +1,25 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Space } from '../math/s2-camera';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
 import type { S2Offset } from '../shared/s2-offset';
-import type { S2OldPoint } from '../shared/s2-point';
+import type { S2Point } from '../shared/s2-point';
 import type { S2AnimProperty } from './s2-base-animation';
 import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 import { S2PolyCurve } from '../math/s2-curve';
 
 export abstract class S2BaseMotionPath extends S2BaseDurationAnimation {
-    protected space: S2Space;
+    protected space: S2AbstractSpace;
     protected polyCurve: S2PolyCurve;
     constructor(scene: S2BaseScene) {
         super(scene);
-        this.space = 'world';
+        this.space = scene.getWorldSpace();
         this.polyCurve = new S2PolyCurve();
     }
 
-    getSpace(): S2Space {
+    getSpace(): S2AbstractSpace {
         return this.space;
     }
 
-    setSpace(space: S2Space): this {
+    setSpace(space: S2AbstractSpace): this {
         this.space = space;
         return this;
     }
@@ -30,9 +30,9 @@ export abstract class S2BaseMotionPath extends S2BaseDurationAnimation {
 }
 
 export class S2MotionPathPosition extends S2BaseMotionPath {
-    protected property: S2OldPoint;
+    protected property: S2Point;
 
-    constructor(scene: S2BaseScene, property: S2OldPoint) {
+    constructor(scene: S2BaseScene, property: S2Point) {
         super(scene);
         this.property = property;
         this.properties.add(property);

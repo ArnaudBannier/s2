@@ -1,17 +1,14 @@
-import type { S2Camera, S2Space } from '../math/s2-camera';
-import type { S2HasClone, S2HasCopy, S2HasLerpWithCamera } from './s2-base-type';
+import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
 
-export class S2Offset
-    extends S2BaseType
-    implements S2HasClone<S2Offset>, S2HasCopy<S2Offset>, S2HasLerpWithCamera<S2Offset>
-{
+export class S2Offset extends S2BaseType implements S2HasClone<S2Offset>, S2HasCopy<S2Offset>, S2HasLerp<S2Offset> {
     readonly kind = 'direction' as const;
     public value: S2Vec2;
-    public space: S2Space;
+    public space: S2AbstractSpace;
 
-    constructor(x: number = 0, y: number = 0, space: S2Space = 'world', locked: boolean = false) {
+    constructor(x: number, y: number, space: S2AbstractSpace, locked: boolean = false) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
@@ -35,19 +32,19 @@ export class S2Offset
         return this;
     }
 
-    lerp(state0: S2Offset, state1: S2Offset, t: number, camera: S2Camera): this {
+    lerp(state0: S2Offset, state1: S2Offset, t: number): this {
         const space = state1.space;
-        const value0 = state0.get(space, camera);
-        const value1 = state1.get(space, camera);
+        const value0 = state0.get(space);
+        const value1 = state1.get(space);
         this.setV(S2Vec2.lerpV(value0, value1, t), space);
         return this;
     }
 
-    static lerp(state0: S2Offset, state1: S2Offset, t: number, camera: S2Camera): S2Offset {
-        return new S2Offset().lerp(state0, state1, t, camera);
+    static lerp(state0: S2Offset, state1: S2Offset, t: number): S2Offset {
+        return new S2Offset(0, 0, state1.space).lerp(state0, state1, t);
     }
 
-    set(x: number = 0, y: number = 0, space?: S2Space): this {
+    set(x: number = 0, y: number = 0, space?: S2AbstractSpace): this {
         if (this.value.x === x && this.value.y === y && this.space === space) return this;
         this.value.set(x, y);
         if (space) this.space = space;
@@ -55,7 +52,7 @@ export class S2Offset
         return this;
     }
 
-    setV(offset: S2Vec2, space?: S2Space): this {
+    setV(offset: S2Vec2, space?: S2AbstractSpace): this {
         if (S2Vec2.eqV(this.value, offset) && this.space === space) return this;
         this.value.copy(offset);
         if (space) this.space = space;
@@ -63,24 +60,24 @@ export class S2Offset
         return this;
     }
 
-    setValueFromSpace(x: number, y: number, space: S2Space, camera: S2Camera): this {
+    setValueFromSpace(x: number, y: number, space: S2AbstractSpace): this {
         if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
-        camera.convertOffset(x, y, space, this.space, this.value);
+        space.convertOffsetTo(x, y, this.space, this.value);
         this.markDirty();
         return this;
     }
 
-    setValueFromSpaceV(offset: S2Vec2, space: S2Space, camera: S2Camera): this {
-        return this.setValueFromSpace(offset.x, offset.y, space, camera);
+    setValueFromSpaceV(offset: S2Vec2, space: S2AbstractSpace): this {
+        return this.setValueFromSpace(offset.x, offset.y, space);
     }
 
-    get(space: S2Space, camera: S2Camera, out?: S2Vec2): S2Vec2 {
-        return camera.convertOffsetV(this.value, this.space, space, out);
+    get(space: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
+        return this.space.convertOffsetToV(this.value, space, out);
     }
 
-    changeSpace(space: S2Space, camera: S2Camera): this {
+    changeSpace(space: S2AbstractSpace): this {
         if (this.space === space) return this;
-        camera.convertOffsetV(this.value, this.space, space, this.value);
+        this.space.convertOffsetToV(this.value, space, this.value);
         this.space = space;
         // No markDirty() because the point value did not change
         return this;

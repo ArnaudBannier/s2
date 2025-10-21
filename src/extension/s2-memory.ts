@@ -1,5 +1,4 @@
 import type { S2BaseScene } from '../core/scene/s2-base-scene';
-import type { S2Space } from '../core/math/s2-camera';
 import type { S2Color } from '../core/shared/s2-color';
 import type { S2StepAnimator } from '../core/animation/s2-step-animator';
 import { S2Element } from '../core/element/base/s2-element';
@@ -10,6 +9,7 @@ import { S2Vec2 } from '../core/math/s2-vec2';
 import { S2AnchorUtils, svgNS } from '../core/shared/s2-globals';
 import { S2MemoryData } from './s2-memory-data';
 import { S2MemoryRow } from './s2-memory-row';
+import type { S2AbstractSpace } from '../core/math/s2-abstract-space';
 
 export class S2MemoryId {
     public readonly memoryRef: S2Memory;
@@ -158,11 +158,10 @@ export class S2MemoryId {
         animator: S2StepAnimator,
         options: { label?: string; offset?: number; duration?: number } = {},
     ): void {
-        const camera = this.memoryRef.getScene().getActiveCamera();
         const hLineOptions = {
             ...options,
             color: this.memoryRef.data.background.stroke.color,
-            width: this.memoryRef.data.background.stroke.width.get('view', camera),
+            width: this.memoryRef.data.background.stroke.width.value,
         };
         this.memoryRef.getRow(this.index).animateHLine(animator, hLineOptions);
     }
@@ -181,7 +180,7 @@ export class S2Memory extends S2Element<S2MemoryData> {
         addressCount: number,
         options: { isStacked?: boolean; addressStart?: number; addressPrefix?: string; addressRadix?: number } = {},
     ) {
-        super(scene, new S2MemoryData());
+        super(scene, new S2MemoryData(scene));
         const isStacked = options.isStacked ?? false;
         const addressStart = options.addressStart ?? 0;
         const addressPrefix = options.addressPrefix ?? '@';
@@ -211,15 +210,15 @@ export class S2Memory extends S2Element<S2MemoryData> {
         return this.element;
     }
 
-    getExtents(space: S2Space): S2Vec2 {
-        return this.data.extents.get(space, this.scene.getActiveCamera());
+    getExtents(space: S2AbstractSpace): S2Vec2 {
+        return this.data.extents.get(space);
     }
 
-    getCenter(space: S2Space): S2Vec2 {
+    getCenter(space: S2AbstractSpace): S2Vec2 {
         return S2AnchorUtils.getCenter(
             this.data.anchor.get(),
             space,
-            this.scene.getActiveCamera(),
+            this.scene,
             this.data.position,
             this.data.extents,
         );
@@ -252,9 +251,9 @@ export class S2Memory extends S2Element<S2MemoryData> {
     }
 
     protected updateBackground(): void {
-        const space: S2Space = 'view';
-        const center = this.getCenter(space);
-        const extents = this.getExtents(space);
+        const viewSpace = this.scene.getViewSpace();
+        const center = this.getCenter(viewSpace);
+        const extents = this.getExtents(viewSpace);
 
         // Background style
         this.background.data.stroke.copyIfUnlocked(this.data.background.stroke);
@@ -265,15 +264,15 @@ export class S2Memory extends S2Element<S2MemoryData> {
         }
 
         // Background position
-        this.background.data.position.setV(center, space);
-        this.background.data.extents.setV(extents, space);
+        this.background.data.position.setV(center, viewSpace);
+        this.background.data.extents.setV(extents, viewSpace);
         this.background.data.anchor.set('center');
 
         // Vertical line
-        const valueWidth = this.data.valueWidth.get(space, this.scene.getActiveCamera());
+        const valueWidth = this.data.valueWidth.get(viewSpace);
         const vLineX = center.x - extents.x + valueWidth;
-        this.vLine.data.startPosition.set(vLineX, center.y + extents.y, space);
-        this.vLine.data.endPosition.set(vLineX, center.y - extents.y, space);
+        this.vLine.data.startPosition.set(vLineX, center.y + extents.y, viewSpace);
+        this.vLine.data.endPosition.set(vLineX, center.y - extents.y, viewSpace);
         this.vLine.data.stroke.color.copyIfUnlocked(this.data.background.stroke.color);
         this.vLine.data.stroke.width.copyIfUnlocked(this.data.background.stroke.width);
 
@@ -283,9 +282,9 @@ export class S2Memory extends S2Element<S2MemoryData> {
     }
 
     protected updateVariables(): void {
-        const space: S2Space = 'world';
-        const center = this.getCenter(space);
-        const extents = this.getExtents(space);
+        const worldSpace = this.scene.getWorldSpace();
+        const center = this.getCenter(worldSpace);
+        const extents = this.getExtents(worldSpace);
         const sign = this.isStacked ? 1 : -1;
         const stepY = (2 * extents.y) / this.addressCount;
         for (let i = 0; i < this.rows.length; i++) {

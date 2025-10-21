@@ -1,6 +1,6 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Space } from '../math/s2-camera';
-import type { S2OldPoint } from '../shared/s2-point';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2Point } from '../shared/s2-point';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2ElementData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -18,20 +18,17 @@ export class S2SVG extends S2Element<S2ElementData> {
         return this.element;
     }
 
-    convertDOMPoint(x: number, y: number, space: S2Space): S2Vec2 {
+    convertDOMPoint(x: number, y: number, space: S2AbstractSpace): S2Vec2 {
         const pt = new DOMPoint(x, y);
         const ctm = this.element.getScreenCTM();
         if (!ctm) return new S2Vec2(0, 0);
 
         const local = pt.matrixTransform(ctm.inverse());
-        if (space == 'world') {
-            const camera = this.scene.getActiveCamera();
-            return camera.viewToWorld(local.x, local.y);
-        }
-        return new S2Vec2(local.x, local.y);
+        const viewPoint = new S2Vec2(local.x, local.y);
+        return this.scene.getViewSpace().convertPointToV(viewPoint, space, viewPoint);
     }
 
-    convertDOMPointInto(x: number, y: number, out: S2OldPoint): void {
+    convertDOMPointInto(x: number, y: number, out: S2Point): void {
         const pt = new DOMPoint(x, y);
         const ctm = this.element.getScreenCTM();
         if (!ctm) {
@@ -39,7 +36,7 @@ export class S2SVG extends S2Element<S2ElementData> {
             return;
         }
         const local = pt.matrixTransform(ctm.inverse());
-        out.setValueFromSpace(local.x, local.y, 'view', this.scene.getActiveCamera());
+        out.setValueFromSpace(local.x, local.y, this.scene.getViewSpace());
     }
 
     update(): void {

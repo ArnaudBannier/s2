@@ -32,34 +32,30 @@ class SceneFigure extends S2Scene {
         const grid = this.addWorldGrid();
         grid.data.stroke.color.copy(MTL.GREY_7);
 
-        camera.scene = this;
-        camera.markDirty();
-        camera.update();
-
         console.log(this.getViewSpace());
 
-        const world = this.getWorldSpace();
-        const view = this.getViewSpace();
+        const worldSpace = this.getWorldSpace();
+        const viewSpace = this.getViewSpace();
         const newSpace = new S2AbstractSpace(this.getWorldSpace());
         newSpace.setFromSpace(this.getWorldSpace(), new S2Vec2(-3, -3), new S2Vec2(-2, 0), new S2Vec2(0, 2));
 
         const circle = this.addCircle();
         circle.data.position.set(1, 0.5, newSpace);
-        circle.data.radius.set(10, view);
+        circle.data.radius.set(1, worldSpace);
         circle.data.fill.color.copy(MTL.YELLOW_5);
         circle.data.stroke.color.copy(MTL.RED);
-        circle.data.stroke.width.set(2, 'view');
+        circle.data.stroke.width.set(2, viewSpace);
 
         this.coordSystem = new S2CoordinateSystem(this);
         this.coordSystem.setParent(this.getSVG());
-        this.coordSystem.data.extents.set(2.0, 2.0, 'world');
+        this.coordSystem.data.extents.set(2.0, 2.0, worldSpace);
         this.coordSystem.data.axisX.min.set(-1.0);
         this.coordSystem.data.axisX.max.set(1.0);
         this.coordSystem.data.axisX.majorStep.set(0.5);
         this.coordSystem.data.axisY.min.set(-1.0);
         this.coordSystem.data.axisY.max.set(1.0);
         this.coordSystem.data.axisY.majorStep.set(0.3);
-        this.coordSystem.data.position.set(0.0, 0.0, 'world');
+        this.coordSystem.data.position.set(0.0, 0.0, worldSpace);
         this.coordSystem.data.anchor.set('west');
 
         const majorGrid = this.coordSystem.createMajorGrid();
@@ -68,9 +64,9 @@ class SceneFigure extends S2Scene {
         const curvePlot = new S2CurvePlot(this);
         curvePlot.setParent(this.coordSystem);
         curvePlot.data.stroke.color.copy(MTL.CYAN_5);
-        curvePlot.data.stroke.width.set(4, 'view');
-        curvePlot.data.step.set(0.2, 'world');
-        curvePlot.data.derivativeEpsilon.set(1e-6, 'world');
+        curvePlot.data.stroke.width.set(4, viewSpace);
+        curvePlot.data.step.set(0.2, worldSpace);
+        curvePlot.data.derivativeEpsilon.set(1e-6, worldSpace);
         curvePlot.data.useSmoothing.set(true);
         curvePlot.data.paramCurve.set((t: number, out: S2Vec2) => {
             out.set(Math.sin(6 * t), Math.sin(5 * t));
@@ -93,7 +89,7 @@ class SceneFigure extends S2Scene {
         let posAnim = S2LerpAnimFactory.create(this, this.coordSystem.data.position)
             .setCycleDuration(5000)
             .setEasing(ease.inOut);
-        this.coordSystem.data.position.set(-2.0, 0.0, 'world');
+        this.coordSystem.data.position.set(-2.0, 0.0, this.getWorldSpace());
         posAnim.commitFinalState();
         this.animator.addAnimation(posAnim, 'previous-start');
     }

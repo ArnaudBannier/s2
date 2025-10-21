@@ -1,5 +1,4 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Space } from '../../math/s2-camera';
 import type { S2Dirtyable } from '../../shared/s2-globals';
 import { S2Number } from '../../shared/s2-number';
 import { S2Edge, S2EdgeData } from './s2-base-edge';
@@ -8,14 +7,13 @@ import { S2Edge, S2EdgeData } from './s2-base-edge';
 
 export class S2LineEdge extends S2Edge<S2EdgeData> {
     constructor(scene: S2BaseScene) {
-        super(scene, new S2EdgeData());
+        super(scene, new S2EdgeData(scene));
     }
 
     update(): void {
         if (this.skipUpdate()) return;
 
-        const space: S2Space = 'world';
-        const camera = this.scene.getActiveCamera();
+        const space = this.scene.getWorldSpace();
         const startDirection = this.getStartToEnd(space).normalize();
         const endDirection = startDirection.clone().negate();
         if (this.data.startAngle.value !== -Infinity) {
@@ -25,8 +23,8 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
             endDirection.setFromPolarDeg(this.data.endAngle.value);
         }
 
-        const start = this.data.start.getPointInDirection(startDirection, space, camera, this.data.startDistance);
-        const end = this.data.end.getPointInDirection(endDirection, space, camera, this.data.endDistance);
+        const start = this.data.start.getPointInDirection(startDirection, space, this.data.startDistance);
+        const end = this.data.end.getPointInDirection(endDirection, space, this.data.endDistance);
 
         this.applyStyleToPath();
         this.path.data.space.set(space);
@@ -41,8 +39,8 @@ export class S2CubicEdgeData extends S2EdgeData {
     public readonly curveStartTension: S2Number;
     public readonly curveEndTension: S2Number;
 
-    constructor() {
-        super();
+    constructor(scene: S2BaseScene) {
+        super(scene);
         this.curveStartTension = new S2Number(0.3);
         this.curveEndTension = new S2Number(0.3);
         this.curveBendAngle = new S2Number(0);
@@ -65,14 +63,13 @@ export class S2CubicEdgeData extends S2EdgeData {
 
 export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
     constructor(scene: S2BaseScene) {
-        super(scene, new S2CubicEdgeData());
+        super(scene, new S2CubicEdgeData(scene));
     }
 
     update(): void {
         if (this.skipUpdate()) return;
 
-        const space: S2Space = 'world';
-        const camera = this.scene.getActiveCamera();
+        const space = this.scene.getWorldSpace();
         const sign = -1;
         const startDirection = this.getStartToEnd(space).normalize();
         const endDirection = startDirection.clone().negate();
@@ -86,8 +83,8 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         startDirection.rotateDeg(+sign * curveBendAngle);
         endDirection.rotateDeg(-sign * curveBendAngle);
 
-        const start = this.data.start.getPointInDirection(startDirection, space, camera, this.data.startDistance);
-        const end = this.data.end.getPointInDirection(endDirection, space, camera, this.data.endDistance);
+        const start = this.data.start.getPointInDirection(startDirection, space, this.data.startDistance);
+        const end = this.data.end.getPointInDirection(endDirection, space, this.data.endDistance);
 
         const distance = start.distance(end);
         const startTension = this.data.curveStartTension.value !== -Infinity ? this.data.curveStartTension.get() : 0.3;

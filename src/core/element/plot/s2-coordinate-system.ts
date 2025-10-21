@@ -1,5 +1,4 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Space } from '../../math/s2-camera';
 import type { S2Anchor, S2Dirtyable } from '../../shared/s2-globals';
 import { S2Mat2x3 } from '../../math/s2-mat2x3';
 import { S2Vec2 } from '../../math/s2-vec2';
@@ -7,24 +6,33 @@ import { S2Enum } from '../../shared/s2-enum';
 import { S2Extents } from '../../shared/s2-extents';
 import { S2AnchorUtils, svgNS } from '../../shared/s2-globals';
 import { S2Number } from '../../shared/s2-number';
-import { S2OldPoint } from '../../shared/s2-point';
+import { S2Point } from '../../shared/s2-point';
 import { S2BaseData, S2ElementData, S2StrokeData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
 import { S2Grid } from '../s2-grid';
 import type { S2Line } from '../s2-line';
 import { S2CurvePlot } from './s2-curve-plot';
 import { S2PlotModifier } from './s2-plot-modifier';
-import { S2LengthOld } from '../../shared/s2-length';
+import { S2Length } from '../../shared/s2-length';
+import type { S2AbstractSpace } from '../../math/s2-abstract-space';
 
 export class S2CoordinateSystemData extends S2ElementData {
-    public readonly stroke: S2StrokeData = new S2StrokeData();
+    public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number = new S2Number(1);
-    public readonly position: S2OldPoint = new S2OldPoint(0, 0, 'world');
-    public readonly extents: S2Extents = new S2Extents(1, 1, 'world');
+    public readonly position: S2Point;
+    public readonly extents: S2Extents;
     public readonly anchor: S2Enum<S2Anchor> = new S2Enum<S2Anchor>('center');
     public readonly axisX: S2AxisData = new S2AxisData();
     public readonly axisY: S2AxisData = new S2AxisData();
-    public readonly lineEndPadding: S2LengthOld = new S2LengthOld(20, 'view');
+    public readonly lineEndPadding: S2Length;
+
+    constructor(scene: S2BaseScene) {
+        super();
+        this.stroke = new S2StrokeData(scene);
+        this.position = new S2Point(0, 0, scene.getWorldSpace());
+        this.extents = new S2Extents(1, 1, scene.getWorldSpace());
+        this.lineEndPadding = new S2Length(20, scene.getViewSpace());
+    }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
@@ -83,14 +91,17 @@ export class S2CoordinateSystem extends S2Element<S2CoordinateSystemData> {
     protected lineY: S2Line | null = null;
     protected coordToPointMatrix: S2Mat2x3 = new S2Mat2x3();
     protected pointToCoordMatrix: S2Mat2x3 = new S2Mat2x3();
-    protected origin: S2OldPoint = new S2OldPoint(0, 0, 'world');
-    protected lower: S2OldPoint = new S2OldPoint(0, 0, 'world');
-    protected upper: S2OldPoint = new S2OldPoint(0, 0, 'world');
+    protected origin: S2Point;
+    protected lower: S2Point;
+    protected upper: S2Point;
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2CoordinateSystemData());
+        super(scene, new S2CoordinateSystemData(scene));
         this.element = document.createElementNS(svgNS, 'g');
-        this.data.stroke.width.set(2, 'view');
+        this.origin = new S2Point(0, 0, scene.getWorldSpace());
+        this.lower = new S2Point(0, 0, scene.getWorldSpace());
+        this.upper = new S2Point(0, 0, scene.getWorldSpace());
+        this.data.stroke.width.set(2, scene.getViewSpace());
         this.data.stroke.opacity.set(1);
         this.element.role = 'coordinate-system';
 
@@ -152,22 +163,22 @@ export class S2CoordinateSystem extends S2Element<S2CoordinateSystemData> {
         return this.element;
     }
 
-    getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.get(space, this.scene.getActiveCamera());
+    getPosition(space: S2AbstractSpace): S2Vec2 {
+        return this.data.position.get(space);
     }
 
-    getCenter(space: S2Space): S2Vec2 {
+    getCenter(space: S2AbstractSpace): S2Vec2 {
         return S2AnchorUtils.getCenter(
             this.data.anchor.get(),
             space,
-            this.scene.getActiveCamera(),
+            this.scene,
             this.data.position,
             this.data.extents,
         );
     }
 
-    getExtents(space: S2Space): S2Vec2 {
-        return this.data.extents.get(space, this.scene.getActiveCamera());
+    getExtents(space: S2AbstractSpace): S2Vec2 {
+        return this.data.extents.get(space);
     }
 
     getCoordToPointMatrix(): S2Mat2x3 {

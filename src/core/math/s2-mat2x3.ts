@@ -23,6 +23,11 @@ export class S2Mat2x3 {
         return true;
     }
 
+    static det(matrix: S2Mat2x3): number {
+        const e = matrix.elements;
+        return e[0] * e[3] - e[2] * e[1];
+    }
+
     lerp(matrix0: S2Mat2x3, matrix1: S2Mat2x3, t: number): this {
         const s = 1 - t;
         for (let i = 0; i < 6; i++) {
@@ -129,6 +134,11 @@ export class S2Mat2x3 {
 
     clone(): S2Mat2x3 {
         return new S2Mat2x3().copy(this);
+    }
+
+    det(): number {
+        const te = this.elements;
+        return te[0] * te[3] - te[2] * te[1];
     }
 
     makeIdentity(): this {

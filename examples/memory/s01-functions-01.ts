@@ -49,7 +49,7 @@ class SceneFigure extends BaseMemoryScene {
         this.codeMain.setParent(this.getSVG());
         this.setDefaultCodeStyle(this.codeMain);
         this.codeMain.setContent(tokenizeAlgorithm(codeStringMain));
-        this.codeMain.data.position.set(-6, 4.0, 'world');
+        this.codeMain.data.position.set(-6, 4.0, this.getWorldSpace());
         this.codeMain.data.anchor.set('north-west');
 
         this.codeFunc = new S2Code(this);
@@ -66,7 +66,7 @@ class SceneFigure extends BaseMemoryScene {
         });
         this.memory.setParent(this.getSVG());
         this.setDefaultMemoryStyle(this.memory);
-        this.memory.data.position.set(6, 0, 'world');
+        this.memory.data.position.set(6, 0, this.getWorldSpace());
         this.update();
 
         this.createAnimation();

@@ -1,6 +1,6 @@
 import type { S2BaseElement } from '../element/base/s2-element';
 import type { S2BaseNode } from '../element/node/s2-base-node';
-import type { S2OldPoint } from '../shared/s2-point';
+import type { S2Point } from '../shared/s2-point';
 import type { S2Camera } from '../math/s2-camera';
 import { S2Circle } from '../element/s2-circle';
 import { S2Rect } from '../element/s2-rect';
@@ -14,12 +14,15 @@ import { S2CubicEdge, S2LineEdge } from '../element/node/s2-edge';
 import { S2BaseScene } from './s2-base-scene';
 import { S2Line } from '../element/s2-line';
 import { S2ElementData } from '../element/base/s2-base-data';
-import { S2DataSetter } from '../element/base/s2-data-setter';
 import { S2PlainNode } from '../element/node/s2-plain-node';
 
 export class S2Scene extends S2BaseScene {
     constructor(element: SVGSVGElement, camera: S2Camera) {
         super(element, camera);
+
+        camera.scene = this;
+        camera.markDirty();
+        camera.update();
     }
 
     addCircle(parent: S2BaseElement = this.svg): S2Circle {
@@ -49,13 +52,13 @@ export class S2Scene extends S2BaseScene {
     addWorldGrid(parent: S2BaseElement = this.svg): S2Grid {
         const child = new S2Grid(this);
         const viewport = this.getActiveCamera().getViewportSize();
-        S2DataSetter.setTargets(child.data)
-            .setStrokeWidth(1, 'view')
-            .setTargets(child.data.geometry)
-            .setGridBoundA(0, 0, 'view')
-            .setGridBoundB(viewport.x, viewport.y, 'view')
-            .setGridReferencePoint(0, 0, 'world')
-            .setGridSteps(1, 1, 'world');
+        const data = child.data;
+        data.stroke.width.set(1, this.getViewSpace());
+        data.geometry.boundA.set(0, 0, this.getViewSpace());
+        data.geometry.boundB.set(viewport.x, viewport.y, this.getViewSpace());
+        data.geometry.referencePoint.set(0, 0, this.getWorldSpace());
+        data.geometry.steps.set(1, 1, this.getWorldSpace());
+        child.update();
         child.setParent(parent);
         return child;
     }
@@ -96,11 +99,7 @@ export class S2Scene extends S2BaseScene {
         return child;
     }
 
-    addLineEdge(
-        start: S2BaseNode | S2OldPoint,
-        end: S2BaseNode | S2OldPoint,
-        parent: S2BaseElement = this.svg,
-    ): S2LineEdge {
+    addLineEdge(start: S2BaseNode | S2Point, end: S2BaseNode | S2Point, parent: S2BaseElement = this.svg): S2LineEdge {
         const child = new S2LineEdge(this);
         child.data.start.set(start);
         child.data.end.set(end);
@@ -109,8 +108,8 @@ export class S2Scene extends S2BaseScene {
     }
 
     addCubicEdge(
-        start: S2BaseNode | S2OldPoint,
-        end: S2BaseNode | S2OldPoint,
+        start: S2BaseNode | S2Point,
+        end: S2BaseNode | S2Point,
         parent: S2BaseElement = this.svg,
     ): S2CubicEdge {
         const child = new S2CubicEdge(this);

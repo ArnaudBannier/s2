@@ -4,9 +4,9 @@ import type { S2Enum } from '../shared/s2-enum';
 import type { S2EaseType } from './s2-easing';
 import type { S2Number } from '../shared/s2-number';
 import type { S2Color } from '../shared/s2-color';
-import type { S2OldPoint } from '../shared/s2-point';
+import type { S2Point } from '../shared/s2-point';
 import type { S2Offset } from '../shared/s2-offset';
-import type { S2LengthOld } from '../shared/s2-length';
+import type { S2Length } from '../shared/s2-length';
 import type { S2Extents } from '../shared/s2-extents';
 import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';
@@ -17,9 +17,9 @@ import { ease } from './s2-easing';
 export type S2AnimProperty =
     | S2Number
     | S2Color
-    | S2OldPoint
+    | S2Point
     | S2Offset
-    | S2LengthOld
+    | S2Length
     | S2Extents
     | S2Boolean
     | S2Enum<S2Space>

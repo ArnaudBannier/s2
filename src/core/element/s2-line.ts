@@ -6,19 +6,30 @@ import { S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2OldPoint } from '../shared/s2-point';
 import { S2ArrowTip } from './s2-arrow-tip';
 import { S2Vec2 } from '../math/s2-vec2';
-import { S2LengthOld } from '../shared/s2-length';
+import { S2Point } from '../shared/s2-point';
+import { S2Length } from '../shared/s2-length';
 
 export class S2LineData extends S2ElementData {
-    public readonly stroke: S2StrokeData = new S2StrokeData();
+    public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number = new S2Number(1);
     public readonly transform: S2Transform = new S2Transform();
-    public readonly startPosition: S2OldPoint = new S2OldPoint();
-    public readonly endPosition: S2OldPoint = new S2OldPoint();
-    public readonly startPadding: S2LengthOld = new S2LengthOld(0);
-    public readonly endPadding: S2LengthOld = new S2LengthOld(0);
+    public readonly startPosition: S2Point;
+    public readonly endPosition: S2Point;
+    public readonly startPadding: S2Length;
+    public readonly endPadding: S2Length;
+
+    constructor(scene: S2BaseScene) {
+        super();
+        this.stroke = new S2StrokeData(scene);
+        this.opacity = new S2Number(1);
+        this.transform = new S2Transform();
+        this.startPosition = new S2Point(0, 0, scene.getWorldSpace());
+        this.endPosition = new S2Point(0, 0, scene.getWorldSpace());
+        this.startPadding = new S2Length(0, scene.getViewSpace());
+        this.endPadding = new S2Length(0, scene.getViewSpace());
+    }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
@@ -46,12 +57,14 @@ export class S2LineData extends S2ElementData {
 export class S2Line extends S2Element<S2LineData> implements S2Tipable {
     protected element: SVGLineElement;
     protected arrowTips: S2ArrowTip[] = [];
-    protected position0: S2OldPoint = new S2OldPoint();
-    protected position1: S2OldPoint = new S2OldPoint();
+    protected position0: S2Point;
+    protected position1: S2Point;
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2LineData());
+        super(scene, new S2LineData(scene));
         this.element = document.createElementNS(svgNS, 'line');
+        this.position0 = new S2Point(0, 0, scene.getWorldSpace());
+        this.position1 = new S2Point(0, 0, scene.getWorldSpace());
     }
 
     createArrowTip(): S2ArrowTip {
@@ -96,16 +109,15 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
     }
 
     getTipTransformAt(t: number): S2TipTransform {
-        const space = 'world';
-        const camera = this.scene.getActiveCamera();
-        const p0 = this.data.startPosition.get(space, camera);
-        const p1 = this.data.endPosition.get(space, camera);
-        const transform = new S2TipTransform();
+        const space = this.scene.getWorldSpace();
+        const p0 = this.data.startPosition.get(space);
+        const p1 = this.data.endPosition.get(space);
+        const transform = new S2TipTransform(this.scene);
         transform.space = space;
         transform.position = S2Vec2.lerpV(p0, p1, t);
         transform.tangent = S2Vec2.subV(p1, p0);
         transform.pathLength = p0.distance(p1);
-        transform.strokeWidth = this.data.stroke.width.get(transform.space, camera);
+        transform.strokeWidth = this.data.stroke.width.get(space);
         return transform;
     }
 
@@ -116,8 +128,7 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
     update(): void {
         if (this.skipUpdate()) return;
 
-        const space = 'view';
-        const camera = this.scene.getActiveCamera();
+        const space = this.scene.getViewSpace();
 
         S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
@@ -130,11 +141,11 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
             this.data.startPadding.isDirty() ||
             this.data.endPadding.isDirty();
         if (isPosDirty) {
-            const pos0 = this.data.startPosition.get(space, camera);
-            const pos1 = this.data.endPosition.get(space, camera);
+            const pos0 = this.data.startPosition.get(space);
+            const pos1 = this.data.endPosition.get(space);
             const length = pos0.distance(pos1);
-            const padding0 = this.data.startPadding.get(space, camera);
-            const padding1 = this.data.endPadding.get(space, camera);
+            const padding0 = this.data.startPadding.get(space);
+            const padding1 = this.data.endPadding.get(space);
 
             if (length < 1e-6 || length < padding0 + padding1) {
                 // Too close, hide the line
@@ -148,8 +159,8 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
                 this.position1.setV(pos1, space);
             }
 
-            S2DataUtils.applyPositionOld(this.position0, this.element, this.scene, 'x1', 'y1');
-            S2DataUtils.applyPositionOld(this.position1, this.element, this.scene, 'x2', 'y2');
+            S2DataUtils.applyPosition(this.position0, this.element, this.scene, 'x1', 'y1');
+            S2DataUtils.applyPosition(this.position1, this.element, this.scene, 'x2', 'y2');
             this.position0.clearDirty();
             this.position1.clearDirty();
         }

@@ -1,6 +1,6 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Dirtyable } from '../shared/s2-globals';
-import type { S2Space } from '../math/s2-camera';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../shared/s2-globals';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -8,9 +8,8 @@ import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2OldPoint, S2Point } from '../shared/s2-point';
-import { S2Length, S2LengthOld } from '../shared/s2-length';
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import { S2Point } from '../shared/s2-point';
+import { S2Length } from '../shared/s2-length';
 
 export class S2CircleData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -23,7 +22,7 @@ export class S2CircleData extends S2ElementData {
     constructor(scene: S2BaseScene) {
         super();
         this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.position = new S2Point(0, 0, scene.getWorldSpace());

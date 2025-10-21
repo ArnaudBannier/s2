@@ -1,25 +1,25 @@
-import type { S2Space } from '../../math/s2-camera';
-import type { S2Camera } from '../../math/s2-camera';
+import type { S2BaseScene } from '../../scene/s2-base-scene';
+import type { S2AbstractSpace } from '../../math/s2-abstract-space';
 import type { S2Dirtyable } from '../../shared/s2-globals';
 import type { S2BaseEdge } from './s2-base-edge';
-import type { S2LengthOld } from '../../shared/s2-length';
+import type { S2Length } from '../../shared/s2-length';
 import { S2Vec2 } from '../../math/s2-vec2';
-import { S2OldPoint } from '../../shared/s2-point';
+import { S2Point } from '../../shared/s2-point';
 import { S2BaseNode } from './s2-base-node';
 
 export class S2EdgeEndpoint implements S2Dirtyable {
     protected mode: 'node' | 'position';
     public node: S2BaseNode | null;
-    public position: S2OldPoint;
+    public position: S2Point;
     private owner: S2Dirtyable | null;
     public dirty: boolean = true;
     public edge: S2BaseEdge | null;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         this.mode = 'position';
         this.node = null;
         this.owner = null;
-        this.position = new S2OldPoint(0, 0, 'world');
+        this.position = new S2Point(0, 0, scene.getWorldSpace());
         this.edge = null;
 
         this.position.setOwner(this);
@@ -44,7 +44,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         this.position.clearDirty();
     }
 
-    set(endpoint: S2BaseNode | S2OldPoint): this {
+    set(endpoint: S2BaseNode | S2Point): this {
         if (endpoint instanceof S2BaseNode) {
             this.mode = 'node';
             this.node = endpoint;
@@ -64,15 +64,15 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         this.position.copyIfUnlocked(other.position);
     }
 
-    getCenter(space: S2Space, camera: S2Camera): S2Vec2 {
+    getCenter(space: S2AbstractSpace): S2Vec2 {
         if (this.mode === 'node' && this.node) {
             return this.node.getCenter(space);
         } else {
-            return this.position.get(space, camera);
+            return this.position.get(space);
         }
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2Space, camera: S2Camera, distance: S2LengthOld): S2Vec2 {
+    getPointInDirection(direction: S2Vec2, space: S2AbstractSpace, distance: S2Length): S2Vec2 {
         if (this.mode === 'node' && this.node) {
             if (distance.value !== -Infinity) {
                 return this.node.getPointInDirection(direction, space, distance);
@@ -80,8 +80,8 @@ export class S2EdgeEndpoint implements S2Dirtyable {
                 return this.node.getCenter(space);
             }
         } else {
-            const point = this.position.get(space, camera);
-            const d = distance.get(space, camera);
+            const point = this.position.get(space);
+            const d = distance.get(space);
             return point.addV(direction.clone().normalize().scale(d));
         }
     }

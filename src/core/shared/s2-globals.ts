@@ -1,8 +1,8 @@
-import type { S2ArrowTip } from '../element/s2-arrow-tip';
-import type { S2Camera } from '../math/s2-camera';
-import type { S2Space } from '../math/s2-camera';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Extents } from './s2-extents';
-import type { S2OldPoint } from './s2-point';
+import type { S2Point } from './s2-point';
+import type { S2ArrowTip } from '../element/s2-arrow-tip';
 import { S2Vec2 } from '../math/s2-vec2';
 
 export const svgNS = 'http://www.w3.org/2000/svg';
@@ -23,11 +23,15 @@ export interface S2Dirtyable {
 }
 
 export class S2TipTransform {
-    public space: S2Space = 'world';
+    public space: S2AbstractSpace;
     public position: S2Vec2 = new S2Vec2();
     public tangent: S2Vec2 = new S2Vec2();
     public strokeWidth: number = 1;
     public pathLength: number = 1;
+
+    constructor(scene: S2BaseScene) {
+        this.space = scene.getWorldSpace();
+    }
 }
 
 export interface S2Tipable {
@@ -54,14 +58,14 @@ export type S2Anchor =
 export class S2AnchorUtils {
     static getCenter(
         anchor: S2Anchor,
-        space: S2Space,
-        camera: S2Camera,
-        position: S2OldPoint,
+        space: S2AbstractSpace,
+        scene: S2BaseScene,
+        position: S2Point,
         extents: S2Extents,
     ): S2Vec2 {
-        const sign = space === 'world' ? +1 : -1;
-        const ext = extents.get(space, camera);
-        const center = position.get(space, camera);
+        const sign = space === scene.getViewSpace() ? -1 : +1;
+        const ext = extents.get(space);
+        const center = position.get(space);
         switch (anchor) {
             case 'north-west':
                 center.shiftY(-sign * ext.y).shiftX(+ext.x);
@@ -95,14 +99,14 @@ export class S2AnchorUtils {
 
     static getNorthWest(
         anchor: S2Anchor,
-        space: S2Space,
-        camera: S2Camera,
-        position: S2OldPoint,
+        space: S2AbstractSpace,
+        scene: S2BaseScene,
+        position: S2Point,
         extents: S2Extents,
     ): S2Vec2 {
-        const sign = space === 'world' ? +1 : -1;
-        const ext = extents.get(space, camera);
-        const nw = position.get(space, camera);
+        const sign = space === scene.getViewSpace() ? -1 : +1;
+        const ext = extents.get(space);
+        const nw = position.get(space);
         switch (anchor) {
             case 'north-west':
                 break;

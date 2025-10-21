@@ -1,6 +1,5 @@
 import type { S2StepAnimator } from '../core/animation/s2-step-animator';
 import type { S2BaseScene } from '../core/scene/s2-base-scene';
-import type { S2Space } from '../core/math/s2-camera';
 import type { S2Color } from '../core/shared/s2-color';
 import type { S2Memory } from './s2-memory';
 import { ease } from '../core/animation/s2-easing';
@@ -8,7 +7,7 @@ import { S2LerpAnimFactory } from '../core/animation/s2-lerp-anim';
 import { S2Line } from '../core/element/s2-line';
 import { S2PlainText } from '../core/element/text/s2-plain-text';
 import { S2Vec2 } from '../core/math/s2-vec2';
-import { S2OldPoint } from '../core/shared/s2-point';
+import { S2Point } from '../core/shared/s2-point';
 import { S2MotionPathDirection } from '../core/animation/s2-motion-path';
 import { S2Rect } from '../core/element/s2-rect';
 import { S2TriggerColor } from '../core/animation/s2-timeline-trigger';
@@ -23,10 +22,10 @@ export class S2MemoryRow {
     public highlight: S2Rect;
     public hLine: S2Line;
     public isStacked: boolean;
-    public lowerBound: S2OldPoint;
-    public upperBound: S2OldPoint;
-    protected basePosName: S2OldPoint;
-    protected basePosValue: S2OldPoint;
+    public lowerBound: S2Point;
+    public upperBound: S2Point;
+    protected basePosName: S2Point;
+    protected basePosValue: S2Point;
     protected available: boolean;
 
     constructor(parent: S2Memory, index: number) {
@@ -38,10 +37,10 @@ export class S2MemoryRow {
         this.names = [];
         this.address = new S2PlainText(scene);
         this.hLine = new S2Line(scene);
-        this.lowerBound = new S2OldPoint();
-        this.upperBound = new S2OldPoint();
-        this.basePosName = new S2OldPoint();
-        this.basePosValue = new S2OldPoint();
+        this.lowerBound = new S2Point(0, 0, scene.getWorldSpace());
+        this.upperBound = new S2Point(0, 0, scene.getWorldSpace());
+        this.basePosName = new S2Point(0, 0, scene.getWorldSpace());
+        this.basePosValue = new S2Point(0, 0, scene.getWorldSpace());
         this.highlight = new S2Rect(scene);
 
         this.hLine.setParent(parent);
@@ -246,7 +245,7 @@ export class S2MemoryRow {
 
         this.highlight.data.opacity.set(0.0);
         this.highlight.data.fill.opacity.set(0.15);
-        this.highlight.data.stroke.width.set(1, 'view');
+        this.highlight.data.stroke.width.set(1, this.scene.getViewSpace());
         const opacityAnim = S2LerpAnimFactory.create(this.scene, this.highlight.data.opacity)
             .setCycleDuration(duration)
             .setEasing(ease.inOut);
@@ -310,7 +309,7 @@ export class S2MemoryRow {
             const widthAnim = S2LerpAnimFactory.create(this.scene, this.hLine.data.stroke.width)
                 .setCycleDuration(duration)
                 .setEasing(ease.inOut);
-            this.hLine.data.stroke.width.set(options.width, 'view').lock();
+            this.hLine.data.stroke.width.set(options.width, this.scene.getViewSpace()).lock();
             widthAnim.commitFinalState();
             animator.addAnimation(widthAnim, label, offset);
         }
@@ -344,16 +343,16 @@ export class S2MemoryRow {
             delay = 250;
         }
 
-        const space: S2Space = 'world';
-        const srcPosition = srcText.getPosition(space);
-        const dstPosition = dstText.getPosition(space);
+        const worldSpace = this.scene.getWorldSpace();
+        const srcPosition = srcText.getPosition(worldSpace);
+        const dstPosition = dstText.getPosition(worldSpace);
         if (srcText.data.textAnchor.get() === 'end') {
-            srcPosition.x -= 2 * srcText.getExtents(space).x;
+            srcPosition.x -= 2 * srcText.getExtents(worldSpace).x;
         }
         const motionAnim = new S2MotionPathDirection(this.scene, dstText.data.localShift)
             .setCycleDuration(duration)
             .setEasing(ease.inOut)
-            .setSpace(space);
+            .setSpace(worldSpace);
 
         const shift = srcPosition.subV(dstPosition);
         const distance = shift.length();
@@ -368,7 +367,7 @@ export class S2MemoryRow {
                 sampleCount,
             )
             .updateLength();
-        dstText.data.localShift.set(0, 0, space);
+        dstText.data.localShift.set(0, 0, worldSpace);
         animator.enableElement(dstText, true, label, offset + delay);
         animator.addAnimation(motionAnim, label, offset + delay);
 
@@ -400,11 +399,11 @@ export class S2MemoryRow {
         animator.addAnimation(opacityAnim, label, offset);
 
         if (S2Vec2.isZeroV(shift) === false) {
-            text.data.localShift.setV(shift, 'view');
+            text.data.localShift.setV(shift, this.scene.getViewSpace());
             const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.localShift)
                 .setCycleDuration(duration)
                 .setEasing(ease.inOut);
-            text.data.localShift.set(0, 0, 'view');
+            text.data.localShift.set(0, 0, this.scene.getViewSpace());
             shiftAnim.commitFinalState();
             animator.addAnimation(shiftAnim, label, offset);
         }
@@ -426,11 +425,11 @@ export class S2MemoryRow {
         opacityAnim.commitFinalState();
         animator.addAnimation(opacityAnim, label, offset);
         if (S2Vec2.isZeroV(shift) === false) {
-            text.data.localShift.set(0, 0, 'view');
+            text.data.localShift.set(0, 0, this.scene.getViewSpace());
             const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.localShift)
                 .setCycleDuration(duration)
                 .setEasing(ease.inOut);
-            text.data.localShift.setV(shift, 'view');
+            text.data.localShift.setV(shift, this.scene.getViewSpace());
             shiftAnim.commitFinalState();
             animator.addAnimation(shiftAnim, label, offset);
         }
@@ -438,8 +437,8 @@ export class S2MemoryRow {
     }
 
     setWorldBounds(lowerBound: S2Vec2, upperBound: S2Vec2): void {
-        this.lowerBound.setV(lowerBound, 'world');
-        this.upperBound.setV(upperBound, 'world');
+        this.lowerBound.setV(lowerBound, this.scene.getWorldSpace());
+        this.upperBound.setV(upperBound, this.scene.getWorldSpace());
     }
 
     protected updateGeometry(): void {
@@ -451,49 +450,48 @@ export class S2MemoryRow {
             parentData.text.font.isDirty();
         if (isDirty === false) return;
 
-        const space: S2Space = 'world';
-        const camera = this.scene.getActiveCamera();
-        const lowerBound = this.lowerBound.get(space, camera);
-        const upperBound = this.upperBound.get(space, camera);
+        const worldSpace = this.scene.getWorldSpace();
+        const lowerBound = this.lowerBound.get(worldSpace);
+        const upperBound = this.upperBound.get(worldSpace);
         const height = upperBound.y - lowerBound.y;
         const width = upperBound.x - lowerBound.x;
 
         const font = parentData.text.font;
-        const ascenderHeight = font.relativeAscenderHeight.value * font.size.get(space, camera);
+        const ascenderHeight = font.relativeAscenderHeight.value * font.size.get(worldSpace);
         const textY = lowerBound.y + height / 2 - ascenderHeight / 2;
-        const padding = parentData.padding.get(space, camera).x;
-        const valueWidth = parentData.valueWidth.get(space, camera);
+        const padding = parentData.padding.get(worldSpace).x;
+        const valueWidth = parentData.valueWidth.get(worldSpace);
         const nameWidth = width - valueWidth;
 
-        this.address.data.position.set(lowerBound.x - padding, textY, space);
-        this.basePosValue.set(lowerBound.x + padding, textY, space);
-        this.basePosName.set(lowerBound.x + valueWidth + padding, textY, space);
+        this.address.data.position.set(lowerBound.x - padding, textY, worldSpace);
+        this.basePosValue.set(lowerBound.x + padding, textY, worldSpace);
+        this.basePosName.set(lowerBound.x + valueWidth + padding, textY, worldSpace);
         for (const value of this.values) {
-            value.data.position.setV(this.basePosValue.value, space);
+            value.data.position.setV(this.basePosValue.value, worldSpace);
         }
         for (const name of this.names) {
-            name.data.position.setV(this.basePosName.value, space);
+            name.data.position.setV(this.basePosName.value, worldSpace);
         }
 
         if (this.isStacked) {
-            this.hLine.data.startPosition.set(lowerBound.x, upperBound.y, space);
-            this.hLine.data.endPosition.set(upperBound.x, upperBound.y, space);
+            this.hLine.data.startPosition.set(lowerBound.x, upperBound.y, worldSpace);
+            this.hLine.data.endPosition.set(upperBound.x, upperBound.y, worldSpace);
         } else {
-            this.hLine.data.startPosition.set(lowerBound.x, lowerBound.y, space);
-            this.hLine.data.endPosition.set(upperBound.x, lowerBound.y, space);
+            this.hLine.data.startPosition.set(lowerBound.x, lowerBound.y, worldSpace);
+            this.hLine.data.endPosition.set(upperBound.x, lowerBound.y, worldSpace);
         }
 
         const highlightCenter = new S2Vec2(lowerBound.x + 0.75 * width, lowerBound.y + 0.5 * height);
-        this.highlight.data.position.setV(highlightCenter, space);
+        this.highlight.data.position.setV(highlightCenter, worldSpace);
 
-        const highlightPadding = parentData.highlight.padding.get(space, camera);
-        this.highlight.data.position.setV(highlightCenter, space);
+        const highlightPadding = parentData.highlight.padding.get(worldSpace);
+        this.highlight.data.position.setV(highlightCenter, worldSpace);
         this.highlight.data.extents.set(
             0.5 * nameWidth - 2 * highlightPadding.x,
             0.5 * height - 2 * highlightPadding.y,
-            space,
+            worldSpace,
         );
-        this.highlight.data.cornerRadius.set(parentData.highlight.cornerRadius.get(space, camera), space);
+        this.highlight.data.cornerRadius.set(parentData.highlight.cornerRadius.get(worldSpace), worldSpace);
         this.highlight.data.anchor.set('center');
     }
 

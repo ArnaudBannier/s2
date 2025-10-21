@@ -2,9 +2,10 @@ import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin, S2PointerEvents }
 import { S2Boolean } from '../../shared/s2-boolean';
 import { S2Color } from '../../shared/s2-color';
 import { S2Enum } from '../../shared/s2-enum';
-import { S2LengthOld } from '../../shared/s2-length';
+import { S2Length } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2String } from '../../shared/s2-string';
+import type { S2BaseScene } from '../../scene/s2-base-scene';
 
 export abstract class S2BaseData {
     abstract setOwner(owner: S2Dirtyable | null): void;
@@ -30,26 +31,18 @@ export class S2ElementData extends S2BaseData {
 }
 
 export class S2StrokeData extends S2BaseData implements S2Dirtyable {
-    public readonly color: S2Color;
-    public readonly width: S2LengthOld;
-    public readonly opacity: S2Number;
-    public readonly lineCap: S2Enum<S2LineCap>;
-    public readonly lineJoin: S2Enum<S2LineJoin>;
+    public readonly color: S2Color = new S2Color(0, 0, 0);
+    public readonly width: S2Length;
+    public readonly opacity: S2Number = new S2Number(1);
+    public readonly lineCap: S2Enum<S2LineCap> = new S2Enum<S2LineCap>('round');
+    public readonly lineJoin: S2Enum<S2LineJoin> = new S2Enum<S2LineJoin>('miter');
 
-    private dirty: boolean;
-    private owner: S2Dirtyable | null;
+    private dirty: boolean = true;
+    private owner: S2Dirtyable | null = null;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
-        this.color = new S2Color(0, 0, 0);
-        this.width = new S2LengthOld(0, 'view');
-        this.opacity = new S2Number(1);
-        this.lineCap = new S2Enum<S2LineCap>('round');
-        this.lineJoin = new S2Enum<S2LineJoin>('miter');
-
-        this.dirty = true;
-        this.owner = null;
-
+        this.width = new S2Length(0, scene.getViewSpace());
         this.color.setOwner(this);
         this.width.setOwner(this);
         this.opacity.setOwner(this);
@@ -98,19 +91,14 @@ export class S2StrokeData extends S2BaseData implements S2Dirtyable {
 }
 
 export class S2FillData extends S2BaseData implements S2Dirtyable {
-    public readonly color: S2Color;
-    public readonly opacity: S2Number;
+    public readonly color: S2Color = new S2Color(255, 255, 255);
+    public readonly opacity: S2Number = new S2Number(1);
 
-    private dirty: boolean;
-    private owner: S2Dirtyable | null;
+    private dirty: boolean = true;
+    private owner: S2Dirtyable | null = null;
 
     constructor() {
         super();
-        this.color = new S2Color(255, 255, 255);
-        this.opacity = new S2Number(1);
-        this.dirty = true;
-        this.owner = null;
-
         this.color.setOwner(this);
         this.opacity.setOwner(this);
     }
@@ -147,26 +135,19 @@ export class S2FillData extends S2BaseData implements S2Dirtyable {
 }
 
 export class S2FontData extends S2BaseData implements S2Dirtyable {
-    public readonly size: S2LengthOld;
-    public readonly weight: S2Number;
-    public readonly relativeLineHeight: S2Number;
-    public readonly relativeAscenderHeight: S2Number;
-    public readonly family: S2String;
-    public readonly style: S2Enum<S2FontStyle>;
+    public readonly size: S2Length;
+    public readonly weight: S2Number = new S2Number(400);
+    public readonly relativeLineHeight: S2Number = new S2Number(21 / 16);
+    public readonly relativeAscenderHeight: S2Number = new S2Number(16 / 16);
+    public readonly family: S2String = new S2String('system-ui');
+    public readonly style: S2Enum<S2FontStyle> = new S2Enum<S2FontStyle>('normal');
 
-    private dirty: boolean;
-    private owner: S2Dirtyable | null;
+    private dirty: boolean = true;
+    private owner: S2Dirtyable | null = null;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
-        this.size = new S2LengthOld(16, 'view');
-        this.weight = new S2Number(400);
-        this.relativeLineHeight = new S2Number(21 / 16);
-        this.relativeAscenderHeight = new S2Number(16 / 16);
-        this.family = new S2String('system-ui');
-        this.style = new S2Enum<S2FontStyle>('normal');
-        this.dirty = true;
-        this.owner = null;
+        this.size = new S2Length(16, scene.getViewSpace());
 
         this.size.setOwner(this);
         this.weight.setOwner(this);

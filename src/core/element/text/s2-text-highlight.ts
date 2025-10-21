@@ -1,13 +1,12 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2StepAnimator } from '../../animation/s2-step-animator';
-import type { S2Space } from '../../math/s2-camera';
 import type { S2Dirtyable } from '../../shared/s2-globals';
 import type { S2TSpan } from './s2-tspan';
 import { ease } from '../../animation/s2-easing';
 import { S2LerpAnimFactory } from '../../animation/s2-lerp-anim';
 import { S2AABB } from '../../math/s2-aabb';
 import { S2Extents } from '../../shared/s2-extents';
-import { S2LengthOld } from '../../shared/s2-length';
+import { S2Length } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2ElementData, S2FillData, S2StrokeData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
@@ -17,16 +16,18 @@ export class S2TextHighlightData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
-    public readonly cornerRadius: S2LengthOld;
+    public readonly cornerRadius: S2Length;
     public readonly padding: S2Extents;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
+        const viewSpace = scene.getViewSpace();
         this.fill = new S2FillData();
-        this.stroke = new S2StrokeData();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
-        this.cornerRadius = new S2LengthOld(5, 'view');
-        this.padding = new S2Extents(4, 2, 'view');
+        this.cornerRadius = new S2Length(5, viewSpace);
+        this.padding = new S2Extents(4, 2, viewSpace);
+
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
     }
@@ -54,7 +55,7 @@ export class S2TextHighlight extends S2Element<S2TextHighlightData> {
     protected references: S2TSpan[];
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2TextHighlightData());
+        super(scene, new S2TextHighlightData(scene));
         this.rect = new S2Rect(scene);
         this.references = [];
 
@@ -122,20 +123,19 @@ export class S2TextHighlight extends S2Element<S2TextHighlightData> {
         if (!this.isDirty()) return;
         if (this.references.length === 0) return;
 
-        const camera = this.scene.getActiveCamera();
-        const space: S2Space = 'view';
+        const viewSpace = this.scene.getViewSpace();
 
         const aabb = new S2AABB().setEmpty();
         for (const ref of this.references) {
-            aabb.expandToInclude(ref.getLower(space));
-            aabb.expandToInclude(ref.getUpper(space));
+            aabb.expandToInclude(ref.getLower(viewSpace));
+            aabb.expandToInclude(ref.getUpper(viewSpace));
         }
         const extents = aabb.getExtents();
         const position = aabb.getCenter();
 
-        const padding = this.data.padding.get(space, camera);
-        this.rect.data.position.setV(position, space);
-        this.rect.data.extents.set(extents.x + padding.x, extents.y + padding.y, space);
+        const padding = this.data.padding.get(viewSpace);
+        this.rect.data.position.setV(position, viewSpace);
+        this.rect.data.extents.set(extents.x + padding.x, extents.y + padding.y, viewSpace);
         this.rect.data.anchor.set('center');
         this.rect.data.fill.copyIfUnlocked(this.data.fill);
         this.rect.data.stroke.copyIfUnlocked(this.data.stroke);

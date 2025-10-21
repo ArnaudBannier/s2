@@ -302,6 +302,12 @@ export class S2Vec2 {
         return this.scale(length / this.length());
     }
 
+    abs(): this {
+        this.x = Math.abs(this.x);
+        this.y = Math.abs(this.y);
+        return this;
+    }
+
     fromArray(array: number[], offset: number = 0): this {
         this.x = array[offset];
         this.y = array[offset + 1];

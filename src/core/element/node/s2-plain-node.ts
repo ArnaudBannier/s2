@@ -1,5 +1,4 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Space } from '../../math/s2-camera';
 import { S2PlainText } from '../text/s2-plain-text';
 import { S2BaseNode } from './s2-base-node';
 
@@ -22,8 +21,7 @@ export class S2PlainNode extends S2BaseNode {
     update(): void {
         if (this.skipUpdate()) return;
 
-        const camera = this.scene.getActiveCamera();
-        const space: S2Space = 'view';
+        const viewSpace = this.scene.getViewSpace();
         this.updateSVGChildren();
 
         this.text.data.font.copyIfUnlocked(this.data.text.font);
@@ -32,15 +30,15 @@ export class S2PlainNode extends S2BaseNode {
         this.text.data.stroke.copyIfUnlocked(this.data.text.stroke);
         this.text.update();
 
-        const textExtents = this.text.getExtents(space);
-        const padding = this.data.padding.get(space, camera);
-        const extents = this.data.minExtents.get(space, camera);
+        const textExtents = this.text.getExtents(viewSpace);
+        const padding = this.data.padding.get(viewSpace);
+        const extents = this.data.minExtents.get(viewSpace);
         extents.max(textExtents.x + padding.x, textExtents.y + padding.y);
         const contentExtents = extents.clone().subV(padding);
 
-        this.extents.setV(extents, space);
+        this.extents.setV(extents, viewSpace);
 
-        const nodeCenter = this.getCenter(space);
+        const nodeCenter = this.getCenter(viewSpace);
         const contentNW = nodeCenter.clone().subV(contentExtents);
 
         const font = this.data.text.font;
@@ -72,7 +70,7 @@ export class S2PlainNode extends S2BaseNode {
                 this.text.data.textAnchor.set('end');
                 break;
         }
-        this.text.data.position.set(lineX, lineY, 'view');
+        this.text.data.position.set(lineX, lineY, viewSpace);
         this.text.update();
 
         this.updateBackground();

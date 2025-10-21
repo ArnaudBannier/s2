@@ -1,21 +1,21 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
-import type { S2Space } from '../../math/s2-camera';
+import type { S2AbstractSpace } from '../../math/s2-abstract-space';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { svgNS } from '../../shared/s2-globals';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2Number } from '../../shared/s2-number';
-import { S2LengthOld } from '../../shared/s2-length';
+import { S2Length } from '../../shared/s2-length';
 import { S2Draggable, S2DraggableData } from './s2-draggable';
 
 export type S2HandleEventListener = (handle: S2DraggableCircle, event: PointerEvent) => void;
 
 export class S2DraggableCircleData extends S2DraggableData {
-    public readonly radius: S2LengthOld;
+    public readonly radius: S2Length;
 
-    constructor() {
-        super();
-        this.radius = new S2LengthOld(1, 'world');
+    constructor(scene: S2BaseScene) {
+        super(scene);
+        this.radius = new S2Length(1, scene.getWorldSpace());
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -34,19 +34,19 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
     protected opacity: S2Number;
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2DraggableCircleData());
+        super(scene, new S2DraggableCircleData(scene));
         this.element = document.createElementNS(svgNS, 'circle');
         this.opacity = new S2Number(0.0);
 
         this.initSVGElement(this.element);
     }
 
-    getRadius(space: S2Space): number {
-        return this.data.radius.get(space, this.scene.getActiveCamera());
+    getRadius(space: S2AbstractSpace): number {
+        return this.data.radius.get(space);
     }
 
-    getCenter(space: S2Space): S2Vec2 {
-        return this.data.position.get(space, this.scene.getActiveCamera());
+    getCenter(space: S2AbstractSpace): S2Vec2 {
+        return this.data.position.get(space);
     }
 
     getSVGElement(): SVGElement {
@@ -58,8 +58,8 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
 
         S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyOpacity(this.opacity, this.element, this.scene);
-        S2DataUtils.applyPositionOld(this.data.position, this.element, this.scene, 'cx', 'cy');
-        S2DataUtils.applyRadiusOld(this.data.radius, this.element, this.scene);
+        S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');
+        S2DataUtils.applyRadius(this.data.radius, this.element, this.scene);
 
         this.clearDirty();
     }

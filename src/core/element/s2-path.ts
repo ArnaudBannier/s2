@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Space } from '../math/s2-camera';
+import type { S2AbstractSpace } from '../math/s2-abstract-space';
 import type { S2Dirtyable, S2Tipable } from '../shared/s2-globals';
 import { S2TipTransform, svgNS } from '../shared/s2-globals';
 import { S2Vec2 } from '../math/s2-vec2';
@@ -17,18 +17,18 @@ export class S2PathData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
-    public readonly space: S2Enum<S2Space>;
+    public readonly space: S2Enum<S2AbstractSpace>;
     public readonly polyCurve: S2PolyCurve;
     public readonly pathFrom: S2Number;
     public readonly pathTo: S2Number;
 
-    constructor() {
+    constructor(scene: S2BaseScene) {
         super();
-        this.stroke = new S2StrokeData();
+        this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
         this.fill = new S2FillData();
         this.transform = new S2Transform();
-        this.space = new S2Enum<S2Space>('world');
+        this.space = new S2Enum<S2AbstractSpace>(scene.getWorldSpace());
         this.polyCurve = new S2PolyCurve();
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
@@ -69,7 +69,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     protected arrowTips: S2ArrowTip[] = [];
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2PathData());
+        super(scene, new S2PathData(scene));
         this.element = document.createElementNS(svgNS, 'path');
     }
 
@@ -118,13 +118,12 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         const from = this.data.pathFrom.get();
         const to = this.data.pathTo.get();
         t = t * (to - from) + from;
-        const camera = this.scene.getActiveCamera();
-        const transform = new S2TipTransform();
+        const transform = new S2TipTransform(this.scene);
         transform.space = this.data.space.get();
         transform.position = this.data.polyCurve.getPointAt(t);
         transform.tangent = this.data.polyCurve.getTangentAt(t);
         transform.pathLength = this.data.polyCurve.getLength() * (to - from);
-        transform.strokeWidth = this.data.stroke.width.get(transform.space, camera);
+        transform.strokeWidth = this.data.stroke.width.get(transform.space);
         return transform;
     }
 
@@ -138,42 +137,32 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         return this.element;
     }
 
-    getStart(space: S2Space): S2Vec2 {
-        return this.scene.getActiveCamera().convertPointV(this.data.polyCurve.getStart(), this.data.space.get(), space);
+    getStart(space: S2AbstractSpace): S2Vec2 {
+        return this.data.space.get().convertPointToV(this.data.polyCurve.getStart(), space);
     }
 
-    getEnd(space: S2Space): S2Vec2 {
-        return this.scene.getActiveCamera().convertPointV(this.data.polyCurve.getEnd(), this.data.space.get(), space);
+    getEnd(space: S2AbstractSpace): S2Vec2 {
+        return this.data.space.get().convertPointToV(this.data.polyCurve.getEnd(), space);
     }
 
-    getPointAt(t: number, space: S2Space): S2Vec2 {
-        return this.scene
-            .getActiveCamera()
-            .convertPointV(this.data.polyCurve.getPointAt(t), this.data.space.get(), space);
+    getPointAt(t: number, space: S2AbstractSpace): S2Vec2 {
+        return this.data.space.get().convertPointToV(this.data.polyCurve.getPointAt(t), space);
     }
 
-    getTangentAt(t: number, space: S2Space): S2Vec2 {
-        return this.scene
-            .getActiveCamera()
-            .convertPointV(this.data.polyCurve.getTangentAt(t), this.data.space.get(), space);
+    getTangentAt(t: number, space: S2AbstractSpace): S2Vec2 {
+        return this.data.space.get().convertOffsetToV(this.data.polyCurve.getTangentAt(t), space);
     }
 
-    getStartTangent(space: S2Space): S2Vec2 {
-        return this.scene
-            .getActiveCamera()
-            .convertPointV(this.data.polyCurve.getStartTangent(), this.data.space.get(), space);
+    getStartTangent(space: S2AbstractSpace): S2Vec2 {
+        return this.data.space.get().convertOffsetToV(this.data.polyCurve.getStartTangent(), space);
     }
 
-    getEndTangent(space: S2Space): S2Vec2 {
-        return this.scene
-            .getActiveCamera()
-            .convertPointV(this.data.polyCurve.getEndTangent(), this.data.space.get(), space);
+    getEndTangent(space: S2AbstractSpace): S2Vec2 {
+        return this.data.space.get().convertOffsetToV(this.data.polyCurve.getEndTangent(), space);
     }
 
-    getLength(space: S2Space): number {
-        return this.scene
-            .getActiveCamera()
-            .convertLength(this.data.polyCurve.getLength(), this.data.space.get(), space);
+    getLength(space: S2AbstractSpace): number {
+        return this.data.space.get().convertLengthTo(this.data.polyCurve.getLength(), space);
     }
 
     clear(): this {

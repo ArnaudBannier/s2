@@ -1,10 +1,10 @@
-import type { S2HasClone, S2HasCopy, S2HasLerpWithCamera } from './s2-base-type';
+import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
 import { S2BaseType } from './s2-base-type';
 import { S2Mat2x3 } from '../math/s2-mat2x3';
 
 export class S2Transform
     extends S2BaseType
-    implements S2HasClone<S2Transform>, S2HasCopy<S2Transform>, S2HasLerpWithCamera<S2Transform>
+    implements S2HasClone<S2Transform>, S2HasCopy<S2Transform>, S2HasLerp<S2Transform>
 {
     readonly kind = 'transform' as const;
     public value: S2Mat2x3;

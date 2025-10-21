@@ -6,7 +6,6 @@ import { S2Scene } from '../../src/core/scene/s2-scene.ts';
 import { S2LerpAnim, S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
-import { S2DataSetter } from '../../src/core/element/base/s2-data-setter.ts';
 import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable-circle.ts';
 import type { S2BaseDraggable } from '../../src/core/element/draggable/s2-draggable.ts';
 import { S2Playable } from '../../src/core/animation/s2-playable.ts';
@@ -51,14 +50,14 @@ class SceneFigure extends S2Scene {
     protected precision: number = 0.5;
     protected draggable: S2DraggableCircle;
 
-    setCircleDefaultStyle(circle: S2Circle): void {
-        S2DataSetter.setTargets(circle.data)
-            .setFillColor(MTL.GREY_6)
-            .setStrokeColor(MTL.GREY_4)
-            .setStrokeWidth(4, 'view')
-            .setFillOpacity(1.0)
-            .setRadius(5, 'view');
-    }
+    // setCircleDefaultStyle(circle: S2Circle): void {
+    //     S2DataSetter.setTargets(circle.data)
+    //         .setFillColor(MTL.GREY_6)
+    //         .setStrokeColor(MTL.GREY_4)
+    //         .setStrokeWidth(4, 'view')
+    //         .setFillOpacity(1.0)
+    //         .setRadius(5, 'view');
+    // }
 
     constructor(
         svgElement: SVGSVGElement,
@@ -72,7 +71,7 @@ class SceneFigure extends S2Scene {
         this.htmlFinalText = finalText;
 
         const fillRect = this.addFillRect();
-        S2DataSetter.setTargets(fillRect.data).setColor(MTL.BLUE_GREY_9);
+        fillRect.data.color.copy(MTL.BLUE_GREY_9);
 
         const gridHalf = this.addWorldGrid();
         gridHalf.data.geometry.space.set('world');
