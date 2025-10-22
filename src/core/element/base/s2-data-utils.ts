@@ -11,6 +11,7 @@ import type { S2Boolean } from '../../shared/s2-boolean.ts';
 import type { S2Offset } from '../../shared/s2-offset.ts';
 import type { S2Extents } from '../../shared/s2-extents.ts';
 import type { S2AbstractSpace } from '../../math/s2-abstract-space.ts';
+import type { S2SpaceRef } from '../../shared/s2-space-ref.ts';
 import { S2Vec2 } from '../../math/s2-vec2.ts';
 import { S2AnchorUtils } from '../../shared/s2-globals.ts';
 import { S2CubicCurve, S2LineCurve } from '../../math/s2-curve.ts';
@@ -179,7 +180,7 @@ export class S2DataUtils {
 
     static applyPath(
         polyCurve: S2PolyCurve,
-        space: S2Enum<S2AbstractSpace>,
+        space: S2SpaceRef,
         pathFrom: S2Number,
         pathTo: S2Number,
         element: SVGElement,
@@ -223,18 +224,18 @@ export class S2DataUtils {
 
             if (!S2Vec2.eqV(prevEnd, curve.getStart())) {
                 currStart.copy(curve.getStart());
-                space.convertPointToV(currStart, view, point);
+                space.convertPointV(currStart, view, point);
                 svgPath += `M ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
             }
 
             if (curve instanceof S2LineCurve) {
-                space.convertPointToV(curve.getEnd(), view, point);
+                space.convertPointV(curve.getEnd(), view, point);
                 svgPath += `L ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
             } else if (curve instanceof S2CubicCurve) {
                 const bezierPoints = curve.getBezierPoints();
                 svgPath += 'C ';
                 for (let j = 1; j < bezierPoints.length; j++) {
-                    space.convertPointToV(bezierPoints[j], view, point);
+                    space.convertPointV(bezierPoints[j], view, point);
                     svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
                 }
             }

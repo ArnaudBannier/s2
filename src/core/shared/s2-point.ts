@@ -62,7 +62,7 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
 
     setValueFromSpace(x: number, y: number, space: S2AbstractSpace): this {
         if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
-        space.convertPointTo(x, y, this.space, this.value);
+        space.convertPoint(x, y, this.space, this.value);
         this.markDirty();
         return this;
     }
@@ -72,12 +72,16 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
     }
 
     get(space: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
-        return this.space.convertPointToV(this.value, space, out);
+        return this.space.convertPointV(this.value, space, out);
+    }
+
+    getInto(dst: S2Vec2, space: S2AbstractSpace): S2Vec2 {
+        return this.space.convertPointIntoV(dst, this.value, space);
     }
 
     changeSpace(space: S2AbstractSpace): this {
         if (this.space === space) return this;
-        this.space.convertPointToV(this.value, space, this.value);
+        this.space.convertPointIntoV(this.value, this.value, space);
         this.space = space;
         // No markDirty() because the point value did not change
         return this;

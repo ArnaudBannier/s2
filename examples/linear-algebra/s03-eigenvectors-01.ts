@@ -1,5 +1,4 @@
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
-import { S2Camera } from '../../src/core/math/s2-camera.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
@@ -24,10 +23,6 @@ declare global {
         };
     }
 }
-
-const viewportScale = 1.5;
-const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(6.0, (6.0 * 9) / 16), viewport);
 
 class SceneFigure extends S2Scene {
     protected vecU: S2Line;
@@ -54,9 +49,9 @@ class SceneFigure extends S2Scene {
     //     S2DataSetter.setTargets(circle.data)
     //         .setFillColor(MTL.GREY_6)
     //         .setStrokeColor(MTL.GREY_4)
-    //         .setStrokeWidth(4, 'view')
+    //         .setStrokeWidth(4, viewSpace)
     //         .setFillOpacity(1.0)
-    //         .setRadius(5, 'view');
+    //         .setRadius(5, viewSpace);
     // }
 
     constructor(
@@ -65,20 +60,26 @@ class SceneFigure extends S2Scene {
         htmlEqMatrix: HTMLSpanElement,
         finalText: HTMLSpanElement,
     ) {
-        super(svgElement, camera);
+        super(svgElement);
         this.htmlEq = htmlEq;
         this.htmlEqMatrix = htmlEqMatrix;
         this.htmlFinalText = finalText;
+
+        this.camera.setExtents(6.0, 6.0 / (16 / 9));
+        this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
+
+        const worldSpace = this.getWorldSpace();
+        const viewSpace = this.getViewSpace();
 
         const fillRect = this.addFillRect();
         fillRect.data.color.copy(MTL.BLUE_GREY_9);
 
         const gridHalf = this.addWorldGrid();
-        gridHalf.data.geometry.space.set('world');
-        gridHalf.data.geometry.steps.set(1, 1, 'world');
-        gridHalf.data.geometry.referencePoint.set(0.5, 0.5, 'world');
+        gridHalf.data.geometry.space.set(worldSpace);
+        gridHalf.data.geometry.steps.set(1, 1, worldSpace);
+        gridHalf.data.geometry.referencePoint.set(0.5, 0.5, worldSpace);
         gridHalf.data.stroke.color.copy(MTL.CYAN_7);
-        gridHalf.data.stroke.width.set(1, 'view');
+        gridHalf.data.stroke.width.set(1, viewSpace);
         gridHalf.data.opacity.set(0.3);
 
         const grid = this.addWorldGrid();
@@ -86,8 +87,8 @@ class SceneFigure extends S2Scene {
 
         for (let i = -5; i <= 5; i++) {
             const text = new S2PlainText(this);
-            text.data.position.set(i - 0.1, -0.25, 'world');
-            text.data.font.size.set(12, 'view');
+            text.data.position.set(i - 0.1, -0.25, worldSpace);
+            text.data.font.size.set(12, viewSpace);
             text.data.fill.color.copy(MTL.BLUE_GREY_2);
             text.data.layer.set(10);
             text.data.textAnchor.set('end');
@@ -97,8 +98,8 @@ class SceneFigure extends S2Scene {
         for (let j = -3; j <= 3; j++) {
             if (j === 0) continue;
             const text = new S2PlainText(this);
-            text.data.position.set(-0.1, j - 0.25, 'world');
-            text.data.font.size.set(12, 'view');
+            text.data.position.set(-0.1, j - 0.25, worldSpace);
+            text.data.font.size.set(12, viewSpace);
             text.data.fill.color.copy(MTL.BLUE_GREY_2);
             text.data.layer.set(10);
             text.data.textAnchor.set('end');
@@ -109,24 +110,24 @@ class SceneFigure extends S2Scene {
         this.matrix = new S2Mat2(1, 0, 0, 1);
 
         this.vecU = this.addLine();
-        this.vecU.data.startPosition.set(0, 0, 'world');
-        this.vecU.data.endPosition.set(0, 0, 'world');
+        this.vecU.data.startPosition.set(0, 0, worldSpace);
+        this.vecU.data.endPosition.set(0, 0, worldSpace);
         this.vecU.data.stroke.color.copy(MTL.LIGHT_BLUE_5);
-        this.vecU.data.stroke.width.set(6, 'view');
-        this.vecU.data.endPadding.set(10, 'view');
+        this.vecU.data.stroke.width.set(6, viewSpace);
+        this.vecU.data.endPadding.set(10, viewSpace);
         this.vecU.data.layer.set(1);
 
         this.vecV = this.addLine();
-        this.vecV.data.startPosition.set(0, 0, 'world');
-        this.vecV.data.endPosition.set(0, 0, 'world');
+        this.vecV.data.startPosition.set(0, 0, worldSpace);
+        this.vecV.data.endPosition.set(0, 0, worldSpace);
         this.vecV.data.stroke.color.copy(MTL.RED_5);
-        this.vecV.data.stroke.width.set(6, 'view');
-        this.vecV.data.endPadding.set(10, 'view');
+        this.vecV.data.stroke.width.set(6, viewSpace);
+        this.vecV.data.endPadding.set(10, viewSpace);
         this.vecV.data.layer.set(2);
 
         this.circleU = this.addCircle();
         this.circleU.data.fill.color.copy(MTL.LIGHT_BLUE_5);
-        this.circleU.data.radius.set(0.15, 'world');
+        this.circleU.data.radius.set(0.15, worldSpace);
         this.circleU.data.opacity.set(0.5);
         this.circleU.data.layer.set(0);
 
@@ -134,9 +135,9 @@ class SceneFigure extends S2Scene {
         this.circleEigen2 = this.addCircle();
         for (const data of [this.circleEigen1.data, this.circleEigen2.data]) {
             data.stroke.color.copy(MTL.WHITE);
-            data.stroke.width.set(2, 'view');
+            data.stroke.width.set(2, viewSpace);
             data.fill.opacity.set(0);
-            data.radius.set(0.15, 'world');
+            data.radius.set(0.15, worldSpace);
         }
 
         const tipU = this.vecU.createArrowTip();
@@ -146,32 +147,32 @@ class SceneFigure extends S2Scene {
         tipV.setAnchorAlignment(-1);
         tipV.data.layer.set(2);
 
-        const lower = this.getActiveCamera().getLower();
-        const upper = this.getActiveCamera().getUpper();
+        const lower = this.getCamera().getLower();
+        const upper = this.getCamera().getUpper();
 
         const lineX = this.addLine();
-        lineX.data.startPosition.set(lower.x, 0, 'world');
-        lineX.data.endPosition.set(upper.x - 0.25, 0, 'world');
+        lineX.data.startPosition.set(lower.x, 0, worldSpace);
+        lineX.data.endPosition.set(upper.x - 0.25, 0, worldSpace);
         lineX.data.stroke.color.copy(MTL.GREY_1);
-        lineX.data.stroke.width.set(4, 'view');
+        lineX.data.stroke.width.set(4, viewSpace);
         lineX.createArrowTip();
 
         const lineY = this.addLine();
-        lineY.data.startPosition.set(0, lower.y, 'world');
-        lineY.data.endPosition.set(0, upper.y - 0.25, 'world');
+        lineY.data.startPosition.set(0, lower.y, worldSpace);
+        lineY.data.endPosition.set(0, upper.y - 0.25, worldSpace);
         lineY.data.stroke.color.copy(MTL.GREY_1);
-        lineY.data.stroke.width.set(4, 'view');
+        lineY.data.stroke.width.set(4, viewSpace);
         lineY.createArrowTip();
 
         this.draggable = new S2DraggableCircle(this);
         this.draggable.setParent(this.getSVG());
         this.draggable.data.position.copy(this.vecU.data.endPosition);
-        this.draggable.data.radius.set(30, 'view');
+        this.draggable.data.radius.set(30, viewSpace);
 
         const container = new S2DraggableContainerBox(this);
-        container.data.space.set('view');
-        container.data.boundA.set(Math.ceil(lower.x), Math.ceil(lower.y), 'world');
-        container.data.boundB.set(Math.floor(upper.x), Math.floor(upper.y), 'world');
+        container.data.space.set(viewSpace);
+        container.data.boundA.set(Math.ceil(lower.x), Math.ceil(lower.y), worldSpace);
+        container.data.boundB.set(Math.floor(upper.x), Math.floor(upper.y), worldSpace);
         this.draggable.setContainer(container);
 
         this.lerpAnimU = S2LerpAnimFactory.create(this, this.vecU.data.endPosition);
@@ -186,13 +187,13 @@ class SceneFigure extends S2Scene {
 
         this.draggable.setOnDrag((draggable: S2BaseDraggable, event: PointerEvent) => {
             void event;
-            this.setPosition(draggable.getPosition('world'), 'free');
+            this.setPosition(draggable.getPosition(worldSpace), 'free');
         });
 
         this.draggable.setOnRelease((draggable: S2BaseDraggable, event: PointerEvent) => {
             void event;
-            const u = this.setPosition(draggable.getPosition('world'), 'snap');
-            draggable.data.position.setV(u, 'world');
+            const u = this.setPosition(draggable.getPosition(worldSpace), 'snap');
+            draggable.data.position.setV(u, worldSpace);
         });
 
         this.setMatrix(0);
@@ -201,34 +202,35 @@ class SceneFigure extends S2Scene {
     }
 
     setMatrix(id: number): void {
+        const worldSpace = this.getWorldSpace();
         switch (id) {
             case 0:
                 this.matrix = new S2Mat2(0.5, 3, 0.75, 0.5);
-                this.circleEigen1.data.position.set(2, 1, 'world');
-                this.circleEigen2.data.position.set(-2, 1, 'world');
+                this.circleEigen1.data.position.set(2, 1, worldSpace);
+                this.circleEigen2.data.position.set(-2, 1, worldSpace);
                 break;
             case 1:
                 this.matrix = new S2Mat2(2, 1, 1, 2);
-                this.circleEigen1.data.position.set(1, 1, 'world');
-                this.circleEigen2.data.position.set(1, -1, 'world');
+                this.circleEigen1.data.position.set(1, 1, worldSpace);
+                this.circleEigen2.data.position.set(1, -1, worldSpace);
                 break;
             case 2:
                 this.matrix = new S2Mat2(2, -0.5, 1, 0.5);
-                this.circleEigen1.data.position.set(1, 1, 'world');
-                this.circleEigen2.data.position.set(1, 2, 'world');
+                this.circleEigen1.data.position.set(1, 1, worldSpace);
+                this.circleEigen2.data.position.set(1, 2, worldSpace);
                 break;
             case 3:
                 this.matrix = new S2Mat2(1, 0, 2, -2);
-                this.circleEigen1.data.position.set(3, 2, 'world');
-                this.circleEigen2.data.position.set(0, 1, 'world');
+                this.circleEigen1.data.position.set(3, 2, worldSpace);
+                this.circleEigen2.data.position.set(0, 1, worldSpace);
                 break;
             default:
                 this.matrix = new S2Mat2(1, -1, -1, 1);
-                this.circleEigen1.data.position.set(1, 1, 'world');
-                this.circleEigen2.data.position.set(1, -1, 'world');
+                this.circleEigen1.data.position.set(1, 1, worldSpace);
+                this.circleEigen2.data.position.set(1, -1, worldSpace);
         }
         this.setPosition(new S2Vec2(1, 0), 'snap');
-        this.draggable.data.position.set(1, 0, 'world');
+        this.draggable.data.position.set(1, 0, worldSpace);
 
         this.htmlEqMatrix.innerHTML = window.katex.renderToString(
             `M = \\begin{pmatrix}
@@ -242,23 +244,24 @@ class SceneFigure extends S2Scene {
     }
 
     setPosition(position: S2Vec2, snap: 'snap' | 'free'): S2Vec2 {
+        const worldSpace = this.getWorldSpace();
         const snappedPosition = new S2Vec2(
             S2MathUtils.snap(position.x, this.precision),
             S2MathUtils.snap(position.y, this.precision),
         );
         const u = snap === 'snap' ? snappedPosition : position;
         this.lerpAnimU.commitInitialState();
-        this.vecU.data.endPosition.setV(u, 'world');
+        this.vecU.data.endPosition.setV(u, worldSpace);
         this.lerpAnimU.commitFinalState();
         this.playableU.play();
 
         const v = u.clone().apply2x2(this.matrix);
         this.lerpAnimV.commitInitialState();
-        this.vecV.data.endPosition.setV(v, 'world');
+        this.vecV.data.endPosition.setV(v, worldSpace);
         this.lerpAnimV.commitFinalState();
         this.playableV.play();
 
-        this.circleU.data.position.setV(snappedPosition, 'world');
+        this.circleU.data.position.setV(snappedPosition, worldSpace);
 
         this.colorAnim.commitInitialState();
         const isEigenvector =

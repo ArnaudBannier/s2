@@ -1,6 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
-import type { S2Space } from '../../math/s2-camera';
 import type { S2BaseDraggableContainer } from './s2-draggable-container';
 import type { S2AbstractSpace } from '../../math/s2-abstract-space';
 import { S2Vec2 } from '../../math/s2-vec2';
@@ -10,7 +9,6 @@ import { S2Point } from '../../shared/s2-point';
 import { S2Offset } from '../../shared/s2-offset';
 import { S2AnimationManager } from '../../animation/s2-animation-manager';
 import { S2Boolean } from '../../shared/s2-boolean';
-import { S2Enum } from '../../shared/s2-enum';
 
 export type S2BaseDraggable = S2Draggable<S2DraggableData>;
 export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEvent) => void;
@@ -21,7 +19,6 @@ export class S2DraggableData extends S2ElementData {
     public readonly yEnabled: S2Boolean = new S2Boolean(true);
     public readonly containerBoundA: S2Point;
     public readonly containerBoundB: S2Point;
-    public readonly space: S2Enum<S2Space> = new S2Enum<S2Space>('world');
 
     constructor(scene: S2BaseScene) {
         super();
@@ -39,7 +36,6 @@ export class S2DraggableData extends S2ElementData {
         this.yEnabled.setOwner(owner);
         this.containerBoundA.setOwner(owner);
         this.containerBoundB.setOwner(owner);
-        this.space.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -49,7 +45,6 @@ export class S2DraggableData extends S2ElementData {
         this.yEnabled.clearDirty();
         this.containerBoundA.clearDirty();
         this.containerBoundB.clearDirty();
-        this.space.clearDirty();
     }
 }
 
@@ -124,7 +119,7 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         const viewSpace = this.scene.getViewSpace();
 
         const prevPointerPosition = this.pointerPosition.get(viewSpace);
-        this.scene.convertDOMPointInto(x, y, this.pointerPosition);
+        this.scene.convertDOMPointInto(this.pointerPosition, x, y);
         const currPointerPosition = this.pointerPosition.get(viewSpace);
         const pointerDelta = S2Vec2.subV(currPointerPosition, prevPointerPosition);
         this.pointerDelta.setValueFromSpaceV(pointerDelta, viewSpace);

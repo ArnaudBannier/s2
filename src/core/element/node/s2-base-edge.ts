@@ -122,6 +122,10 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         return this.path.getTipTransformAt(t);
     }
 
+    getTipTransformAtInto(dst: S2TipTransform, t: number): S2TipTransform {
+        return this.path.getTipTransformAtInto(dst, t);
+    }
+
     getSVGElement(): SVGElement {
         return this.element;
     }

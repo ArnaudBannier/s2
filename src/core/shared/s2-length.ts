@@ -54,18 +54,18 @@ export class S2Length extends S2BaseType implements S2HasClone<S2Length>, S2HasC
 
     setValueFromSpace(value: number, space: S2AbstractSpace): this {
         if (this.value === value && this.space === space) return this;
-        this.value = space.convertLengthTo(value, this.space);
+        this.value = space.convertLength(value, this.space);
         this.markDirty();
         return this;
     }
 
     get(space: S2AbstractSpace): number {
-        return this.space.convertLengthTo(this.value, space);
+        return this.space.convertLength(this.value, space);
     }
 
     changeSpace(space: S2AbstractSpace): this {
         if (this.space === space) return this;
-        this.value = this.space.convertLengthTo(this.value, space);
+        this.value = this.space.convertLength(this.value, space);
         this.space = space;
         // No markDirty() because the point value did not change
         return this;

@@ -42,6 +42,7 @@ export interface S2Tipable {
     detachTipElement(tip: S2ArrowTip): this;
     detachTipElements(): this;
     getTipTransformAt(t: number): S2TipTransform;
+    getTipTransformAtInto(dst: S2TipTransform, t: number): S2TipTransform;
 }
 
 export type S2Anchor =

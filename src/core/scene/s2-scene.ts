@@ -1,7 +1,6 @@
 import type { S2BaseElement } from '../element/base/s2-element';
 import type { S2BaseNode } from '../element/node/s2-base-node';
 import type { S2Point } from '../shared/s2-point';
-import type { S2Camera } from '../math/s2-camera';
 import { S2Circle } from '../element/s2-circle';
 import { S2Rect } from '../element/s2-rect';
 import { S2Grid } from '../element/s2-grid';
@@ -17,12 +16,8 @@ import { S2ElementData } from '../element/base/s2-base-data';
 import { S2PlainNode } from '../element/node/s2-plain-node';
 
 export class S2Scene extends S2BaseScene {
-    constructor(element: SVGSVGElement, camera: S2Camera) {
-        super(element, camera);
-
-        camera.scene = this;
-        camera.markDirty();
-        camera.update();
+    constructor(element: SVGSVGElement) {
+        super(element);
     }
 
     addCircle(parent: S2BaseElement = this.svg): S2Circle {
@@ -51,7 +46,7 @@ export class S2Scene extends S2BaseScene {
 
     addWorldGrid(parent: S2BaseElement = this.svg): S2Grid {
         const child = new S2Grid(this);
-        const viewport = this.getActiveCamera().getViewportSize();
+        const viewport = this.viewportSize;
         const data = child.data;
         data.stroke.width.set(1, this.getViewSpace());
         data.geometry.boundA.set(0, 0, this.getViewSpace());

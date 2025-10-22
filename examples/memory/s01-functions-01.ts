@@ -1,5 +1,3 @@
-import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
-import { S2Camera } from '../../src/core/math/s2-camera.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2Memory } from '../../src/extension/s2-memory.ts';
@@ -24,10 +22,6 @@ const codeStringFunc =
     '}';
 //const codeString = codeStringMain + '\n\n' + codeStringFunc;
 
-const viewportScale = 1.5;
-const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport);
-
 class SceneFigure extends BaseMemoryScene {
     public memory: S2Memory;
     //public code: S2Code;
@@ -35,7 +29,7 @@ class SceneFigure extends BaseMemoryScene {
     public codeMain: S2Code;
 
     constructor(svgElement: SVGSVGElement) {
-        super(svgElement, camera);
+        super(svgElement);
 
         // const grid = this.addWorldGrid();
         // grid.data.stroke.color.copy(MTL.GREY_9);

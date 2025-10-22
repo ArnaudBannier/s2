@@ -1,5 +1,4 @@
 import type { S2FillRect } from '../../src/core/element/s2-fill-rect';
-import type { S2Camera } from '../../src/core/math/s2-camera';
 import type { S2Memory } from '../../src/extension/s2-memory';
 import { ease } from '../../src/core/animation/s2-easing';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim';
@@ -66,8 +65,10 @@ export class BaseMemoryScene extends S2Scene {
         data.anchor.set('east');
     }
 
-    constructor(svgElement: SVGSVGElement, camera: S2Camera) {
-        super(svgElement, camera);
+    constructor(svgElement: SVGSVGElement) {
+        super(svgElement);
+        this.camera.setExtents(8.0, 4.5);
+        this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
 
         this.animator = new S2StepAnimator(this);
         this.font = new S2FontData(this);

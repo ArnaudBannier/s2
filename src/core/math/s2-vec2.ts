@@ -10,58 +10,68 @@ export class S2Vec2 {
         this.y = y;
     }
 
-    static set(x: number, y: number): S2Vec2 {
-        return new S2Vec2(x, y);
+    static set(x: number, y: number, out?: S2Vec2): S2Vec2 {
+        return out ? out.set(x, y) : new S2Vec2(x, y);
     }
 
-    static fromPolarRad(theta: number, r: number = 1.0): S2Vec2 {
-        return new S2Vec2(r * Math.cos(theta), r * Math.sin(theta));
+    static fromPolarRad(theta: number, r: number = 1.0, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.setFromPolarRad(theta, r);
     }
 
-    static fromPolarDeg(theta: number, r: number = 1.0): S2Vec2 {
-        theta *= Math.PI / 180.0;
-        return new S2Vec2(r * Math.cos(theta), r * Math.sin(theta));
+    static fromPolarDeg(theta: number, r: number = 1.0, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.setFromPolarDeg(theta, r);
     }
 
-    static add(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
-        return new S2Vec2(x1 + x2, y1 + y2);
+    static add(x1: number, y1: number, x2: number, y2: number, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.set(x1 + x2, y1 + y2);
     }
 
-    static addV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
-        return new S2Vec2(v1.x + v2.x, v1.y + v2.y);
+    static addV(v1: S2Vec2, v2: S2Vec2, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.set(v1.x + v2.x, v1.y + v2.y);
     }
 
-    static sub(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
-        return new S2Vec2(x1 - x2, y1 - y2);
+    static sub(x1: number, y1: number, x2: number, y2: number, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.set(x1 - x2, y1 - y2);
     }
 
-    static subV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
-        return new S2Vec2(v1.x - v2.x, v1.y - v2.y);
+    static subV(v1: S2Vec2, v2: S2Vec2, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.set(v1.x - v2.x, v1.y - v2.y);
     }
 
-    static mul(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
-        return new S2Vec2(x1 * x2, y1 * y2);
+    static mul(x1: number, y1: number, x2: number, y2: number, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.set(x1 * x2, y1 * y2);
     }
 
-    static mulV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
-        return new S2Vec2(v1.x * v2.x, v1.y * v2.y);
+    static mulV(v1: S2Vec2, v2: S2Vec2, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.set(v1.x * v2.x, v1.y * v2.y);
     }
 
-    static scale(x: number, y: number, s: number): S2Vec2 {
-        return new S2Vec2(x * s, y * s);
+    static scale(x: number, y: number, s: number, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.set(x * s, y * s);
     }
 
-    static scaleV(v: S2Vec2, s: number): S2Vec2 {
-        return new S2Vec2(v.x * s, v.y * s);
+    static scaleV(v: S2Vec2, s: number, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
+        return out.set(v.x * s, v.y * s);
     }
 
-    static lerp(x1: number, y1: number, x2: number, y2: number, t: number): S2Vec2 {
+    static lerp(x0: number, y0: number, x1: number, y1: number, t: number, out?: S2Vec2): S2Vec2 {
+        out = out ?? new S2Vec2();
         const s = 1 - t;
-        return new S2Vec2(s * x1 + t * x2, s * y1 + t * y2);
+        return out.set(s * x0 + t * x1, s * y0 + t * y1);
     }
 
-    static lerpV(v1: S2Vec2, v2: S2Vec2, t: number): S2Vec2 {
-        return S2Vec2.lerp(v1.x, v1.y, v2.x, v2.y, t);
+    static lerpV(v0: S2Vec2, v1: S2Vec2, t: number, out?: S2Vec2): S2Vec2 {
+        return S2Vec2.lerp(v0.x, v0.y, v1.x, v1.y, t, out);
     }
 
     static eq(x1: number, y1: number, x2: number, y2: number, epsilon: number = 1e-4): boolean {
@@ -121,6 +131,16 @@ export class S2Vec2 {
     setFromPolarDeg(theta: number, r: number = 1.0): this {
         theta *= Math.PI / 180.0;
         return this.set(r * Math.cos(theta), r * Math.sin(theta));
+    }
+
+    setFromLerp(x0: number, y0: number, x1: number, y1: number, t: number): this {
+        const s = 1 - t;
+        return this.set(s * x0 + t * x1, s * y0 + t * y1);
+    }
+
+    setFromLerpV(v0: S2Vec2, v1: S2Vec2, t: number): this {
+        const s = 1 - t;
+        return this.set(s * v0.x + t * v1.x, s * v0.y + t * v1.y);
     }
 
     shiftX(dx: number): this {

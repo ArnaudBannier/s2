@@ -1,5 +1,3 @@
-import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
-import { S2Camera } from '../../src/core/math/s2-camera.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2Path } from '../../src/core/element/s2-path.ts';
@@ -13,11 +11,6 @@ import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable
 import type { S2BaseDraggable } from '../../src/core/element/draggable/s2-draggable.ts';
 import { S2Playable } from '../../src/core/animation/s2-playable.ts';
 import { S2DraggableContainerLine } from '../../src/core/element/draggable/s2-draggable-container-line.ts';
-
-const viewportScale = 1.5;
-const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport);
-camera.setRotationDeg(-30);
 
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
@@ -34,11 +27,19 @@ class SceneFigure extends S2Scene {
     }
 
     constructor(svgElement: SVGSVGElement) {
-        super(svgElement, camera);
+        super(svgElement);
+        this.camera.setExtents(8.0, 4.5);
+        this.camera.setRotationDeg(30);
+        this.camera.setZoom(0.8);
+        this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
+
         this.animator = new S2StepAnimator(this);
 
         const viewSpace = this.getViewSpace();
         const worldSpace = this.getWorldSpace();
+
+        console.log('view', viewSpace);
+        console.log('world', worldSpace);
 
         const fillRect = this.addFillRect();
         fillRect.data.color.copy(MTL.GREY_8);

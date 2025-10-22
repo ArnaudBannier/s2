@@ -108,17 +108,21 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
         return this;
     }
 
-    getTipTransformAt(t: number): S2TipTransform {
+    getTipTransformAtInto(dst: S2TipTransform, t: number): S2TipTransform {
         const space = this.scene.getWorldSpace();
         const p0 = this.data.startPosition.get(space);
         const p1 = this.data.endPosition.get(space);
-        const transform = new S2TipTransform(this.scene);
-        transform.space = space;
-        transform.position = S2Vec2.lerpV(p0, p1, t);
-        transform.tangent = S2Vec2.subV(p1, p0);
-        transform.pathLength = p0.distance(p1);
-        transform.strokeWidth = this.data.stroke.width.get(space);
-        return transform;
+        dst.position.setFromLerpV(p0, p1, t);
+        dst.tangent.copy(p1).subV(p0);
+        dst.space = space;
+        dst.pathLength = p0.distance(p1);
+        dst.strokeWidth = this.data.stroke.width.get(space);
+        return dst;
+    }
+
+    getTipTransformAt(t: number): S2TipTransform {
+        const out = new S2TipTransform(this.scene);
+        return this.getTipTransformAtInto(out, t);
     }
 
     getSVGElement(): SVGElement {

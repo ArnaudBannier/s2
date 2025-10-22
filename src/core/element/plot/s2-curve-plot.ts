@@ -1,12 +1,10 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
 import { svgNS } from '../../shared/s2-globals';
 import { S2ElementData, S2StrokeData } from '../base/s2-base-data';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
 import { S2Element } from '../base/s2-element';
-import { S2Enum } from '../../shared/s2-enum';
 import { S2Length } from '../../shared/s2-length';
 import { S2PolyCurve } from '../../math/s2-curve';
 import { S2Vec2 } from '../../math/s2-vec2';
@@ -14,12 +12,13 @@ import { S2DataUtils } from '../base/s2-data-utils';
 import { S2ParamCurve } from './s2-param-curve';
 import { S2PlotModifier } from './s2-plot-modifier';
 import { S2Boolean } from '../../shared/s2-boolean';
+import { S2SpaceRef } from '../../shared/s2-space-ref';
 
 export class S2CurvePlotData extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number = new S2Number(1);
     public readonly transform: S2Transform = new S2Transform();
-    public readonly space: S2Enum<S2AbstractSpace>;
+    public readonly space: S2SpaceRef;
     public readonly step: S2Length;
     public readonly derivativeEpsilon: S2Length;
     public readonly pathFrom: S2Number = new S2Number(0);
@@ -32,7 +31,7 @@ export class S2CurvePlotData extends S2ElementData {
         super();
         const worldSpace = scene.getWorldSpace();
         this.stroke = new S2StrokeData(scene);
-        this.space = new S2Enum<S2AbstractSpace>(worldSpace);
+        this.space = new S2SpaceRef(worldSpace);
         this.step = new S2Length(0.2, worldSpace);
         this.derivativeEpsilon = new S2Length(1e-5, worldSpace);
     }

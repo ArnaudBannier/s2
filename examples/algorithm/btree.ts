@@ -1,5 +1,4 @@
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
-import { S2Camera } from '../../src/core/math/s2-camera.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
 import { S2LineEdge } from '../../src/core/element/node/s2-edge.ts';
@@ -9,7 +8,6 @@ import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2ElementData, S2FontData } from '../../src/core/element/base/s2-base-data.ts';
-import { S2DataSetter } from '../../src/core/element/base/s2-data-setter.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
 import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
 import type { S2BaseAnimation } from '../../src/core/animation/s2-base-animation.ts';
@@ -45,42 +43,40 @@ const postOrderAlgorithm =
     '    **fn:parcoursSuffixe**(**var:n**.**var:droit**)\n' +
     '  **fn:traiter**(**var:n**)';
 
-const viewport = new S2Vec2(720.0, 360.0).scale(1.5);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(9.0, 4.5), viewport);
-
 class BTreeStyle {
     public scene: S2Scene;
     public font: S2FontData;
 
     constructor(scene: S2Scene) {
         this.scene = scene;
-        this.font = new S2FontData();
+        this.font = new S2FontData(scene);
         this.font.family.set('monospace');
-        this.font.size.set(20, 'view');
+        this.font.size.set(20, scene.getViewSpace());
         this.font.relativeLineHeight.set(1.3);
     }
 
     setNodeDefault(node: S2PlainNode): void {
+        const viewSpace = this.scene.getViewSpace();
         const data = node.data;
-        data.background.fill.color.copyIfUnlocked(MTL.GREY_8);
-        data.background.stroke.color.copyIfUnlocked(MTL.GREY_6);
-        data.background.stroke.width.set(4, 'view');
-        data.background.cornerRadius.set(10, 'view');
-        data.text.fill.color.copyIfUnlocked(MTL.WHITE);
+        data.background.fill.color.copy(MTL.GREY_8);
+        data.background.stroke.color.copy(MTL.GREY_6);
+        data.background.stroke.width.set(4, viewSpace);
+        data.background.cornerRadius.set(10, viewSpace);
+        data.text.fill.color.copy(MTL.WHITE);
         data.text.horizontalAlign.set('center');
         data.text.verticalAlign.set('middle');
-        data.text.font.copyIfUnlocked(this.font);
+        data.text.font.copy(this.font);
         data.text.font.weight.set(700);
-        data.padding.set(0, 0, 'view');
-        data.minExtents.set(0.4, 0.35, 'world');
+        data.padding.set(0, 0, viewSpace);
+        data.minExtents.set(0.4, 0.35, this.scene.getWorldSpace());
         data.layer.set(2);
     }
 
     setNodeSelected(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
-        data.background.stroke.color.copyIfUnlocked(MTL.BLUE_5);
-        data.text.fill.color.copyIfUnlocked(MTL.BLUE_2);
+        data.background.fill.color.copy(MTL.GREY_9);
+        data.background.stroke.color.copy(MTL.BLUE_5);
+        data.text.fill.color.copy(MTL.BLUE_2);
     }
 
     createSelectNodeAnim(node: S2PlainNode): S2AnimGroup {
@@ -98,9 +94,9 @@ class BTreeStyle {
 
     setNodeExplored(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copyIfUnlocked(MTL.CYAN_7);
-        data.background.stroke.color.copyIfUnlocked(MTL.CYAN_3);
-        data.text.fill.color.copyIfUnlocked(MTL.WHITE);
+        data.background.fill.color.copy(MTL.CYAN_7);
+        data.background.stroke.color.copy(MTL.CYAN_3);
+        data.text.fill.color.copy(MTL.WHITE);
     }
 
     createExploreNodeAnim(node: S2PlainNode): S2AnimGroup {
@@ -117,23 +113,25 @@ class BTreeStyle {
     }
 
     setEdgeBase(edge: S2LineEdge): void {
-        S2DataSetter.setTargets(edge.data)
-            .setStrokeColor(MTL.GREY_6)
-            .setStrokeWidth(4, 'view')
-            .setStrokeLineCap('round')
-            .setEdgeStartDistance(0, 'view')
-            .setEdgeEndDistance(10, 'view')
-            .setLayer(0);
+        const viewSpace = this.scene.getViewSpace();
+        const data = edge.data;
+        data.stroke.color.copy(MTL.GREY_6);
+        data.stroke.width.set(4, viewSpace);
+        data.stroke.lineCap.set('round');
+        data.startDistance.set(0, viewSpace);
+        data.endDistance.set(10, viewSpace);
+        data.layer.set(0);
     }
 
     setEdgeEmphasized(edge: S2LineEdge): void {
-        S2DataSetter.setTargets(edge.data)
-            .setStrokeColor(MTL.WHITE)
-            .setStrokeWidth(5, 'view')
-            .setStrokeLineCap('round')
-            .setEdgeStartDistance(0, 'view')
-            .setEdgeEndDistance(11, 'view')
-            .setLayer(1);
+        const viewSpace = this.scene.getViewSpace();
+        const data = edge.data;
+        data.stroke.color.copy(MTL.WHITE);
+        data.stroke.width.set(5, viewSpace);
+        data.stroke.lineCap.set('round');
+        data.startDistance.set(0, viewSpace);
+        data.endDistance.set(11, viewSpace);
+        data.layer.set(0);
 
         const arrowTip = edge.createArrowTip();
         arrowTip.data.pathStrokeFactor.set(0.3);
@@ -242,12 +240,13 @@ class BTree {
     }
 
     computeExtents(): S2Vec2 {
+        const worldSpace = this.scene.getWorldSpace();
         this.extents.x = (this.size - 1) * this.baseSep;
         this.extents.y = (this.height - 1) * this.levelDistance;
         this.extents.scale(0.5);
         this.maxNodeExtents.set(0, 0);
         for (const bTreeNode of this.bTreeNodes) {
-            const nodeExtents = bTreeNode.node.getExtents('world');
+            const nodeExtents = bTreeNode.node.getExtents(worldSpace);
             this.maxNodeExtents.maxV(nodeExtents);
         }
         this.extents.addV(this.maxNodeExtents);
@@ -266,7 +265,7 @@ class BTree {
         bTreeNode.node.data.position.set(
             this.center.x - this.extents.x + this.maxNodeExtents.x + index * this.baseSep,
             this.center.y + this.extents.y - this.maxNodeExtents.y - depth * this.levelDistance,
-            'world',
+            this.scene.getWorldSpace(),
         );
         index++;
         index = this.computeLayoutRec(bTreeNode.right, index, depth + 1);
@@ -361,45 +360,47 @@ class SceneFigure extends S2Scene {
 
     setDefaultFont(data: S2FontData): void {
         data.family.set('monospace');
-        data.size.set(16, 'view');
+        data.size.set(16, this.getViewSpace());
         data.relativeLineHeight.set(1.3);
     }
 
     setCodeStyle(code: S2Code): void {
-        const font = new S2FontData();
+        const worldSpace = this.getWorldSpace();
+        const viewSpace = this.getViewSpace();
+        const font = new S2FontData(this);
         font.family.set('monospace');
-        font.size.set(16, 'view');
+        font.size.set(16, viewSpace);
         font.relativeLineHeight.set(1.3);
 
         this.setDefaultFont(code.data.text.font);
-        code.data.text.fill.color.copyIfUnlocked(MTL.WHITE);
-        code.data.padding.set(20, 10, 'view');
-        code.data.minExtents.set(3.5, 1, 'world');
-        code.data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
-        code.data.background.stroke.color.copyIfUnlocked(MTL.GREY_7);
-        code.data.background.stroke.width.set(2, 'view');
-        code.data.background.cornerRadius.set(10, 'view');
+        code.data.text.fill.color.copy(MTL.WHITE);
+        code.data.padding.set(20, 10, viewSpace);
+        code.data.minExtents.set(3.5, 1, worldSpace);
+        code.data.background.fill.color.copy(MTL.GREY_9);
+        code.data.background.stroke.color.copy(MTL.GREY_7);
+        code.data.background.stroke.width.set(2, viewSpace);
+        code.data.background.cornerRadius.set(10, viewSpace);
         code.data.currentLine.opacity.set(1);
-        code.data.currentLine.fill.color.copyIfUnlocked(MTL.BLACK);
+        code.data.currentLine.fill.color.copy(MTL.BLACK);
         code.data.currentLine.fill.opacity.set(0.5);
-        code.data.currentLine.stroke.color.copyIfUnlocked(MTL.WHITE);
-        code.data.currentLine.stroke.width.set(1, 'view');
+        code.data.currentLine.stroke.color.copy(MTL.WHITE);
+        code.data.currentLine.stroke.width.set(1, viewSpace);
         code.data.currentLine.stroke.opacity.set(0.2);
-        code.data.currentLine.padding.set(-0.5, 2, 'view');
+        code.data.currentLine.padding.set(-0.5, 2, viewSpace);
         code.data.currentLine.index.set(0);
     }
 
     setOutputTextStyle(text: S2RichText): void {
         this.setDefaultFont(text.data.font);
-        text.data.fill.color.copyIfUnlocked(MTL.WHITE);
+        text.data.fill.color.copy(MTL.WHITE);
     }
 
     setOutputBackgroundStyle(rect: S2Rect): void {
-        S2DataSetter.setTargets(rect.data)
-            .setFillColor(MTL.GREY_9)
-            .setStrokeColor(MTL.GREY_7)
-            .setStrokeWidth(2, 'view')
-            .setCornerRadius(10, 'view');
+        const data = rect.data;
+        data.fill.color.copy(MTL.GREY_9);
+        data.stroke.color.copy(MTL.GREY_7);
+        data.stroke.width.set(2, this.getViewSpace());
+        data.cornerRadius.set(10, this.getViewSpace());
     }
 
     constructor(
@@ -407,8 +408,13 @@ class SceneFigure extends S2Scene {
         userTree: UserTreeNode<number>,
         order: 'in-order' | 'pre-order' | 'post-order',
     ) {
-        super(svgElement, camera);
+        super(svgElement);
+        this.camera.setExtents(9.0, 4.5);
+        this.setViewportSize(720.0 * 1.5, 360.0 * 1.5);
+
         this.animator = new S2StepAnimator(this);
+
+        const worldSpace = this.getWorldSpace();
 
         const fillRect = this.addFillRect();
         fillRect.data.color.copy(S2Color.lerp(MTL.GREY_8, MTL.GREY_9, 0.7));
@@ -458,7 +464,7 @@ class SceneFigure extends S2Scene {
         this.tree.computeExtents();
 
         const treeExtents = this.tree.getExtents();
-        const codeExtents = this.codeStack[0].getExtents('world');
+        const codeExtents = this.codeStack[0].getExtents(worldSpace);
         const width = 2 * treeExtents.x + 2 * codeExtents.x + 1.5;
         const height = 2 * Math.max(treeExtents.y, codeExtents.y);
         const treeCenter = new S2Vec2(width / 2 - treeExtents.x, 0);
@@ -469,26 +475,26 @@ class SceneFigure extends S2Scene {
             const position = new S2Vec2(codeNW.x + 0.2 * i, codeNW.y - 0.2 * i);
             this.codePositions.push(position);
             const code = this.codeStack[i];
-            code.data.position.setV(position, 'world');
+            code.data.position.setV(position, worldSpace);
         }
 
-        const outputPadding = 20 * this.getActiveCamera().getViewToWorldScale().y;
-        const fontHeight = 21 * this.getActiveCamera().getViewToWorldScale().y;
-        const fontAscender = 16 * this.getActiveCamera().getViewToWorldScale().y;
+        const outputPadding = this.viewSpace.convertLength(20, worldSpace);
+        const fontHeight = this.viewSpace.convertLength(21, worldSpace);
+        const fontAscender = this.viewSpace.convertLength(16, worldSpace);
         const outputHeight = 2 * fontHeight + 1 * outputPadding;
         const outputNW = new S2Vec2(codeNW.x, -codeNW.y + outputHeight);
-        this.outputBackground.data.position.setV(outputNW, 'world');
-        this.outputBackground.data.extents.set(3.5, outputHeight / 2, 'world');
+        this.outputBackground.data.position.setV(outputNW, worldSpace);
+        this.outputBackground.data.extents.set(3.5, outputHeight / 2, worldSpace);
         this.outputBackground.data.anchor.set('north-west');
         this.outputTitle.data.position.set(
             outputNW.x + outputPadding,
             outputNW.y - fontAscender - 0.5 * outputPadding,
-            'world',
+            worldSpace,
         );
         this.outputText.data.position.set(
             outputNW.x + outputPadding,
             outputNW.y - fontAscender - fontHeight - 0.5 * outputPadding,
-            'world',
+            worldSpace,
         );
         this.update();
 
@@ -516,7 +522,7 @@ class SceneFigure extends S2Scene {
         const position = this.codePositions[depth];
         code.data.currentLine.index.set(0);
         code.data.opacity.set(0);
-        code.data.position.set(position.x + 0.5, position.y, 'world');
+        code.data.position.set(position.x + 0.5, position.y, this.getWorldSpace());
 
         const animPos = S2LerpAnimFactory.create(this, code.data.position);
         const animOpacity = S2LerpAnimFactory.create(this, code.data.opacity);
@@ -524,7 +530,7 @@ class SceneFigure extends S2Scene {
 
         code.data.currentLine.index.set(0);
         code.data.opacity.set(1);
-        code.data.position.setV(position, 'world');
+        code.data.position.setV(position, this.getWorldSpace());
 
         for (const anim of [animPos, animOpacity, animIndex]) {
             anim.setCycleDuration(500).setEasing(ease.out).commitFinalState();
@@ -548,7 +554,7 @@ class SceneFigure extends S2Scene {
 
         const position = this.codePositions[depth];
         code.data.opacity.set(0);
-        code.data.position.set(position.x + 0.5, position.y, 'world');
+        code.data.position.set(position.x + 0.5, position.y, this.getWorldSpace());
 
         for (const anim of [animPos, animOpacity]) {
             anim.setCycleDuration(500).setEasing(ease.out).commitFinalState();

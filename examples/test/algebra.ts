@@ -1,5 +1,4 @@
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
-import { S2Camera } from '../../src/core/math/s2-camera.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
 import { S2StepAnimator } from '../../src/core/animation/s2-step-animator.ts';
@@ -11,11 +10,6 @@ import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2CoordinateSystem } from '../../src/core/element/plot/s2-coordinate-system.ts';
 import { S2AbstractSpace } from '../../src/core/math/s2-abstract-space.ts';
 
-const viewportScale = 1.5;
-const viewport = new S2Vec2(640.0, 360.0).scale(viewportScale);
-const camera = new S2Camera(new S2Vec2(0.0, 0.0), new S2Vec2(8.0, 4.5), viewport);
-camera.setRotationDeg(0);
-
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
 
@@ -23,7 +17,10 @@ class SceneFigure extends S2Scene {
     protected coordSystem: S2CoordinateSystem;
 
     constructor(svgElement: SVGSVGElement) {
-        super(svgElement, camera);
+        super(svgElement);
+        this.camera.setExtents(8.0, 4.5);
+        this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
+
         this.animator = new S2StepAnimator(this);
 
         const fillRect = this.addFillRect();
@@ -81,12 +78,14 @@ class SceneFigure extends S2Scene {
 
     createAnimation(): void {
         this.plot.data.pathTo.set(1.0);
-        let anim = S2LerpAnimFactory.create(this, this.plot.data.pathTo).setCycleDuration(10000).setEasing(ease.inOut);
+        const anim = S2LerpAnimFactory.create(this, this.plot.data.pathTo)
+            .setCycleDuration(10000)
+            .setEasing(ease.inOut);
         this.plot.data.pathTo.set(0.0);
         anim.commitFinalState();
         this.animator.addAnimation(anim);
 
-        let posAnim = S2LerpAnimFactory.create(this, this.coordSystem.data.position)
+        const posAnim = S2LerpAnimFactory.create(this, this.coordSystem.data.position)
             .setCycleDuration(5000)
             .setEasing(ease.inOut);
         this.coordSystem.data.position.set(-2.0, 0.0, this.getWorldSpace());

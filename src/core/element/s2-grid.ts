@@ -1,5 +1,4 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
 import type { S2Dirtyable } from '../shared/s2-globals';
 import { svgNS } from '../shared/s2-globals';
 import { S2Element } from './base/s2-element';
@@ -7,9 +6,9 @@ import { S2BaseData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Enum } from '../shared/s2-enum';
 import { S2Point } from '../shared/s2-point';
 import { S2Extents } from '../shared/s2-extents';
+import { S2SpaceRef } from '../shared/s2-space-ref';
 
 export class S2GridData extends S2ElementData {
     public readonly stroke: S2StrokeData;
@@ -46,12 +45,12 @@ export class S2GridGeometryData extends S2BaseData {
     public readonly boundB: S2Point;
     public readonly steps: S2Extents;
     public readonly referencePoint: S2Point;
-    public readonly space: S2Enum<S2AbstractSpace>;
+    public readonly space: S2SpaceRef;
 
     constructor(scene: S2BaseScene) {
         super();
         const worldSpace = scene.getWorldSpace();
-        this.space = new S2Enum<S2AbstractSpace>(worldSpace);
+        this.space = new S2SpaceRef(worldSpace);
         this.boundA = new S2Point(-8, -4.5, worldSpace);
         this.boundB = new S2Point(+8, +4.5, worldSpace);
         this.steps = new S2Extents(1, 1, worldSpace);
@@ -109,13 +108,13 @@ export class S2Grid extends S2Element<S2GridData> {
         const startY = anchor.y - Math.floor((anchor.y - lowerY) / steps.y) * steps.y;
         let d = '';
         for (let x = startX; x < upperX + epsilon; x += steps.x) {
-            const pointA = space.convertPointTo(x, lowerY, viewSpace);
-            const pointB = space.convertPointTo(x, upperY, viewSpace);
+            const pointA = space.convertPoint(x, lowerY, viewSpace);
+            const pointB = space.convertPoint(x, upperY, viewSpace);
             d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
         }
         for (let y = startY; y < upperY + epsilon; y += steps.y) {
-            const pointA = space.convertPointTo(lowerX, y, viewSpace);
-            const pointB = space.convertPointTo(upperX, y, viewSpace);
+            const pointA = space.convertPoint(lowerX, y, viewSpace);
+            const pointB = space.convertPoint(upperX, y, viewSpace);
             d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
         }
         element.setAttribute('d', d.trimEnd());

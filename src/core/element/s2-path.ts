@@ -10,14 +10,14 @@ import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2ArrowTip } from './s2-arrow-tip';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
-import { S2Enum } from '../shared/s2-enum';
+import { S2SpaceRef } from '../shared/s2-space-ref';
 
 export class S2PathData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
-    public readonly space: S2Enum<S2AbstractSpace>;
+    public readonly space: S2SpaceRef;
     public readonly polyCurve: S2PolyCurve;
     public readonly pathFrom: S2Number;
     public readonly pathTo: S2Number;
@@ -28,7 +28,7 @@ export class S2PathData extends S2ElementData {
         this.opacity = new S2Number(1);
         this.fill = new S2FillData();
         this.transform = new S2Transform();
-        this.space = new S2Enum<S2AbstractSpace>(scene.getWorldSpace());
+        this.space = new S2SpaceRef(scene.getWorldSpace());
         this.polyCurve = new S2PolyCurve();
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
@@ -114,17 +114,21 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         return this;
     }
 
-    getTipTransformAt(t: number): S2TipTransform {
+    getTipTransformAtInto(dst: S2TipTransform, t: number): S2TipTransform {
         const from = this.data.pathFrom.get();
         const to = this.data.pathTo.get();
         t = t * (to - from) + from;
-        const transform = new S2TipTransform(this.scene);
-        transform.space = this.data.space.get();
-        transform.position = this.data.polyCurve.getPointAt(t);
-        transform.tangent = this.data.polyCurve.getTangentAt(t);
-        transform.pathLength = this.data.polyCurve.getLength() * (to - from);
-        transform.strokeWidth = this.data.stroke.width.get(transform.space);
-        return transform;
+        dst.space = this.data.space.get();
+        dst.position.copy(this.data.polyCurve.getPointAt(t));
+        dst.tangent.copy(this.data.polyCurve.getTangentAt(t));
+        dst.pathLength = this.data.polyCurve.getLength() * (to - from);
+        dst.strokeWidth = this.data.stroke.width.get(dst.space);
+        return dst;
+    }
+
+    getTipTransformAt(t: number): S2TipTransform {
+        const dst = new S2TipTransform(this.scene);
+        return this.getTipTransformAtInto(dst, t);
     }
 
     setSampleCount(sampleCount: number): this {
@@ -138,31 +142,31 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getStart(space: S2AbstractSpace): S2Vec2 {
-        return this.data.space.get().convertPointToV(this.data.polyCurve.getStart(), space);
+        return this.data.space.get().convertPointV(this.data.polyCurve.getStart(), space);
     }
 
     getEnd(space: S2AbstractSpace): S2Vec2 {
-        return this.data.space.get().convertPointToV(this.data.polyCurve.getEnd(), space);
+        return this.data.space.get().convertPointV(this.data.polyCurve.getEnd(), space);
     }
 
     getPointAt(t: number, space: S2AbstractSpace): S2Vec2 {
-        return this.data.space.get().convertPointToV(this.data.polyCurve.getPointAt(t), space);
+        return this.data.space.get().convertPointV(this.data.polyCurve.getPointAt(t), space);
     }
 
     getTangentAt(t: number, space: S2AbstractSpace): S2Vec2 {
-        return this.data.space.get().convertOffsetToV(this.data.polyCurve.getTangentAt(t), space);
+        return this.data.space.get().convertOffsetV(this.data.polyCurve.getTangentAt(t), space);
     }
 
     getStartTangent(space: S2AbstractSpace): S2Vec2 {
-        return this.data.space.get().convertOffsetToV(this.data.polyCurve.getStartTangent(), space);
+        return this.data.space.get().convertOffsetV(this.data.polyCurve.getStartTangent(), space);
     }
 
     getEndTangent(space: S2AbstractSpace): S2Vec2 {
-        return this.data.space.get().convertOffsetToV(this.data.polyCurve.getEndTangent(), space);
+        return this.data.space.get().convertOffsetV(this.data.polyCurve.getEndTangent(), space);
     }
 
     getLength(space: S2AbstractSpace): number {
-        return this.data.space.get().convertLengthTo(this.data.polyCurve.getLength(), space);
+        return this.data.space.get().convertLength(this.data.polyCurve.getLength(), space);
     }
 
     clear(): this {

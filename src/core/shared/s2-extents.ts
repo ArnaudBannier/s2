@@ -62,7 +62,7 @@ export class S2Extents extends S2BaseType implements S2HasClone<S2Extents>, S2Ha
 
     setValueFromSpace(x: number, y: number, space: S2AbstractSpace): this {
         if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
-        space.convertExtentsTo(x, y, this.space, this.value);
+        space.convertExtents(x, y, this.space, this.value);
         this.markDirty();
         return this;
     }
@@ -72,12 +72,12 @@ export class S2Extents extends S2BaseType implements S2HasClone<S2Extents>, S2Ha
     }
 
     get(space: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
-        return this.space.convertExtentsToV(this.value, space, out);
+        return this.space.convertExtentsV(this.value, space, out);
     }
 
     changeSpace(space: S2AbstractSpace): this {
         if (this.space === space) return this;
-        this.space.convertExtentsToV(this.value, space, this.value);
+        this.space.convertExtentsV(this.value, space, this.value);
         this.space = space;
         // No markDirty() because the point value did not change
         return this;

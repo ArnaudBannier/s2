@@ -25,25 +25,24 @@ export class S2SVG extends S2Element<S2ElementData> {
 
         const local = pt.matrixTransform(ctm.inverse());
         const viewPoint = new S2Vec2(local.x, local.y);
-        return this.scene.getViewSpace().convertPointToV(viewPoint, space, viewPoint);
+        return this.scene.getViewSpace().convertPointV(viewPoint, space, viewPoint);
     }
 
-    convertDOMPointInto(x: number, y: number, out: S2Point): void {
+    convertDOMPointInto(dst: S2Point, x: number, y: number): void {
         const pt = new DOMPoint(x, y);
         const ctm = this.element.getScreenCTM();
         if (!ctm) {
-            out.set(0, 0);
+            dst.set(0, 0);
             return;
         }
         const local = pt.matrixTransform(ctm.inverse());
-        out.setValueFromSpace(local.x, local.y, this.scene.getViewSpace());
+        dst.setValueFromSpace(local.x, local.y, this.scene.getViewSpace());
     }
 
     update(): void {
         if (this.skipUpdate()) return;
 
-        const camera = this.scene.getActiveCamera();
-        const viewport = camera.getViewportSize();
+        const viewport = this.scene.getViewportSize();
         this.element.setAttribute('viewBox', `0 0 ${viewport.x} ${viewport.y}`);
 
         this.updateSVGChildren();
