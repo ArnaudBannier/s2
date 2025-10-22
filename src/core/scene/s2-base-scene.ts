@@ -2,14 +2,14 @@ import { S2Camera } from '../math/s2-camera';
 import type { S2Point } from '../shared/s2-point';
 import { S2SVG } from '../element/s2-svg';
 import { S2Vec2 } from '../math/s2-vec2';
-import { S2AbstractSpace } from '../math/s2-abstract-space';
+import { S2Space } from '../math/s2-space';
 
 export abstract class S2BaseScene {
     protected readonly svg: S2SVG;
-    protected readonly worldSpace: S2AbstractSpace = new S2AbstractSpace();
-    protected readonly viewSpace: S2AbstractSpace = new S2AbstractSpace();
+    protected readonly worldSpace: S2Space = new S2Space();
+    protected readonly viewSpace: S2Space = new S2Space();
     protected readonly viewportSize: S2Vec2 = new S2Vec2(640.0, 360.0);
-    protected readonly spaces: S2AbstractSpace[] = [];
+    protected readonly spaces: S2Space[] = [];
     protected readonly camera: S2Camera;
 
     private nextElementId: number;
@@ -59,11 +59,11 @@ export abstract class S2BaseScene {
         return this.camera;
     }
 
-    getWorldSpace(): S2AbstractSpace {
+    getWorldSpace(): S2Space {
         return this.worldSpace;
     }
 
-    getViewSpace(): S2AbstractSpace {
+    getViewSpace(): S2Space {
         return this.viewSpace;
     }
 
@@ -82,13 +82,13 @@ export abstract class S2BaseScene {
         return this.setViewportSize(size.x, size.y);
     }
 
-    createSpace(): S2AbstractSpace {
-        const space = new S2AbstractSpace();
+    createSpace(): S2Space {
+        const space = new S2Space();
         this.spaces.push(space);
         return space;
     }
 
-    detachSpace(space: S2AbstractSpace): this {
+    detachSpace(space: S2Space): this {
         const index = this.spaces.indexOf(space);
         if (index !== -1) {
             this.spaces.splice(index, 1);
@@ -106,7 +106,7 @@ export abstract class S2BaseScene {
         return this;
     }
 
-    convertDOMPoint(x: number, y: number, space: S2AbstractSpace): S2Vec2 {
+    convertDOMPoint(x: number, y: number, space: S2Space): S2Vec2 {
         return this.svg.convertDOMPoint(x, y, space);
     }
 

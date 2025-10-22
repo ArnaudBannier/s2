@@ -1,4 +1,4 @@
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { svgNS } from '../../shared/s2-globals';
@@ -30,7 +30,7 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         return this.element;
     }
 
-    getPosition(space: S2AbstractSpace): S2Vec2 {
+    getPosition(space: S2Space): S2Vec2 {
         return this.data.position.get(space);
     }
 
@@ -46,11 +46,11 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         return tspan;
     }
 
-    getExtents(space: S2AbstractSpace): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.extents.get(space);
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         const localCenter = this.localCenter.get(space);
         const position = this.getPosition(space);
         return localCenter.addV(position);

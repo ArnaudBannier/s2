@@ -1,7 +1,7 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
 import type { S2BaseDraggableContainer } from './s2-draggable-container';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2ElementData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
@@ -95,23 +95,23 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         this.userOnRelease = listener;
     }
 
-    getPosition(space: S2AbstractSpace): S2Vec2 {
+    getPosition(space: S2Space): S2Vec2 {
         return this.data.position.get(space);
     }
 
-    getDelta(space: S2AbstractSpace): S2Vec2 {
+    getDelta(space: S2Space): S2Vec2 {
         return this.delta.get(space);
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         return this.data.position.get(space);
     }
 
-    getPointerDelta(space: S2AbstractSpace): S2Vec2 {
+    getPointerDelta(space: S2Space): S2Vec2 {
         return this.pointerDelta.get(space);
     }
 
-    getPointerPosition(space: S2AbstractSpace): S2Vec2 {
+    getPointerPosition(space: S2Space): S2Vec2 {
         return this.pointerPosition.get(space);
     }
 

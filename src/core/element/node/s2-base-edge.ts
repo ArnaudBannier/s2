@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 import type { S2Dirtyable, S2Tipable } from '../../shared/s2-globals';
 import type { S2Point } from '../../shared/s2-point';
 import { S2Vec2 } from '../../math/s2-vec2';
@@ -130,7 +130,7 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         return this.element;
     }
 
-    protected getPointCenter(nodeOrPos: S2Node | S2Point, space: S2AbstractSpace) {
+    protected getPointCenter(nodeOrPos: S2Node | S2Point, space: S2Space) {
         if (nodeOrPos instanceof S2Node) {
             return nodeOrPos.getCenter(space);
         } else {
@@ -138,12 +138,7 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         }
     }
 
-    protected getPoint(
-        nodeOrPos: S2Node | S2Point,
-        space: S2AbstractSpace,
-        distance: S2Length,
-        direction: S2Vec2,
-    ): S2Vec2 {
+    protected getPoint(nodeOrPos: S2Node | S2Point, space: S2Space, distance: S2Length, direction: S2Vec2): S2Vec2 {
         if (nodeOrPos instanceof S2Node) {
             if (distance.value !== -Infinity) {
                 return nodeOrPos.getPointInDirection(direction, space, distance);
@@ -159,7 +154,7 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         }
     }
 
-    protected getStartToEnd(space: S2AbstractSpace): S2Vec2 {
+    protected getStartToEnd(space: S2Space): S2Vec2 {
         const start = this.data.start.getCenter(space);
         const end = this.data.end.getCenter(space);
         return end.subV(start);

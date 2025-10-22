@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2Space } from '../math/s2-space';
 import type { S2Dirtyable, S2Tipable } from '../shared/s2-globals';
 import { S2TipTransform, svgNS } from '../shared/s2-globals';
 import { S2Vec2 } from '../math/s2-vec2';
@@ -141,31 +141,31 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         return this.element;
     }
 
-    getStart(space: S2AbstractSpace): S2Vec2 {
+    getStart(space: S2Space): S2Vec2 {
         return this.data.space.get().convertPointV(this.data.polyCurve.getStart(), space);
     }
 
-    getEnd(space: S2AbstractSpace): S2Vec2 {
+    getEnd(space: S2Space): S2Vec2 {
         return this.data.space.get().convertPointV(this.data.polyCurve.getEnd(), space);
     }
 
-    getPointAt(t: number, space: S2AbstractSpace): S2Vec2 {
+    getPointAt(t: number, space: S2Space): S2Vec2 {
         return this.data.space.get().convertPointV(this.data.polyCurve.getPointAt(t), space);
     }
 
-    getTangentAt(t: number, space: S2AbstractSpace): S2Vec2 {
+    getTangentAt(t: number, space: S2Space): S2Vec2 {
         return this.data.space.get().convertOffsetV(this.data.polyCurve.getTangentAt(t), space);
     }
 
-    getStartTangent(space: S2AbstractSpace): S2Vec2 {
+    getStartTangent(space: S2Space): S2Vec2 {
         return this.data.space.get().convertOffsetV(this.data.polyCurve.getStartTangent(), space);
     }
 
-    getEndTangent(space: S2AbstractSpace): S2Vec2 {
+    getEndTangent(space: S2Space): S2Vec2 {
         return this.data.space.get().convertOffsetV(this.data.polyCurve.getEndTangent(), space);
     }
 
-    getLength(space: S2AbstractSpace): number {
+    getLength(space: S2Space): number {
         return this.data.space.get().convertLength(this.data.polyCurve.getLength(), space);
     }
 

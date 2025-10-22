@@ -14,7 +14,7 @@ import type { S2Line } from '../s2-line';
 import { S2CurvePlot } from './s2-curve-plot';
 import { S2PlotModifier } from './s2-plot-modifier';
 import { S2Length } from '../../shared/s2-length';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 
 export class S2CoordinateSystemData extends S2ElementData {
     public readonly stroke: S2StrokeData;
@@ -163,11 +163,11 @@ export class S2CoordinateSystem extends S2Element<S2CoordinateSystemData> {
         return this.element;
     }
 
-    getPosition(space: S2AbstractSpace): S2Vec2 {
+    getPosition(space: S2Space): S2Vec2 {
         return this.data.position.get(space);
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         return S2AnchorUtils.getCenter(
             this.data.anchor.get(),
             space,
@@ -177,7 +177,7 @@ export class S2CoordinateSystem extends S2Element<S2CoordinateSystemData> {
         );
     }
 
-    getExtents(space: S2AbstractSpace): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.data.extents.get(space);
     }
 

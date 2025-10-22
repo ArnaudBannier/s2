@@ -2,8 +2,6 @@ import type { S2BaseScene } from '../scene/s2-base-scene.ts';
 import type { S2Dirtyable } from '../shared/s2-globals.ts';
 import { S2Vec2 } from './s2-vec2.ts';
 
-export type S2Space = 'world' | 'view';
-
 export class S2Camera implements S2Dirtyable {
     protected scene: S2BaseScene;
     protected position: S2Vec2 = new S2Vec2();

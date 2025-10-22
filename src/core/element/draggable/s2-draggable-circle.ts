@@ -1,6 +1,6 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { svgNS } from '../../shared/s2-globals';
 import { S2DataUtils } from '../base/s2-data-utils';
@@ -41,11 +41,11 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
         this.initSVGElement(this.element);
     }
 
-    getRadius(space: S2AbstractSpace): number {
+    getRadius(space: S2Space): number {
         return this.data.radius.get(space);
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         return this.data.position.get(space);
     }
 

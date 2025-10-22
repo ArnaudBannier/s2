@@ -1,4 +1,4 @@
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2Space } from '../math/s2-space';
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Extents } from './s2-extents';
 import type { S2Point } from './s2-point';
@@ -23,7 +23,7 @@ export interface S2Dirtyable {
 }
 
 export class S2TipTransform {
-    public space: S2AbstractSpace;
+    public space: S2Space;
     public position: S2Vec2 = new S2Vec2();
     public tangent: S2Vec2 = new S2Vec2();
     public strokeWidth: number = 1;
@@ -59,7 +59,7 @@ export type S2Anchor =
 export class S2AnchorUtils {
     static getCenter(
         anchor: S2Anchor,
-        space: S2AbstractSpace,
+        space: S2Space,
         scene: S2BaseScene,
         position: S2Point,
         extents: S2Extents,
@@ -100,7 +100,7 @@ export class S2AnchorUtils {
 
     static getNorthWest(
         anchor: S2Anchor,
-        space: S2AbstractSpace,
+        space: S2Space,
         scene: S2BaseScene,
         position: S2Point,
         extents: S2Extents,

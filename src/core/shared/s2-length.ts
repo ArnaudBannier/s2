@@ -1,14 +1,14 @@
 import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2Space } from '../math/s2-space';
 import { S2BaseType } from './s2-base-type';
 import { S2MathUtils } from '../math/s2-math-utils';
 
 export class S2Length extends S2BaseType implements S2HasClone<S2Length>, S2HasCopy<S2Length>, S2HasLerp<S2Length> {
     readonly kind = 'length' as const;
     public value: number;
-    public space: S2AbstractSpace;
+    public space: S2Space;
 
-    constructor(value: number = 0, space: S2AbstractSpace, locked: boolean = false) {
+    constructor(value: number = 0, space: S2Space, locked: boolean = false) {
         super();
         this.value = value;
         this.space = space;
@@ -44,7 +44,7 @@ export class S2Length extends S2BaseType implements S2HasClone<S2Length>, S2HasC
         return new S2Length(0, state1.space).lerp(state0, state1, t);
     }
 
-    set(value: number, space?: S2AbstractSpace): this {
+    set(value: number, space?: S2Space): this {
         if (this.value === value && this.space === space) return this;
         this.value = value;
         if (space) this.space = space;
@@ -52,18 +52,18 @@ export class S2Length extends S2BaseType implements S2HasClone<S2Length>, S2HasC
         return this;
     }
 
-    setValueFromSpace(value: number, space: S2AbstractSpace): this {
+    setValueFromSpace(value: number, space: S2Space): this {
         if (this.value === value && this.space === space) return this;
         this.value = space.convertLength(value, this.space);
         this.markDirty();
         return this;
     }
 
-    get(space: S2AbstractSpace): number {
+    get(space: S2Space): number {
         return this.space.convertLength(this.value, space);
     }
 
-    changeSpace(space: S2AbstractSpace): this {
+    changeSpace(space: S2Space): this {
         if (this.space === space) return this;
         this.value = this.space.convertLength(this.value, space);
         this.space = space;

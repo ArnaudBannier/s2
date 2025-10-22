@@ -1,6 +1,6 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2AnchorUtils, S2FlexUtils, svgNS } from '../../shared/s2-globals';
 import { S2Rect } from '../s2-rect';
@@ -135,15 +135,15 @@ export class S2Node extends S2Element<S2RichNodeData> {
         this.updateSVGChildren();
     }
 
-    getPosition(space: S2AbstractSpace): S2Vec2 {
+    getPosition(space: S2Space): S2Vec2 {
         return this.data.position.get(space);
     }
 
-    getMinExtents(space: S2AbstractSpace): S2Vec2 {
+    getMinExtents(space: S2Space): S2Vec2 {
         return this.data.minExtents.get(space);
     }
 
-    getPadding(space: S2AbstractSpace): S2Vec2 {
+    getPadding(space: S2Space): S2Vec2 {
         return this.data.padding.get(space);
     }
 
@@ -186,7 +186,7 @@ export class S2Node extends S2Element<S2RichNodeData> {
         return this.background;
     }
 
-    getCenter(space: S2AbstractSpace = this.data.position.space): S2Vec2 {
+    getCenter(space: S2Space = this.data.position.space): S2Vec2 {
         return S2AnchorUtils.getCenter(this.data.anchor.get(), space, this.scene, this.data.position, this.extents);
     }
 
@@ -198,7 +198,7 @@ export class S2Node extends S2Element<S2RichNodeData> {
         return this.textGroups.length;
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2AbstractSpace, distance: S2Length): S2Vec2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
         if (this.background) {
             return this.background.getPointInDirection(direction, space, distance);
         }

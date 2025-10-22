@@ -1,11 +1,12 @@
 import type { S2Anchor } from '../shared/s2-globals';
-import type { S2Space } from '../math/s2-camera';
 import type { S2AnimProperty } from './s2-base-animation';
 import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';
 import type { S2Enum } from '../shared/s2-enum';
 import type { S2Number } from '../shared/s2-number';
 import type { S2Color } from '../shared/s2-color';
+import type { S2SpaceRef } from '../shared/s2-space-ref';
+import type { S2Space } from '../math/s2-space';
 
 export abstract class S2TimelineTrigger<T extends S2AnimProperty = S2AnimProperty> {
     public property: T;
@@ -43,10 +44,10 @@ export class S2TriggerString extends S2TimelineTrigger<S2String> {
     }
 }
 
-export class S2TriggerSpace extends S2TimelineTrigger<S2Enum<S2Space>> {
+export class S2TriggerSpace extends S2TimelineTrigger<S2SpaceRef> {
     public value: S2Space;
 
-    constructor(property: S2Enum<S2Space>, value: S2Space) {
+    constructor(property: S2SpaceRef, value: S2Space) {
         super(property);
         this.value = value;
     }

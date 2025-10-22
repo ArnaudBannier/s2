@@ -1,4 +1,4 @@
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
 import { S2Vec2 } from '../../math/s2-vec2';
@@ -151,15 +151,15 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         return this.textLines[index];
     }
 
-    getTextExtents(space: S2AbstractSpace): S2Vec2 {
+    getTextExtents(space: S2Space): S2Vec2 {
         return this.contentExtents.get(space);
     }
 
-    getExtents(space: S2AbstractSpace): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.extents.get(space);
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         return S2AnchorUtils.getCenter(
             this.data.anchor.get(),
             space,

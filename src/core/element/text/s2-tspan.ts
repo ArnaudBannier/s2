@@ -1,4 +1,4 @@
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2BaseRichText } from './s2-rich-text';
 import type { S2Dirtyable } from '../../shared/s2-globals';
@@ -87,25 +87,25 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         return this.content;
     }
 
-    getLocalCenter(space: S2AbstractSpace): S2Vec2 {
+    getLocalCenter(space: S2Space): S2Vec2 {
         return this.localBBox.getCenter(space);
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         const localCenter = this.getLocalCenter(space);
         return localCenter.addV(this.parentText.getPosition(space));
     }
 
-    getExtents(space: S2AbstractSpace): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.localBBox.getExtents(space);
     }
 
-    getLower(space: S2AbstractSpace): S2Vec2 {
+    getLower(space: S2Space): S2Vec2 {
         const localLower = this.localBBox.getLower(space);
         return localLower.addV(this.parentText.getPosition(space));
     }
 
-    getUpper(space: S2AbstractSpace): S2Vec2 {
+    getUpper(space: S2Space): S2Vec2 {
         const localUpper = this.localBBox.getUpper(space);
         return localUpper.addV(this.parentText.getPosition(space));
     }

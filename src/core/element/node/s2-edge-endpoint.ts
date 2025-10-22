@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 import type { S2Dirtyable } from '../../shared/s2-globals';
 import type { S2BaseEdge } from './s2-base-edge';
 import type { S2Length } from '../../shared/s2-length';
@@ -64,7 +64,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         this.position.copyIfUnlocked(other.position);
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         if (this.mode === 'node' && this.node) {
             return this.node.getCenter(space);
         } else {
@@ -72,7 +72,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         }
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2AbstractSpace, distance: S2Length): S2Vec2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
         if (this.mode === 'node' && this.node) {
             if (distance.value !== -Infinity) {
                 return this.node.getPointInDirection(direction, space, distance);

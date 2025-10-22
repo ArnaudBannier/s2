@@ -9,7 +9,7 @@ import { S2Vec2 } from '../core/math/s2-vec2';
 import { S2AnchorUtils, svgNS } from '../core/shared/s2-globals';
 import { S2MemoryData } from './s2-memory-data';
 import { S2MemoryRow } from './s2-memory-row';
-import type { S2AbstractSpace } from '../core/math/s2-abstract-space';
+import type { S2Space } from '../core/math/s2-space';
 
 export class S2MemoryId {
     public readonly memoryRef: S2Memory;
@@ -210,11 +210,11 @@ export class S2Memory extends S2Element<S2MemoryData> {
         return this.element;
     }
 
-    getExtents(space: S2AbstractSpace): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.data.extents.get(space);
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         return S2AnchorUtils.getCenter(
             this.data.anchor.get(),
             space,

@@ -10,7 +10,7 @@ import type { S2Length } from '../shared/s2-length';
 import type { S2Extents } from '../shared/s2-extents';
 import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';
-import type { S2Space } from '../math/s2-camera';
+import type { S2SpaceRef } from '../shared/s2-space-ref';
 import { S2MathUtils } from '../math/s2-math-utils';
 import { ease } from './s2-easing';
 
@@ -22,7 +22,7 @@ export type S2AnimProperty =
     | S2Length
     | S2Extents
     | S2Boolean
-    | S2Enum<S2Space>
+    | S2SpaceRef
     | S2String
     | S2Enum<S2Anchor>
     | S2Enum<S2TextAnchor>

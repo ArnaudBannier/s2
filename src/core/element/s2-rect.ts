@@ -12,7 +12,7 @@ import { S2Point } from '../shared/s2-point';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Enum } from '../shared/s2-enum';
 import { S2Length } from '../shared/s2-length';
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2Space } from '../math/s2-space';
 
 export class S2RectData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -73,11 +73,11 @@ export class S2Rect extends S2Element<S2RectData> {
         this.element = document.createElementNS(svgNS, 'rect');
     }
 
-    getExtents(space: S2AbstractSpace): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.data.extents.get(space);
     }
 
-    getCornerRadius(space: S2AbstractSpace): number {
+    getCornerRadius(space: S2Space): number {
         return this.data.cornerRadius.get(space);
     }
 
@@ -85,7 +85,7 @@ export class S2Rect extends S2Element<S2RectData> {
         return this.element;
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2AbstractSpace, distance: S2Length): S2Vec2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
         const d = distance.get(space);
         const extents = this.data.extents.get(space).add(d, d).max(0, 0);
         const radius = Math.min(Math.max(this.data.cornerRadius.get(space) + d, 0), extents.x, extents.y);

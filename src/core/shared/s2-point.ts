@@ -1,14 +1,14 @@
 import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2Space } from '../math/s2-space';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
 
 export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCopy<S2Point>, S2HasLerp<S2Point> {
     readonly kind = 'position' as const;
     public value: S2Vec2;
-    public space: S2AbstractSpace;
+    public space: S2Space;
 
-    constructor(x: number, y: number, space: S2AbstractSpace, locked: boolean = false) {
+    constructor(x: number, y: number, space: S2Space, locked: boolean = false) {
         super();
         this.value = new S2Vec2(x, y);
         this.space = space;
@@ -44,7 +44,7 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
         return new S2Point(0, 0, state1.space).lerp(state0, state1, t);
     }
 
-    set(x: number = 0, y: number = 0, space?: S2AbstractSpace): this {
+    set(x: number = 0, y: number = 0, space?: S2Space): this {
         if (this.value.x === x && this.value.y === y && this.space === space) return this;
         this.value.set(x, y);
         if (space) this.space = space;
@@ -52,7 +52,7 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
         return this;
     }
 
-    setV(point: S2Vec2, space?: S2AbstractSpace): this {
+    setV(point: S2Vec2, space?: S2Space): this {
         if (S2Vec2.eqV(this.value, point) && this.space === space) return this;
         this.value.copy(point);
         if (space) this.space = space;
@@ -60,26 +60,26 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
         return this;
     }
 
-    setValueFromSpace(x: number, y: number, space: S2AbstractSpace): this {
+    setValueFromSpace(x: number, y: number, space: S2Space): this {
         if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
         space.convertPoint(x, y, this.space, this.value);
         this.markDirty();
         return this;
     }
 
-    setValueFromSpaceV(point: S2Vec2, space: S2AbstractSpace): this {
+    setValueFromSpaceV(point: S2Vec2, space: S2Space): this {
         return this.setValueFromSpace(point.x, point.y, space);
     }
 
-    get(space: S2AbstractSpace, out?: S2Vec2): S2Vec2 {
+    get(space: S2Space, out?: S2Vec2): S2Vec2 {
         return this.space.convertPointV(this.value, space, out);
     }
 
-    getInto(dst: S2Vec2, space: S2AbstractSpace): S2Vec2 {
+    getInto(dst: S2Vec2, space: S2Space): S2Vec2 {
         return this.space.convertPointIntoV(dst, this.value, space);
     }
 
-    changeSpace(space: S2AbstractSpace): this {
+    changeSpace(space: S2Space): this {
         if (this.space === space) return this;
         this.space.convertPointIntoV(this.value, this.value, space);
         this.space = space;

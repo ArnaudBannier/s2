@@ -10,7 +10,7 @@ import type { S2Length } from '../../shared/s2-length.ts';
 import type { S2Boolean } from '../../shared/s2-boolean.ts';
 import type { S2Offset } from '../../shared/s2-offset.ts';
 import type { S2Extents } from '../../shared/s2-extents.ts';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space.ts';
+import type { S2Space } from '../../math/s2-space.ts';
 import type { S2SpaceRef } from '../../shared/s2-space-ref.ts';
 import { S2Vec2 } from '../../math/s2-vec2.ts';
 import { S2AnchorUtils } from '../../shared/s2-globals.ts';
@@ -199,7 +199,7 @@ export class S2DataUtils {
         polyCurve: S2PolyCurve,
         pathFrom: number,
         pathTo: number,
-        space: S2AbstractSpace,
+        space: S2Space,
         scene: S2BaseScene,
     ): string {
         if (pathFrom > 0 && pathTo < 1) {

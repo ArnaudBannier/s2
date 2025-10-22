@@ -8,7 +8,7 @@ import { S2CurvePlot } from '../../src/core/element/plot/s2-curve-plot.ts';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2CoordinateSystem } from '../../src/core/element/plot/s2-coordinate-system.ts';
-import { S2AbstractSpace } from '../../src/core/math/s2-abstract-space.ts';
+import { S2Space } from '../../src/core/math/s2-space.ts';
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
@@ -33,7 +33,7 @@ class SceneFigure extends S2Scene {
 
         const worldSpace = this.getWorldSpace();
         const viewSpace = this.getViewSpace();
-        const newSpace = new S2AbstractSpace(this.getWorldSpace());
+        const newSpace = new S2Space(this.getWorldSpace());
         newSpace.setFromSpace(this.getWorldSpace(), new S2Vec2(-3, -3), new S2Vec2(-2, 0), new S2Vec2(0, 2));
 
         const circle = this.addCircle();

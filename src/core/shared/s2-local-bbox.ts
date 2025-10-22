@@ -1,4 +1,4 @@
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2Space } from '../math/s2-space';
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Point } from './s2-point';
 import { S2BaseType } from './s2-base-type';
@@ -11,7 +11,7 @@ export class S2LocalBBox extends S2BaseType {
     protected center: S2Offset;
     protected extents: S2Extents;
 
-    constructor(space: S2AbstractSpace) {
+    constructor(space: S2Space) {
         super();
         this.center = new S2Offset(0, 0, space);
         this.extents = new S2Extents(0, 0, space);
@@ -31,21 +31,21 @@ export class S2LocalBBox extends S2BaseType {
         this.markDirty();
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         return this.center.get(space);
     }
 
-    getExtents(space: S2AbstractSpace): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.extents.get(space);
     }
 
-    getLower(space: S2AbstractSpace): S2Vec2 {
+    getLower(space: S2Space): S2Vec2 {
         const center = this.getCenter(space);
         const extents = this.getExtents(space);
         return center.subV(extents);
     }
 
-    getUpper(space: S2AbstractSpace): S2Vec2 {
+    getUpper(space: S2Space): S2Vec2 {
         const center = this.getCenter(space);
         const extents = this.getExtents(space);
         return center.addV(extents);

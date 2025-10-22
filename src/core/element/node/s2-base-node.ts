@@ -8,7 +8,7 @@ import { S2Circle } from '../s2-circle';
 import { S2Element } from '../base/s2-element';
 import { S2NodeData } from './s2-node-data';
 import { S2Extents } from '../../shared/s2-extents';
-import type { S2AbstractSpace } from '../../math/s2-abstract-space';
+import type { S2Space } from '../../math/s2-space';
 
 export abstract class S2BaseNode extends S2Element<S2NodeData> {
     protected element: SVGGElement;
@@ -39,19 +39,19 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         return this;
     }
 
-    getPosition(space: S2AbstractSpace): S2Vec2 {
+    getPosition(space: S2Space): S2Vec2 {
         return this.data.position.get(space);
     }
 
-    getExtents(space: S2AbstractSpace): S2Vec2 {
+    getExtents(space: S2Space): S2Vec2 {
         return this.extents.get(space);
     }
 
-    getMinExtents(space: S2AbstractSpace): S2Vec2 {
+    getMinExtents(space: S2Space): S2Vec2 {
         return this.data.minExtents.get(space);
     }
 
-    getPadding(space: S2AbstractSpace): S2Vec2 {
+    getPadding(space: S2Space): S2Vec2 {
         return this.data.padding.get(space);
     }
 
@@ -63,11 +63,11 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         return this.background;
     }
 
-    getCenter(space: S2AbstractSpace): S2Vec2 {
+    getCenter(space: S2Space): S2Vec2 {
         return S2AnchorUtils.getCenter(this.data.anchor.get(), space, this.scene, this.data.position, this.extents);
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2AbstractSpace, distance: S2Length): S2Vec2 {
+    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
         if (this.background) {
             return this.background.getPointInDirection(direction, space, distance);
         }

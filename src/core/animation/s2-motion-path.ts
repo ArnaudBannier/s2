@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2AbstractSpace } from '../math/s2-abstract-space';
+import type { S2Space } from '../math/s2-space';
 import type { S2Offset } from '../shared/s2-offset';
 import type { S2Point } from '../shared/s2-point';
 import type { S2AnimProperty } from './s2-base-animation';
@@ -7,7 +7,7 @@ import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 import { S2PolyCurve } from '../math/s2-curve';
 
 export abstract class S2BaseMotionPath extends S2BaseDurationAnimation {
-    protected space: S2AbstractSpace;
+    protected space: S2Space;
     protected polyCurve: S2PolyCurve;
     constructor(scene: S2BaseScene) {
         super(scene);
@@ -15,11 +15,11 @@ export abstract class S2BaseMotionPath extends S2BaseDurationAnimation {
         this.polyCurve = new S2PolyCurve();
     }
 
-    getSpace(): S2AbstractSpace {
+    getSpace(): S2Space {
         return this.space;
     }
 
-    setSpace(space: S2AbstractSpace): this {
+    setSpace(space: S2Space): this {
         this.space = space;
         return this;
     }
