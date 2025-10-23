@@ -1,11 +1,11 @@
 import type { S2Dirtyable, S2FontStyle, S2LineCap, S2LineJoin, S2PointerEvents } from '../../shared/s2-globals';
+import type { S2BaseScene } from '../../scene/s2-base-scene';
 import { S2Boolean } from '../../shared/s2-boolean';
 import { S2Color } from '../../shared/s2-color';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Length } from '../../shared/s2-length';
 import { S2Number } from '../../shared/s2-number';
 import { S2String } from '../../shared/s2-string';
-import type { S2BaseScene } from '../../scene/s2-base-scene';
 
 export abstract class S2BaseData {
     abstract setOwner(owner: S2Dirtyable | null): void;

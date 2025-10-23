@@ -66,7 +66,7 @@ export class S2Vec2 {
     }
 
     static equalsV(v1: S2Vec2, v2: S2Vec2, epsilon: number = 1e-4): boolean {
-        return Math.abs(v1.x - v2.x) < epsilon && Math.abs(v1.y - v2.y) < epsilon;
+        return Math.abs(v1.x - v2.x) <= epsilon && Math.abs(v1.y - v2.y) <= epsilon;
     }
 
     static isZeroV(v: S2Vec2, epsilon: number = 1e-4): boolean {
@@ -342,10 +342,9 @@ export class S2Vec2 {
     }
 
     normalize(): this {
-        if (this.length() === 0) {
-            return this;
-        }
-        return this.scale(1.0 / this.length());
+        const len = this.length();
+        if (len === 0) return this;
+        return this.scale(1 / len);
     }
 
     setLength(length: number): this {
