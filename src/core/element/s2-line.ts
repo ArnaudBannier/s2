@@ -65,6 +65,7 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
         this.element = document.createElementNS(svgNS, 'line');
         this.position0 = new S2Point(0, 0, scene.getWorldSpace());
         this.position1 = new S2Point(0, 0, scene.getWorldSpace());
+        this.data.stroke.width.set(2, this.scene.getViewSpace());
     }
 
     createArrowTip(): S2ArrowTip {
@@ -112,7 +113,7 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
         const space = this.scene.getWorldSpace();
         const p0 = this.data.startPosition.get(space);
         const p1 = this.data.endPosition.get(space);
-        dst.position.setFromLerpV(p0, p1, t);
+        dst.position.copy(p0).lerpV(p1, t);
         dst.tangent.copy(p1).subV(p0);
         dst.space = space;
         dst.pathLength = p0.distance(p1);

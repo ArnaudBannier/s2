@@ -17,10 +17,10 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         const startDirection = this.getStartToEnd(space).normalize();
         const endDirection = startDirection.clone().negate();
         if (this.data.startAngle.value !== -Infinity) {
-            startDirection.setFromPolarDeg(this.data.startAngle.value);
+            startDirection.setPolar(this.data.startAngle.value, 1, 'deg');
         }
         if (this.data.endAngle.value !== -Infinity) {
-            endDirection.setFromPolarDeg(this.data.endAngle.value);
+            endDirection.setPolar(this.data.endAngle.value, 1, 'deg');
         }
 
         const start = this.data.start.getPointInDirection(startDirection, space, this.data.startDistance);
@@ -74,14 +74,14 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         const startDirection = this.getStartToEnd(space).normalize();
         const endDirection = startDirection.clone().negate();
         if (this.data.startAngle.value !== -Infinity) {
-            startDirection.setFromPolarDeg(this.data.startAngle.value);
+            startDirection.setPolar(this.data.startAngle.value, 1, 'deg');
         }
         if (this.data.endAngle.value !== -Infinity) {
-            endDirection.setFromPolarDeg(this.data.endAngle.value);
+            endDirection.setPolar(this.data.endAngle.value, 1, 'deg');
         }
         const curveBendAngle = this.data.curveBendAngle.value !== -Infinity ? this.data.curveBendAngle.get() : 0;
-        startDirection.rotateDeg(+sign * curveBendAngle);
-        endDirection.rotateDeg(-sign * curveBendAngle);
+        startDirection.rotate(+sign * curveBendAngle, 'deg');
+        endDirection.rotate(-sign * curveBendAngle, 'deg');
 
         const start = this.data.start.getPointInDirection(startDirection, space, this.data.startDistance);
         const end = this.data.end.getPointInDirection(endDirection, space, this.data.endDistance);

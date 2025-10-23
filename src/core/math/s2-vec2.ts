@@ -1,5 +1,6 @@
 import type { S2Mat2 } from './s2-mat2';
 import type { S2Mat2x3 } from './s2-mat2x3';
+import type { S2AngleUnit } from './s2-math-utils';
 
 export class S2Vec2 {
     public x: number;
@@ -10,75 +11,61 @@ export class S2Vec2 {
         this.y = y;
     }
 
-    static set(x: number, y: number, out?: S2Vec2): S2Vec2 {
-        return out ? out.set(x, y) : new S2Vec2(x, y);
+    static set(x: number, y: number): S2Vec2 {
+        return new S2Vec2(x, y);
     }
 
-    static fromPolarRad(theta: number, r: number = 1.0, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.setFromPolarRad(theta, r);
+    static setPolar(theta: number, r: number = 1.0, unit: S2AngleUnit = 'rad'): S2Vec2 {
+        if (unit === 'deg') theta *= Math.PI / 180.0;
+        return new S2Vec2(r * Math.cos(theta), r * Math.sin(theta));
     }
 
-    static fromPolarDeg(theta: number, r: number = 1.0, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.setFromPolarDeg(theta, r);
+    static add(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
+        return new S2Vec2(x1 + x2, y1 + y2);
     }
 
-    static add(x1: number, y1: number, x2: number, y2: number, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.set(x1 + x2, y1 + y2);
+    static addV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+        return new S2Vec2(v1.x + v2.x, v1.y + v2.y);
     }
 
-    static addV(v1: S2Vec2, v2: S2Vec2, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.set(v1.x + v2.x, v1.y + v2.y);
+    static sub(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
+        return new S2Vec2(x1 - x2, y1 - y2);
     }
 
-    static sub(x1: number, y1: number, x2: number, y2: number, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.set(x1 - x2, y1 - y2);
+    static subV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+        return new S2Vec2(v1.x - v2.x, v1.y - v2.y);
     }
 
-    static subV(v1: S2Vec2, v2: S2Vec2, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.set(v1.x - v2.x, v1.y - v2.y);
+    static mul(x1: number, y1: number, x2: number, y2: number): S2Vec2 {
+        return new S2Vec2(x1 * x2, y1 * y2);
     }
 
-    static mul(x1: number, y1: number, x2: number, y2: number, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.set(x1 * x2, y1 * y2);
+    static mulV(v1: S2Vec2, v2: S2Vec2): S2Vec2 {
+        return new S2Vec2(v1.x * v2.x, v1.y * v2.y);
     }
 
-    static mulV(v1: S2Vec2, v2: S2Vec2, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.set(v1.x * v2.x, v1.y * v2.y);
+    static scale(x: number, y: number, s: number): S2Vec2 {
+        return new S2Vec2(x * s, y * s);
     }
 
-    static scale(x: number, y: number, s: number, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.set(x * s, y * s);
+    static scaleV(v: S2Vec2, s: number): S2Vec2 {
+        return new S2Vec2(v.x * s, v.y * s);
     }
 
-    static scaleV(v: S2Vec2, s: number, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return out.set(v.x * s, v.y * s);
-    }
-
-    static lerp(x0: number, y0: number, x1: number, y1: number, t: number, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
+    static lerp(x0: number, y0: number, x1: number, y1: number, t: number): S2Vec2 {
         const s = 1 - t;
-        return out.set(s * x0 + t * x1, s * y0 + t * y1);
+        return new S2Vec2(s * x0 + t * x1, s * y0 + t * y1);
     }
 
-    static lerpV(v0: S2Vec2, v1: S2Vec2, t: number, out?: S2Vec2): S2Vec2 {
-        return S2Vec2.lerp(v0.x, v0.y, v1.x, v1.y, t, out);
+    static lerpV(v0: S2Vec2, v1: S2Vec2, t: number): S2Vec2 {
+        return S2Vec2.lerp(v0.x, v0.y, v1.x, v1.y, t);
     }
 
-    static eq(x1: number, y1: number, x2: number, y2: number, epsilon: number = 1e-4): boolean {
+    static equals(x1: number, y1: number, x2: number, y2: number, epsilon: number = 1e-4): boolean {
         return Math.abs(x1 - x2) < epsilon && Math.abs(y1 - y2) < epsilon;
     }
 
-    static eqV(v1: S2Vec2, v2: S2Vec2, epsilon: number = 1e-4): boolean {
+    static equalsV(v1: S2Vec2, v2: S2Vec2, epsilon: number = 1e-4): boolean {
         return Math.abs(v1.x - v2.x) < epsilon && Math.abs(v1.y - v2.y) < epsilon;
     }
 
@@ -124,23 +111,18 @@ export class S2Vec2 {
         return this;
     }
 
-    setFromPolarRad(theta: number, r: number = 1.0): this {
+    setPolar(theta: number, r: number = 1.0, unit: S2AngleUnit = 'rad'): this {
+        if (unit === 'deg') theta *= Math.PI / 180.0;
         return this.set(r * Math.cos(theta), r * Math.sin(theta));
     }
 
-    setFromPolarDeg(theta: number, r: number = 1.0): this {
-        theta *= Math.PI / 180.0;
-        return this.set(r * Math.cos(theta), r * Math.sin(theta));
+    lerp(x: number, y: number, t: number): this {
+        const s = 1 - t;
+        return this.set(s * this.x + t * x, s * this.y + t * y);
     }
 
-    setFromLerp(x0: number, y0: number, x1: number, y1: number, t: number): this {
-        const s = 1 - t;
-        return this.set(s * x0 + t * x1, s * y0 + t * y1);
-    }
-
-    setFromLerpV(v0: S2Vec2, v1: S2Vec2, t: number): this {
-        const s = 1 - t;
-        return this.set(s * v0.x + t * v1.x, s * v0.y + t * v1.y);
+    lerpV(v: S2Vec2, t: number): this {
+        return this.lerp(v.x, v.y, t);
     }
 
     shiftX(dx: number): this {
@@ -198,6 +180,12 @@ export class S2Vec2 {
         return this;
     }
 
+    addScalar(s: number): this {
+        this.x += s;
+        this.y += s;
+        return this;
+    }
+
     sub(x: number, y: number): this {
         this.x -= x;
         this.y -= y;
@@ -207,6 +195,12 @@ export class S2Vec2 {
     subV(v: S2Vec2): this {
         this.x -= v.x;
         this.y -= v.y;
+        return this;
+    }
+
+    subScalar(s: number): this {
+        this.x -= s;
+        this.y -= s;
         return this;
     }
 
@@ -246,6 +240,12 @@ export class S2Vec2 {
         return this;
     }
 
+    minScalar(s: number): this {
+        this.x = Math.min(this.x, s);
+        this.y = Math.min(this.y, s);
+        return this;
+    }
+
     max(x: number, y: number): this {
         this.x = Math.max(this.x, x);
         this.y = Math.max(this.y, y);
@@ -255,6 +255,36 @@ export class S2Vec2 {
     maxV(v: S2Vec2): this {
         this.x = Math.max(this.x, v.x);
         this.y = Math.max(this.y, v.y);
+        return this;
+    }
+
+    maxScalar(s: number): this {
+        this.x = Math.max(this.x, s);
+        this.y = Math.max(this.y, s);
+        return this;
+    }
+
+    clamp(minX: number, minY: number, maxX: number, maxY: number): this {
+        this.x = Math.max(minX, Math.min(maxX, this.x));
+        this.y = Math.max(minY, Math.min(maxY, this.y));
+        return this;
+    }
+
+    clampV(min: S2Vec2, max: S2Vec2): this {
+        this.x = Math.max(min.x, Math.min(max.x, this.x));
+        this.y = Math.max(min.y, Math.min(max.y, this.y));
+        return this;
+    }
+
+    clampScalar(min: number, max: number): this {
+        this.x = Math.max(min, Math.min(max, this.x));
+        this.y = Math.max(min, Math.min(max, this.y));
+        return this;
+    }
+
+    abs(): this {
+        this.x = Math.abs(this.x);
+        this.y = Math.abs(this.y);
         return this;
     }
 
@@ -322,12 +352,6 @@ export class S2Vec2 {
         return this.scale(length / this.length());
     }
 
-    abs(): this {
-        this.x = Math.abs(this.x);
-        this.y = Math.abs(this.y);
-        return this;
-    }
-
     fromArray(array: number[], offset: number = 0): this {
         this.x = array[offset];
         this.y = array[offset + 1];
@@ -358,7 +382,8 @@ export class S2Vec2 {
         return this;
     }
 
-    rotateRad(angle: number): this {
+    rotate(angle: number, unit: S2AngleUnit = 'rad'): this {
+        if (unit === 'deg') angle *= Math.PI / 180.0;
         const s = Math.sin(angle);
         const c = Math.cos(angle);
         const x = this.x,
@@ -366,10 +391,6 @@ export class S2Vec2 {
         this.x = c * x - s * y;
         this.y = s * x + c * y;
         return this;
-    }
-
-    rotateDeg(angle: number): this {
-        return this.rotateRad((angle * Math.PI) / 180.0);
     }
 
     *[Symbol.iterator]() {

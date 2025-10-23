@@ -42,7 +42,7 @@ export class S2Transform
     }
 
     copy(other: S2Transform): this {
-        if (S2Mat2x3.eq(this.value, other.value)) return this;
+        if (S2Mat2x3.equals(this.value, other.value)) return this;
         this.value.copy(other.value);
         this.markDirty();
         return this;
@@ -60,7 +60,7 @@ export class S2Transform
     }
 
     set(value: S2Mat2x3): this {
-        if (S2Mat2x3.eq(this.value, value)) return this;
+        if (S2Mat2x3.equals(this.value, value)) return this;
         this.value.copy(value);
         this.markDirty();
         return this;
@@ -71,6 +71,12 @@ export class S2Transform
     }
 
     toFixed(precision: number = 2): string {
-        return 'matrix(' + this.value.elements.map((v) => v.toFixed(precision)).join(', ') + ')';
+        return (
+            'matrix(' +
+            Array.from(this.value.elements)
+                .map((v) => v.toFixed(precision))
+                .join(', ') +
+            ')'
+        );
     }
 }

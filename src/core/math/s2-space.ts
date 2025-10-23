@@ -3,11 +3,11 @@ import { S2Mat2x3 } from './s2-mat2x3';
 import { S2Vec2 } from './s2-vec2';
 
 export class S2Space implements S2Dirtyable {
+    protected readonly spaceToParent: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
+    protected readonly parentToSpace: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
+    protected readonly spaceToWorld: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
+    protected readonly worldToSpace: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
     protected parent: S2Space | null;
-    protected spaceToParent: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
-    protected parentToSpace: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
-    protected spaceToWorld: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
-    protected worldToSpace: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
     protected dirty: boolean = true;
     protected scaleToParent: number = 1.0;
     protected scaleToWorld: number = 1.0;
@@ -49,12 +49,44 @@ export class S2Space implements S2Dirtyable {
         this.clearDirty();
     }
 
+    getSpaceToParentInto(dst: S2Mat2x3): this {
+        dst.copy(this.spaceToParent);
+        return this;
+    }
+
+    getParentToSpaceInto(dst: S2Mat2x3): this {
+        dst.copy(this.parentToSpace);
+        return this;
+    }
+
+    getSpaceToWorldInto(dst: S2Mat2x3): this {
+        dst.copy(this.spaceToWorld);
+        return this;
+    }
+
+    getWorldToSpaceInto(dst: S2Mat2x3): this {
+        dst.copy(this.worldToSpace);
+        return this;
+    }
+
     getSpaceToWorld(): S2Mat2x3 {
         return this.spaceToWorld;
     }
 
     getWorldToSpace(): S2Mat2x3 {
         return this.worldToSpace;
+    }
+
+    getThisToSpaceInto(dst: S2Mat2x3, space: S2Space): this {
+        dst.copy(this.spaceToWorld);
+        dst.multiplyMatrices(space.getWorldToSpace(), dst);
+        return this;
+    }
+
+    getSpaceToThisInto(dst: S2Mat2x3, space: S2Space): this {
+        dst.copy(this.worldToSpace);
+        dst.multiplyMatrices(dst, space.getSpaceToWorld());
+        return this;
     }
 
     setFromSpace(space: S2Space, origin: S2Vec2, basis0: S2Vec2, basis1: S2Vec2): void {
@@ -78,55 +110,53 @@ export class S2Space implements S2Dirtyable {
         this.update();
     }
 
-    setSpaceToParentMat(transform: S2Mat2x3): void {
-        this.spaceToParent.copy(transform);
+    setSpaceToParentMat(matrix: S2Mat2x3): void {
+        this.spaceToParent.copy(matrix);
         this.markDirty();
         this.update();
     }
 
-    convertPoint(x: number, y: number, space?: S2Space, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return this.convertPointInto(out, x, y, space);
-    }
+    // convertPoint(x: number, y: number, space?: S2Space, out?: S2Vec2): S2Vec2 {
+    //     out = out ?? new S2Vec2();
+    //     return this.convertPointInto(out, x, y, space);
+    // }
 
-    convertPointV(point: S2Vec2, space?: S2Space, out?: S2Vec2): S2Vec2 {
-        out = out ?? new S2Vec2();
-        return this.convertPointIntoV(out, point, space);
-    }
+    // convertPointV(point: S2Vec2, space?: S2Space, out?: S2Vec2): S2Vec2 {
+    //     out = out ?? new S2Vec2();
+    //     return this.convertPointIntoV(out, point, space);
+    // }
 
-    convertPointInto(dst: S2Vec2, x: number, y: number, space?: S2Space): S2Vec2 {
+    convertPointInto(dst: S2Vec2, x: number, y: number, space: S2Space): this {
         dst = dst.set(x, y);
-        if (space === this) return dst;
-        dst.apply2x3(this.spaceToWorld);
-        if (space) dst.apply2x3(space.worldToSpace);
-        return dst;
+        if (space === this) return this;
+        dst.apply2x3(this.spaceToWorld).apply2x3(space.worldToSpace);
+        return this;
     }
 
-    convertPointIntoV(dst: S2Vec2, point: S2Vec2, space?: S2Space): S2Vec2 {
+    convertPointIntoV(dst: S2Vec2, point: S2Vec2, space: S2Space): this {
         return this.convertPointInto(dst, point.x, point.y, space);
     }
 
-    convertOffset(x: number, y: number, space?: S2Space, out?: S2Vec2): S2Vec2 {
-        out = out ? out.set(x, y) : new S2Vec2(x, y);
-        if (space === this) return out;
-        out.apply2x3Offset(this.spaceToWorld);
-        if (space) out.apply2x3Offset(space.getWorldToSpace());
-        return out;
-    }
+    // convertOffset(x: number, y: number, space?: S2Space, out?: S2Vec2): this {
+    //     out = out ? out.set(x, y) : new S2Vec2(x, y);
+    //     if (space === this) return this;
+    //     out.apply2x3Offset(this.spaceToWorld);
+    //     if (space) out.apply2x3Offset(space.getWorldToSpace());
+    //     return this;
+    // }
 
-    convertOffsetV(point: S2Vec2, space?: S2Space, out?: S2Vec2): S2Vec2 {
-        return this.convertOffset(point.x, point.y, space, out);
-    }
+    // convertOffsetV(point: S2Vec2, space?: S2Space, out?: S2Vec2): this {
+    //     return this.convertOffset(point.x, point.y, space, out);
+    // }
 
-    convertOffsetInto(dst: S2Vec2, x: number, y: number, space?: S2Space): S2Vec2 {
+    convertOffsetInto(dst: S2Vec2, x: number, y: number, space: S2Space): this {
         dst = dst.set(x, y);
-        if (space === this) return dst;
-        dst.apply2x3Offset(this.spaceToWorld);
-        if (space) dst.apply2x3Offset(space.worldToSpace);
-        return dst;
+        if (space === this) return this;
+        dst.apply2x3Offset(this.spaceToWorld).apply2x3Offset(space.worldToSpace);
+        return this;
     }
 
-    convertOffsetIntoV(dst: S2Vec2, point: S2Vec2, space?: S2Space): S2Vec2 {
+    convertOffsetIntoV(dst: S2Vec2, point: S2Vec2, space: S2Space): this {
         return this.convertOffsetInto(dst, point.x, point.y, space);
     }
 
@@ -137,19 +167,22 @@ export class S2Space implements S2Dirtyable {
         return Math.abs(length);
     }
 
-    convertExtentsInto(dst: S2Vec2, x: number, y: number, space?: S2Space): S2Vec2 {
-        return this.convertOffsetInto(dst, x, y, space).abs();
+    convertExtentsInto(dst: S2Vec2, x: number, y: number, space: S2Space): this {
+        dst = dst.set(x, y);
+        if (space === this) return this;
+        dst.apply2x3Offset(this.spaceToWorld).apply2x3Offset(space.worldToSpace).abs();
+        return this;
     }
 
-    convertExtentsIntoV(dst: S2Vec2, point: S2Vec2, space?: S2Space): S2Vec2 {
+    convertExtentsIntoV(dst: S2Vec2, point: S2Vec2, space: S2Space): this {
         return this.convertExtentsInto(dst, point.x, point.y, space);
     }
 
-    convertExtents(x: number, y: number, space: S2Space, out?: S2Vec2): S2Vec2 {
-        return this.convertOffset(x, y, space, out).abs();
-    }
+    // convertExtents(x: number, y: number, space: S2Space, out?: S2Vec2): S2Vec2 {
+    //     return this.convertOffset(x, y, space, out).abs();
+    // }
 
-    convertExtentsV(extent: S2Vec2, space: S2Space, out?: S2Vec2): S2Vec2 {
-        return this.convertExtents(extent.x, extent.y, space, out);
-    }
+    // convertExtentsV(extent: S2Vec2, space: S2Space, out?: S2Vec2): S2Vec2 {
+    //     return this.convertExtents(extent.x, extent.y, space, out);
+    // }
 }

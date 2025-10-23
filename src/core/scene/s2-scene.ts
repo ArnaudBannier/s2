@@ -46,13 +46,13 @@ export class S2Scene extends S2BaseScene {
 
     addWorldGrid(parent: S2BaseElement = this.svg): S2Grid {
         const child = new S2Grid(this);
-        const viewport = this.viewportSize;
         const data = child.data;
         data.stroke.width.set(1, this.getViewSpace());
         data.geometry.boundA.set(0, 0, this.getViewSpace());
-        data.geometry.boundB.set(viewport.x, viewport.y, this.getViewSpace());
+        data.geometry.boundB.set(this.getViewportWidth(), this.getViewportHeight(), this.getViewSpace());
         data.geometry.referencePoint.set(0, 0, this.getWorldSpace());
         data.geometry.steps.set(1, 1, this.getWorldSpace());
+        data.geometry.space.set(this.getWorldSpace());
         child.update();
         child.setParent(parent);
         return child;

@@ -15,6 +15,7 @@ export default defineConfig({
                 memS01Func01: 'examples/memory/s01-functions-01.html',
                 algS03EigenVec01: 'examples/linear-algebra/s03-eigenvectors-01.html',
                 basicAnim: 'examples/test/basic-anim.html',
+                testSpace: 'examples/test/space.html',
             },
         },
     },

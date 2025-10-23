@@ -217,30 +217,30 @@ export class S2DataUtils {
         const currStart = polyCurve.getCurve(0).getStart();
         const prevEnd = new S2Vec2(Infinity, Infinity);
         const point = new S2Vec2();
-        const view = scene.getViewSpace();
+        const viewSpace = scene.getViewSpace();
 
         for (let i = 0; i < curveCount; i++) {
             const curve = polyCurve.getCurve(i);
 
-            if (!S2Vec2.eqV(prevEnd, curve.getStart())) {
+            if (!S2Vec2.equalsV(prevEnd, curve.getStart())) {
                 currStart.copy(curve.getStart());
-                space.convertPointV(currStart, view, point);
+                space.convertPointIntoV(point, currStart, viewSpace);
                 svgPath += `M ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
             }
 
             if (curve instanceof S2LineCurve) {
-                space.convertPointV(curve.getEnd(), view, point);
+                space.convertPointIntoV(point, curve.getEnd(), viewSpace);
                 svgPath += `L ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
             } else if (curve instanceof S2CubicCurve) {
                 const bezierPoints = curve.getBezierPoints();
                 svgPath += 'C ';
                 for (let j = 1; j < bezierPoints.length; j++) {
-                    space.convertPointV(bezierPoints[j], view, point);
+                    space.convertPointIntoV(point, bezierPoints[j], viewSpace);
                     svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
                 }
             }
             const end = curve.getEnd();
-            if (S2Vec2.eqV(currStart, end)) {
+            if (S2Vec2.equalsV(currStart, end)) {
                 svgPath += 'Z ';
             }
             prevEnd.copy(end);

@@ -1,3 +1,5 @@
+export type S2AngleUnit = 'deg' | 'rad';
+
 export class S2MathUtils {
     static clamp(value: number, min: number, max: number): number {
         return Math.max(min, Math.min(max, value));

@@ -9,6 +9,7 @@ import { S2Transform } from '../shared/s2-transform';
 import { S2Point } from '../shared/s2-point';
 import { S2Extents } from '../shared/s2-extents';
 import { S2SpaceRef } from '../shared/s2-space-ref';
+import { S2Vec2 } from '../math/s2-vec2';
 
 export class S2GridData extends S2ElementData {
     public readonly stroke: S2StrokeData;
@@ -107,14 +108,16 @@ export class S2Grid extends S2Element<S2GridData> {
         const startX = anchor.x - Math.floor((anchor.x - lowerX) / steps.x) * steps.x;
         const startY = anchor.y - Math.floor((anchor.y - lowerY) / steps.y) * steps.y;
         let d = '';
+        const pointA = new S2Vec2();
+        const pointB = new S2Vec2();
         for (let x = startX; x < upperX + epsilon; x += steps.x) {
-            const pointA = space.convertPoint(x, lowerY, viewSpace);
-            const pointB = space.convertPoint(x, upperY, viewSpace);
+            space.convertPointInto(pointA, x, lowerY, viewSpace);
+            space.convertPointInto(pointB, x, upperY, viewSpace);
             d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
         }
         for (let y = startY; y < upperY + epsilon; y += steps.y) {
-            const pointA = space.convertPoint(lowerX, y, viewSpace);
-            const pointB = space.convertPoint(upperX, y, viewSpace);
+            space.convertPointInto(pointA, lowerX, y, viewSpace);
+            space.convertPointInto(pointB, upperX, y, viewSpace);
             d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
         }
         element.setAttribute('d', d.trimEnd());

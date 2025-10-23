@@ -2,7 +2,6 @@ import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Dirtyable } from '../shared/s2-globals';
 import type { S2BaseTipable } from './base/s2-element';
 import { ease } from '../animation/s2-easing';
-import { S2Mat2x3Builder } from '../math/s2-mat2x3-builder';
 import { S2Extents } from '../shared/s2-extents';
 import { S2TipTransform, svgNS } from '../shared/s2-globals';
 import { S2Length } from '../shared/s2-length';
@@ -153,10 +152,11 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
         tipSpace.convertPointIntoV(tmp, this.tipTransform.position, viewSpace);
 
         const xScaleSign = this.isReversed ? -1 : +1;
-        S2Mat2x3Builder.setTarget(this.transform.value)
+        this.transform.value
+            .makeIdentity()
             .translate(this.anchorAlignment * 10, 0)
             .scale((xScaleSign * extents.x) / 10, extents.y / 10)
-            .rotateRad(angle)
+            .rotate(angle, 'rad')
             .translateV(tmp);
     }
 

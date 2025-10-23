@@ -142,31 +142,50 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     getStart(space: S2Space): S2Vec2 {
-        return this.data.space.get().convertPointV(this.data.polyCurve.getStart(), space);
+        const thisSpace = this.data.space.get();
+        const v = this.data.polyCurve.getStart();
+        thisSpace.convertPointIntoV(v, v, space);
+        return v;
     }
 
     getEnd(space: S2Space): S2Vec2 {
-        return this.data.space.get().convertPointV(this.data.polyCurve.getEnd(), space);
+        const thisSpace = this.data.space.get();
+        const v = this.data.polyCurve.getEnd();
+        thisSpace.convertPointIntoV(v, v, space);
+        return v;
     }
 
     getPointAt(t: number, space: S2Space): S2Vec2 {
-        return this.data.space.get().convertPointV(this.data.polyCurve.getPointAt(t), space);
+        const thisSpace = this.data.space.get();
+        const v = this.data.polyCurve.getPointAt(t);
+        thisSpace.convertPointIntoV(v, v, space);
+        return v;
     }
 
     getTangentAt(t: number, space: S2Space): S2Vec2 {
-        return this.data.space.get().convertOffsetV(this.data.polyCurve.getTangentAt(t), space);
+        const thisSpace = this.data.space.get();
+        const v = this.data.polyCurve.getTangentAt(t);
+        thisSpace.convertOffsetIntoV(v, v, space);
+        return v;
     }
 
     getStartTangent(space: S2Space): S2Vec2 {
-        return this.data.space.get().convertOffsetV(this.data.polyCurve.getStartTangent(), space);
+        const thisSpace = this.data.space.get();
+        const v = this.data.polyCurve.getStartTangent();
+        thisSpace.convertOffsetIntoV(v, v, space);
+        return v;
     }
 
     getEndTangent(space: S2Space): S2Vec2 {
-        return this.data.space.get().convertOffsetV(this.data.polyCurve.getEndTangent(), space);
+        const thisSpace = this.data.space.get();
+        const v = this.data.polyCurve.getEndTangent();
+        thisSpace.convertOffsetIntoV(v, v, space);
+        return v;
     }
 
     getLength(space: S2Space): number {
-        return this.data.space.get().convertLength(this.data.polyCurve.getLength(), space);
+        const thisSpace = this.data.space.get();
+        return thisSpace.convertLength(this.data.polyCurve.getLength(), space);
     }
 
     clear(): this {
@@ -244,7 +263,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     }
 
     close(): this {
-        if (S2Vec2.eqV(this.currStart, this.endPosition)) return this;
+        if (S2Vec2.equalsV(this.currStart, this.endPosition)) return this;
         this.data.polyCurve.addLine(this.endPosition, this.currStart);
         this.markDirty();
         return this;

@@ -82,8 +82,8 @@ export abstract class S2BaseScene {
         return this.setViewportSize(size.x, size.y);
     }
 
-    createSpace(): S2Space {
-        const space = new S2Space();
+    createSpace(parent: S2Space = this.worldSpace): S2Space {
+        const space = new S2Space(parent);
         this.spaces.push(space);
         return space;
     }

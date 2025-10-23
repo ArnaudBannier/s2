@@ -361,8 +361,8 @@ export class S2MemoryRow {
         path.clear()
             .addCubic(
                 shift,
-                S2Vec2.addV(shift, S2Vec2.fromPolarDeg(srcAngle, tension * distance)),
-                S2Vec2.fromPolarDeg(dstAngle, tension * distance),
+                S2Vec2.addV(shift, S2Vec2.setPolar(srcAngle, tension * distance, 'deg')),
+                S2Vec2.setPolar(dstAngle, tension * distance, 'deg'),
                 new S2Vec2(0, 0),
                 sampleCount,
             )

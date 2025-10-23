@@ -24,8 +24,9 @@ export class S2SVG extends S2Element<S2ElementData> {
         if (!ctm) return new S2Vec2(0, 0);
 
         const local = pt.matrixTransform(ctm.inverse());
-        const viewPoint = new S2Vec2(local.x, local.y);
-        return this.scene.getViewSpace().convertPointV(viewPoint, space, viewPoint);
+        const v = new S2Vec2(local.x, local.y);
+        this.scene.getViewSpace().convertPointIntoV(v, v, space);
+        return v;
     }
 
     convertDOMPointInto(dst: S2Point, x: number, y: number): void {

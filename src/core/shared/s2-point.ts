@@ -25,7 +25,7 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
     }
 
     copy(other: S2Point): this {
-        if (S2Vec2.eqV(this.value, other.value) && this.space === other.space) return this;
+        if (S2Vec2.equalsV(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
         this.markDirty();
@@ -53,7 +53,7 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
     }
 
     setV(point: S2Vec2, space?: S2Space): this {
-        if (S2Vec2.eqV(this.value, point) && this.space === space) return this;
+        if (S2Vec2.equalsV(this.value, point) && this.space === space) return this;
         this.value.copy(point);
         if (space) this.space = space;
         this.markDirty();
@@ -61,8 +61,8 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
     }
 
     setValueFromSpace(x: number, y: number, space: S2Space): this {
-        if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
-        space.convertPoint(x, y, this.space, this.value);
+        if (S2Vec2.equals(this.value.x, this.value.y, x, y) && this.space === space) return this;
+        space.convertPointInto(this.value, x, y, this.space);
         this.markDirty();
         return this;
     }
@@ -71,12 +71,15 @@ export class S2Point extends S2BaseType implements S2HasClone<S2Point>, S2HasCop
         return this.setValueFromSpace(point.x, point.y, space);
     }
 
-    get(space: S2Space, out?: S2Vec2): S2Vec2 {
-        return this.space.convertPointV(this.value, space, out);
+    get(space: S2Space): S2Vec2 {
+        const out = new S2Vec2();
+        this.space.convertPointIntoV(out, this.value, space);
+        return out;
     }
 
-    getInto(dst: S2Vec2, space: S2Space): S2Vec2 {
-        return this.space.convertPointIntoV(dst, this.value, space);
+    getInto(dst: S2Vec2, space: S2Space): this {
+        this.space.convertPointIntoV(dst, this.value, space);
+        return this;
     }
 
     changeSpace(space: S2Space): this {

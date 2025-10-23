@@ -25,7 +25,7 @@ export class S2Offset extends S2BaseType implements S2HasClone<S2Offset>, S2HasC
     }
 
     copy(other: S2Offset): this {
-        if (S2Vec2.eqV(this.value, other.value) && this.space === other.space) return this;
+        if (S2Vec2.equalsV(this.value, other.value) && this.space === other.space) return this;
         this.value.copy(other.value);
         this.space = other.space;
         this.markDirty();
@@ -53,7 +53,7 @@ export class S2Offset extends S2BaseType implements S2HasClone<S2Offset>, S2HasC
     }
 
     setV(offset: S2Vec2, space?: S2Space): this {
-        if (S2Vec2.eqV(this.value, offset) && this.space === space) return this;
+        if (S2Vec2.equalsV(this.value, offset) && this.space === space) return this;
         this.value.copy(offset);
         if (space) this.space = space;
         this.markDirty();
@@ -61,8 +61,8 @@ export class S2Offset extends S2BaseType implements S2HasClone<S2Offset>, S2HasC
     }
 
     setValueFromSpace(x: number, y: number, space: S2Space): this {
-        if (S2Vec2.eq(this.value.x, this.value.y, x, y) && this.space === space) return this;
-        space.convertOffset(x, y, this.space, this.value);
+        if (S2Vec2.equals(this.value.x, this.value.y, x, y) && this.space === space) return this;
+        space.convertOffsetInto(this.value, x, y, this.space);
         this.markDirty();
         return this;
     }
@@ -71,13 +71,20 @@ export class S2Offset extends S2BaseType implements S2HasClone<S2Offset>, S2HasC
         return this.setValueFromSpace(offset.x, offset.y, space);
     }
 
-    get(space: S2Space, out?: S2Vec2): S2Vec2 {
-        return this.space.convertOffsetV(this.value, space, out);
+    get(space: S2Space): S2Vec2 {
+        const out = new S2Vec2();
+        this.space.convertOffsetIntoV(out, this.value, space);
+        return out;
+    }
+
+    getInto(dst: S2Vec2, space: S2Space): this {
+        this.space.convertOffsetIntoV(dst, this.value, space);
+        return this;
     }
 
     changeSpace(space: S2Space): this {
         if (this.space === space) return this;
-        this.space.convertOffsetV(this.value, space, this.value);
+        this.space.convertOffsetIntoV(this.value, this.value, space);
         this.space = space;
         // No markDirty() because the point value did not change
         return this;

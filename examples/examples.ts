@@ -57,4 +57,10 @@ export const tests: S2Example[] = [
         path: '/s2/examples/test/algebra.html',
         description: "Test d'algèbre sur les fonctions.",
     },
+    {
+        id: 'space',
+        title: "Test d'espaces",
+        path: '/s2/examples/test/space.html',
+        description: "Test de changement d'espaces.",
+    },
 ];
