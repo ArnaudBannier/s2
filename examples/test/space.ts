@@ -27,7 +27,7 @@ class SceneFigure extends S2Scene {
         const fillRect = this.addFillRect();
         fillRect.data.color.copy(S2Color.lerp(MTL.GREY_8, MTL.GREY_9, 0.7));
 
-        this.showSpace(worldSpace, 8, MTL.GREY_9);
+        this.showSpace(worldSpace, 8, MTL.BLACK);
 
         const spaceA = this.createSpace();
         spaceA.setSpaceToParent(2, 0, 3, 0, -1, -2);
@@ -56,7 +56,7 @@ class SceneFigure extends S2Scene {
             const canvasCircle = new S2Circle(this);
             canvasCircle.setParent(this.getSVG());
             canvasCircle.data.stroke.color.copy(MTL.CYAN_1);
-            canvasCircle.data.stroke.width.set(2, this.getViewSpace());
+            canvasCircle.data.stroke.width.set(4, this.getViewSpace());
             canvasCircle.data.fill.opacity.set(0.0);
             canvasCircle.data.position.set(1, 1, worldSpace);
             canvasCircle.data.radius.set(0.5, worldSpace);

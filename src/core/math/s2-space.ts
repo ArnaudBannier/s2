@@ -116,16 +116,6 @@ export class S2Space implements S2Dirtyable {
         this.update();
     }
 
-    // convertPoint(x: number, y: number, space?: S2Space, out?: S2Vec2): S2Vec2 {
-    //     out = out ?? new S2Vec2();
-    //     return this.convertPointInto(out, x, y, space);
-    // }
-
-    // convertPointV(point: S2Vec2, space?: S2Space, out?: S2Vec2): S2Vec2 {
-    //     out = out ?? new S2Vec2();
-    //     return this.convertPointIntoV(out, point, space);
-    // }
-
     convertPointInto(dst: S2Vec2, x: number, y: number, space: S2Space): this {
         dst = dst.set(x, y);
         if (space === this) return this;
@@ -136,18 +126,6 @@ export class S2Space implements S2Dirtyable {
     convertPointIntoV(dst: S2Vec2, point: S2Vec2, space: S2Space): this {
         return this.convertPointInto(dst, point.x, point.y, space);
     }
-
-    // convertOffset(x: number, y: number, space?: S2Space, out?: S2Vec2): this {
-    //     out = out ? out.set(x, y) : new S2Vec2(x, y);
-    //     if (space === this) return this;
-    //     out.apply2x3Offset(this.spaceToWorld);
-    //     if (space) out.apply2x3Offset(space.getWorldToSpace());
-    //     return this;
-    // }
-
-    // convertOffsetV(point: S2Vec2, space?: S2Space, out?: S2Vec2): this {
-    //     return this.convertOffset(point.x, point.y, space, out);
-    // }
 
     convertOffsetInto(dst: S2Vec2, x: number, y: number, space: S2Space): this {
         dst = dst.set(x, y);
@@ -177,12 +155,4 @@ export class S2Space implements S2Dirtyable {
     convertExtentsIntoV(dst: S2Vec2, point: S2Vec2, space: S2Space): this {
         return this.convertExtentsInto(dst, point.x, point.y, space);
     }
-
-    // convertExtents(x: number, y: number, space: S2Space, out?: S2Vec2): S2Vec2 {
-    //     return this.convertOffset(x, y, space, out).abs();
-    // }
-
-    // convertExtentsV(extent: S2Vec2, space: S2Space, out?: S2Vec2): S2Vec2 {
-    //     return this.convertExtents(extent.x, extent.y, space, out);
-    // }
 }
