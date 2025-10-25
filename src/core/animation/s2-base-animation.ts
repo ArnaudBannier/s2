@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Anchor, S2HorizontalAlign, S2TextAnchor, S2VerticalAlign } from '../shared/s2-globals';
+import type { S2AnchorOld, S2HorizontalAlign, S2TextAnchor, S2VerticalAlign } from '../shared/s2-globals';
 import type { S2Enum } from '../shared/s2-enum';
 import type { S2EaseType } from './s2-easing';
 import type { S2Number } from '../shared/s2-number';
@@ -24,7 +24,7 @@ export type S2AnimProperty =
     | S2Boolean
     | S2SpaceRef
     | S2String
-    | S2Enum<S2Anchor>
+    | S2Enum<S2AnchorOld>
     | S2Enum<S2TextAnchor>
     | S2Enum<S2VerticalAlign>
     | S2Enum<S2HorizontalAlign>;

@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Anchor, S2Dirtyable } from '../shared/s2-globals';
+import type { S2AnchorOld, S2Dirtyable } from '../shared/s2-globals';
 import { S2ShapeUtils } from '../math/s2-shape-utils';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS, S2AnchorUtils } from '../shared/s2-globals';
@@ -22,7 +22,7 @@ export class S2RectData extends S2ElementData {
 
     public readonly position: S2Point;
     public readonly extents: S2Extents;
-    public readonly anchor: S2Enum<S2Anchor>;
+    public readonly anchor: S2Enum<S2AnchorOld>;
     public readonly cornerRadius: S2Length;
 
     constructor(scene: S2BaseScene) {
@@ -33,7 +33,7 @@ export class S2RectData extends S2ElementData {
         this.transform = new S2Transform();
         this.position = new S2Point(0, 0, scene.getWorldSpace());
         this.extents = new S2Extents(1, 1, scene.getWorldSpace());
-        this.anchor = new S2Enum<S2Anchor>('center');
+        this.anchor = new S2Enum<S2AnchorOld>('center');
         this.cornerRadius = new S2Length(0, scene.getViewSpace());
 
         this.stroke.opacity.set(1);

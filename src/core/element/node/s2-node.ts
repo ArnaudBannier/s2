@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Anchor, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
+import type { S2AnchorOld, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
 import type { S2Space } from '../../math/s2-space';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2AnchorUtils, S2FlexUtils, svgNS } from '../../shared/s2-globals';
@@ -20,7 +20,7 @@ import { S2MathUtils } from '../../math/s2-math-utils';
 
 export class S2RichNodeData extends S2ElementData {
     public readonly position: S2Point;
-    public readonly anchor: S2Enum<S2Anchor>;
+    public readonly anchor: S2Enum<S2AnchorOld>;
     public readonly background: S2RichNodeBackgroundData;
     public readonly text: S2RichNodeTextData;
     public readonly separator: S2RichNodeSeparatorData;
@@ -31,7 +31,7 @@ export class S2RichNodeData extends S2ElementData {
     constructor(scene: S2BaseScene) {
         super();
         this.position = new S2Point(0, 0, scene.getWorldSpace());
-        this.anchor = new S2Enum<S2Anchor>('center');
+        this.anchor = new S2Enum<S2AnchorOld>('center');
         this.minExtents = new S2Extents(0, 0, scene.getViewSpace());
         this.background = new S2RichNodeBackgroundData(scene);
         this.separator = new S2RichNodeSeparatorData(scene);

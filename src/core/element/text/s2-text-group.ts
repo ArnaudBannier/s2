@@ -1,6 +1,6 @@
 import type { S2Space } from '../../math/s2-space';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
+import type { S2AnchorOld, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2AnchorUtils, svgNS } from '../../shared/s2-globals';
 import { S2BaseRichText } from './s2-rich-text';
@@ -56,7 +56,7 @@ export class S2TextGroupData extends S2ElementData {
     public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
     public readonly verticalAlign: S2Enum<S2VerticalAlign>;
     public readonly minExtents: S2Extents;
-    public readonly anchor: S2Enum<S2Anchor>;
+    public readonly anchor: S2Enum<S2AnchorOld>;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -70,7 +70,7 @@ export class S2TextGroupData extends S2ElementData {
         this.horizontalAlign = new S2Enum<S2HorizontalAlign>('left');
         this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
         this.minExtents = new S2Extents(0, 0, scene.getViewSpace());
-        this.anchor = new S2Enum<S2Anchor>('center');
+        this.anchor = new S2Enum<S2AnchorOld>('center');
 
         this.stroke.width.set(0, scene.getViewSpace());
         this.fill.opacity.set(1);

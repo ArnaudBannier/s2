@@ -1,6 +1,6 @@
 import type { S2FillData, S2FontData, S2StrokeData } from './s2-base-data.ts';
 import type { S2Enum } from '../../shared/s2-enum.ts';
-import type { S2Anchor, S2PointerEvents, S2TextAnchor } from '../../shared/s2-globals.ts';
+import type { S2AnchorOld, S2PointerEvents, S2TextAnchor } from '../../shared/s2-globals.ts';
 import type { S2BaseScene } from '../../scene/s2-base-scene.ts';
 import type { S2PolyCurve } from '../../math/s2-curve.ts';
 import type { S2Color } from '../../shared/s2-color.ts';
@@ -144,7 +144,7 @@ export class S2DataUtils {
     static applyAnchoredPosition(
         position: S2Point,
         extents: S2Extents,
-        anchor: S2Enum<S2Anchor>,
+        anchor: S2Enum<S2AnchorOld>,
         element: SVGElement,
         scene: S2BaseScene,
     ): void {

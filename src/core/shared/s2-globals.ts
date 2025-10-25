@@ -45,7 +45,7 @@ export interface S2Tipable {
     getTipTransformAtInto(dst: S2TipTransform, t: number): S2TipTransform;
 }
 
-export type S2Anchor =
+export type S2AnchorOld =
     | 'north-west'
     | 'north'
     | 'north-east'
@@ -58,7 +58,7 @@ export type S2Anchor =
 
 export class S2AnchorUtils {
     static getCenter(
-        anchor: S2Anchor,
+        anchor: S2AnchorOld,
         space: S2Space,
         scene: S2BaseScene,
         position: S2Point,
@@ -99,7 +99,7 @@ export class S2AnchorUtils {
     }
 
     static getNorthWest(
-        anchor: S2Anchor,
+        anchor: S2AnchorOld,
         space: S2Space,
         scene: S2BaseScene,
         position: S2Point,

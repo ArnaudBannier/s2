@@ -1,4 +1,4 @@
-import type { S2Anchor } from '../shared/s2-globals';
+import type { S2AnchorOld } from '../shared/s2-globals';
 import type { S2AnimProperty } from './s2-base-animation';
 import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';
@@ -57,10 +57,10 @@ export class S2TriggerSpace extends S2TimelineTrigger<S2SpaceRef> {
     }
 }
 
-export class S2TriggerAnchor extends S2TimelineTrigger<S2Enum<S2Anchor>> {
-    public value: S2Anchor;
+export class S2TriggerAnchor extends S2TimelineTrigger<S2Enum<S2AnchorOld>> {
+    public value: S2AnchorOld;
 
-    constructor(property: S2Enum<S2Anchor>, value: S2Anchor) {
+    constructor(property: S2Enum<S2AnchorOld>, value: S2AnchorOld) {
         super(property);
         this.value = value;
     }

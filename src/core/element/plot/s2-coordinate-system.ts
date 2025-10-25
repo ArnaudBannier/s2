@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Anchor, S2Dirtyable } from '../../shared/s2-globals';
+import type { S2AnchorOld, S2Dirtyable } from '../../shared/s2-globals';
 import { S2Mat2x3 } from '../../math/s2-mat2x3';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2Enum } from '../../shared/s2-enum';
@@ -21,7 +21,7 @@ export class S2CoordinateSystemData extends S2ElementData {
     public readonly opacity: S2Number = new S2Number(1);
     public readonly position: S2Point;
     public readonly extents: S2Extents;
-    public readonly anchor: S2Enum<S2Anchor> = new S2Enum<S2Anchor>('center');
+    public readonly anchor: S2Enum<S2AnchorOld> = new S2Enum<S2AnchorOld>('center');
     public readonly axisX: S2AxisData = new S2AxisData();
     public readonly axisY: S2AxisData = new S2AxisData();
     public readonly lineEndPadding: S2Length;

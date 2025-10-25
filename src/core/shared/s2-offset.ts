@@ -1,10 +1,10 @@
 import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
+import type { S2Space } from '../math/s2-space';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
-import type { S2Space } from '../math/s2-space';
 
 export class S2Offset extends S2BaseType implements S2HasClone<S2Offset>, S2HasCopy<S2Offset>, S2HasLerp<S2Offset> {
-    readonly kind = 'direction' as const;
+    readonly kind = 'offset' as const;
     public value: S2Vec2;
     public space: S2Space;
 

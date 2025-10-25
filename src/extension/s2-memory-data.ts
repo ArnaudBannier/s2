@@ -1,4 +1,4 @@
-import type { S2Anchor, S2Dirtyable } from '../core/shared/s2-globals';
+import type { S2AnchorOld, S2Dirtyable } from '../core/shared/s2-globals';
 import { S2BaseData, S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../core/element/base/s2-base-data';
 import { S2Enum } from '../core/shared/s2-enum';
 import { S2Extents } from '../core/shared/s2-extents';
@@ -9,7 +9,7 @@ import type { S2BaseScene } from '../core/scene/s2-base-scene';
 
 export class S2MemoryData extends S2ElementData {
     public readonly position: S2Point;
-    public readonly anchor: S2Enum<S2Anchor>;
+    public readonly anchor: S2Enum<S2AnchorOld>;
     public readonly extents: S2Extents;
     public readonly valueWidth: S2Length;
     public readonly background: S2MemoryBackgroundData;
@@ -20,7 +20,7 @@ export class S2MemoryData extends S2ElementData {
     constructor(scene: S2BaseScene) {
         super();
         this.position = new S2Point(0, 0, scene.getWorldSpace());
-        this.anchor = new S2Enum<S2Anchor>('center');
+        this.anchor = new S2Enum<S2AnchorOld>('center');
         this.extents = new S2Extents(0, 0, scene.getViewSpace());
         this.valueWidth = new S2Length(2, scene.getWorldSpace());
         this.background = new S2MemoryBackgroundData(scene);

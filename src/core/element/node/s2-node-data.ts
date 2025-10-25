@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Anchor, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
+import type { S2AnchorOld, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Extents } from '../../shared/s2-extents';
 import { S2Length } from '../../shared/s2-length';
@@ -12,7 +12,7 @@ export type S2NodeShape = 'none' | 'rectangle' | 'circle';
 
 export class S2NodeData extends S2ElementData {
     public readonly position: S2Point;
-    public readonly anchor: S2Enum<S2Anchor>;
+    public readonly anchor: S2Enum<S2AnchorOld>;
     public readonly background: S2NodeBackgroundData;
     public readonly text: S2NodeTextData;
     public readonly padding: S2Extents;
@@ -21,7 +21,7 @@ export class S2NodeData extends S2ElementData {
     constructor(scene: S2BaseScene) {
         super();
         this.position = new S2Point(0, 0, scene.getWorldSpace());
-        this.anchor = new S2Enum<S2Anchor>('center');
+        this.anchor = new S2Enum<S2AnchorOld>('center');
         this.minExtents = new S2Extents(0, 0, scene.getViewSpace());
         this.background = new S2NodeBackgroundData(scene);
         this.text = new S2NodeTextData(scene);
