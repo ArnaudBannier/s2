@@ -25,3 +25,59 @@
 - S2SVG contient des fonctionnalités supplémentaires, comme ajouter des styles
 
 # Tests
+
+Pour vérifier les allocations mémoires
+
+// cycle.ts
+class A {
+ref?: B;
+constructor(public name: string) { }
+finalize() { console.log(`${this.name} est détruit`); }
+}
+
+class B {
+ref?: A;
+constructor(public name: string) { }
+finalize() { console.log(`${this.name} est détruit`); }
+}
+
+// Création du cycle
+let a: A | null = new A("A1");
+let b: B | null = new B("B1");
+
+a.ref = b;
+b.ref = a;
+
+// Plus aucune référence depuis le code principal
+a = null;
+b = null;
+
+// Demande de GC (Node.js avec --expose-gc)
+if (global.gc) {
+console.log("Appel du garbage collector...");
+global.gc();
+} else {
+console.log("Lancer Node avec --expose-gc pour tester le GC");
+}
+
+const registry = new FinalizationRegistry((name) => {
+console.log(`${name} a été garbage collecté`);
+});
+
+let a2: A | null = new A("A2");
+let b2: B | null = new B("B2");
+a2.ref = b2;
+b2.ref = a2;
+
+registry.register(a2, a2.name);
+registry.register(b2, b2.name);
+
+a2 = null;
+b2 = null;
+
+if (global.gc) {
+console.log("Appel du garbage collector...");
+global.gc();
+} else {
+console.log("Lancer Node avec --expose-gc pour tester le GC");
+}

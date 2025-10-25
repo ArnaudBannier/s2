@@ -70,13 +70,13 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
         return this;
     }
 
-    getRectPointT(space: S2Space, position: S2Point, extents: S2Extents, anchorX: number, anchorY: number): S2Vec2 {
+    getRectPoint(space: S2Space, position: S2Point, extents: S2Extents, anchorX: number, anchorY: number): S2Vec2 {
         const out = new S2Vec2();
-        this.getRectPointIntoT(out, space, position, extents, anchorX, anchorY);
+        this.getRectPointInto(out, space, position, extents, anchorX, anchorY);
         return out;
     }
 
-    getRectPointInto(
+    getRectPointIntoF(
         dst: S2Vec2,
         positionX: number,
         positionY: number,
@@ -89,7 +89,7 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
         return this;
     }
 
-    getRectPointIntoT(
+    getRectPointInto(
         dst: S2Vec2,
         space: S2Space,
         position: S2Point,
@@ -97,13 +97,11 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
         anchorX: number,
         anchorY: number,
     ): this {
-        position.getInto(dst, space);
-        const posX = dst.x;
-        const posY = dst.y;
-        extents.getInto(dst, space);
-        const extX = dst.x;
-        const extY = dst.y;
-        dst.set(posX - (this.value.x - anchorX) * extX, posY - (this.value.y - anchorY) * extY);
+        const pos = _vec0;
+        const ext = _vec1;
+        position.getInto(pos, space);
+        extents.getInto(ext, space);
+        dst.set(pos.x - (this.value.x - anchorX) * ext.x, pos.y - (this.value.y - anchorY) * ext.y);
         return this;
     }
 
@@ -114,7 +112,7 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
     }
 
     getCenterInto(dst: S2Vec2, space: S2Space, position: S2Point, extents: S2Extents): this {
-        return this.getRectPointIntoT(dst, space, position, extents, 0, 0);
+        return this.getRectPointInto(dst, space, position, extents, 0, 0);
     }
 
     getLower(space: S2Space, position: S2Point, extents: S2Extents): S2Vec2 {
@@ -124,7 +122,7 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
     }
 
     getLowerInto(dst: S2Vec2, space: S2Space, position: S2Point, extents: S2Extents): this {
-        return this.getRectPointIntoT(dst, space, position, extents, -1, -1);
+        return this.getRectPointInto(dst, space, position, extents, -1, -1);
     }
 
     getUpper(space: S2Space, position: S2Point, extents: S2Extents): S2Vec2 {
@@ -134,6 +132,9 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
     }
 
     getUpperInto(dst: S2Vec2, space: S2Space, position: S2Point, extents: S2Extents): this {
-        return this.getRectPointIntoT(dst, space, position, extents, +1, +1);
+        return this.getRectPointInto(dst, space, position, extents, +1, +1);
     }
 }
+
+const _vec0 = new S2Vec2();
+const _vec1 = new S2Vec2();
