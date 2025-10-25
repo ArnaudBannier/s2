@@ -4,8 +4,8 @@ import type { S2TSpan } from './text/s2-tspan';
 import type { S2Vec2 } from '../math/s2-vec2';
 import type { S2StepAnimator } from '../animation/s2-step-animator';
 import type { S2Color } from '../shared/s2-color';
-import type { S2AnchorOld, S2Dirtyable, S2VerticalAlign } from '../shared/s2-globals';
-import { S2AnchorUtils, svgNS } from '../shared/s2-globals';
+import type { S2Dirtyable, S2VerticalAlign } from '../shared/s2-globals';
+import { svgNS } from '../shared/s2-globals';
 import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
@@ -21,6 +21,7 @@ import { S2Length } from '../shared/s2-length';
 import { S2LerpAnimFactory } from '../animation/s2-lerp-anim';
 import { ease } from '../animation/s2-easing';
 import { S2TextHighlight } from './text/s2-text-highlight';
+import { S2Anchor } from '../shared/s2-anchor';
 
 export type S2CodeToken = {
     type: string;
@@ -58,7 +59,7 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
 export class S2CodeData extends S2ElementData {
     public readonly position: S2Point;
     public readonly opacity: S2Number;
-    public readonly anchor: S2Enum<S2AnchorOld>;
+    public readonly anchor: S2Anchor;
     public readonly padding: S2Extents;
     public readonly minExtents: S2Extents;
     public readonly text: S2CodeTextData;
@@ -68,7 +69,7 @@ export class S2CodeData extends S2ElementData {
     constructor(scene: S2BaseScene) {
         super();
         this.position = new S2Point(0, 0, scene.getWorldSpace());
-        this.anchor = new S2Enum<S2AnchorOld>('center');
+        this.anchor = new S2Anchor(0, 0);
         this.padding = new S2Extents(10, 5, scene.getViewSpace());
         this.minExtents = new S2Extents(0, 0, scene.getViewSpace());
         this.text = new S2CodeTextData(scene);
@@ -401,13 +402,15 @@ export class S2Code extends S2Element<S2CodeData> {
         this.extents.setV(extents, viewSpace);
         const textMinExtents = extents.clone().subV(padding);
 
-        const codeCenter = S2AnchorUtils.getCenter(
-            this.data.anchor.get(),
-            viewSpace,
-            this.scene,
-            this.data.position,
-            this.extents,
-        );
+        const codeCenter = this.data.anchor.getCenter(viewSpace, this.data.position, this.extents);
+
+        // const codeCenter = S2AnchorUtils.getCenter(
+        //     this.data.anchor.get(),
+        //     viewSpace,
+        //     this.scene,
+        //     this.data.position,
+        //     this.extents,
+        // );
 
         this.textGroup.data.minExtents.setV(textMinExtents, viewSpace);
         this.textGroup.data.position.setV(codeCenter, viewSpace);

@@ -458,7 +458,7 @@ class SceneFigure extends S2Scene {
 
             this.setCodeStyle(code);
             code.setContent(tokenizeAlgorithm(algorithm));
-            code.data.anchor.set('north-west');
+            code.data.anchor.set(-1, -1);
         }
         this.update();
         this.tree.computeExtents();

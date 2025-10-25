@@ -41,7 +41,7 @@ export class BaseMemoryScene extends S2Scene {
         data.currentLine.padding.set(-0.5, 2, viewSpace);
         data.currentLine.index.set(0);
         data.position.set(-6, 4, worldSpace);
-        data.anchor.set('north-west');
+        data.anchor.set(-1, -1);
         data.minExtents.set(2.5, 1.0, worldSpace);
     }
 
@@ -97,7 +97,7 @@ export class BaseMemoryScene extends S2Scene {
         const funcPos = funcTSpan.getUpper(viewSpace);
 
         funcCode.data.position.set(codeMainPos.x + 10 + shift, funcPos.y + 5, viewSpace);
-        funcCode.data.anchor.set('north-west');
+        funcCode.data.anchor.set(-1, -1);
         funcCode.data.opacity.set(0);
 
         const posAnim = S2LerpAnimFactory.create(this, funcCode.data.position)

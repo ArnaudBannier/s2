@@ -44,7 +44,7 @@ class SceneFigure extends BaseMemoryScene {
         this.setDefaultCodeStyle(this.codeMain);
         this.codeMain.setContent(tokenizeAlgorithm(codeStringMain));
         this.codeMain.data.position.set(-6, 4.0, this.getWorldSpace());
-        this.codeMain.data.anchor.set('north-west');
+        this.codeMain.data.anchor.set(-1, -1);
 
         this.codeFunc = new S2Code(this);
         this.codeFunc.setParent(this.getSVG());

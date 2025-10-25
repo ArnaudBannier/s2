@@ -41,7 +41,7 @@ class SceneFigure extends S2Scene {
         spaceC.setSpaceToParent(0, -0.5, 4, 1, 1, 2);
         this.showSpace(spaceC, 2, MTL.PINK);
 
-        for (let space of [worldSpace, spaceA, spaceB, spaceC]) {
+        for (const space of [worldSpace, spaceA, spaceB, spaceC]) {
             const circle = new S2Circle(this);
             circle.setParent(this.getSVG());
             circle.data.fill.color.copy(MTL.CYAN);

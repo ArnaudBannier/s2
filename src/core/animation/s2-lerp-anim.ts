@@ -28,7 +28,7 @@ export class S2LerpAnimFactory {
                 return new S2BaseLerpAnim<S2Color>(scene, property as S2Color);
             case 'position':
                 return new S2BaseLerpAnim<S2Point>(scene, property as S2Point);
-            case 'direction':
+            case 'offset':
                 return new S2BaseLerpAnim<S2Offset>(scene, property as S2Offset);
             case 'length':
                 return new S2BaseLerpAnim<S2Length>(scene, property as S2Length);
