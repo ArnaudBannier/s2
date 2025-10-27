@@ -12,7 +12,6 @@ import {
     type CurveIntersection,
 } from '../../src/core/math/curve/s2-curve-opt.ts';
 import { S2RoundedRectSDF, S2SDFUtils, type S2SDF } from '../../src/core/math/curve/s2-sdf.ts';
-import { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { S2PathRect } from '../../src/core/element/s2-path-rect.ts';
 
@@ -57,8 +56,7 @@ class SceneFigure extends S2Scene {
         curve2.data.stroke.width.set(6, this.getViewSpace());
         curve2.data.stroke.color.copy(MTL.YELLOW);
         const cubic2 = curve2.data.polyCurve;
-        cubic2.setControlPoints(-7, 1, 0, -2, -8, -4, -3, -4);
-        cubic2.setControlPoints(-7, 1, -6, -2, -2, -2, -2, 4);
+        cubic2.setControlPoints(0, 1, -2, 0, 0, -4, -2, -4);
 
         this.sdf = new S2RoundedRectSDF(-3, -3, 2, 1, 1);
 
@@ -74,29 +72,25 @@ class SceneFigure extends S2Scene {
         rect.data.fill.opacity.set(0.0);
         rect.data.position.set(2, -2, spaceA);
         rect.data.extents.set(2, 1, spaceA);
-        rect.data.cornerRadius.set(0.5, worldSpace);
+        rect.data.cornerRadius.set(50, this.viewSpace);
         rect.data.anchor.set(0, -1);
+        this.update();
 
-        const sdfUtils = new S2SDFUtils(this.sdf, cubic1);
+        const sdfUtils = new S2SDFUtils(rect, cubic2);
+        worldSpace.getThisToSpaceInto(sdfUtils.transform, rect.data.space.get());
         this.sdfUtils = sdfUtils;
-        const d = 1;
-        const t = sdfUtils.findPointAtDistance(d, 0.3, 1, 1e-3);
+        const d = 0;
+        const t = sdfUtils.findPointAtDistance(d, 0, 1, 1e-3);
         console.log('Point on curve1 from t=0:', t);
-
-        const circle = new S2Circle(this);
-        circle.setParent(this.getSVG());
-        circle.data.fill.opacity.set(0.0);
-        circle.data.stroke.color.copy(MTL.CYAN);
-        circle.data.stroke.width.set(4, this.getViewSpace());
-        circle.data.position.set(-4, -3, worldSpace);
-        circle.data.radius.set(2, worldSpace);
 
         if (t >= 0) {
             const point = new S2Vec2();
-            cubic1.getPointAtCasteljauInto(point, t);
+            cubic2.getPointAtCasteljauInto(point, t);
             const circle = new S2Circle(this);
             circle.setParent(this.getSVG());
-            circle.data.fill.color.copy(MTL.CYAN);
+            circle.data.stroke.color.copy(MTL.WHITE);
+            circle.data.stroke.width.set(2, this.getViewSpace());
+            circle.data.fill.opacity.set(0.0);
             circle.data.position.set(point.x, point.y, worldSpace);
             circle.data.radius.set(10, this.getViewSpace());
         }
@@ -118,7 +112,7 @@ class SceneFigure extends S2Scene {
         const ts = [];
         start = performance.now();
         for (let i = 0; i < 1000; i++) {
-            ts.push(this.sdfUtils.findPointAtDistance(0.5, 0, 0.3));
+            ts.push(this.sdfUtils.findPointAtDistance(0, 0, 1));
         }
         end = performance.now();
         console.log(`SDF computed ${ts.length} points in ${end - start} ms`);

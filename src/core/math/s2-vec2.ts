@@ -387,9 +387,13 @@ export class S2Vec2 {
 
     perp(flip: boolean = false): this {
         const x = this.x;
-        const sign = flip ? -1 : 1;
-        this.x = -sign * this.y;
-        this.y = sign * x;
+        if (flip) {
+            this.x = this.y;
+            this.y = -x;
+        } else {
+            this.x = -this.y;
+            this.y = x;
+        }
         return this;
     }
 

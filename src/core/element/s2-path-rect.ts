@@ -13,6 +13,7 @@ import { S2Extents } from '../shared/s2-extents';
 import { S2Length } from '../shared/s2-length';
 import { S2Anchor } from '../shared/s2-anchor';
 import { S2SpaceRef } from '../shared/s2-space-ref';
+import type { S2SDF } from '../math/curve/s2-sdf';
 
 export class S2RectPathData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -68,7 +69,7 @@ export class S2RectPathData extends S2ElementData {
     }
 }
 
-export class S2PathRect extends S2Element<S2RectPathData> {
+export class S2PathRect extends S2Element<S2RectPathData> implements S2SDF {
     protected readonly element: SVGPathElement;
     protected readonly cornerNE0: S2Vec2 = new S2Vec2();
     protected readonly cornerNE1: S2Vec2 = new S2Vec2();
@@ -91,6 +92,10 @@ export class S2PathRect extends S2Element<S2RectPathData> {
     protected readonly vecSE: S2Vec2 = new S2Vec2();
     protected readonly vecSW: S2Vec2 = new S2Vec2();
 
+    protected readonly sdfCenter: S2Vec2 = new S2Vec2();
+    protected readonly sdfExtents: S2Vec2 = new S2Vec2();
+    protected sdfRadius: number = 0;
+
     constructor(scene: S2BaseScene) {
         super(scene, new S2RectPathData(scene));
         this.element = document.createElementNS(svgNS, 'path');
@@ -108,7 +113,19 @@ export class S2PathRect extends S2Element<S2RectPathData> {
         return this.element;
     }
 
-    updateGeometry(): void {
+    evaluateSDF(x: number, y: number): number {
+        const dx = Math.abs(x - this.sdfCenter.x) - (this.sdfExtents.x - this.sdfRadius);
+        const dy = Math.abs(y - this.sdfCenter.y) - (this.sdfExtents.y - this.sdfRadius);
+        const ax = Math.max(dx, 0);
+        const ay = Math.max(dy, 0);
+        return Math.sqrt(ax * ax + ay * ay) + Math.min(Math.max(dx, dy), 0) - this.sdfRadius;
+    }
+
+    evaluateSDFV(p: S2Vec2): number {
+        return this.evaluateSDF(p.x, p.y);
+    }
+
+    protected updateGeometry(): void {
         const space = this.data.space.get();
         const center = _vec0;
         const extents = _vec1;
@@ -121,21 +138,12 @@ export class S2PathRect extends S2Element<S2RectPathData> {
         const cY = center.y;
         const eX = extents.x;
         const eY = extents.y;
-        const k = r * 0.552284749831;
+        const k = r * 0.552284749831; // 4/3*tan(pi/8)
 
         this.vecNE.set(cX + eX, cY + eY);
         this.vecNW.set(cX - eX, cY + eY);
         this.vecSW.set(cX - eX, cY - eY);
         this.vecSE.set(cX + eX, cY - eY);
-
-        // this.lineE0.copy(this.vecSE).add(0, +r);
-        // this.lineE1.copy(this.vecNE).add(0, -r);
-        // this.lineN0.copy(this.vecNE).add(-r, 0);
-        // this.lineN1.copy(this.vecNW).add(+r, 0);
-        // this.lineW0.copy(this.vecNW).add(0, -r);
-        // this.lineW1.copy(this.vecSW).add(0, +r);
-        // this.lineS0.copy(this.vecSW).add(+r, 0);
-        // this.lineS1.copy(this.vecSE).add(-r, 0);
 
         this.cornerNE0.copy(this.vecNE).add(0, -r);
         this.cornerNE1.copy(this.vecNE).add(0, -r + k);
@@ -158,17 +166,7 @@ export class S2PathRect extends S2Element<S2RectPathData> {
         this.cornerSE3.copy(this.vecSE).add(0, +r);
     }
 
-    update(): void {
-        if (this.skipUpdate()) return;
-
-        S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
-        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
-        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
-        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
-        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-
-        this.updateGeometry();
-
+    protected updateSVGPath(): void {
         const viewSpace = this.scene.getViewSpace();
         const space = this.data.space.get();
         const point = _vec0;
@@ -229,6 +227,39 @@ export class S2PathRect extends S2Element<S2RectPathData> {
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} Z`;
 
         this.element.setAttribute('d', svgPath);
+    }
+
+    protected updateSDF(): void {
+        const space = this.data.space.get();
+        this.data.position.getInto(this.sdfCenter, space);
+        this.data.extents.getInto(this.sdfExtents, space);
+        this.data.anchor.getRectPointIntoF(
+            this.sdfCenter,
+            this.sdfCenter.x,
+            this.sdfCenter.y,
+            this.sdfExtents.x,
+            this.sdfExtents.y,
+            0,
+            0,
+        );
+        this.sdfRadius = this.data.cornerRadius.get(space);
+        console.log('SDF Center:', this.sdfCenter);
+        console.log('SDF Extents:', this.sdfExtents);
+        console.log('SDF Radius:', this.sdfRadius);
+    }
+
+    update(): void {
+        if (this.skipUpdate()) return;
+
+        S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
+
+        this.updateSDF();
+        this.updateGeometry();
+        this.updateSVGPath();
 
         this.clearDirty();
     }
@@ -236,5 +267,5 @@ export class S2PathRect extends S2Element<S2RectPathData> {
 
 const _vec0 = new S2Vec2();
 const _vec1 = new S2Vec2();
-const _vec2 = new S2Vec2();
-const _vec3 = new S2Vec2();
+// const _vec2 = new S2Vec2();
+// const _vec3 = new S2Vec2();

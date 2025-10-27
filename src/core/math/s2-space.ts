@@ -35,25 +35,27 @@ export class S2Space implements S2Dirtyable {
     update(): void {
         if (!this.isDirty()) return;
 
+        // Assume spaceToParent is updated
         const e0x = this.spaceToParent.elements[0];
         const e0y = this.spaceToParent.elements[1];
         const e1x = this.spaceToParent.elements[2];
         const e1y = this.spaceToParent.elements[3];
 
         this.lengthScaleToParent = Math.sqrt(Math.abs(S2Mat2x3.det(this.spaceToParent)));
-        this.lengthScaleToWorld = this.lengthScaleToParent;
         this.extentsScaleToParent.set(Math.sqrt(e0x * e0x + e0y * e0y), Math.sqrt(e1x * e1x + e1y * e1y));
-        this.extentsScaleToWorld.copy(this.extentsScaleToParent);
         this.parentToSpace.copy(this.spaceToParent).invert();
+
         if (this.parent) {
             this.parent.update();
             this.spaceToWorld.multiplyMatrices(this.parent.spaceToWorld, this.spaceToParent);
             this.worldToSpace.multiplyMatrices(this.parentToSpace, this.parent.worldToSpace);
-            this.lengthScaleToWorld *= this.parent.lengthScaleToWorld;
-            this.extentsScaleToWorld.mulV(this.parent.extentsScaleToWorld);
+            this.lengthScaleToWorld = this.lengthScaleToParent * this.parent.lengthScaleToWorld;
+            this.extentsScaleToWorld.copy(this.extentsScaleToParent).mulV(this.parent.extentsScaleToWorld);
         } else {
             this.spaceToWorld.copy(this.spaceToParent);
             this.worldToSpace.copy(this.parentToSpace);
+            this.lengthScaleToWorld = this.lengthScaleToParent;
+            this.extentsScaleToWorld.copy(this.extentsScaleToParent);
         }
 
         this.clearDirty();
