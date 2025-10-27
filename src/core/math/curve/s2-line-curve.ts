@@ -30,6 +30,30 @@ export class S2LineCurveNew implements S2CurveNew {
         return this;
     }
 
+    setStart(x: number, y: number): this {
+        this.x0 = x;
+        this.y0 = y;
+        return this;
+    }
+
+    setStartV(p: S2Vec2): this {
+        this.x0 = p.x;
+        this.y0 = p.y;
+        return this;
+    }
+
+    setEnd(x: number, y: number): this {
+        this.x1 = x;
+        this.y1 = y;
+        return this;
+    }
+
+    setEndV(p: S2Vec2): this {
+        this.x1 = p.x;
+        this.y1 = p.y;
+        return this;
+    }
+
     copy(src: S2LineCurveNew): this {
         this.x0 = src.x0;
         this.y0 = src.y0;
@@ -37,6 +61,7 @@ export class S2LineCurveNew implements S2CurveNew {
         this.y1 = src.y1;
         return this;
     }
+
     getPointsIntoV(dst0: S2Vec2, dst1: S2Vec2): this {
         dst0.set(this.x0, this.y0);
         dst1.set(this.x1, this.y1);

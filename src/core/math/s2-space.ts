@@ -3,14 +3,16 @@ import { S2Mat2x3 } from './s2-mat2x3';
 import { S2Vec2 } from './s2-vec2';
 
 export class S2Space implements S2Dirtyable {
+    protected parent: S2Space | null;
+    protected dirty: boolean = true;
     protected readonly spaceToParent: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
     protected readonly parentToSpace: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
     protected readonly spaceToWorld: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
     protected readonly worldToSpace: S2Mat2x3 = new S2Mat2x3(1, 0, 0, 0, 1, 0);
-    protected parent: S2Space | null;
-    protected dirty: boolean = true;
-    protected scaleToParent: number = 1.0;
-    protected scaleToWorld: number = 1.0;
+    protected readonly extentsScaleToParent: S2Vec2 = new S2Vec2(1.0, 1.0);
+    protected readonly extentsScaleToWorld: S2Vec2 = new S2Vec2(1.0, 1.0);
+    protected lengthScaleToParent: number = 1.0;
+    protected lengthScaleToWorld: number = 1.0;
 
     constructor(parent: S2Space | null = null) {
         this.parent = parent;
@@ -33,14 +35,22 @@ export class S2Space implements S2Dirtyable {
     update(): void {
         if (!this.isDirty()) return;
 
-        this.scaleToParent = Math.sqrt(Math.abs(S2Mat2x3.det(this.spaceToParent)));
-        this.scaleToWorld = this.scaleToParent;
+        const e0x = this.spaceToParent.elements[0];
+        const e0y = this.spaceToParent.elements[1];
+        const e1x = this.spaceToParent.elements[2];
+        const e1y = this.spaceToParent.elements[3];
+
+        this.lengthScaleToParent = Math.sqrt(Math.abs(S2Mat2x3.det(this.spaceToParent)));
+        this.lengthScaleToWorld = this.lengthScaleToParent;
+        this.extentsScaleToParent.set(Math.sqrt(e0x * e0x + e0y * e0y), Math.sqrt(e1x * e1x + e1y * e1y));
+        this.extentsScaleToWorld.copy(this.extentsScaleToParent);
         this.parentToSpace.copy(this.spaceToParent).invert();
         if (this.parent) {
             this.parent.update();
             this.spaceToWorld.multiplyMatrices(this.parent.spaceToWorld, this.spaceToParent);
             this.worldToSpace.multiplyMatrices(this.parentToSpace, this.parent.worldToSpace);
-            this.scaleToWorld *= this.parent.scaleToWorld;
+            this.lengthScaleToWorld *= this.parent.lengthScaleToWorld;
+            this.extentsScaleToWorld.mulV(this.parent.extentsScaleToWorld);
         } else {
             this.spaceToWorld.copy(this.spaceToParent);
             this.worldToSpace.copy(this.parentToSpace);
@@ -140,15 +150,16 @@ export class S2Space implements S2Dirtyable {
 
     convertLength(length: number, space: S2Space): number {
         if (space === this) return Math.abs(length);
-        length *= this.scaleToWorld;
-        if (space) length /= space.scaleToWorld;
+        length *= this.lengthScaleToWorld;
+        if (space) length /= space.lengthScaleToWorld;
         return Math.abs(length);
     }
 
     convertExtentsInto(dst: S2Vec2, x: number, y: number, space: S2Space): this {
         dst = dst.set(x, y);
         if (space === this) return this;
-        dst.apply2x3Offset(this.spaceToWorld).apply2x3Offset(space.worldToSpace).abs();
+        dst.mulV(this.extentsScaleToWorld);
+        if (space) dst.divV(space.extentsScaleToWorld);
         return this;
     }
 

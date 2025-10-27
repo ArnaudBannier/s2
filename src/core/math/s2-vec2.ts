@@ -216,6 +216,18 @@ export class S2Vec2 {
         return this;
     }
 
+    div(x: number, y: number): this {
+        this.x /= x;
+        this.y /= y;
+        return this;
+    }
+
+    divV(v: S2Vec2): this {
+        this.x /= v.x;
+        this.y /= v.y;
+        return this;
+    }
+
     scale(s: number): this {
         this.x *= s;
         this.y *= s;

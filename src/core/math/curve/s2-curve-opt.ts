@@ -74,6 +74,54 @@ export class S2CubicCurveNew implements S2CurveNew {
         return this;
     }
 
+    setStart(x: number, y: number): this {
+        this.x0 = x;
+        this.y0 = y;
+        return this;
+    }
+
+    setStartV(p: S2Vec2): this {
+        this.x0 = p.x;
+        this.y0 = p.y;
+        return this;
+    }
+
+    setControl1(x: number, y: number): this {
+        this.x1 = x;
+        this.y1 = y;
+        return this;
+    }
+
+    setControl1V(p: S2Vec2): this {
+        this.x1 = p.x;
+        this.y1 = p.y;
+        return this;
+    }
+
+    setControl2(x: number, y: number): this {
+        this.x2 = x;
+        this.y2 = y;
+        return this;
+    }
+
+    setControl2V(p: S2Vec2): this {
+        this.x2 = p.x;
+        this.y2 = p.y;
+        return this;
+    }
+
+    setEnd(x: number, y: number): this {
+        this.x3 = x;
+        this.y3 = y;
+        return this;
+    }
+
+    setEndV(p: S2Vec2): this {
+        this.x3 = p.x;
+        this.y3 = p.y;
+        return this;
+    }
+
     copy(src: S2CubicCurveNew): this {
         this.x0 = src.x0;
         this.y0 = src.y0;

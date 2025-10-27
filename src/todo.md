@@ -1,8 +1,12 @@
 # TODO
 
-- Renommer S2Enum en S2Ref ?
 - Revoir la TipTransform
 - Revoir le AnchorUtils
+- Mouvement de caméra ou modification d'un espace :
+    - Lorsqu'un espace s est dirty, la scène parcourt tous les éléments et indique la modification de l'espace s.
+    - Les données ont une fonction pour se marquer dirty si leur espace vaut s
+    - L'espace vue met tous les objets en dirty (mais pas les données, à vérifier)
+    - Le prochain update met à jour tous les éléments qu'il faut
 
 - Possibilité d'ajouter des labels sur un edge (qui devient un groupe)
 - Tracer une fonction

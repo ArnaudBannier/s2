@@ -11,9 +11,10 @@ import {
     S2CurveLinearMapping,
     type CurveIntersection,
 } from '../../src/core/math/curve/s2-curve-opt.ts';
-import { S2RectSDF, S2RoundedRectSDF, S2SDFUtils, type S2SDF } from '../../src/core/math/curve/s2-sdf.ts';
+import { S2RoundedRectSDF, S2SDFUtils, type S2SDF } from '../../src/core/math/curve/s2-sdf.ts';
 import { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
+import { S2PathRect } from '../../src/core/element/s2-path-rect.ts';
 
 class SceneFigure extends S2Scene {
     public curve1: S2PathNew;
@@ -61,14 +62,20 @@ class SceneFigure extends S2Scene {
 
         this.sdf = new S2RoundedRectSDF(-3, -3, 2, 1, 1);
 
-        const rect = new S2Rect(this);
+        const spaceA = this.createSpace();
+        spaceA.setSpaceToParent(1, -1, -3, 1, 1, 0);
+        this.showSpace(spaceA, 2, MTL.ORANGE);
+
+        const rect = new S2PathRect(this);
         rect.setParent(this.getSVG());
+        rect.data.space.set(spaceA);
         rect.data.stroke.color.copy(MTL.LIME_5);
         rect.data.stroke.width.set(4, this.getViewSpace());
         rect.data.fill.opacity.set(0.0);
-        rect.data.position.set(-3, -3, worldSpace);
-        rect.data.extents.set(2, 1, worldSpace);
-        rect.data.cornerRadius.set(1, worldSpace);
+        rect.data.position.set(2, -2, spaceA);
+        rect.data.extents.set(2, 1, spaceA);
+        rect.data.cornerRadius.set(0.5, worldSpace);
+        rect.data.anchor.set(0, -1);
 
         const sdfUtils = new S2SDFUtils(this.sdf, cubic1);
         this.sdfUtils = sdfUtils;
