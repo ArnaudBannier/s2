@@ -63,4 +63,10 @@ export const tests: S2Example[] = [
         path: '/s2/examples/test/space.html',
         description: "Test de changement d'espaces.",
     },
+    {
+        id: 'sdf',
+        title: 'Test de SDF',
+        path: '/s2/examples/test/sdf.html',
+        description: 'Test de Signed Distance Function.',
+    },
 ];
