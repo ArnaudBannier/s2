@@ -1,7 +1,7 @@
 import type { S2Vec2 } from '../s2-vec2';
-import type { S2CurveNew } from './s2-cubic-curve';
+import type { S2Curve } from './s2-cubic-curve';
 
-export class S2LineCurveNew implements S2CurveNew {
+export class S2LineCurveNew implements S2Curve {
     protected x0: number;
     protected y0: number;
     protected x1: number;
@@ -88,13 +88,13 @@ export class S2LineCurveNew implements S2CurveNew {
         return this;
     }
 
-    getPointAtInto(dst: S2Vec2, t: number): this {
+    getPointInto(dst: S2Vec2, t: number): this {
         const s = 1 - t;
         dst.set(s * this.x0 + t * this.x1, s * this.y0 + t * this.y1);
         return this;
     }
 
-    getTangentAtInto(dst: S2Vec2, t: number): this {
+    getTangentInto(dst: S2Vec2, t: number): this {
         void t;
         dst.set(this.x1 - this.x0, this.y1 - this.y0);
         return this;

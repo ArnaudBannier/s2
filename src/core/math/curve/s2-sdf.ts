@@ -1,6 +1,6 @@
 import { S2Mat2x3 } from '../s2-mat2x3';
 import { S2Vec2 } from '../s2-vec2';
-import type { S2CurveNew } from './s2-cubic-curve';
+import type { S2Curve } from './s2-cubic-curve';
 
 export interface S2SDF {
     evaluateSDF(x: number, y: number): number;
@@ -76,15 +76,15 @@ export class S2RoundedRectSDF implements S2SDF {
 export class S2SDFUtils {
     protected static tempPoint: S2Vec2 = new S2Vec2();
 
-    private static evaluateSDF(sdf: S2SDF, curve: S2CurveNew, curveTransform: S2Mat2x3, t: number): number {
-        curve.getPointAtInto(this.tempPoint, t);
+    private static evaluateSDF(sdf: S2SDF, curve: S2Curve, curveTransform: S2Mat2x3, t: number): number {
+        curve.getPointInto(this.tempPoint, t);
         this.tempPoint.apply2x3(curveTransform);
         return sdf.evaluateSDFV(this.tempPoint);
     }
 
     static findPointAtDistance(
         sdf: S2SDF,
-        curve: S2CurveNew,
+        curve: S2Curve,
         curveTransform: S2Mat2x3,
         distance: number,
         tMin: number,

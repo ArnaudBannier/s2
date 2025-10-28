@@ -90,7 +90,7 @@ class SceneFigure extends S2Scene {
             circle.setParent(this.getSVG());
             circle.data.fill.color.copy(MTL.DEEP_ORANGE);
             const t = mapping.getTFromU(i / 10);
-            cubic1.getPointAtInto(circle.data.position.value, t);
+            cubic1.getPointInto(circle.data.position.value, t);
             circle.data.position.space = worldSpace;
             circle.data.radius.set(6, this.getViewSpace());
         }

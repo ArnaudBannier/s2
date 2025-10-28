@@ -8,7 +8,7 @@ import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2SpaceRef } from '../shared/s2-space-ref';
-import { S2CubicCurveNew, type S2CubicBezier } from '../math/curve/s2-cubic-curve';
+import { S2CubicCurve, type S2CubicBezier } from '../math/curve/s2-cubic-curve';
 import { S2CubicCurveSampled } from '../math/curve/s2-cubic-curve-sampled';
 
 export class S2PathNewData extends S2ElementData {
@@ -28,7 +28,7 @@ export class S2PathNewData extends S2ElementData {
         this.fill = new S2FillData();
         this.transform = new S2Transform();
         this.space = new S2SpaceRef(scene.getWorldSpace());
-        this.polyCurve = new S2CubicCurveSampled(new S2CubicCurveNew(0, 0, 1, 1, 2, 2, 3, 3));
+        this.polyCurve = new S2CubicCurveSampled(new S2CubicCurve(0, 0, 1, 1, 2, 2, 3, 3));
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
 

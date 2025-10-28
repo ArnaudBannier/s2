@@ -1,19 +1,17 @@
 import { S2Vec2 } from '../s2-vec2';
 import type { S2LineCurveNew } from './s2-line-curve';
 
-export interface S2CurveNew {
+export interface S2Curve {
     getStartInto(dst: S2Vec2): this;
     getEndInto(dst: S2Vec2): this;
     getStartTangentInto(dst: S2Vec2): this;
     getEndTangentInto(dst: S2Vec2): this;
 
-    getPointAtInto(dst: S2Vec2, t: number): this;
-    getTangentAtInto(dst: S2Vec2, t: number): this;
-    // getPointAtInto(dst: S2Vec2, t: number): this;
-    // getTangentAtInto(dst: S2Vec2, t: number): this;
+    getPointInto(dst: S2Vec2, t: number): this;
+    getTangentInto(dst: S2Vec2, t: number): this;
 }
 
-export interface S2CubicBezier extends S2CurveNew {
+export interface S2CubicBezier extends S2Curve {
     setControlPoints(
         x0: number,
         y0: number,
@@ -38,7 +36,7 @@ export interface S2CubicBezier extends S2CurveNew {
     getControl2Into(dst: S2Vec2): this;
 }
 
-export class S2CubicCurveNew implements S2CubicBezier {
+export class S2CubicCurve implements S2CubicBezier {
     protected x0: number;
     protected y0: number;
     protected x1: number;
@@ -149,7 +147,7 @@ export class S2CubicCurveNew implements S2CubicBezier {
         return this;
     }
 
-    copy(src: S2CubicCurveNew): this {
+    copy(src: S2CubicCurve): this {
         this.x0 = src.x0;
         this.y0 = src.y0;
         this.x1 = src.x1;
@@ -198,7 +196,7 @@ export class S2CubicCurveNew implements S2CubicBezier {
         return this;
     }
 
-    getPointAtInto(dst: S2Vec2, t: number): this {
+    getPointInto(dst: S2Vec2, t: number): this {
         const s = 1 - t;
         const c0 = s * s * s;
         const c1 = s * s * t * 3;
@@ -211,7 +209,7 @@ export class S2CubicCurveNew implements S2CubicBezier {
         return this;
     }
 
-    getTangentAtInto(dst: S2Vec2, t: number): this {
+    getTangentInto(dst: S2Vec2, t: number): this {
         const s = 1 - t;
         const c0 = s * s;
         const c1 = s * t * 2;
@@ -223,7 +221,7 @@ export class S2CubicCurveNew implements S2CubicBezier {
         return this;
     }
 
-    subdivideLowerInto(dst: S2CubicCurveNew, t: number): this {
+    subdivideLowerInto(dst: S2CubicCurve, t: number): this {
         const x01 = this.x0 + (this.x1 - this.x0) * t;
         const y01 = this.y0 + (this.y1 - this.y0) * t;
         const x12 = this.x1 + (this.x2 - this.x1) * t;
@@ -247,7 +245,7 @@ export class S2CubicCurveNew implements S2CubicBezier {
         return this;
     }
 
-    subdivideUpperInto(dst: S2CubicCurveNew, t: number): this {
+    subdivideUpperInto(dst: S2CubicCurve, t: number): this {
         const x01 = this.x0 + (this.x1 - this.x0) * t;
         const y01 = this.y0 + (this.y1 - this.y0) * t;
         const x12 = this.x1 + (this.x2 - this.x1) * t;
@@ -271,7 +269,7 @@ export class S2CubicCurveNew implements S2CubicBezier {
         return this;
     }
 
-    subdivideAtInto(dstLower: S2CubicCurveNew | null, dstUpper: S2CubicCurveNew | null, t: number): this {
+    subdivideAtInto(dstLower: S2CubicCurve | null, dstUpper: S2CubicCurve | null, t: number): this {
         const x01 = this.x0 + (this.x1 - this.x0) * t;
         const y01 = this.y0 + (this.y1 - this.y0) * t;
         const x12 = this.x1 + (this.x2 - this.x1) * t;
@@ -307,7 +305,7 @@ export class S2CubicCurveNew implements S2CubicBezier {
         return this;
     }
 
-    subdivideInto(dst: S2CubicCurveNew, t0: number, t1: number): this {
+    subdivideInto(dst: S2CubicCurve, t0: number, t1: number): this {
         this.subdivideLowerInto(dst, t1);
         dst.subdivideUpperInto(dst, t0 / t1);
         return this;
@@ -338,14 +336,6 @@ export class S2CubicCurveNew implements S2CubicBezier {
         return this;
     }
 
-    getThirdDerivativeInto(dst: S2Vec2): this {
-        dst.set(
-            6 * (this.x0 - 3 * this.x1 + 3 * this.x2 - this.x3),
-            6 * (this.y0 - 3 * this.y1 + 3 * this.y2 - this.y3),
-        );
-        return this;
-    }
-
     controlPointsFlatness(): number {
         const dx = this.x3 - this.x0;
         const dy = this.y3 - this.y0;
@@ -364,7 +354,7 @@ export interface CurveIntersection {
 }
 
 export class S2BezierIntersection {
-    protected cubicPool: S2CubicCurveNew[] = [];
+    protected cubicPool: S2CubicCurve[] = [];
     protected points: S2Vec2[] = [];
     protected pointCount: number = 0;
     private _tmpVec0 = new S2Vec2();
@@ -378,7 +368,7 @@ export class S2BezierIntersection {
     constructor(tolerance: number = 1e-2, maxDepth: number = 20) {
         this.tolerance = tolerance;
         this.maxDepth = maxDepth;
-        for (let i = 0; i < 16; i++) this.cubicPool.push(new S2CubicCurveNew());
+        for (let i = 0; i < 16; i++) this.cubicPool.push(new S2CubicCurve());
     }
 
     setTolerance(tolerance: number): this {
@@ -391,12 +381,12 @@ export class S2BezierIntersection {
         return this;
     }
 
-    protected aquireCubic(): S2CubicCurveNew {
+    protected aquireCubic(): S2CubicCurve {
         const cubic = this.cubicPool.pop();
-        return cubic ? cubic : new S2CubicCurveNew();
+        return cubic ? cubic : new S2CubicCurve();
     }
 
-    protected releaseCubic(cubic: S2CubicCurveNew): void {
+    protected releaseCubic(cubic: S2CubicCurve): void {
         this.cubicPool.push(cubic);
     }
 
@@ -405,10 +395,10 @@ export class S2BezierIntersection {
     }
 
     private intersectCubicCubicRec(
-        c1: S2CubicCurveNew,
+        c1: S2CubicCurve,
         t0: number,
         t1: number,
-        c2: S2CubicCurveNew,
+        c2: S2CubicCurve,
         s0: number,
         s1: number,
         depth: number,
@@ -432,7 +422,7 @@ export class S2BezierIntersection {
             const tm = 0.5 * (t0 + t1);
             const sm = 0.5 * (s0 + s1);
             const point = this._tmpVec0;
-            c1.getPointAtInto(point, tm);
+            c1.getPointInto(point, tm);
 
             if (this.addPoint(point)) {
                 intersections.push({ t: tm, s: sm });
@@ -458,7 +448,7 @@ export class S2BezierIntersection {
         this.releaseCubic(c22);
     }
 
-    intersectCubicCubic(c1: S2CubicCurveNew, c2: S2CubicCurveNew, intersections: CurveIntersection[]): void {
+    intersectCubicCubic(c1: S2CubicCurve, c2: S2CubicCurve, intersections: CurveIntersection[]): void {
         this.intersectCubicCubicRec(c1, 0, 1, c2, 0, 1, 0, intersections);
         intersections.sort((a, b) => a.t - b.t);
         this.pointCount = 0;
@@ -484,14 +474,14 @@ export class S2BezierIntersection {
         return false;
     }
 
-    intersectCubicSegment(curve: S2CubicCurveNew, segment: S2LineCurveNew, intersections: CurveIntersection[]): void {
+    intersectCubicSegment(curve: S2CubicCurve, segment: S2LineCurveNew, intersections: CurveIntersection[]): void {
         this.intersectCubicSegmentRec(curve, 0, 1, segment, 0, intersections);
         intersections.sort((a, b) => a.t - b.t);
         this.pointCount = 0;
     }
 
     intersectCubicSegmentRec(
-        curve: S2CubicCurveNew,
+        curve: S2CubicCurve,
         t0: number,
         t1: number,
         segment: S2LineCurveNew,
@@ -537,7 +527,7 @@ export class S2BezierIntersection {
                 const t = t0 + (t1 - t0) * ub; // approx. paramètre Bézier
 
                 const point = this._tmpVec0;
-                curve.getPointAtInto(point, t);
+                curve.getPointInto(point, t);
 
                 if (this.addPoint(point)) {
                     intersections.push({ t: t, s: 0 });

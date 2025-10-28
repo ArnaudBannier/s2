@@ -67,7 +67,7 @@ class SceneFigure extends S2Scene {
 
         if (t >= 0) {
             const point = new S2Vec2();
-            cubic.getPointAtInto(point, t);
+            cubic.getPointInto(point, t);
             const circle = new S2Circle(this);
             circle.setParent(this.getSVG());
             circle.data.stroke.color.copy(MTL.WHITE);

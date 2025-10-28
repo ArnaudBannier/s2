@@ -1,17 +1,17 @@
 import type { S2Vec2 } from '../s2-vec2';
-import type { S2CubicBezier, S2CubicCurveNew } from './s2-cubic-curve';
-import { S2CurveLinearSampling } from './s2-curve-linear-sampling';
+import type { S2CubicBezier, S2CubicCurve } from './s2-cubic-curve';
+import { S2CurveSampler } from './s2-curve-sampler';
 
 export class S2CubicCurveSampled implements S2CubicBezier {
-    protected readonly baseCurve: S2CubicCurveNew;
-    protected readonly mapping: S2CurveLinearSampling;
+    protected readonly baseCurve: S2CubicCurve;
+    protected readonly mapping: S2CurveSampler;
 
-    constructor(baseCurve: S2CubicCurveNew, sampleCount: number = 8) {
+    constructor(baseCurve: S2CubicCurve, sampleCount: number = 8) {
         this.baseCurve = baseCurve;
-        this.mapping = new S2CurveLinearSampling(baseCurve, sampleCount);
+        this.mapping = new S2CurveSampler(baseCurve, sampleCount);
     }
 
-    getBaseCurve(): S2CubicCurveNew {
+    getBaseCurve(): S2CubicCurve {
         return this.baseCurve;
     }
 
@@ -35,15 +35,15 @@ export class S2CubicCurveSampled implements S2CubicBezier {
         return this;
     }
 
-    getPointAtInto(dst: S2Vec2, t: number): this {
+    getPointInto(dst: S2Vec2, t: number): this {
         const mappedT = this.mapping.getTFromU(t);
-        this.baseCurve.getPointAtInto(dst, mappedT);
+        this.baseCurve.getPointInto(dst, mappedT);
         return this;
     }
 
-    getTangentAtInto(dst: S2Vec2, t: number): this {
+    getTangentInto(dst: S2Vec2, t: number): this {
         const mappedT = this.mapping.getTFromU(t);
-        this.baseCurve.getTangentAtInto(dst, mappedT);
+        this.baseCurve.getTangentInto(dst, mappedT);
         return this;
     }
 

@@ -2,7 +2,7 @@ import { S2MathUtils } from '../s2-math-utils';
 import { S2Vec2 } from '../s2-vec2';
 import type { S2CubicBezier } from './s2-cubic-curve';
 
-export class S2CurveLinearSampling {
+export class S2CurveSampler {
     protected readonly curve: S2CubicBezier;
     protected readonly sampleCount: number;
     protected readonly cumulativeLength: Float32Array;
@@ -18,11 +18,11 @@ export class S2CurveLinearSampling {
     update(): void {
         const prevPoint = _vec0;
         const currPoint = _vec1;
-        this.curve.getPointAtInto(prevPoint, 0);
+        this.curve.getPointInto(prevPoint, 0);
         this.cumulativeLength[0] = 0;
 
         for (let i = 1; i < this.sampleCount; i++) {
-            this.curve.getPointAtInto(currPoint, i / (this.sampleCount - 1));
+            this.curve.getPointInto(currPoint, i / (this.sampleCount - 1));
             this.cumulativeLength[i] = this.cumulativeLength[i - 1] + prevPoint.distance(currPoint);
             prevPoint.copy(currPoint);
         }
@@ -71,6 +71,19 @@ export class S2CurveLinearSampling {
 
     getTFromU(u: number): number {
         return this.getTFromLength(u * this.length);
+    }
+
+    getUFromT(t: number): number {
+        const maxIndex = this.cumulativeLength.length - 1;
+        const index = S2MathUtils.clamp(Math.floor(t * maxIndex), 0, maxIndex - 1);
+
+        const length = S2MathUtils.lerp(
+            this.cumulativeLength[index],
+            this.cumulativeLength[index + 1],
+            t * maxIndex - index,
+        );
+
+        return length / this.length;
     }
 }
 
