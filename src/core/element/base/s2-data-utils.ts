@@ -2,7 +2,7 @@ import type { S2FillData, S2FontData, S2StrokeData } from './s2-base-data.ts';
 import type { S2Enum } from '../../shared/s2-enum.ts';
 import type { S2AnchorOld, S2PointerEvents, S2TextAnchor } from '../../shared/s2-globals.ts';
 import type { S2BaseScene } from '../../scene/s2-base-scene.ts';
-import type { S2PolyCurve } from '../../math/s2-curve.ts';
+import type { S2PolyCurveOLD } from '../../math/s2-curve.ts';
 import type { S2Color } from '../../shared/s2-color.ts';
 import type { S2Number } from '../../shared/s2-number.ts';
 import type { S2Transform } from '../../shared/s2-transform.ts';
@@ -14,7 +14,7 @@ import type { S2Space } from '../../math/s2-space.ts';
 import type { S2SpaceRef } from '../../shared/s2-space-ref.ts';
 import { S2Vec2 } from '../../math/s2-vec2.ts';
 import { S2AnchorUtils } from '../../shared/s2-globals.ts';
-import { S2CubicCurve, S2LineCurve } from '../../math/s2-curve.ts';
+import { S2CubicCurveOLD, S2LineCurveOLD } from '../../math/s2-curve.ts';
 import { S2Point } from '../../shared/s2-point.ts';
 
 export class S2DataUtils {
@@ -179,7 +179,7 @@ export class S2DataUtils {
     }
 
     static applyPath(
-        polyCurve: S2PolyCurve,
+        polyCurve: S2PolyCurveOLD,
         space: S2SpaceRef,
         pathFrom: S2Number,
         pathTo: S2Number,
@@ -196,7 +196,7 @@ export class S2DataUtils {
     }
 
     protected static polyCurveToSVGPath(
-        polyCurve: S2PolyCurve,
+        polyCurve: S2PolyCurveOLD,
         pathFrom: number,
         pathTo: number,
         space: S2Space,
@@ -228,10 +228,10 @@ export class S2DataUtils {
                 svgPath += `M ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
             }
 
-            if (curve instanceof S2LineCurve) {
+            if (curve instanceof S2LineCurveOLD) {
                 space.convertPointIntoV(point, curve.getEnd(), viewSpace);
                 svgPath += `L ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-            } else if (curve instanceof S2CubicCurve) {
+            } else if (curve instanceof S2CubicCurveOLD) {
                 const bezierPoints = curve.getBezierPoints();
                 svgPath += 'C ';
                 for (let j = 1; j < bezierPoints.length; j++) {

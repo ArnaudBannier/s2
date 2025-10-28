@@ -6,7 +6,7 @@ import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
 import { S2Element } from '../base/s2-element';
 import { S2Length } from '../../shared/s2-length';
-import { S2PolyCurve } from '../../math/s2-curve';
+import { S2PolyCurveOLD } from '../../math/s2-curve';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2DataUtils } from '../base/s2-data-utils';
 import { S2ParamCurve } from './s2-param-curve';
@@ -69,7 +69,7 @@ export class S2CurvePlotData extends S2ElementData {
 
 export class S2CurvePlot extends S2Element<S2CurvePlotData> {
     protected readonly element: SVGPathElement;
-    protected readonly curve: S2PolyCurve = new S2PolyCurve();
+    protected readonly curve: S2PolyCurveOLD = new S2PolyCurveOLD();
     protected ranges: Array<[number, number]> = [[0, 1]];
     protected cubicSampleCount: number = 8;
 

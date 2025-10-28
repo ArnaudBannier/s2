@@ -4,15 +4,15 @@ import type { S2Offset } from '../shared/s2-offset';
 import type { S2Point } from '../shared/s2-point';
 import type { S2AnimProperty } from './s2-base-animation';
 import { S2BaseDurationAnimation } from './s2-base-duration-animation';
-import { S2PolyCurve } from '../math/s2-curve';
+import { S2PolyCurveOLD } from '../math/s2-curve';
 
 export abstract class S2BaseMotionPath extends S2BaseDurationAnimation {
     protected space: S2Space;
-    protected polyCurve: S2PolyCurve;
+    protected polyCurve: S2PolyCurveOLD;
     constructor(scene: S2BaseScene) {
         super(scene);
         this.space = scene.getWorldSpace();
-        this.polyCurve = new S2PolyCurve();
+        this.polyCurve = new S2PolyCurveOLD();
     }
 
     getSpace(): S2Space {
@@ -24,7 +24,7 @@ export abstract class S2BaseMotionPath extends S2BaseDurationAnimation {
         return this;
     }
 
-    getCurve(): S2PolyCurve {
+    getCurve(): S2PolyCurveOLD {
         return this.polyCurve;
     }
 }

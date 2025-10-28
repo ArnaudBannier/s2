@@ -1,4 +1,3 @@
-import { S2MathUtils } from '../s2-math-utils';
 import { S2Vec2 } from '../s2-vec2';
 import type { S2LineCurveNew } from './s2-line-curve';
 
@@ -7,11 +6,39 @@ export interface S2CurveNew {
     getEndInto(dst: S2Vec2): this;
     getStartTangentInto(dst: S2Vec2): this;
     getEndTangentInto(dst: S2Vec2): this;
+
+    getPointAtInto(dst: S2Vec2, t: number): this;
+    getTangentAtInto(dst: S2Vec2, t: number): this;
     // getPointAtInto(dst: S2Vec2, t: number): this;
     // getTangentAtInto(dst: S2Vec2, t: number): this;
 }
 
-export class S2CubicCurveNew implements S2CurveNew {
+export interface S2CubicBezier extends S2CurveNew {
+    setControlPoints(
+        x0: number,
+        y0: number,
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+        x3: number,
+        y3: number,
+    ): this;
+    setControlPointsV(p0: S2Vec2, p1: S2Vec2, p2: S2Vec2, p3: S2Vec2): this;
+    setStart(x: number, y: number): this;
+    setStartV(p: S2Vec2): this;
+    setControl1(x: number, y: number): this;
+    setControl1V(p: S2Vec2): this;
+    setControl2(x: number, y: number): this;
+    setControl2V(p: S2Vec2): this;
+    setEnd(x: number, y: number): this;
+    setEndV(p: S2Vec2): this;
+    getControlPointsInto(dst0: S2Vec2, dst1: S2Vec2, dst2: S2Vec2, dst3: S2Vec2): this;
+    getControl1Into(dst: S2Vec2): this;
+    getControl2Into(dst: S2Vec2): this;
+}
+
+export class S2CubicCurveNew implements S2CubicBezier {
     protected x0: number;
     protected y0: number;
     protected x1: number;
@@ -134,15 +161,7 @@ export class S2CubicCurveNew implements S2CurveNew {
         return this;
     }
 
-    getControlPointsInto(dst: S2Vec2[]): this {
-        dst[0].set(this.x0, this.y0);
-        dst[1].set(this.x1, this.y1);
-        dst[2].set(this.x2, this.y2);
-        dst[3].set(this.x3, this.y3);
-        return this;
-    }
-
-    getControlPointsIntoV(dst0: S2Vec2, dst1: S2Vec2, dst2: S2Vec2, dst3: S2Vec2): this {
+    getControlPointsInto(dst0: S2Vec2, dst1: S2Vec2, dst2: S2Vec2, dst3: S2Vec2): this {
         dst0.set(this.x0, this.y0);
         dst1.set(this.x1, this.y1);
         dst2.set(this.x2, this.y2);
@@ -160,6 +179,15 @@ export class S2CubicCurveNew implements S2CurveNew {
         return this;
     }
 
+    getControl1Into(dst: S2Vec2): this {
+        dst.set(this.x1, this.y1);
+        return this;
+    }
+    getControl2Into(dst: S2Vec2): this {
+        dst.set(this.x2, this.y2);
+        return this;
+    }
+
     getStartTangentInto(dst: S2Vec2): this {
         dst.set(this.x1 - this.x0, this.y1 - this.y0);
         return this;
@@ -170,7 +198,7 @@ export class S2CubicCurveNew implements S2CurveNew {
         return this;
     }
 
-    getPointAtCasteljauInto(dst: S2Vec2, t: number): this {
+    getPointAtInto(dst: S2Vec2, t: number): this {
         const s = 1 - t;
         const c0 = s * s * s;
         const c1 = s * s * t * 3;
@@ -183,7 +211,7 @@ export class S2CubicCurveNew implements S2CurveNew {
         return this;
     }
 
-    getTangentAtCasteljauInto(dst: S2Vec2, t: number): this {
+    getTangentAtInto(dst: S2Vec2, t: number): this {
         const s = 1 - t;
         const c0 = s * s;
         const c1 = s * t * 2;
@@ -195,7 +223,7 @@ export class S2CubicCurveNew implements S2CurveNew {
         return this;
     }
 
-    reduceToCasteljauInto(dst: S2CubicCurveNew, t: number): this {
+    subdivideLowerInto(dst: S2CubicCurveNew, t: number): this {
         const x01 = this.x0 + (this.x1 - this.x0) * t;
         const y01 = this.y0 + (this.y1 - this.y0) * t;
         const x12 = this.x1 + (this.x2 - this.x1) * t;
@@ -219,7 +247,7 @@ export class S2CubicCurveNew implements S2CurveNew {
         return this;
     }
 
-    reduceFromCasteljauInto(dst: S2CubicCurveNew, t: number): this {
+    subdivideUpperInto(dst: S2CubicCurveNew, t: number): this {
         const x01 = this.x0 + (this.x1 - this.x0) * t;
         const y01 = this.y0 + (this.y1 - this.y0) * t;
         const x12 = this.x1 + (this.x2 - this.x1) * t;
@@ -243,7 +271,7 @@ export class S2CubicCurveNew implements S2CurveNew {
         return this;
     }
 
-    subdivideCasteljauInto(dst1: S2CubicCurveNew | null, dst2: S2CubicCurveNew | null, t: number): this {
+    subdivideAtInto(dstLower: S2CubicCurveNew | null, dstUpper: S2CubicCurveNew | null, t: number): this {
         const x01 = this.x0 + (this.x1 - this.x0) * t;
         const y01 = this.y0 + (this.y1 - this.y0) * t;
         const x12 = this.x1 + (this.x2 - this.x1) * t;
@@ -256,32 +284,32 @@ export class S2CubicCurveNew implements S2CurveNew {
         const y123 = y12 + (y23 - y12) * t;
         const x0123 = x012 + (x123 - x012) * t;
         const y0123 = y012 + (y123 - y012) * t;
-        if (dst1) {
-            dst1.x0 = this.x0;
-            dst1.y0 = this.y0;
-            dst1.x1 = x01;
-            dst1.y1 = y01;
-            dst1.x2 = x012;
-            dst1.y2 = y012;
-            dst1.x3 = x0123;
-            dst1.y3 = y0123;
+        if (dstLower) {
+            dstLower.x0 = this.x0;
+            dstLower.y0 = this.y0;
+            dstLower.x1 = x01;
+            dstLower.y1 = y01;
+            dstLower.x2 = x012;
+            dstLower.y2 = y012;
+            dstLower.x3 = x0123;
+            dstLower.y3 = y0123;
         }
-        if (dst2) {
-            dst2.x0 = x0123;
-            dst2.y0 = y0123;
-            dst2.x1 = x123;
-            dst2.y1 = y123;
-            dst2.x2 = x23;
-            dst2.y2 = y23;
-            dst2.x3 = this.x3;
-            dst2.y3 = this.y3;
+        if (dstUpper) {
+            dstUpper.x0 = x0123;
+            dstUpper.y0 = y0123;
+            dstUpper.x1 = x123;
+            dstUpper.y1 = y123;
+            dstUpper.x2 = x23;
+            dstUpper.y2 = y23;
+            dstUpper.x3 = this.x3;
+            dstUpper.y3 = this.y3;
         }
         return this;
     }
 
-    reduceCasteljauInto(dst: S2CubicCurveNew, t0: number, t1: number): this {
-        this.reduceToCasteljauInto(dst, t1);
-        dst.reduceFromCasteljauInto(dst, t0 / t1);
+    subdivideInto(dst: S2CubicCurveNew, t0: number, t1: number): this {
+        this.subdivideLowerInto(dst, t1);
+        dst.subdivideUpperInto(dst, t0 / t1);
         return this;
     }
 
@@ -329,81 +357,6 @@ export class S2CubicCurveNew implements S2CurveNew {
         return Math.max(d1, d2); // distance maximale aux points de contrôle
     }
 }
-
-export class S2CurveLinearMapping {
-    protected readonly curve: S2CubicCurveNew;
-    protected readonly sampleCount: number;
-    protected readonly cumulativeLength: Float32Array;
-    protected length: number = 0;
-
-    constructor(curve: S2CubicCurveNew, sampleCount: number = 8) {
-        this.curve = curve;
-        this.sampleCount = sampleCount;
-        this.cumulativeLength = new Float32Array(this.sampleCount);
-        this.updateLength();
-    }
-
-    protected updateLength(): void {
-        const prevPoint = _vec0;
-        const currPoint = _vec1;
-        this.curve.getPointAtCasteljauInto(prevPoint, 0);
-        this.cumulativeLength[0] = 0;
-
-        for (let i = 1; i < this.sampleCount; i++) {
-            this.curve.getPointAtCasteljauInto(currPoint, i / (this.sampleCount - 1));
-            this.cumulativeLength[i] = this.cumulativeLength[i - 1] + prevPoint.distance(currPoint);
-            prevPoint.copy(currPoint);
-        }
-
-        this.length = this.cumulativeLength[this.sampleCount - 1];
-    }
-
-    getLength(): number {
-        return this.length;
-    }
-
-    getTFromLength(targetLength: number): number {
-        if (targetLength <= 0) return 0;
-        if (targetLength >= this.length) return 1;
-
-        const maxIndex = this.cumulativeLength.length - 1;
-        let low = 0;
-        let high = maxIndex;
-
-        while (low < high) {
-            const mid = Math.floor((low + high) / 2);
-            const midLength = this.cumulativeLength[mid];
-            if (midLength < targetLength) {
-                low = mid + 1;
-            } else if (midLength > targetLength) {
-                high = mid - 1;
-            } else {
-                low = mid;
-                break;
-            }
-        }
-
-        if (this.cumulativeLength[low] > targetLength) {
-            low--;
-        }
-        low = S2MathUtils.clamp(low, 0, maxIndex - 1);
-
-        return S2MathUtils.remap(
-            this.cumulativeLength[low],
-            this.cumulativeLength[low + 1],
-            low / maxIndex,
-            (low + 1) / maxIndex,
-            targetLength,
-        );
-    }
-
-    getTFromU(u: number): number {
-        return this.getTFromLength(u * this.length);
-    }
-}
-
-const _vec0 = new S2Vec2();
-const _vec1 = new S2Vec2();
 
 export interface CurveIntersection {
     t: number;
@@ -479,7 +432,7 @@ export class S2BezierIntersection {
             const tm = 0.5 * (t0 + t1);
             const sm = 0.5 * (s0 + s1);
             const point = this._tmpVec0;
-            c1.getPointAtCasteljauInto(point, tm);
+            c1.getPointAtInto(point, tm);
 
             if (this.addPoint(point)) {
                 intersections.push({ t: tm, s: sm });
@@ -491,8 +444,8 @@ export class S2BezierIntersection {
         const c12 = this.aquireCubic();
         const c21 = this.aquireCubic();
         const c22 = this.aquireCubic();
-        c1.subdivideCasteljauInto(c11, c12, 0.5);
-        c2.subdivideCasteljauInto(c21, c22, 0.5);
+        c1.subdivideAtInto(c11, c12, 0.5);
+        c2.subdivideAtInto(c21, c22, 0.5);
         const tm = 0.5 * (t0 + t1);
         const sm = 0.5 * (s0 + s1);
         this.intersectCubicCubicRec(c11, t0, tm, c21, s0, sm, depth + 1, intersections);
@@ -584,7 +537,7 @@ export class S2BezierIntersection {
                 const t = t0 + (t1 - t0) * ub; // approx. paramètre Bézier
 
                 const point = this._tmpVec0;
-                curve.getPointAtCasteljauInto(point, t);
+                curve.getPointAtInto(point, t);
 
                 if (this.addPoint(point)) {
                     intersections.push({ t: t, s: 0 });
@@ -595,7 +548,7 @@ export class S2BezierIntersection {
 
         const c1 = this.aquireCubic();
         const c2 = this.aquireCubic();
-        c1.subdivideCasteljauInto(c1, c2, 0.5);
+        c1.subdivideAtInto(c1, c2, 0.5);
         const tm = 0.5 * (t0 + t1);
         this.intersectCubicSegmentRec(c1, t0, tm, segment, depth + 1, intersections);
         this.intersectCubicSegmentRec(c2, tm, t1, segment, depth + 1, intersections);

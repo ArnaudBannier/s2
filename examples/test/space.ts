@@ -13,7 +13,7 @@ import {
     S2BezierIntersection,
     S2CurveLinearMapping,
     type CurveIntersection,
-} from '../../src/core/math/curve/s2-curve-opt.ts';
+} from '../../src/core/math/curve/s2-cubic-curve.ts';
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
@@ -90,7 +90,7 @@ class SceneFigure extends S2Scene {
             circle.setParent(this.getSVG());
             circle.data.fill.color.copy(MTL.DEEP_ORANGE);
             const t = mapping.getTFromU(i / 10);
-            cubic1.getPointAtCasteljauInto(circle.data.position.value, t);
+            cubic1.getPointAtInto(circle.data.position.value, t);
             circle.data.position.space = worldSpace;
             circle.data.radius.set(6, this.getViewSpace());
         }

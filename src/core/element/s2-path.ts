@@ -3,7 +3,7 @@ import type { S2Space } from '../math/s2-space';
 import type { S2Dirtyable, S2Tipable } from '../shared/s2-globals';
 import { S2TipTransform, svgNS } from '../shared/s2-globals';
 import { S2Vec2 } from '../math/s2-vec2';
-import { S2CubicCurve, S2PolyCurve } from '../math/s2-curve';
+import { S2CubicCurveOLD, S2PolyCurveOLD } from '../math/s2-curve';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
@@ -18,7 +18,7 @@ export class S2PathData extends S2ElementData {
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
     public readonly space: S2SpaceRef;
-    public readonly polyCurve: S2PolyCurve;
+    public readonly polyCurve: S2PolyCurveOLD;
     public readonly pathFrom: S2Number;
     public readonly pathTo: S2Number;
 
@@ -29,7 +29,7 @@ export class S2PathData extends S2ElementData {
         this.fill = new S2FillData();
         this.transform = new S2Transform();
         this.space = new S2SpaceRef(scene.getWorldSpace());
-        this.polyCurve = new S2PolyCurve();
+        this.polyCurve = new S2PolyCurveOLD();
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
 
@@ -249,7 +249,7 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
     smoothCubicToV(dv: S2Vec2, v: S2Vec2, sampleCount: number = this.sampleCount): this {
         if (this.data.polyCurve.getCurveCount() <= 0) return this;
         const lastCurve = this.data.polyCurve.getLastCurve();
-        if (lastCurve instanceof S2CubicCurve === false) return this;
+        if (lastCurve instanceof S2CubicCurveOLD === false) return this;
         this.data.polyCurve.addCubic(
             this.endPosition,
             S2Vec2.subV(S2Vec2.scaleV(this.endPosition, 2), lastCurve.getBezierPoint(2)),

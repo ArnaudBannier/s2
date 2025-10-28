@@ -1,6 +1,7 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Dirtyable } from '../shared/s2-globals';
 import type { S2Space } from '../math/s2-space';
+import type { S2SDF } from '../math/curve/s2-sdf';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../shared/s2-globals';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
@@ -13,7 +14,6 @@ import { S2Extents } from '../shared/s2-extents';
 import { S2Length } from '../shared/s2-length';
 import { S2Anchor } from '../shared/s2-anchor';
 import { S2SpaceRef } from '../shared/s2-space-ref';
-import type { S2SDF } from '../math/curve/s2-sdf';
 
 export class S2RectPathData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -170,13 +170,11 @@ export class S2PathRect extends S2Element<S2RectPathData> implements S2SDF {
         const viewSpace = this.scene.getViewSpace();
         const space = this.data.space.get();
         const point = _vec0;
-        point.copy(this.cornerSE3);
-        space.convertPointIntoV(point, point, viewSpace);
-        let svgPath = `M ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
+        let svgPath = '';
 
         point.copy(this.cornerNE0);
         space.convertPointIntoV(point, point, viewSpace);
-        svgPath += `L ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
+        svgPath += `M ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
         point.copy(this.cornerNE1);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `C ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
@@ -243,9 +241,6 @@ export class S2PathRect extends S2Element<S2RectPathData> implements S2SDF {
             0,
         );
         this.sdfRadius = this.data.cornerRadius.get(space);
-        console.log('SDF Center:', this.sdfCenter);
-        console.log('SDF Extents:', this.sdfExtents);
-        console.log('SDF Radius:', this.sdfRadius);
     }
 
     update(): void {

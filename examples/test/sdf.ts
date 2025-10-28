@@ -6,21 +6,16 @@ import { S2Line } from '../../src/core/element/s2-line.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2PathNew } from '../../src/core/element/s2-path-new.ts';
-import {
-    S2BezierIntersection,
-    S2CurveLinearMapping,
-    type CurveIntersection,
-} from '../../src/core/math/curve/s2-curve-opt.ts';
+import { S2BezierIntersection } from '../../src/core/math/curve/s2-cubic-curve.ts';
 import { S2RoundedRectSDF, S2SDFUtils, type S2SDF } from '../../src/core/math/curve/s2-sdf.ts';
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { S2PathRect } from '../../src/core/element/s2-path-rect.ts';
+import { S2Mat2x3 } from '../../src/core/math/s2-mat2x3.ts';
 
 class SceneFigure extends S2Scene {
-    public curve1: S2PathNew;
-    public curve2: S2PathNew;
+    public curve: S2PathNew;
     public interUtils: S2BezierIntersection = new S2BezierIntersection();
     public sdf: S2SDF;
-    public sdfUtils: S2SDFUtils;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -37,26 +32,14 @@ class SceneFigure extends S2Scene {
 
         this.showSpace(worldSpace, 8, MTL.BLACK);
 
-        const curve1 = new S2PathNew(this);
-        this.curve1 = curve1;
-        curve1.setParent(this.getSVG());
-        curve1.data.space.set(worldSpace);
-        curve1.data.stroke.width.set(6, this.getViewSpace());
-        curve1.data.stroke.color.copy(MTL.YELLOW);
-        const cubic1 = curve1.data.polyCurve;
-        cubic1.setControlPoints(-7, -4, 0, -4, -10, -1, -3, 0);
-
-        const mapping = new S2CurveLinearMapping(cubic1, 8);
-        console.log('Cubic length:', mapping.getLength());
-
-        const curve2 = new S2PathNew(this);
-        this.curve2 = curve2;
-        curve2.setParent(this.getSVG());
-        curve2.data.space.set(worldSpace);
-        curve2.data.stroke.width.set(6, this.getViewSpace());
-        curve2.data.stroke.color.copy(MTL.YELLOW);
-        const cubic2 = curve2.data.polyCurve;
-        cubic2.setControlPoints(0, 1, -2, 0, 0, -4, -2, -4);
+        const curve = new S2PathNew(this);
+        this.curve = curve;
+        curve.setParent(this.getSVG());
+        curve.data.space.set(worldSpace);
+        curve.data.stroke.width.set(6, this.getViewSpace());
+        curve.data.stroke.color.copy(MTL.YELLOW);
+        const cubic = curve.data.polyCurve;
+        cubic.setControlPoints(0, 1, -2, 0, 0, -4, -2, -4);
 
         this.sdf = new S2RoundedRectSDF(-3, -3, 2, 1, 1);
 
@@ -70,52 +53,50 @@ class SceneFigure extends S2Scene {
         rect.data.stroke.color.copy(MTL.LIME_5);
         rect.data.stroke.width.set(4, this.getViewSpace());
         rect.data.fill.opacity.set(0.0);
-        rect.data.position.set(2, -2, spaceA);
-        rect.data.extents.set(2, 1, spaceA);
+        rect.data.position.set(2, -1, spaceA);
+        rect.data.extents.set(2, 1, worldSpace);
         rect.data.cornerRadius.set(50, this.viewSpace);
-        rect.data.anchor.set(0, -1);
+        //rect.data.anchor.set(0, -1);
         this.update();
 
-        const sdfUtils = new S2SDFUtils(rect, cubic2);
-        worldSpace.getThisToSpaceInto(sdfUtils.transform, rect.data.space.get());
-        this.sdfUtils = sdfUtils;
-        const d = 0;
-        const t = sdfUtils.findPointAtDistance(d, 0, 1, 1e-3);
+        const xf = new S2Mat2x3();
+        worldSpace.getThisToSpaceInto(xf, rect.data.space.get());
+        const d = this.viewSpace.convertLength(20, rect.data.space.get());
+        const t = S2SDFUtils.findPointAtDistance(rect, cubic, xf, d, 0, 1, 1e-3);
         console.log('Point on curve1 from t=0:', t);
 
         if (t >= 0) {
             const point = new S2Vec2();
-            cubic2.getPointAtCasteljauInto(point, t);
+            cubic.getPointAtInto(point, t);
             const circle = new S2Circle(this);
             circle.setParent(this.getSVG());
             circle.data.stroke.color.copy(MTL.WHITE);
             circle.data.stroke.width.set(2, this.getViewSpace());
             circle.data.fill.opacity.set(0.0);
             circle.data.position.set(point.x, point.y, worldSpace);
-            circle.data.radius.set(10, this.getViewSpace());
+            circle.data.radius.set(20, this.getViewSpace());
         }
         this.update();
     }
 
     computeIntersections() {
-        const cubic1 = this.curve1.data.polyCurve;
-        const cubic2 = this.curve2.data.polyCurve;
-        this.interUtils.setTolerance(1e-2).setMaxDepth(20);
-        const points: CurveIntersection[] = [];
-        let start = performance.now();
-        for (let i = 0; i < 1000; i++) {
-            this.interUtils.intersectCubicCubic(cubic1, cubic2, points);
-        }
-        let end = performance.now();
-        console.log(`Inter computed ${points.length} intersections in ${end - start} ms`);
-
-        const ts = [];
-        start = performance.now();
-        for (let i = 0; i < 1000; i++) {
-            ts.push(this.sdfUtils.findPointAtDistance(0, 0, 1));
-        }
-        end = performance.now();
-        console.log(`SDF computed ${ts.length} points in ${end - start} ms`);
+        // const cubic1 = this.curve1.data.polyCurve;
+        // const cubic2 = this.curve2.data.polyCurve;
+        // this.interUtils.setTolerance(1e-2).setMaxDepth(20);
+        // const points: CurveIntersection[] = [];
+        // let start = performance.now();
+        // for (let i = 0; i < 1000; i++) {
+        //     this.interUtils.intersectCubicCubic(cubic1, cubic2, points);
+        // }
+        // let end = performance.now();
+        // console.log(`Inter computed ${points.length} intersections in ${end - start} ms`);
+        // const ts = [];
+        // start = performance.now();
+        // // for (let i = 0; i < 1000; i++) {
+        // //     ts.push(this.sdfUtils.findPointAtDistance(0, 0, 1));
+        // // }
+        // end = performance.now();
+        // console.log(`SDF computed ${ts.length} points in ${end - start} ms`);
     }
 
     showSpace(space: S2Space, gridSize: number, gridColor: S2Color): void {
