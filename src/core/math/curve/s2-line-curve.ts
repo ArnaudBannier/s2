@@ -1,7 +1,7 @@
 import type { S2Vec2 } from '../s2-vec2';
-import type { S2Curve } from './s2-cubic-curve';
+import type { S2Curve, S2SubdividableCurve } from './s2-curve';
 
-export class S2LineCurveNew implements S2Curve {
+export class S2LineCurve implements S2Curve, S2SubdividableCurve<S2LineCurve> {
     protected x0: number;
     protected y0: number;
     protected x1: number;
@@ -54,7 +54,7 @@ export class S2LineCurveNew implements S2Curve {
         return this;
     }
 
-    copy(src: S2LineCurveNew): this {
+    copy(src: S2LineCurve): this {
         this.x0 = src.x0;
         this.y0 = src.y0;
         this.x1 = src.x1;
@@ -100,9 +100,49 @@ export class S2LineCurveNew implements S2Curve {
         return this;
     }
 
-    getBoundingBoxInto(dstMin: S2Vec2, dstMax: S2Vec2): this {
-        dstMin.set(Math.min(this.x0, this.x1), Math.min(this.y0, this.y1));
-        dstMax.set(Math.max(this.x0, this.x1), Math.max(this.y0, this.y1));
+    getBoundingBoxInto(dstLower: S2Vec2, dstUpper: S2Vec2): this {
+        dstLower.set(Math.min(this.x0, this.x1), Math.min(this.y0, this.y1));
+        dstUpper.set(Math.max(this.x0, this.x1), Math.max(this.y0, this.y1));
+        return this;
+    }
+
+    subdivideLowerInto(dst: S2LineCurve, t: number): this {
+        const s = 1 - t;
+        const x = s * this.x0 + t * this.x1;
+        const y = s * this.y0 + t * this.y1;
+        dst.setPoints(this.x0, this.y0, x, y);
+        return this;
+    }
+
+    subdivideUpperInto(dst: S2LineCurve, t: number): this {
+        const s = 1 - t;
+        const x = s * this.x0 + t * this.x1;
+        const y = s * this.y0 + t * this.y1;
+        dst.setPoints(x, y, this.x1, this.y1);
+        return this;
+    }
+
+    subdivideAtInto(dstLower: S2LineCurve | null, dstUpper: S2LineCurve | null, t: number): this {
+        const s = 1 - t;
+        const x = s * this.x0 + t * this.x1;
+        const y = s * this.y0 + t * this.y1;
+        if (dstLower) {
+            dstLower.setPoints(this.x0, this.y0, x, y);
+        }
+        if (dstUpper) {
+            dstUpper.setPoints(x, y, this.x1, this.y1);
+        }
+        return this;
+    }
+
+    subdivideInto(dst: S2LineCurve, t0: number, t1: number): this {
+        const s0 = 1 - t0;
+        const s1 = 1 - t1;
+        const x0 = s0 * this.x0 + t0 * this.x1;
+        const y0 = s0 * this.y0 + t0 * this.y1;
+        const x1 = s1 * this.x0 + t1 * this.x1;
+        const y1 = s1 * this.y0 + t1 * this.y1;
+        dst.setPoints(x0, y0, x1, y1);
         return this;
     }
 }

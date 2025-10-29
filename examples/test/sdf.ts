@@ -6,16 +6,13 @@ import { S2Line } from '../../src/core/element/s2-line.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2PathNew } from '../../src/core/element/s2-path-new.ts';
-import { S2BezierIntersection } from '../../src/core/math/curve/s2-cubic-curve.ts';
-import { S2RoundedRectSDF, S2SDFUtils, type S2SDF } from '../../src/core/math/curve/s2-sdf.ts';
+import { S2SDFUtils } from '../../src/core/math/curve/s2-sdf.ts';
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { S2PathRect } from '../../src/core/element/s2-path-rect.ts';
 import { S2Mat2x3 } from '../../src/core/math/s2-mat2x3.ts';
 
 class SceneFigure extends S2Scene {
     public curve: S2PathNew;
-    public interUtils: S2BezierIntersection = new S2BezierIntersection();
-    public sdf: S2SDF;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -40,8 +37,6 @@ class SceneFigure extends S2Scene {
         curve.data.stroke.color.copy(MTL.YELLOW);
         const cubic = curve.data.polyCurve;
         cubic.setControlPoints(0, 1, -2, 0, 0, -4, -2, -4);
-
-        this.sdf = new S2RoundedRectSDF(-3, -3, 2, 1, 1);
 
         const spaceA = this.createSpace();
         spaceA.setSpaceToParent(1, -1, -3, 1, 1, 0);
