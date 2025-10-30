@@ -35,8 +35,18 @@ export class S2LocalBBox extends S2BaseType {
         return this.center.get(space);
     }
 
+    getCenterInto(dst: S2Vec2, space: S2Space): this {
+        this.center.getInto(dst, space);
+        return this;
+    }
+
     getExtents(space: S2Space): S2Vec2 {
         return this.extents.get(space);
+    }
+
+    getExtentsInto(dst: S2Vec2, space: S2Space): this {
+        this.extents.getInto(dst, space);
+        return this;
     }
 
     getLower(space: S2Space): S2Vec2 {

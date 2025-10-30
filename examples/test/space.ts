@@ -8,18 +8,9 @@ import { S2Line } from '../../src/core/element/s2-line.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2Mat2x3 } from '../../src/core/math/s2-mat2x3.ts';
-import { S2PathNew } from '../../src/core/element/s2-path-new.ts';
-import {
-    S2BezierIntersection,
-    S2CurveLinearMapping,
-    type CurveIntersection,
-} from '../../src/core/math/curve/s2-cubic-curve.ts';
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
-    public curve1: S2PathNew;
-    public curve2: S2PathNew;
-    public interUtils: S2BezierIntersection = new S2BezierIntersection();
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -73,52 +64,7 @@ class SceneFigure extends S2Scene {
             //canvasCircle.getSVGElement().setAttribute('vector-effect', 'non-scaling-stroke');
         }
 
-        const curve1 = new S2PathNew(this);
-        this.curve1 = curve1;
-        curve1.setParent(this.getSVG());
-        curve1.data.space.set(worldSpace);
-        curve1.data.stroke.width.set(6, this.getViewSpace());
-        curve1.data.stroke.color.copy(MTL.YELLOW);
-        const cubic1 = curve1.data.polyCurve;
-        cubic1.setControlPoints(-7, -4, 0, -4, -10, -1, -3, 0);
-
-        const mapping = new S2CurveLinearMapping(cubic1, 8);
-        console.log('Cubic length:', mapping.getLength());
-
-        for (let i = 0; i <= 10; i++) {
-            const circle = new S2Circle(this);
-            circle.setParent(this.getSVG());
-            circle.data.fill.color.copy(MTL.DEEP_ORANGE);
-            const t = mapping.getTFromU(i / 10);
-            cubic1.getPointInto(circle.data.position.value, t);
-            circle.data.position.space = worldSpace;
-            circle.data.radius.set(6, this.getViewSpace());
-        }
-
-        const curve2 = new S2PathNew(this);
-        this.curve2 = curve2;
-        curve2.setParent(this.getSVG());
-        curve2.data.space.set(worldSpace);
-        curve2.data.stroke.width.set(6, this.getViewSpace());
-        curve2.data.stroke.color.copy(MTL.YELLOW);
-        const cubic2 = curve2.data.polyCurve;
-        cubic2.setControlPoints(-7, 1, 0, -2, -8, -4, -3, -4);
-        cubic2.setControlPoints(-7, 1, -6, -2, -2, -2, -2, 4);
-
         this.update();
-    }
-
-    computeIntersections() {
-        const cubic1 = this.curve1.data.polyCurve;
-        const cubic2 = this.curve2.data.polyCurve;
-        this.interUtils.setTolerance(1e-2).setMaxDepth(20);
-        const points: CurveIntersection[] = [];
-        const start = performance.now();
-        for (let i = 0; i < 1000; i++) {
-            this.interUtils.intersectCubicCubic(cubic1, cubic2, points);
-        }
-        const end = performance.now();
-        console.log(`Computed ${points.length} intersections in ${end - start} ms`);
     }
 
     showSpace(space: S2Space, gridSize: number, gridColor: S2Color): void {
@@ -210,7 +156,6 @@ if (svgElement && slider) {
     });
     document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
         //scene.animator.playMaster();
-        scene.computeIntersections();
         slider.value = '0';
     });
 

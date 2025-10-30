@@ -8,7 +8,7 @@ import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2SpaceRef } from '../shared/s2-space-ref';
-import { S2CubicCurve, type S2CubicBezier } from '../math/curve/s2-cubic-curve';
+import { S2CubicCurve } from '../math/curve/s2-cubic-curve';
 
 export class S2PathNewData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -16,7 +16,7 @@ export class S2PathNewData extends S2ElementData {
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
     public readonly space: S2SpaceRef;
-    public readonly polyCurve: S2CubicBezier;
+    public readonly polyCurve: S2CubicCurve;
     public readonly pathFrom: S2Number;
     public readonly pathTo: S2Number;
 

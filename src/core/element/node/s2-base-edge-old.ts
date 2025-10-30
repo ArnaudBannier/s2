@@ -3,21 +3,21 @@ import type { S2Space } from '../../math/s2-space';
 import type { S2Dirtyable, S2Tipable } from '../../shared/s2-globals';
 import type { S2Point } from '../../shared/s2-point';
 import { S2Vec2 } from '../../math/s2-vec2';
-import { S2Node } from './s2-node';
+import { S2RichNodeOLD } from './s2-rich-node-old';
 import { S2Path } from '../s2-path';
 import { S2Element } from '../base/s2-element';
 import { S2ElementData, S2StrokeData } from '../base/s2-base-data';
 import { S2TipTransform, svgNS } from '../../shared/s2-globals';
 import { S2ArrowTip } from '../s2-arrow-tip';
-import { S2EdgeEndpoint } from './s2-edge-endpoint';
+import { S2EdgeEndpointOLD } from './s2-edge-endpoint-old';
 import { S2Number } from '../../shared/s2-number';
 import { S2Length } from '../../shared/s2-length';
 
 // S2NodeArcManhattan
 
-export type S2BaseEdge = S2Edge<S2EdgeData>;
+export type S2BaseEdgeOLD = S2EdgeOLD<S2EdgeDataOLD>;
 
-export class S2EdgeData extends S2ElementData {
+export class S2EdgeDataOLD extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly pathFrom: S2Number;
@@ -27,8 +27,8 @@ export class S2EdgeData extends S2ElementData {
     public readonly endDistance: S2Length;
     public readonly startAngle: S2Number;
     public readonly endAngle: S2Number;
-    public readonly start: S2EdgeEndpoint;
-    public readonly end: S2EdgeEndpoint;
+    public readonly start: S2EdgeEndpointOLD;
+    public readonly end: S2EdgeEndpointOLD;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -41,8 +41,8 @@ export class S2EdgeData extends S2ElementData {
         this.endDistance = new S2Length(-Infinity, viewSpace);
         this.startAngle = new S2Number(-Infinity);
         this.endAngle = new S2Number(-Infinity);
-        this.start = new S2EdgeEndpoint(scene);
-        this.end = new S2EdgeEndpoint(scene);
+        this.start = new S2EdgeEndpointOLD(scene);
+        this.end = new S2EdgeEndpointOLD(scene);
 
         this.stroke.width.set(4, viewSpace);
         this.stroke.color.set(0, 0, 0);
@@ -77,7 +77,7 @@ export class S2EdgeData extends S2ElementData {
     }
 }
 
-export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> implements S2Tipable {
+export abstract class S2EdgeOLD<Data extends S2EdgeDataOLD> extends S2Element<Data> implements S2Tipable {
     protected element: SVGGElement;
     protected path: S2Path;
 
@@ -130,16 +130,21 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         return this.element;
     }
 
-    protected getPointCenter(nodeOrPos: S2Node | S2Point, space: S2Space) {
-        if (nodeOrPos instanceof S2Node) {
+    protected getPointCenter(nodeOrPos: S2RichNodeOLD | S2Point, space: S2Space) {
+        if (nodeOrPos instanceof S2RichNodeOLD) {
             return nodeOrPos.getCenter(space);
         } else {
             return nodeOrPos.get(space);
         }
     }
 
-    protected getPoint(nodeOrPos: S2Node | S2Point, space: S2Space, distance: S2Length, direction: S2Vec2): S2Vec2 {
-        if (nodeOrPos instanceof S2Node) {
+    protected getPoint(
+        nodeOrPos: S2RichNodeOLD | S2Point,
+        space: S2Space,
+        distance: S2Length,
+        direction: S2Vec2,
+    ): S2Vec2 {
+        if (nodeOrPos instanceof S2RichNodeOLD) {
             if (distance.value !== -Infinity) {
                 return nodeOrPos.getPointInDirection(direction, space, distance);
             }

@@ -89,6 +89,11 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
         return this;
     }
 
+    getRectPointIntoV(dst: S2Vec2, position: S2Vec2, extents: S2Vec2, anchor: S2Vec2): this {
+        dst.set(position.x - (this.value.x - anchor.x) * extents.x, position.y - (this.value.y - anchor.y) * extents.y);
+        return this;
+    }
+
     getRectPointInto(
         dst: S2Vec2,
         space: S2Space,
@@ -109,6 +114,16 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
         const center = new S2Vec2();
         this.getCenterInto(center, space, position, extents);
         return center;
+    }
+
+    getCenterIntoF(dst: S2Vec2, positionX: number, positionY: number, extentsX: number, extentsY: number): this {
+        dst.set(positionX - this.value.x * extentsX, positionY - this.value.y * extentsY);
+        return this;
+    }
+
+    getCenterIntoV(dst: S2Vec2, position: S2Vec2, extents: S2Vec2): this {
+        dst.set(position.x - this.value.x * extents.x, position.y - this.value.y * extents.y);
+        return this;
     }
 
     getCenterInto(dst: S2Vec2, space: S2Space, position: S2Point, extents: S2Extents): this {

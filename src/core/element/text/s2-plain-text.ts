@@ -40,6 +40,11 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
         return this.localBBox.getExtents(space);
     }
 
+    getExtentsInto(dst: S2Vec2, space: S2Space): this {
+        this.localBBox.getExtentsInto(dst, space);
+        return this;
+    }
+
     getCenter(space: S2Space): S2Vec2 {
         const localCenter = this.localBBox.getCenter(space);
         const position = this.getPosition(space);

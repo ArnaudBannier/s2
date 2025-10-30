@@ -1,3 +1,4 @@
+import { S2Vec2 } from '../../math/s2-vec2';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import { S2PlainText } from '../text/s2-plain-text';
 import { S2BaseNode } from './s2-base-node';
@@ -21,7 +22,8 @@ export class S2PlainNode extends S2BaseNode {
     update(): void {
         if (this.skipUpdate()) return;
 
-        const viewSpace = this.scene.getViewSpace();
+        //const viewSpace = this.scene.getViewSpace();
+        const space = this.data.space.get();
         this.updateSVGChildren();
 
         this.text.data.font.copyIfUnlocked(this.data.text.font);
@@ -30,47 +32,35 @@ export class S2PlainNode extends S2BaseNode {
         this.text.data.stroke.copyIfUnlocked(this.data.text.stroke);
         this.text.update();
 
-        const textExtents = this.text.getExtents(viewSpace);
-        const padding = this.data.padding.get(viewSpace);
-        const extents = this.data.minExtents.get(viewSpace);
-        extents.max(textExtents.x + padding.x, textExtents.y + padding.y);
-        const contentExtents = extents.clone().subV(padding);
+        const textExtents = _vec0;
+        const nodePadding = _vec1;
+        const nodeExtents = _vec2;
+        const contentExtents = _vec3;
+        this.text.getExtentsInto(textExtents, space);
+        this.data.padding.getInto(nodePadding, space);
+        this.data.minExtents.getInto(nodeExtents, space);
+        nodeExtents.max(textExtents.x + nodePadding.x, textExtents.y + nodePadding.y);
+        contentExtents.copy(nodeExtents).subV(nodePadding);
 
-        this.extents.setV(extents, viewSpace);
+        this.extents.setV(nodeExtents, space);
+        this.updateCenterAndSDF();
 
-        const nodeCenter = this.getCenter(viewSpace);
-        const contentNW = nodeCenter.clone().subV(contentExtents);
+        const nodeCenter = _vec4;
+        this.center.getInto(nodeCenter, space);
+        //contentNW.subV(contentExtents);
 
         const font = this.data.text.font;
-        const ascenderHeight = font.relativeAscenderHeight.value * font.size.value;
+        const ascenderHeight = font.relativeAscenderHeight.value * font.size.get(space);
 
-        let lineX = 0;
-        let lineY = contentNW.y + ascenderHeight;
-        switch (this.data.text.verticalAlign.value) {
-            case 'top':
-                break;
-            case 'middle':
-                lineY += contentExtents.y - textExtents.y;
-                break;
-            case 'bottom':
-                lineY += 2 * (contentExtents.y - textExtents.y);
-                break;
-        }
-        switch (this.data.text.horizontalAlign.value) {
-            case 'left':
-                lineX = contentNW.x;
-                this.text.data.textAnchor.set('start');
-                break;
-            case 'center':
-                lineX = contentNW.x + contentExtents.x;
-                this.text.data.textAnchor.set('middle');
-                break;
-            case 'right':
-                lineX = contentNW.x + 2 * contentExtents.x;
-                this.text.data.textAnchor.set('end');
-                break;
-        }
-        this.text.data.position.set(lineX, lineY, viewSpace);
+        const vAlign = this.data.text.verticalAlign.get();
+        const hAlign = this.data.text.horizontalAlign.get();
+
+        this.text.data.textAnchor.set('middle');
+        this.text.data.position.set(
+            nodeCenter.x + hAlign * (contentExtents.x - textExtents.x),
+            nodeCenter.y + vAlign * (contentExtents.y - textExtents.y) - ascenderHeight / 2,
+            space,
+        );
         this.text.update();
 
         this.updateBackground();
@@ -78,3 +68,9 @@ export class S2PlainNode extends S2BaseNode {
         this.clearDirty();
     }
 }
+
+const _vec0 = new S2Vec2();
+const _vec1 = new S2Vec2();
+const _vec2 = new S2Vec2();
+const _vec3 = new S2Vec2();
+const _vec4 = new S2Vec2();

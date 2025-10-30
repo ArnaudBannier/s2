@@ -138,7 +138,7 @@ export class S2FontData extends S2BaseData implements S2Dirtyable {
     public readonly size: S2Length;
     public readonly weight: S2Number = new S2Number(400);
     public readonly relativeLineHeight: S2Number = new S2Number(21 / 16);
-    public readonly relativeAscenderHeight: S2Number = new S2Number(16 / 16);
+    public readonly relativeAscenderHeight: S2Number = new S2Number(10 / 16);
     public readonly family: S2String = new S2String('system-ui');
     public readonly style: S2Enum<S2FontStyle> = new S2Enum<S2FontStyle>('normal');
 

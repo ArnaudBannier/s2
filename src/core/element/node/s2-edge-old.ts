@@ -1,13 +1,13 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable } from '../../shared/s2-globals';
 import { S2Number } from '../../shared/s2-number';
-import { S2Edge, S2EdgeData } from './s2-base-edge';
+import { S2EdgeOLD, S2EdgeDataOLD } from './s2-base-edge-old';
 
 // S2NodeArcManhattan
 
-export class S2LineEdge extends S2Edge<S2EdgeData> {
+export class S2LineEdgeOLD extends S2EdgeOLD<S2EdgeDataOLD> {
     constructor(scene: S2BaseScene) {
-        super(scene, new S2EdgeData(scene));
+        super(scene, new S2EdgeDataOLD(scene));
     }
 
     update(): void {
@@ -34,7 +34,7 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
     }
 }
 
-export class S2CubicEdgeData extends S2EdgeData {
+export class S2CubicEdgeDataOLD extends S2EdgeDataOLD {
     public readonly curveBendAngle: S2Number;
     public readonly curveStartTension: S2Number;
     public readonly curveEndTension: S2Number;
@@ -61,9 +61,9 @@ export class S2CubicEdgeData extends S2EdgeData {
     }
 }
 
-export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
+export class S2CubicEdgeOLD extends S2EdgeOLD<S2CubicEdgeDataOLD> {
     constructor(scene: S2BaseScene) {
-        super(scene, new S2CubicEdgeData(scene));
+        super(scene, new S2CubicEdgeDataOLD(scene));
     }
 
     update(): void {

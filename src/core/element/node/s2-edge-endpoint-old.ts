@@ -1,19 +1,19 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Space } from '../../math/s2-space';
 import type { S2Dirtyable } from '../../shared/s2-globals';
-import type { S2BaseEdge } from './s2-base-edge';
+import type { S2BaseEdgeOLD } from './s2-base-edge-old';
 import type { S2Length } from '../../shared/s2-length';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { S2Point } from '../../shared/s2-point';
-import { S2BaseNode } from './s2-base-node';
+import { S2BaseNodeOLD } from './s2-base-node-old';
 
-export class S2EdgeEndpoint implements S2Dirtyable {
+export class S2EdgeEndpointOLD implements S2Dirtyable {
     protected mode: 'node' | 'position';
-    public node: S2BaseNode | null;
+    public node: S2BaseNodeOLD | null;
     public position: S2Point;
     private owner: S2Dirtyable | null;
     public dirty: boolean = true;
-    public edge: S2BaseEdge | null;
+    public edge: S2BaseEdgeOLD | null;
 
     constructor(scene: S2BaseScene) {
         this.mode = 'position';
@@ -44,8 +44,8 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         this.position.clearDirty();
     }
 
-    set(endpoint: S2BaseNode | S2Point): this {
-        if (endpoint instanceof S2BaseNode) {
+    set(endpoint: S2BaseNodeOLD | S2Point): this {
+        if (endpoint instanceof S2BaseNodeOLD) {
             this.mode = 'node';
             this.node = endpoint;
             this.position.copyIfUnlocked(this.node.data.position);
@@ -58,7 +58,7 @@ export class S2EdgeEndpoint implements S2Dirtyable {
         return this;
     }
 
-    copy(other: S2EdgeEndpoint): void {
+    copy(other: S2EdgeEndpointOLD): void {
         this.mode = other.mode;
         this.node = other.node;
         this.position.copyIfUnlocked(other.position);

@@ -10,6 +10,8 @@ import { S2SDFUtils } from '../../src/core/math/curve/s2-sdf.ts';
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { S2PathRect } from '../../src/core/element/s2-path-rect.ts';
 import { S2Mat2x3 } from '../../src/core/math/s2-mat2x3.ts';
+import { S2PathCircle } from '../../src/core/element/s2-path-circle.ts';
+import { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
 
 class SceneFigure extends S2Scene {
     public curve: S2PathNew;
@@ -18,7 +20,7 @@ class SceneFigure extends S2Scene {
         super(svgElement);
         this.camera.setExtents(8.0, 4.5);
         this.camera.setRotationDeg(0);
-        this.camera.setZoom(1);
+        this.camera.setZoom(2);
         this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
 
         //const viewSpace = this.getViewSpace();
@@ -50,14 +52,28 @@ class SceneFigure extends S2Scene {
         rect.data.fill.opacity.set(0.0);
         rect.data.position.set(2, -1, spaceA);
         rect.data.extents.set(2, 1, worldSpace);
-        rect.data.cornerRadius.set(50, this.viewSpace);
+        rect.data.cornerRadius.set(0.5, this.worldSpace);
         //rect.data.anchor.set(0, -1);
+
+        const node = new S2PlainNode(this);
+        node.setParent(this.getSVG());
+        node.data.space.set(worldSpace);
+        node.data.position.set(0, 1, worldSpace);
+        node.data.padding.set(0, 0, worldSpace);
+        node.data.anchor.set(-0.5, 0);
+        node.data.background.fill.color.copy(MTL.BLUE_5);
+        node.data.background.fill.opacity.set(0.5);
+        node.data.minExtents.set(1, 0.5, worldSpace);
+        node.data.text.horizontalAlign.set(0);
+        node.data.text.verticalAlign.set(0);
+        node.data.background.cornerRadius.set(0.5, worldSpace);
+        node.setContent('plain node');
         this.update();
 
         const xf = new S2Mat2x3();
-        worldSpace.getThisToSpaceInto(xf, rect.data.space.get());
-        const d = this.viewSpace.convertLength(20, rect.data.space.get());
-        const t = S2SDFUtils.findPointAtDistance(rect, cubic, xf, d, 0, 1, 1e-3);
+        worldSpace.getThisToSpaceInto(xf, node.data.space.get());
+        let d = this.viewSpace.convertLength(20, node.data.space.get());
+        const t = S2SDFUtils.findPointAtDistance(node.getSDF(), cubic, xf, d, 0, 1, 1e-3);
         console.log('Point on curve1 from t=0:', t);
 
         if (t >= 0) {
@@ -71,6 +87,34 @@ class SceneFigure extends S2Scene {
             circle.data.position.set(point.x, point.y, worldSpace);
             circle.data.radius.set(20, this.getViewSpace());
         }
+
+        const pathCircle = new S2PathCircle(this);
+        pathCircle.setParent(this.getSVG());
+        pathCircle.data.space.set(worldSpace);
+        pathCircle.data.position.set(-2, -4, worldSpace);
+        pathCircle.data.radius.set(1, worldSpace);
+        pathCircle.data.stroke.color.copy(MTL.CYAN);
+        pathCircle.data.stroke.width.set(4, this.getViewSpace());
+        pathCircle.data.fill.opacity.set(0.0);
+        this.update();
+
+        d = this.viewSpace.convertLength(20, pathCircle.data.space.get());
+        worldSpace.getThisToSpaceInto(xf, pathCircle.data.space.get());
+        const s = S2SDFUtils.findPointAtDistance(pathCircle, cubic, xf, d, 0, 1);
+        console.log('Point on curve', s);
+
+        if (s >= 0) {
+            const point = new S2Vec2();
+            cubic.getPointInto(point, s);
+            const circle = new S2Circle(this);
+            circle.setParent(this.getSVG());
+            circle.data.stroke.color.copy(MTL.PINK);
+            circle.data.stroke.width.set(2, this.getViewSpace());
+            circle.data.fill.opacity.set(0.0);
+            circle.data.position.set(point.x, point.y, worldSpace);
+            circle.data.radius.set(20, this.getViewSpace());
+        }
+
         this.update();
     }
 

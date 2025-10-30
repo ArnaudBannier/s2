@@ -11,13 +11,13 @@
 - Possibilité d'ajouter des labels sur un edge (qui devient un groupe)
 - Tracer une fonction
 - stroke-dasharray : faut-il définir un nouveau type de données (principalement pour setParent avec un space global) ?
-- PolyCurve et space à fusionner dans un nouveau type de données ?
+- SpacialCurve = PolyCurve et space dans un nouveau type de données
 - Gradients
 
 # Améliorations
 
-- Initialiser les attributs directement et plus dans le constructeur
-- Utiliser "import type" autant que possible
+- S2SceneObject comme nouvelle classe de base de S2Element ?
+    - Possibilité de définir une position simple comme point pour un edge
 - Ajouter des descriptions/titres sur les éléments
 
 # Réflexions

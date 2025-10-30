@@ -18,12 +18,12 @@ import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
 import { S2MathUtils } from '../../math/s2-math-utils';
 
-export class S2RichNodeData extends S2ElementData {
+export class S2RichNodeDataOLD extends S2ElementData {
     public readonly position: S2Point;
     public readonly anchor: S2Enum<S2AnchorOld>;
-    public readonly background: S2RichNodeBackgroundData;
-    public readonly text: S2RichNodeTextData;
-    public readonly separator: S2RichNodeSeparatorData;
+    public readonly background: S2RichNodeBackgroundDataOLD;
+    public readonly text: S2RichNodeTextDataOLD;
+    public readonly separator: S2RichNodeSeparatorDataOLD;
     public readonly padding: S2Extents;
     public readonly partSep: S2Length;
     public readonly minExtents: S2Extents;
@@ -33,15 +33,15 @@ export class S2RichNodeData extends S2ElementData {
         this.position = new S2Point(0, 0, scene.getWorldSpace());
         this.anchor = new S2Enum<S2AnchorOld>('center');
         this.minExtents = new S2Extents(0, 0, scene.getViewSpace());
-        this.background = new S2RichNodeBackgroundData(scene);
-        this.separator = new S2RichNodeSeparatorData(scene);
-        this.text = new S2RichNodeTextData(scene);
+        this.background = new S2RichNodeBackgroundDataOLD(scene);
+        this.separator = new S2RichNodeSeparatorDataOLD(scene);
+        this.text = new S2RichNodeTextDataOLD(scene);
         this.padding = new S2Extents(10, 5, scene.getViewSpace());
         this.partSep = new S2Length(5, scene.getViewSpace());
     }
 }
 
-export class S2RichNodeBackgroundData extends S2ElementData {
+export class S2RichNodeBackgroundDataOLD extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -61,7 +61,7 @@ export class S2RichNodeBackgroundData extends S2ElementData {
     }
 }
 
-export class S2RichNodeTextData extends S2ElementData {
+export class S2RichNodeTextDataOLD extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -86,7 +86,7 @@ export class S2RichNodeTextData extends S2ElementData {
     }
 }
 
-export class S2RichNodeSeparatorData extends S2ElementData {
+export class S2RichNodeSeparatorDataOLD extends S2ElementData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
 
@@ -100,7 +100,7 @@ export class S2RichNodeSeparatorData extends S2ElementData {
     }
 }
 
-export class S2Node extends S2Element<S2RichNodeData> {
+export class S2RichNodeOLD extends S2Element<S2RichNodeDataOLD> {
     protected element: SVGGElement;
     protected textGroups: S2TextGroup[];
     protected textGrows: number[];
@@ -109,7 +109,7 @@ export class S2Node extends S2Element<S2RichNodeData> {
     protected extents: S2Extents;
 
     constructor(scene: S2BaseScene, partCount: number = 1) {
-        super(scene, new S2RichNodeData(scene));
+        super(scene, new S2RichNodeDataOLD(scene));
         this.element = document.createElementNS(svgNS, 'g');
         this.textGroups = [];
         this.textGrows = [];

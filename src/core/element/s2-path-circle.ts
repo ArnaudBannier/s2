@@ -10,21 +10,17 @@ import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2Point } from '../shared/s2-point';
-import { S2Extents } from '../shared/s2-extents';
 import { S2Length } from '../shared/s2-length';
-import { S2Anchor } from '../shared/s2-anchor';
 import { S2SpaceRef } from '../shared/s2-space-ref';
 
-export class S2PathRectData extends S2ElementData {
+export class S2PathCircleData extends S2ElementData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
     public readonly space: S2SpaceRef;
     public readonly position: S2Point;
-    public readonly extents: S2Extents;
-    public readonly anchor: S2Anchor;
-    public readonly cornerRadius: S2Length;
+    public readonly radius: S2Length;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -34,9 +30,7 @@ export class S2PathRectData extends S2ElementData {
         this.transform = new S2Transform();
         this.space = new S2SpaceRef(scene.getWorldSpace());
         this.position = new S2Point(0, 0, scene.getWorldSpace());
-        this.extents = new S2Extents(1, 1, scene.getWorldSpace());
-        this.anchor = new S2Anchor(0, 0);
-        this.cornerRadius = new S2Length(0, scene.getViewSpace());
+        this.radius = new S2Length(1, scene.getViewSpace());
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -50,9 +44,7 @@ export class S2PathRectData extends S2ElementData {
         this.transform.setOwner(owner);
         this.space.setOwner(owner);
         this.position.setOwner(owner);
-        this.extents.setOwner(owner);
-        this.anchor.setOwner(owner);
-        this.cornerRadius.setOwner(owner);
+        this.radius.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -63,50 +55,35 @@ export class S2PathRectData extends S2ElementData {
         this.transform.clearDirty();
         this.space.clearDirty();
         this.position.clearDirty();
-        this.extents.clearDirty();
-        this.anchor.clearDirty();
-        this.cornerRadius.clearDirty();
+        this.radius.clearDirty();
     }
 }
 
-export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF {
+export class S2PathCircle extends S2Element<S2PathCircleData> implements S2SDF {
     protected readonly element: SVGPathElement;
-    protected readonly cornerNE0: S2Vec2 = new S2Vec2();
-    protected readonly cornerNE1: S2Vec2 = new S2Vec2();
-    protected readonly cornerNE2: S2Vec2 = new S2Vec2();
-    protected readonly cornerNE3: S2Vec2 = new S2Vec2();
-    protected readonly cornerNW0: S2Vec2 = new S2Vec2();
-    protected readonly cornerNW1: S2Vec2 = new S2Vec2();
-    protected readonly cornerNW2: S2Vec2 = new S2Vec2();
-    protected readonly cornerNW3: S2Vec2 = new S2Vec2();
-    protected readonly cornerSW0: S2Vec2 = new S2Vec2();
-    protected readonly cornerSW1: S2Vec2 = new S2Vec2();
-    protected readonly cornerSW2: S2Vec2 = new S2Vec2();
-    protected readonly cornerSW3: S2Vec2 = new S2Vec2();
-    protected readonly cornerSE0: S2Vec2 = new S2Vec2();
-    protected readonly cornerSE1: S2Vec2 = new S2Vec2();
-    protected readonly cornerSE2: S2Vec2 = new S2Vec2();
-    protected readonly cornerSE3: S2Vec2 = new S2Vec2();
-    protected readonly vecNE: S2Vec2 = new S2Vec2();
-    protected readonly vecNW: S2Vec2 = new S2Vec2();
-    protected readonly vecSE: S2Vec2 = new S2Vec2();
-    protected readonly vecSW: S2Vec2 = new S2Vec2();
+    protected readonly controlE: S2Vec2 = new S2Vec2();
+    protected readonly controlNE1: S2Vec2 = new S2Vec2();
+    protected readonly controlNE2: S2Vec2 = new S2Vec2();
+    protected readonly controlN: S2Vec2 = new S2Vec2();
+    protected readonly controlNW1: S2Vec2 = new S2Vec2();
+    protected readonly controlNW2: S2Vec2 = new S2Vec2();
+    protected readonly controlW: S2Vec2 = new S2Vec2();
+    protected readonly controlSW1: S2Vec2 = new S2Vec2();
+    protected readonly controlSW2: S2Vec2 = new S2Vec2();
+    protected readonly controlS: S2Vec2 = new S2Vec2();
+    protected readonly controlSE1: S2Vec2 = new S2Vec2();
+    protected readonly controlSE2: S2Vec2 = new S2Vec2();
 
     protected readonly sdfCenter: S2Vec2 = new S2Vec2();
-    protected readonly sdfExtents: S2Vec2 = new S2Vec2();
     protected sdfRadius: number = 0;
 
     constructor(scene: S2BaseScene) {
-        super(scene, new S2PathRectData(scene));
+        super(scene, new S2PathCircleData(scene));
         this.element = document.createElementNS(svgNS, 'path');
     }
 
-    getExtents(space: S2Space): S2Vec2 {
-        return this.data.extents.get(space);
-    }
-
-    getCornerRadius(space: S2Space): number {
-        return this.data.cornerRadius.get(space);
+    getRadius(space: S2Space): number {
+        return this.data.radius.get(space);
     }
 
     getSVGElement(): SVGElement {
@@ -114,11 +91,9 @@ export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF {
     }
 
     evaluateSDF(x: number, y: number): number {
-        const dx = Math.abs(x - this.sdfCenter.x) - (this.sdfExtents.x - this.sdfRadius);
-        const dy = Math.abs(y - this.sdfCenter.y) - (this.sdfExtents.y - this.sdfRadius);
-        const ax = Math.max(dx, 0);
-        const ay = Math.max(dy, 0);
-        return Math.sqrt(ax * ax + ay * ay) + Math.min(Math.max(dx, dy), 0) - this.sdfRadius;
+        const dx = Math.abs(x - this.sdfCenter.x);
+        const dy = Math.abs(y - this.sdfCenter.y);
+        return Math.sqrt(dx * dx + dy * dy) - this.sdfRadius;
     }
 
     evaluateSDFV(p: S2Vec2): number {
@@ -128,42 +103,26 @@ export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF {
     protected updateGeometry(): void {
         const space = this.data.space.get();
         const center = _vec0;
-        const extents = _vec1;
         this.data.position.getInto(center, space);
-        this.data.extents.getInto(extents, space);
-        this.data.anchor.getRectPointIntoF(center, center.x, center.y, extents.x, extents.y, 0, 0);
 
-        const r = this.data.cornerRadius.get(space);
+        const r = this.data.radius.get(space);
         const cX = center.x;
         const cY = center.y;
-        const eX = extents.x;
-        const eY = extents.y;
         const k = r * 0.552284749831; // 4/3*tan(pi/8)
 
-        this.vecNE.set(cX + eX, cY + eY);
-        this.vecNW.set(cX - eX, cY + eY);
-        this.vecSW.set(cX - eX, cY - eY);
-        this.vecSE.set(cX + eX, cY - eY);
+        this.controlE.set(cX + r, cY);
+        this.controlW.set(cX - r, cY);
+        this.controlS.set(cX, cY - r);
+        this.controlN.set(cX, cY + r);
 
-        this.cornerNE0.copy(this.vecNE).add(0, -r);
-        this.cornerNE1.copy(this.vecNE).add(0, -r + k);
-        this.cornerNE2.copy(this.vecNE).add(-r + k, 0);
-        this.cornerNE3.copy(this.vecNE).add(-r, 0);
-
-        this.cornerNW0.copy(this.vecNW).add(+r, 0);
-        this.cornerNW1.copy(this.vecNW).add(+r - k, 0);
-        this.cornerNW2.copy(this.vecNW).add(0, -r + k);
-        this.cornerNW3.copy(this.vecNW).add(0, -r);
-
-        this.cornerSW0.copy(this.vecSW).add(0, +r);
-        this.cornerSW1.copy(this.vecSW).add(0, +r - k);
-        this.cornerSW2.copy(this.vecSW).add(+r - k, 0);
-        this.cornerSW3.copy(this.vecSW).add(+r, 0);
-
-        this.cornerSE0.copy(this.vecSE).add(-r, 0);
-        this.cornerSE1.copy(this.vecSE).add(-r + k, 0);
-        this.cornerSE2.copy(this.vecSE).add(0, +r - k);
-        this.cornerSE3.copy(this.vecSE).add(0, +r);
+        this.controlNE1.copy(this.controlE).add(0, +k);
+        this.controlNE2.copy(this.controlN).add(+k, 0);
+        this.controlNW1.copy(this.controlN).add(-k, 0);
+        this.controlNW2.copy(this.controlW).add(0, +k);
+        this.controlSW1.copy(this.controlW).add(0, -k);
+        this.controlSW2.copy(this.controlS).add(-k, 0);
+        this.controlSE1.copy(this.controlS).add(+k, 0);
+        this.controlSE2.copy(this.controlE).add(0, -k);
     }
 
     protected updateSVGPath(): void {
@@ -172,55 +131,47 @@ export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF {
         const point = _vec0;
         let svgPath = '';
 
-        point.copy(this.cornerNE0);
+        point.copy(this.controlE);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `M ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerNE1);
+
+        point.copy(this.controlNE1);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `C ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerNE2);
+        point.copy(this.controlNE2);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerNE3);
+        point.copy(this.controlN);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
 
-        point.copy(this.cornerNW0);
-        space.convertPointIntoV(point, point, viewSpace);
-        svgPath += `L ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerNW1);
+        point.copy(this.controlNW1);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `C ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerNW2);
+        point.copy(this.controlNW2);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerNW3);
+        point.copy(this.controlW);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
 
-        point.copy(this.cornerSW0);
-        space.convertPointIntoV(point, point, viewSpace);
-        svgPath += `L ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerSW1);
+        point.copy(this.controlSW1);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `C ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerSW2);
+        point.copy(this.controlSW2);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerSW3);
+        point.copy(this.controlS);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
 
-        point.copy(this.cornerSE0);
-        space.convertPointIntoV(point, point, viewSpace);
-        svgPath += `L ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerSE1);
+        point.copy(this.controlSE1);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `C ${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerSE2);
+        point.copy(this.controlSE2);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
-        point.copy(this.cornerSE3);
+        point.copy(this.controlE);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} Z`;
 
@@ -229,11 +180,8 @@ export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF {
 
     protected updateSDF(): void {
         const space = this.data.space.get();
-        const position = _vec0;
-        this.data.position.getInto(position, space);
-        this.data.extents.getInto(this.sdfExtents, space);
-        this.data.anchor.getCenterIntoV(this.sdfCenter, position, this.sdfExtents);
-        this.sdfRadius = this.data.cornerRadius.get(space);
+        this.data.position.getInto(this.sdfCenter, space);
+        this.sdfRadius = this.data.radius.get(space);
     }
 
     update(): void {
@@ -254,6 +202,3 @@ export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF {
 }
 
 const _vec0 = new S2Vec2();
-const _vec1 = new S2Vec2();
-// const _vec2 = new S2Vec2();
-// const _vec3 = new S2Vec2();

@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Dirtyable } from '../../shared/s2-globals';
+import type { S2AnchorOld, S2Dirtyable, S2HorizontalAlign, S2VerticalAlign } from '../../shared/s2-globals';
 import { S2Enum } from '../../shared/s2-enum';
 import { S2Extents } from '../../shared/s2-extents';
 import { S2Length } from '../../shared/s2-length';
@@ -7,28 +7,24 @@ import { S2Number } from '../../shared/s2-number';
 import { S2Point } from '../../shared/s2-point';
 import { S2Transform } from '../../shared/s2-transform';
 import { S2FontData, S2ElementData, S2FillData, S2StrokeData, S2BaseData } from '../base/s2-base-data';
-import { S2Anchor } from '../../shared/s2-anchor';
-import { S2SpaceRef } from '../../shared/s2-space-ref';
 
-export type S2NodeShape = 'none' | 'rectangle' | 'circle';
+export type S2NodeShapeOLD = 'none' | 'rectangle' | 'circle';
 
-export class S2NodeData extends S2ElementData {
-    public readonly space: S2SpaceRef;
+export class S2NodeDataOLD extends S2ElementData {
     public readonly position: S2Point;
-    public readonly anchor: S2Anchor;
-    public readonly background: S2NodeBackgroundData;
-    public readonly text: S2NodeTextData;
+    public readonly anchor: S2Enum<S2AnchorOld>;
+    public readonly background: S2NodeBackgroundDataOLD;
+    public readonly text: S2NodeTextDataOLD;
     public readonly padding: S2Extents;
     public readonly minExtents: S2Extents;
 
     constructor(scene: S2BaseScene) {
         super();
-        this.space = new S2SpaceRef(scene.getWorldSpace());
         this.position = new S2Point(0, 0, scene.getWorldSpace());
-        this.anchor = new S2Anchor(0, 0);
+        this.anchor = new S2Enum<S2AnchorOld>('center');
         this.minExtents = new S2Extents(0, 0, scene.getViewSpace());
-        this.background = new S2NodeBackgroundData(scene);
-        this.text = new S2NodeTextData(scene);
+        this.background = new S2NodeBackgroundDataOLD(scene);
+        this.text = new S2NodeTextDataOLD(scene);
         this.padding = new S2Extents(10, 5, scene.getViewSpace());
     }
 
@@ -53,13 +49,13 @@ export class S2NodeData extends S2ElementData {
     }
 }
 
-export class S2NodeBackgroundData extends S2BaseData {
+export class S2NodeBackgroundDataOLD extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
     public readonly cornerRadius: S2Length;
-    public readonly shape: S2Enum<S2NodeShape>;
+    public readonly shape: S2Enum<S2NodeShapeOLD>;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -68,7 +64,7 @@ export class S2NodeBackgroundData extends S2BaseData {
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.cornerRadius = new S2Length(5, scene.getViewSpace());
-        this.shape = new S2Enum<S2NodeShape>('rectangle');
+        this.shape = new S2Enum<S2NodeShapeOLD>('rectangle');
 
         this.stroke.opacity.set(1);
         this.fill.opacity.set(1);
@@ -93,15 +89,15 @@ export class S2NodeBackgroundData extends S2BaseData {
     }
 }
 
-export class S2NodeTextData extends S2BaseData {
+export class S2NodeTextDataOLD extends S2BaseData {
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
 
     public readonly font: S2FontData;
-    public readonly horizontalAlign: S2Number;
-    public readonly verticalAlign: S2Number;
+    public readonly horizontalAlign: S2Enum<S2HorizontalAlign>;
+    public readonly verticalAlign: S2Enum<S2VerticalAlign>;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -110,8 +106,8 @@ export class S2NodeTextData extends S2BaseData {
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.font = new S2FontData(scene);
-        this.horizontalAlign = new S2Number(0);
-        this.verticalAlign = new S2Number(0);
+        this.horizontalAlign = new S2Enum<S2HorizontalAlign>('center');
+        this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
 
         this.stroke.width.set(0, scene.getViewSpace());
         this.fill.opacity.set(1);

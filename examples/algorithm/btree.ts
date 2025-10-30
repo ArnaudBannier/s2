@@ -1,7 +1,7 @@
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
-import { S2LineEdge } from '../../src/core/element/node/s2-edge.ts';
+import { S2LineEdgeOLD } from '../../src/core/element/node/s2-edge-old.ts';
 import { S2Group } from '../../src/core/element/s2-group.ts';
 import { S2StepAnimator } from '../../src/core/animation/s2-step-animator.ts';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
@@ -11,7 +11,7 @@ import { S2ElementData, S2FontData } from '../../src/core/element/base/s2-base-d
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
 import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
 import type { S2BaseAnimation } from '../../src/core/animation/s2-base-animation.ts';
-import type { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
+import type { S2PlainNodeOLD } from '../../src/core/element/node/s2-plain-node-old.ts';
 import { S2RichText } from '../../src/core/element/text/s2-rich-text.ts';
 import type { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { S2PlainText } from '../../src/core/element/text/s2-plain-text.ts';
@@ -55,7 +55,7 @@ class BTreeStyle {
         this.font.relativeLineHeight.set(1.3);
     }
 
-    setNodeDefault(node: S2PlainNode): void {
+    setNodeDefault(node: S2PlainNodeOLD): void {
         const viewSpace = this.scene.getViewSpace();
         const data = node.data;
         data.background.fill.color.copy(MTL.GREY_8);
@@ -72,14 +72,14 @@ class BTreeStyle {
         data.layer.set(2);
     }
 
-    setNodeSelected(node: S2PlainNode): void {
+    setNodeSelected(node: S2PlainNodeOLD): void {
         const data = node.data;
         data.background.fill.color.copy(MTL.GREY_9);
         data.background.stroke.color.copy(MTL.BLUE_5);
         data.text.fill.color.copy(MTL.BLUE_2);
     }
 
-    createSelectNodeAnim(node: S2PlainNode): S2AnimGroup {
+    createSelectNodeAnim(node: S2PlainNodeOLD): S2AnimGroup {
         const data = node.data;
         const animGroup = new S2AnimGroup(this.scene);
         animGroup.addLerpProperties(
@@ -92,14 +92,14 @@ class BTreeStyle {
         return animGroup;
     }
 
-    setNodeExplored(node: S2PlainNode): void {
+    setNodeExplored(node: S2PlainNodeOLD): void {
         const data = node.data;
         data.background.fill.color.copy(MTL.CYAN_7);
         data.background.stroke.color.copy(MTL.CYAN_3);
         data.text.fill.color.copy(MTL.WHITE);
     }
 
-    createExploreNodeAnim(node: S2PlainNode): S2AnimGroup {
+    createExploreNodeAnim(node: S2PlainNodeOLD): S2AnimGroup {
         const data = node.data;
         const animGroup = new S2AnimGroup(this.scene);
         animGroup.addLerpProperties(
@@ -112,7 +112,7 @@ class BTreeStyle {
         return animGroup;
     }
 
-    setEdgeBase(edge: S2LineEdge): void {
+    setEdgeBase(edge: S2LineEdgeOLD): void {
         const viewSpace = this.scene.getViewSpace();
         const data = edge.data;
         data.stroke.color.copy(MTL.GREY_6);
@@ -123,7 +123,7 @@ class BTreeStyle {
         data.layer.set(0);
     }
 
-    setEdgeEmphasized(edge: S2LineEdge): void {
+    setEdgeEmphasized(edge: S2LineEdgeOLD): void {
         const viewSpace = this.scene.getViewSpace();
         const data = edge.data;
         data.stroke.color.copy(MTL.WHITE);
@@ -137,11 +137,11 @@ class BTreeStyle {
         arrowTip.data.pathStrokeFactor.set(0.3);
     }
 
-    setEdgeSelected(edge: S2LineEdge): void {
+    setEdgeSelected(edge: S2LineEdgeOLD): void {
         edge.data.stroke.color.copyIfUnlocked(MTL.BLUE_5);
     }
 
-    createSelectEdgeAnim(edge: S2LineEdge): S2BaseAnimation {
+    createSelectEdgeAnim(edge: S2LineEdgeOLD): S2BaseAnimation {
         const anim = S2LerpAnimFactory.create(this.scene, edge.data.stroke.color)
             .setCycleDuration(300)
             .setEasing(ease.inOut);
@@ -150,11 +150,11 @@ class BTreeStyle {
         return anim;
     }
 
-    setEdgeExplored(edge: S2LineEdge): void {
+    setEdgeExplored(edge: S2LineEdgeOLD): void {
         edge.data.stroke.color.copyIfUnlocked(MTL.GREY_7);
     }
 
-    createExploreEdgeAnim(edge: S2LineEdge): S2BaseAnimation {
+    createExploreEdgeAnim(edge: S2LineEdgeOLD): S2BaseAnimation {
         const anim = S2LerpAnimFactory.create(this.scene, edge.data.stroke.color)
             .setCycleDuration(300)
             .setEasing(ease.inOut);
@@ -327,9 +327,9 @@ class BTreeNode {
     left: BTreeNode | null = null;
     right: BTreeNode | null = null;
 
-    node: S2PlainNode;
-    parentEdge: S2LineEdge | null = null;
-    parentEmphEdge: S2LineEdge | null = null;
+    node: S2PlainNodeOLD;
+    parentEdge: S2LineEdgeOLD | null = null;
+    parentEmphEdge: S2LineEdgeOLD | null = null;
 
     constructor(scene: S2Scene, data: number = 0) {
         this.data = data;

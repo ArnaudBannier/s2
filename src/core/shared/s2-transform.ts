@@ -71,11 +71,20 @@ export class S2Transform
     }
 
     toFixed(precision: number = 2): string {
+        const e = this.value.elements;
         return (
             'matrix(' +
-            Array.from(this.value.elements)
-                .map((v) => v.toFixed(precision))
-                .join(', ') +
+            e[0].toFixed(precision) +
+            ', ' +
+            e[1].toFixed(precision) +
+            ', ' +
+            e[2].toFixed(precision) +
+            ', ' +
+            e[3].toFixed(precision) +
+            ', ' +
+            e[4].toFixed(precision) +
+            ', ' +
+            e[5].toFixed(precision) +
             ')'
         );
     }
