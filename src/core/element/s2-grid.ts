@@ -42,11 +42,11 @@ export class S2GridData extends S2ElementData {
 }
 
 export class S2GridGeometryData extends S2BaseData {
+    public readonly space: S2SpaceRef;
     public readonly boundA: S2Point;
     public readonly boundB: S2Point;
     public readonly steps: S2Extents;
     public readonly referencePoint: S2Point;
-    public readonly space: S2SpaceRef;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -59,19 +59,19 @@ export class S2GridGeometryData extends S2BaseData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        this.space.setOwner(owner);
         this.boundA.setOwner(owner);
         this.boundB.setOwner(owner);
         this.steps.setOwner(owner);
         this.referencePoint.setOwner(owner);
-        this.space.setOwner(owner);
     }
 
     clearDirty(): void {
+        this.space.clearDirty();
         this.boundA.clearDirty();
         this.boundB.clearDirty();
         this.steps.clearDirty();
         this.referencePoint.clearDirty();
-        this.space.clearDirty();
     }
 }
 
@@ -93,32 +93,40 @@ export class S2Grid extends S2Element<S2GridData> {
         const scene = this.scene;
         const element = this.element;
         const data = this.data.geometry;
-        const epsilon = 1e-5;
+        const epsilon = 1e-4;
         const space = data.space.get();
         const viewSpace = scene.getViewSpace();
 
-        const boundA = data.boundA.get(space);
-        const boundB = data.boundB.get(space);
-        const steps = data.steps.get(space);
-        const anchor = data.referencePoint.get(space);
+        const boundA = _vec0;
+        const boundB = _vec1;
+        data.boundA.getInto(boundA, space);
+        data.boundB.getInto(boundB, space);
         const lowerX = Math.min(boundA.x, boundB.x);
         const upperX = Math.max(boundA.x, boundB.x);
         const lowerY = Math.min(boundA.y, boundB.y);
         const upperY = Math.max(boundA.y, boundB.y);
-        const startX = anchor.x - Math.floor((anchor.x - lowerX) / steps.x) * steps.x;
-        const startY = anchor.y - Math.floor((anchor.y - lowerY) / steps.y) * steps.y;
+
+        const steps = _vec0;
+        const anchor = _vec1;
+        data.steps.getInto(steps, space);
+        data.referencePoint.getInto(anchor, space);
+        const stepX = steps.x <= 0 ? steps.x : 1;
+        const stepY = steps.y <= 0 ? steps.y : 1;
+        const startX = anchor.x - Math.floor((anchor.x - lowerX + epsilon) / stepX) * stepX;
+        const startY = anchor.y - Math.floor((anchor.y - lowerY + epsilon) / stepY) * stepY;
+
         let d = '';
-        const pointA = new S2Vec2();
-        const pointB = new S2Vec2();
-        for (let x = startX; x < upperX + epsilon; x += steps.x) {
+        const pointA = _vec0;
+        const pointB = _vec1;
+        for (let x = startX; x < upperX + epsilon; x += stepX) {
             space.convertPointInto(pointA, x, lowerY, viewSpace);
             space.convertPointInto(pointB, x, upperY, viewSpace);
-            d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
+            d += `M ${pointA.x.toFixed(2)},${pointA.y.toFixed(2)} L ${pointB.x.toFixed(2)},${pointB.y.toFixed(2)} `;
         }
-        for (let y = startY; y < upperY + epsilon; y += steps.y) {
+        for (let y = startY; y < upperY + epsilon; y += stepY) {
             space.convertPointInto(pointA, lowerX, y, viewSpace);
             space.convertPointInto(pointB, upperX, y, viewSpace);
-            d += `M${pointA.x},${pointA.y} L ${pointB.x},${pointB.y} `;
+            d += `M ${pointA.x.toFixed(2)},${pointA.y.toFixed(2)} L ${pointB.x.toFixed(2)},${pointB.y.toFixed(2)} `;
         }
         element.setAttribute('d', d.trimEnd());
     }
@@ -135,3 +143,6 @@ export class S2Grid extends S2Element<S2GridData> {
         this.clearDirty();
     }
 }
+
+const _vec0 = new S2Vec2();
+const _vec1 = new S2Vec2();

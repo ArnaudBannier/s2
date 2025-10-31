@@ -15,11 +15,11 @@ export type S2NodeShape = 'none' | 'rectangle' | 'circle';
 export class S2NodeData extends S2ElementData {
     public readonly space: S2SpaceRef;
     public readonly position: S2Point;
+    public readonly minExtents: S2Extents;
     public readonly anchor: S2Anchor;
     public readonly background: S2NodeBackgroundData;
     public readonly text: S2NodeTextData;
     public readonly padding: S2Extents;
-    public readonly minExtents: S2Extents;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -34,9 +34,10 @@ export class S2NodeData extends S2ElementData {
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
+        this.space.setOwner(owner);
         this.position.setOwner(owner);
-        this.anchor.setOwner(owner);
         this.minExtents.setOwner(owner);
+        this.anchor.setOwner(owner);
         this.background.setOwner(owner);
         this.text.setOwner(owner);
         this.padding.setOwner(owner);
@@ -44,9 +45,10 @@ export class S2NodeData extends S2ElementData {
 
     clearDirty(): void {
         super.clearDirty();
+        this.space.clearDirty();
         this.position.clearDirty();
-        this.anchor.clearDirty();
         this.minExtents.clearDirty();
+        this.anchor.clearDirty();
         this.background.clearDirty();
         this.text.clearDirty();
         this.padding.clearDirty();

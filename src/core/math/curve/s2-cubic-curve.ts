@@ -2,14 +2,14 @@ import type { S2Curve, S2SubdividableCurve } from './s2-curve';
 import { S2Vec2 } from '../s2-vec2';
 
 export class S2CubicCurve implements S2Curve, S2SubdividableCurve<S2CubicCurve> {
-    protected x0: number;
-    protected y0: number;
-    protected x1: number;
-    protected y1: number;
-    protected x2: number;
-    protected y2: number;
-    protected x3: number;
-    protected y3: number;
+    public x0: number;
+    public y0: number;
+    public x1: number;
+    public y1: number;
+    public x2: number;
+    public y2: number;
+    public x3: number;
+    public y3: number;
 
     constructor(
         x0: number = 0,

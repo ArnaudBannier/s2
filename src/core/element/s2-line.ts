@@ -121,11 +121,6 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
         return dst;
     }
 
-    getTipTransformAt(t: number): S2TipTransform {
-        const out = new S2TipTransform(this.scene);
-        return this.getTipTransformAtInto(out, t);
-    }
-
     getSVGElement(): SVGElement {
         return this.element;
     }

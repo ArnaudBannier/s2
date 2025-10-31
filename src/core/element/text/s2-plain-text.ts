@@ -74,6 +74,12 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
         S2DataUtils.applyPreserveWhitespace(this.data.preserveWhitespace, this.element, this.scene);
         S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
 
+        if (this.data.stroke.width.value > 0) {
+            this.element.setAttribute('paint-order', 'stroke');
+        } else {
+            this.element.removeAttribute('paint-order');
+        }
+
         const isBBoxDirty =
             this.localBBox.isDirty() ||
             this.data.textAnchor.isDirty() ||

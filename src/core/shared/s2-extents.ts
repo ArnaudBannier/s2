@@ -2,6 +2,7 @@ import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
 import type { S2Space } from '../math/s2-space';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
+import type { S2Length } from './s2-length';
 
 export class S2Extents extends S2BaseType implements S2HasClone<S2Extents>, S2HasCopy<S2Extents>, S2HasLerp<S2Extents> {
     readonly kind = 'extents' as const;
@@ -79,6 +80,18 @@ export class S2Extents extends S2BaseType implements S2HasClone<S2Extents>, S2Ha
 
     getInto(dst: S2Vec2, space: S2Space): this {
         this.space.convertExtentsIntoV(dst, this.value, space);
+        return this;
+    }
+
+    getMaxLengthInto(dst: S2Length): this {
+        const maxLength = Math.max(this.value.x, this.value.y);
+        dst.setValueFromSpace(maxLength, this.space);
+        return this;
+    }
+
+    getMinLengthInto(dst: S2Length): this {
+        const minLength = Math.min(this.value.x, this.value.y);
+        dst.setValueFromSpace(minLength, this.space);
         return this;
     }
 

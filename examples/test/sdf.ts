@@ -12,6 +12,7 @@ import { S2PathRect } from '../../src/core/element/s2-path-rect.ts';
 import { S2Mat2x3 } from '../../src/core/math/s2-mat2x3.ts';
 import { S2PathCircle } from '../../src/core/element/s2-path-circle.ts';
 import { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
+import { S2CubicEdge } from '../../src/core/element/node/s2-cubic-edge.ts';
 
 class SceneFigure extends S2Scene {
     public curve: S2PathNew;
@@ -20,7 +21,7 @@ class SceneFigure extends S2Scene {
         super(svgElement);
         this.camera.setExtents(8.0, 4.5);
         this.camera.setRotationDeg(0);
-        this.camera.setZoom(2);
+        this.camera.setZoom(1);
         this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
 
         //const viewSpace = this.getViewSpace();
@@ -55,25 +56,36 @@ class SceneFigure extends S2Scene {
         rect.data.cornerRadius.set(0.5, this.worldSpace);
         //rect.data.anchor.set(0, -1);
 
-        const node = new S2PlainNode(this);
-        node.setParent(this.getSVG());
-        node.data.space.set(worldSpace);
-        node.data.position.set(0, 1, worldSpace);
-        node.data.padding.set(0, 0, worldSpace);
-        node.data.anchor.set(-0.5, 0);
-        node.data.background.fill.color.copy(MTL.BLUE_5);
-        node.data.background.fill.opacity.set(0.5);
-        node.data.minExtents.set(1, 0.5, worldSpace);
-        node.data.text.horizontalAlign.set(0);
-        node.data.text.verticalAlign.set(0);
-        node.data.background.cornerRadius.set(0.5, worldSpace);
-        node.setContent('plain node');
+        const nodes: S2PlainNode[] = [];
+        for (let i = 0; i < 2; i++) {
+            const node = new S2PlainNode(this);
+            node.setParent(this.getSVG());
+            node.data.space.set(this.viewSpace);
+            node.data.padding.set(5, 5, this.viewSpace);
+            node.data.anchor.set(0, 0);
+            node.data.background.fill.color.copy(MTL.BLUE_5);
+            node.data.background.fill.opacity.set(0.5);
+            node.data.minExtents.set(1, 0.5, worldSpace);
+            node.data.text.horizontalAlign.set(0);
+            node.data.text.verticalAlign.set(0);
+            node.data.text.stroke.color.copy(MTL.BLACK);
+            node.data.text.stroke.width.set(3, this.viewSpace);
+            node.data.text.font.size.set(24, this.getViewSpace());
+            node.data.background.cornerRadius.set(0.5, worldSpace);
+            node.data.background.shape.set('rectangle');
+            node.setContent('plain');
+            nodes.push(node);
+        }
+        nodes[0].data.position.set(0, 1, worldSpace);
+        nodes[1].data.position.set(5, 0, worldSpace);
+        nodes[0].setContent('plain 1');
+        nodes[1].setContent('plain 2');
         this.update();
 
         const xf = new S2Mat2x3();
-        worldSpace.getThisToSpaceInto(xf, node.data.space.get());
-        let d = this.viewSpace.convertLength(20, node.data.space.get());
-        const t = S2SDFUtils.findPointAtDistance(node.getSDF(), cubic, xf, d, 0, 1, 1e-3);
+        worldSpace.getThisToSpaceInto(xf, nodes[0].data.space.get());
+        let d = this.viewSpace.convertLength(20, nodes[0].data.space.get());
+        const t = S2SDFUtils.findPointAtDistance(nodes[0].getSDF(), cubic, xf, d, 0, 1, 1e-3);
         console.log('Point on curve1 from t=0:', t);
 
         if (t >= 0) {
@@ -114,6 +126,24 @@ class SceneFigure extends S2Scene {
             circle.data.position.set(point.x, point.y, worldSpace);
             circle.data.radius.set(20, this.getViewSpace());
         }
+
+        nodes[1].data.background.shape.set('rectangle');
+        nodes[0].data.space.set(this.getWorldSpace());
+
+        // const edge = new S2LineEdge(this, nodes[0], nodes[1]);
+        const edge = new S2CubicEdge(this, nodes[0], nodes[1]);
+        edge.setParent(this.getSVG());
+        edge.data.stroke.color.copy(MTL.CYAN);
+        edge.data.stroke.width.set(4, this.getViewSpace());
+        edge.data.startDistance.set(10, this.viewSpace);
+        edge.data.endDistance.set(10, this.viewSpace);
+        edge.data.pathFrom.set(0);
+        edge.data.bendAngle.set(-45);
+        // edge.data.startAngle.set(90);
+        // edge.data.endAngle.set(-90);
+        // edge.data.startTension.set(0.5);
+        // edge.data.endTension.set(0.5);
+        //edge.createArrowTip();
 
         this.update();
     }

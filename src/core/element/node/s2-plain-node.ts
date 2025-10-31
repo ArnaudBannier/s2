@@ -22,16 +22,17 @@ export class S2PlainNode extends S2BaseNode {
     update(): void {
         if (this.skipUpdate()) return;
 
-        //const viewSpace = this.scene.getViewSpace();
-        const space = this.data.space.get();
         this.updateSVGChildren();
+        const space = this.data.space.get();
 
+        // Update text styles (for correct measurement)
         this.text.data.font.copyIfUnlocked(this.data.text.font);
         this.text.data.fill.copyIfUnlocked(this.data.text.fill);
         this.text.data.opacity.copyIfUnlocked(this.data.text.opacity);
         this.text.data.stroke.copyIfUnlocked(this.data.text.stroke);
         this.text.update();
 
+        // Update extents
         const textExtents = _vec0;
         const nodePadding = _vec1;
         const nodeExtents = _vec2;
@@ -41,30 +42,32 @@ export class S2PlainNode extends S2BaseNode {
         this.data.minExtents.getInto(nodeExtents, space);
         nodeExtents.max(textExtents.x + nodePadding.x, textExtents.y + nodePadding.y);
         contentExtents.copy(nodeExtents).subV(nodePadding);
-
         this.extents.setV(nodeExtents, space);
-        this.updateCenterAndSDF();
 
-        const nodeCenter = _vec4;
-        this.center.getInto(nodeCenter, space);
-        //contentNW.subV(contentExtents);
+        // Update center and SDF
+        this.center.space = space;
+        const nodeCenter = this.center.value;
+        this.data.position.getInto(nodeCenter, space);
+        this.data.anchor.getCenterIntoV(nodeCenter, nodeCenter, nodeExtents);
+        this.baseSDF.update(nodeCenter, Math.max(nodeExtents.x, nodeExtents.y));
 
+        // Update text position
+        const sign = space.isDirectSpace() ? 1 : -1;
         const font = this.data.text.font;
         const ascenderHeight = font.relativeAscenderHeight.value * font.size.get(space);
-
-        const vAlign = this.data.text.verticalAlign.get();
+        const vAlign = sign * this.data.text.verticalAlign.get();
         const hAlign = this.data.text.horizontalAlign.get();
 
         this.text.data.textAnchor.set('middle');
         this.text.data.position.set(
             nodeCenter.x + hAlign * (contentExtents.x - textExtents.x),
-            nodeCenter.y + vAlign * (contentExtents.y - textExtents.y) - ascenderHeight / 2,
+            nodeCenter.y + vAlign * (contentExtents.y - textExtents.y) - (sign * ascenderHeight) / 2,
             space,
         );
         this.text.update();
 
         this.updateBackground();
-        this.updateEndPoints();
+        this.updateEdges();
         this.clearDirty();
     }
 }
@@ -73,4 +76,3 @@ const _vec0 = new S2Vec2();
 const _vec1 = new S2Vec2();
 const _vec2 = new S2Vec2();
 const _vec3 = new S2Vec2();
-const _vec4 = new S2Vec2();

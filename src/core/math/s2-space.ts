@@ -13,6 +13,7 @@ export class S2Space implements S2Dirtyable {
     protected readonly extentsScaleToWorld: S2Vec2 = new S2Vec2(1.0, 1.0);
     protected lengthScaleToParent: number = 1.0;
     protected lengthScaleToWorld: number = 1.0;
+    protected isDirect: boolean = true;
 
     constructor(parent: S2Space | null = null) {
         this.parent = parent;
@@ -58,7 +59,13 @@ export class S2Space implements S2Dirtyable {
             this.extentsScaleToWorld.copy(this.extentsScaleToParent);
         }
 
+        this.isDirect = this.spaceToWorld.det() > 0;
+
         this.clearDirty();
+    }
+
+    isDirectSpace(): boolean {
+        return this.isDirect;
     }
 
     getSpaceToParentInto(dst: S2Mat2x3): this {

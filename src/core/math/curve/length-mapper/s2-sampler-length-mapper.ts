@@ -11,7 +11,6 @@ export abstract class S2SamplerLengthMapper implements S2CurveLengthMapper {
         this.sampleCount = sampleCount;
         this.arcLengths = new Float32Array(this.sampleCount);
         this.sampleInputValues = new Float32Array(this.sampleCount);
-        this.update();
     }
 
     abstract update(): void;

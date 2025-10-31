@@ -8,6 +8,7 @@ export class S2BezierLengthMapper extends S2SamplerLengthMapper {
     constructor(curve: S2CubicCurve, sampleCount: number = 8) {
         super(sampleCount);
         this.curve = curve;
+        this.update();
     }
 
     update(): void {
