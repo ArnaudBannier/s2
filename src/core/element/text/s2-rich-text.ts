@@ -25,6 +25,12 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         this.centerOffset.setOwner(this);
     }
 
+    clearDirty(): void {
+        super.clearDirty();
+        this.extents.clearDirty();
+        this.centerOffset.clearDirty();
+    }
+
     getSVGElement(): SVGElement {
         return this.element;
     }
@@ -97,7 +103,7 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
             this.extents.set(0, 0, viewSpace);
             this.centerOffset.set(0, 0, viewSpace);
         } else {
-            const lowerOffset = _vec0.set(Infinity, Infinity);
+            const lowerOffset = _vec0.set(+Infinity, +Infinity);
             const upperOffset = _vec1.set(-Infinity, -Infinity);
             for (const tspan of this.tspans) {
                 tspan.getBBoxOffsetsInto(_vec2, _vec3, viewSpace);
@@ -129,15 +135,15 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         }
 
         for (const tspan of this.tspans) {
-            if (this.data.fill.isDirty() || tspan.isDirty()) {
-                tspan.data.fill.copyIfUnlocked(this.data.fill);
-            }
-            if (this.data.stroke.isDirty() || tspan.isDirty()) {
-                tspan.data.stroke.copyIfUnlocked(this.data.stroke);
-            }
-            if (this.data.font.isDirty() || tspan.isDirty()) {
-                tspan.data.font.copyIfUnlocked(this.data.font);
-            }
+            //if (this.data.fill.isDirty() || tspan.isDirty()) {
+            tspan.data.fill.copyIfUnlocked(this.data.fill);
+            //}
+            //if (this.data.stroke.isDirty() || tspan.isDirty()) {
+            tspan.data.stroke.copyIfUnlocked(this.data.stroke);
+            //}
+            //if (this.data.font.isDirty() || tspan.isDirty()) {
+            tspan.data.font.copyIfUnlocked(this.data.font);
+            //}
             tspan.update();
         }
         this.updateExtents();

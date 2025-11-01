@@ -32,6 +32,7 @@ export class S2TSpanData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
@@ -121,6 +122,12 @@ export class S2TSpan extends S2Element<S2TSpanData> {
     }
 
     update(): void {
+        const invalidBBox =
+            this.parentText.data.preserveWhitespace.isDirty() || this.data.font.isDirty() || this.data.stroke.isDirty();
+        if (invalidBBox) {
+            this.localBBox.markDirty();
+        }
+
         if (this.skipUpdate()) return;
 
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
@@ -129,10 +136,8 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
-        const isBBoxDirty =
-            this.localBBox.isDirty() || this.data.font.isDirty() || this.parentText.data.preserveWhitespace.isDirty();
-
-        if (isBBoxDirty) {
+        this.localBBox.set(this.element, this.parentText.data.position, this.scene);
+        if (this.localBBox.isDirty()) {
             this.localBBox.set(this.element, this.parentText.data.position, this.scene);
         }
 

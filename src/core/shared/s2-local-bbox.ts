@@ -35,18 +35,10 @@ export class S2LocalBBox extends S2BaseType {
         this.markDirty();
     }
 
-    // getCenterOffset(space: S2Space): S2Vec2 {
-    //     return this.center.get(space);
-    // }
-
     getCenterOffsetInto(dst: S2Vec2, space: S2Space): this {
         this.center.getInto(dst, space);
         return this;
     }
-
-    // getExtents(space: S2Space): S2Vec2 {
-    //     return this.extents.get(space);
-    // }
 
     getExtentsInto(dst: S2Vec2, space: S2Space): this {
         this.extents.getInto(dst, space);
@@ -66,5 +58,3 @@ export class S2LocalBBox extends S2BaseType {
 
 const _vec0 = new S2Vec2();
 const _vec1 = new S2Vec2();
-// const _vec2 = new S2Vec2();
-// const _vec3 = new S2Vec2();

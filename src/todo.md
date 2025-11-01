@@ -1,7 +1,8 @@
 # TODO
 
-- Revoir la TipTransform
-- Revoir le AnchorUtils
+- Revoir le local bbox
+    - Elle utilise la position du parent alors qu'elle dépend de sa position x,y du svg qui n'est pas la même de pas forcément à jour.
+
 - Mouvement de caméra ou modification d'un espace :
     - Lorsqu'un espace s est dirty, la scène parcourt tous les éléments et indique la modification de l'espace s.
     - Les données ont une fonction pour se marquer dirty si leur espace vaut s
