@@ -47,7 +47,7 @@ export class S2MemoryRow {
         this.highlight.setParent(parent);
         this.highlight.data.isEnabled.set(false);
         this.address.setParent(parent);
-        this.address.data.textAnchor.set('end');
+        this.address.data.textAnchor.set(1);
         this.isStacked = false;
         this.available = true;
     }

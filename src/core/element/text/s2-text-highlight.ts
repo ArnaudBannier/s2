@@ -11,6 +11,7 @@ import { S2Number } from '../../shared/s2-number';
 import { S2ElementData, S2FillData, S2StrokeData } from '../base/s2-base-data';
 import { S2Element } from '../base/s2-element';
 import { S2Rect } from '../s2-rect';
+import { S2Vec2 } from '../../math/s2-vec2';
 
 export class S2TextHighlightData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -51,13 +52,12 @@ export class S2TextHighlightData extends S2ElementData {
 }
 
 export class S2TextHighlight extends S2Element<S2TextHighlightData> {
-    protected rect: S2Rect;
-    protected references: S2TSpan[];
+    protected readonly rect: S2Rect;
+    protected readonly references: S2TSpan[] = [];
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2TextHighlightData(scene));
         this.rect = new S2Rect(scene);
-        this.references = [];
 
         this.rect.getSVGElement().role = 'text-highlight';
     }
@@ -75,7 +75,7 @@ export class S2TextHighlight extends S2Element<S2TextHighlightData> {
     }
 
     clearReferences(): this {
-        this.references = [];
+        this.references.length = 0;
         return this;
     }
 
@@ -125,15 +125,19 @@ export class S2TextHighlight extends S2Element<S2TextHighlightData> {
 
         const viewSpace = this.scene.getViewSpace();
 
-        const aabb = new S2AABB().setEmpty();
+        _aabb.setEmpty();
         for (const ref of this.references) {
-            aabb.expandToInclude(ref.getLower(viewSpace));
-            aabb.expandToInclude(ref.getUpper(viewSpace));
+            ref.getBBoxInto(_vec0, _vec1, viewSpace);
+            _aabb.expandToInclude(_vec0);
+            _aabb.expandToInclude(_vec1);
         }
-        const extents = aabb.getExtents();
-        const position = aabb.getCenter();
+        const extents = _vec0;
+        const position = _vec1;
+        const padding = _vec2;
+        _aabb.getExtentsInto(extents);
+        _aabb.getCenterInto(position);
+        this.data.padding.getInto(padding, viewSpace);
 
-        const padding = this.data.padding.get(viewSpace);
         this.rect.data.position.setV(position, viewSpace);
         this.rect.data.extents.set(extents.x + padding.x, extents.y + padding.y, viewSpace);
         this.rect.data.anchor.set('center');
@@ -146,3 +150,8 @@ export class S2TextHighlight extends S2Element<S2TextHighlightData> {
         this.clearDirty();
     }
 }
+
+const _aabb = new S2AABB();
+const _vec0 = new S2Vec2();
+const _vec1 = new S2Vec2();
+const _vec2 = new S2Vec2();

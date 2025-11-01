@@ -8,8 +8,8 @@ import { S2TextData } from './s2-text-data';
 import { S2LocalBBox } from '../../shared/s2-local-bbox';
 
 export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
-    protected element: SVGTextElement;
-    protected localBBox: S2LocalBBox;
+    protected readonly element: SVGTextElement;
+    protected readonly localBBox: S2LocalBBox;
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
@@ -32,12 +32,9 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
         return this.element.textContent || '';
     }
 
-    getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.get(space);
-    }
-
-    getExtents(space: S2Space): S2Vec2 {
-        return this.localBBox.getExtents(space);
+    getPositionInto(dst: S2Vec2, space: S2Space): this {
+        this.data.position.getInto(dst, space);
+        return this;
     }
 
     getExtentsInto(dst: S2Vec2, space: S2Space): this {
@@ -45,10 +42,13 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
         return this;
     }
 
-    getCenter(space: S2Space): S2Vec2 {
-        const localCenter = this.localBBox.getCenter(space);
-        const position = this.getPosition(space);
-        return localCenter.addV(position);
+    getCenterInto(dst: S2Vec2, space: S2Space): this {
+        const centerOffset = _vec0;
+        const position = _vec1;
+        this.localBBox.getCenterOffsetInto(centerOffset, space);
+        this.data.position.getInto(position, space);
+        dst.copy(position).addV(centerOffset);
+        return this;
     }
 
     clearText(): this {
@@ -69,11 +69,10 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-        S2DataUtils.applyShiftedPosition(this.data.position, this.data.localShift, this.element, this.scene, 'x', 'y');
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
         S2DataUtils.applyPreserveWhitespace(this.data.preserveWhitespace, this.element, this.scene);
-        S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
 
+        this.element.setAttribute('text-anchor', 'middle');
         if (this.data.stroke.width.value > 0) {
             this.element.setAttribute('paint-order', 'stroke');
         } else {
@@ -81,13 +80,37 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
         }
 
         const isBBoxDirty =
-            this.localBBox.isDirty() ||
-            this.data.textAnchor.isDirty() ||
-            this.data.font.isDirty() ||
-            this.data.preserveWhitespace.isDirty();
+            this.localBBox.isDirty() || this.data.font.isDirty() || this.data.preserveWhitespace.isDirty();
 
         if (isBBoxDirty) {
             this.localBBox.set(this.element, this.data.position, this.scene);
+        }
+
+        const isPositionDirty =
+            this.data.position.isDirty() ||
+            this.data.localShift.isDirty() ||
+            isBBoxDirty ||
+            this.data.textAnchor.isDirty();
+
+        if (isPositionDirty) {
+            const viewSpace = this.scene.getViewSpace();
+            const anchor = this.data.textAnchor.get();
+            const position = _vec0;
+            const extents = _vec1;
+            const shift = _vec2;
+
+            this.data.position.getInto(position, viewSpace);
+            this.localBBox.getExtentsInto(extents, viewSpace);
+            this.data.localShift.getInto(shift, viewSpace);
+            position.x += anchor * extents.x + shift.x;
+            position.y += shift.y;
+
+            if (isNaN(position.x) || isNaN(position.y)) {
+                throw new Error('S2RichText update resulted in NaN position');
+            }
+
+            this.element.setAttribute('x', position.x.toString());
+            this.element.setAttribute('y', position.y.toString());
         }
 
         this.clearDirty();
@@ -99,3 +122,7 @@ export class S2PlainText extends S2BasePlainText<S2TextData> {
         super(scene, new S2TextData(scene));
     }
 }
+
+const _vec0 = new S2Vec2();
+const _vec1 = new S2Vec2();
+const _vec2 = new S2Vec2();

@@ -7,31 +7,26 @@ import { S2DataUtils } from '../base/s2-data-utils';
 import { S2TSpan } from './s2-tspan';
 import { S2TextData } from './s2-text-data';
 import { S2Extents } from '../../shared/s2-extents';
-import { S2Point } from '../../shared/s2-point';
+import { S2Offset } from '../../shared/s2-offset';
 
 export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
-    protected element: SVGTextElement;
-    protected tspans: Array<S2TSpan>;
-    protected extents: S2Extents;
-    protected localCenter: S2Point;
+    protected readonly element: SVGTextElement;
+    protected readonly extents: S2Extents;
+    protected readonly centerOffset: S2Offset;
+    protected readonly tspans: S2TSpan[] = [];
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
         this.element = document.createElementNS(svgNS, 'text');
-        this.tspans = [];
         this.extents = new S2Extents(0, 0, scene.getViewSpace());
-        this.localCenter = new S2Point(0, 0, scene.getViewSpace());
+        this.centerOffset = new S2Offset(0, 0, scene.getViewSpace());
 
         this.extents.setOwner(this);
-        this.localCenter.setOwner(this);
+        this.centerOffset.setOwner(this);
     }
 
     getSVGElement(): SVGElement {
         return this.element;
-    }
-
-    getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.get(space);
     }
 
     addTSpan(content: string, category?: string): S2TSpan {
@@ -42,18 +37,27 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
 
         this.tspans.push(tspan);
         this.extents.markDirty();
-        this.localCenter.markDirty();
+        this.centerOffset.markDirty();
         return tspan;
     }
 
-    getExtents(space: S2Space): S2Vec2 {
-        return this.extents.get(space);
+    getPositionInto(dst: S2Vec2, space: S2Space): this {
+        this.data.position.getInto(dst, space);
+        return this;
     }
 
-    getCenter(space: S2Space): S2Vec2 {
-        const localCenter = this.localCenter.get(space);
-        const position = this.getPosition(space);
-        return localCenter.addV(position);
+    getExtentsInto(dst: S2Vec2, space: S2Space): this {
+        this.extents.getInto(dst, space);
+        return this;
+    }
+
+    getCenterInto(dst: S2Vec2, space: S2Space): this {
+        const centerOffset = _vec0;
+        const position = _vec1;
+        this.centerOffset.getInto(centerOffset, space);
+        this.data.position.getInto(position, space);
+        dst.copy(position).addV(centerOffset);
+        return this;
     }
 
     getTSpans(): Array<S2TSpan> {
@@ -83,26 +87,28 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         this.element.replaceChildren();
         this.updateSVGChildren();
         this.extents.markDirty();
-        this.localCenter.markDirty();
+        this.centerOffset.markDirty();
         return this;
     }
 
     updateExtents(): this {
         const viewSpace = this.scene.getViewSpace();
-        const lowerBound = new S2Vec2(Infinity, Infinity);
-        const upperBound = new S2Vec2(-Infinity, -Infinity);
-        for (const tspan of this.tspans) {
-            const pos = tspan.getLocalCenter(viewSpace);
-            const ext = tspan.getExtents(viewSpace);
-            lowerBound.x = Math.min(lowerBound.x, pos.x - ext.x);
-            lowerBound.y = Math.min(lowerBound.y, pos.y - ext.y);
-            upperBound.x = Math.max(upperBound.x, pos.x + ext.x);
-            upperBound.y = Math.max(upperBound.y, pos.y + ext.y);
+        if (this.tspans.length === 0) {
+            this.extents.set(0, 0, viewSpace);
+            this.centerOffset.set(0, 0, viewSpace);
+        } else {
+            const lowerOffset = _vec0.set(Infinity, Infinity);
+            const upperOffset = _vec1.set(-Infinity, -Infinity);
+            for (const tspan of this.tspans) {
+                tspan.getBBoxOffsetsInto(_vec2, _vec3, viewSpace);
+                lowerOffset.minV(_vec2);
+                upperOffset.maxV(_vec3);
+            }
+            this.extents.set((upperOffset.x - lowerOffset.x) / 2, (upperOffset.y - lowerOffset.y) / 2, viewSpace);
+            this.centerOffset.set((upperOffset.x + lowerOffset.x) / 2, (upperOffset.y + lowerOffset.y) / 2, viewSpace);
         }
-        this.extents.set((upperBound.x - lowerBound.x) / 2, (upperBound.y - lowerBound.y) / 2, viewSpace);
-        this.localCenter.set((upperBound.x + lowerBound.x) / 2, (upperBound.y + lowerBound.y) / 2, viewSpace);
         this.extents.clearDirty();
-        this.localCenter.clearDirty();
+        this.centerOffset.clearDirty();
         return this;
     }
 
@@ -111,13 +117,16 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
 
         this.updateSVGChildren();
 
-        // S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
-        // S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-        S2DataUtils.applyShiftedPosition(this.data.position, this.data.localShift, this.element, this.scene, 'x', 'y');
         S2DataUtils.applyPreserveWhitespace(this.data.preserveWhitespace, this.element, this.scene);
-        S2DataUtils.applyTextAnchor(this.data.textAnchor, this.element, this.scene);
+
+        this.element.setAttribute('text-anchor', 'middle');
+        if (this.data.stroke.width.value > 0) {
+            this.element.setAttribute('paint-order', 'stroke');
+        } else {
+            this.element.removeAttribute('paint-order');
+        }
 
         for (const tspan of this.tspans) {
             if (this.data.fill.isDirty() || tspan.isDirty()) {
@@ -133,6 +142,25 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         }
         this.updateExtents();
 
+        const viewSpace = this.scene.getViewSpace();
+        const anchor = this.data.textAnchor.get();
+        const position = _vec0;
+        const extents = _vec1;
+        const shift = _vec2;
+
+        this.data.position.getInto(position, viewSpace);
+        this.extents.getInto(extents, viewSpace);
+        this.data.localShift.getInto(shift, viewSpace);
+        position.x += anchor * extents.x + shift.x;
+        position.y += shift.y;
+
+        if (isNaN(position.x) || isNaN(position.y)) {
+            throw new Error('S2RichText update resulted in NaN position');
+        }
+
+        this.element.setAttribute('x', position.x.toString());
+        this.element.setAttribute('y', position.y.toString());
+
         this.clearDirty();
     }
 }
@@ -142,3 +170,8 @@ export class S2RichText extends S2BaseRichText<S2TextData> {
         super(scene, new S2TextData(scene));
     }
 }
+
+const _vec0 = new S2Vec2();
+const _vec1 = new S2Vec2();
+const _vec2 = new S2Vec2();
+const _vec3 = new S2Vec2();

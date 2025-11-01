@@ -1,13 +1,8 @@
 import { S2Vec2 } from './s2-vec2';
 
 export class S2AABB {
-    public lower: S2Vec2;
-    public upper: S2Vec2;
-
-    constructor() {
-        this.lower = new S2Vec2();
-        this.upper = new S2Vec2();
-    }
+    public readonly lower: S2Vec2 = new S2Vec2();
+    public readonly upper: S2Vec2 = new S2Vec2();
 
     setFromPoints(points: S2Vec2[]): this {
         if (points.length === 0) {
@@ -38,12 +33,14 @@ export class S2AABB {
         return this;
     }
 
-    getCenter(): S2Vec2 {
-        return this.lower.clone().addV(this.upper).scale(0.5);
+    getCenterInto(dst: S2Vec2): this {
+        dst.copy(this.lower).addV(this.upper).scale(0.5);
+        return this;
     }
 
-    getExtents(): S2Vec2 {
-        return this.upper.clone().subV(this.lower).scale(0.5);
+    getExtentsInto(dst: S2Vec2): this {
+        dst.copy(this.upper).subV(this.lower).scale(0.5);
+        return this;
     }
 
     isPointInside(point: S2Vec2): boolean {

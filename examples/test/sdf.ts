@@ -128,7 +128,7 @@ class SceneFigure extends S2Scene {
         }
 
         nodes[1].data.background.shape.set('rectangle');
-        nodes[0].data.space.set(this.getWorldSpace());
+        nodes[0].data.space.set(this.viewSpace);
 
         // const edge = new S2LineEdge(this, nodes[0], nodes[1]);
         const edge = new S2CubicEdge(this, nodes[0], nodes[1]);
@@ -138,12 +138,14 @@ class SceneFigure extends S2Scene {
         edge.data.startDistance.set(10, this.viewSpace);
         edge.data.endDistance.set(10, this.viewSpace);
         edge.data.pathFrom.set(0);
-        edge.data.bendAngle.set(-45);
+        edge.data.bendAngle.set(-80);
+        edge.data.startTension.set(0.4);
+        edge.data.endTension.set(0.4);
         // edge.data.startAngle.set(90);
         // edge.data.endAngle.set(-90);
         // edge.data.startTension.set(0.5);
         // edge.data.endTension.set(0.5);
-        //edge.createArrowTip();
+        edge.createArrowTip();
 
         this.update();
     }

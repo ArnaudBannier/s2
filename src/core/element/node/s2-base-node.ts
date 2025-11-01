@@ -44,7 +44,7 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
     protected readonly element: SVGGElement;
     protected readonly center: S2Point;
     protected readonly extents: S2Extents;
-    protected readonly baseSDF: S2NodeCenterSDF = new S2NodeCenterSDF(this);
+    protected readonly defaultSDF: S2NodeCenterSDF = new S2NodeCenterSDF(this);
     protected background: S2PathRect | S2PathCircle | null = null;
     protected edges: S2BaseEdge[] = [];
 
@@ -74,7 +74,7 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         if (this.background !== null) {
             return this.background;
         } else {
-            return this.baseSDF;
+            return this.defaultSDF;
         }
     }
 

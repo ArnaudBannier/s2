@@ -8,8 +8,6 @@ import { S2Number } from '../../shared/s2-number';
 import { S2Length } from '../../shared/s2-length';
 import { S2ArrowTip } from '../s2-arrow-tip';
 
-// S2NodeArcManhattan
-
 export type S2BaseEdge = S2Edge<S2EdgeData>;
 
 export class S2EdgeData extends S2ElementData {

@@ -91,7 +91,7 @@ class SceneFigure extends S2Scene {
             text.data.font.size.set(12, viewSpace);
             text.data.fill.color.copy(MTL.BLUE_GREY_2);
             text.data.layer.set(10);
-            text.data.textAnchor.set('end');
+            text.data.textAnchor.set(1);
             text.setParent(this.getSVG());
             text.setContent(i.toString());
         }
@@ -102,7 +102,7 @@ class SceneFigure extends S2Scene {
             text.data.font.size.set(12, viewSpace);
             text.data.fill.color.copy(MTL.BLUE_GREY_2);
             text.data.layer.set(10);
-            text.data.textAnchor.set('end');
+            text.data.textAnchor.set(1);
             text.setParent(this.getSVG());
             text.setContent(j.toString());
         }

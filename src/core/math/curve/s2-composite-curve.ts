@@ -61,7 +61,7 @@ export class S2CompositeCurve implements S2Curve {
             return this;
         }
         const scaledT = t * curveCount;
-        let curveIndex = S2MathUtils.clamp(Math.floor(scaledT), 0, curveCount - 1);
+        const curveIndex = S2MathUtils.clamp(Math.floor(scaledT), 0, curveCount - 1);
         const curve = this.curves[curveIndex];
         const localT = scaledT - curveIndex;
         curve.getPointInto(dst, localT);
@@ -75,7 +75,7 @@ export class S2CompositeCurve implements S2Curve {
             return this;
         }
         const scaledT = t * curveCount;
-        let curveIndex = S2MathUtils.clamp(Math.floor(scaledT), 0, curveCount - 1);
+        const curveIndex = S2MathUtils.clamp(Math.floor(scaledT), 0, curveCount - 1);
         const curve = this.curves[curveIndex];
         const localT = scaledT - curveIndex;
         curve.getTangentInto(dst, localT);

@@ -33,32 +33,32 @@ export class S2PlainNode extends S2BaseNode {
         this.text.update();
 
         // Update extents
+        this.extents.space = space;
+        const nodeExtents = this.extents.value;
         const textExtents = _vec0;
         const nodePadding = _vec1;
-        const nodeExtents = _vec2;
-        const contentExtents = _vec3;
+        const contentExtents = _vec2;
         this.text.getExtentsInto(textExtents, space);
         this.data.padding.getInto(nodePadding, space);
         this.data.minExtents.getInto(nodeExtents, space);
         nodeExtents.max(textExtents.x + nodePadding.x, textExtents.y + nodePadding.y);
         contentExtents.copy(nodeExtents).subV(nodePadding);
-        this.extents.setV(nodeExtents, space);
 
         // Update center and SDF
         this.center.space = space;
         const nodeCenter = this.center.value;
         this.data.position.getInto(nodeCenter, space);
         this.data.anchor.getCenterIntoV(nodeCenter, nodeCenter, nodeExtents);
-        this.baseSDF.update(nodeCenter, Math.max(nodeExtents.x, nodeExtents.y));
+        this.defaultSDF.update(nodeCenter, Math.max(nodeExtents.x, nodeExtents.y));
 
         // Update text position
         const sign = space.isDirectSpace() ? 1 : -1;
         const font = this.data.text.font;
-        const ascenderHeight = font.relativeAscenderHeight.value * font.size.get(space);
+        const ascenderHeight = font.relativeAscenderHeight.get() * font.size.get(space);
         const vAlign = sign * this.data.text.verticalAlign.get();
         const hAlign = this.data.text.horizontalAlign.get();
 
-        this.text.data.textAnchor.set('middle');
+        this.text.data.textAnchor.set(0);
         this.text.data.position.set(
             nodeCenter.x + hAlign * (contentExtents.x - textExtents.x),
             nodeCenter.y + vAlign * (contentExtents.y - textExtents.y) - (sign * ascenderHeight) / 2,
@@ -75,4 +75,4 @@ export class S2PlainNode extends S2BaseNode {
 const _vec0 = new S2Vec2();
 const _vec1 = new S2Vec2();
 const _vec2 = new S2Vec2();
-const _vec3 = new S2Vec2();
+//const _vec3 = new S2Vec2();

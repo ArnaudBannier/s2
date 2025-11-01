@@ -1,10 +1,10 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Space } from '../math/s2-space';
 import type { S2TSpan } from './text/s2-tspan';
-import type { S2Vec2 } from '../math/s2-vec2';
+import { S2Vec2 } from '../math/s2-vec2';
 import type { S2StepAnimator } from '../animation/s2-step-animator';
 import type { S2Color } from '../shared/s2-color';
-import type { S2Dirtyable, S2VerticalAlign } from '../shared/s2-globals';
+import type { S2Dirtyable } from '../shared/s2-globals';
 import { svgNS } from '../shared/s2-globals';
 import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
@@ -14,7 +14,6 @@ import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-math-utils';
 import { S2Point } from '../shared/s2-point';
-import { S2Enum } from '../shared/s2-enum';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Number } from '../shared/s2-number';
 import { S2Length } from '../shared/s2-length';
@@ -109,7 +108,7 @@ export class S2CodeTextData extends S2BaseData {
     public readonly opacity: S2Number;
 
     public readonly font: S2FontData;
-    public readonly verticalAlign: S2Enum<S2VerticalAlign>;
+    public readonly verticalAlign: S2Number;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -117,7 +116,7 @@ export class S2CodeTextData extends S2BaseData {
         this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
         this.font = new S2FontData(scene);
-        this.verticalAlign = new S2Enum<S2VerticalAlign>('middle');
+        this.verticalAlign = new S2Number(0);
 
         this.stroke.width.set(0, scene.getViewSpace());
         this.fill.opacity.set(1);
@@ -211,13 +210,14 @@ export class S2CodeCurrentLineData extends S2BaseData {
 export type S2TokenStyleSetter = (tspan: S2TSpan, type: string) => void;
 
 export class S2Code extends S2Element<S2CodeData> {
-    protected element: SVGGElement;
-    protected textGroup: S2TextGroup;
-    protected codeBackground: S2Rect;
-    protected lineBackground: S2Rect;
-    protected extents: S2Extents;
+    protected readonly element: SVGGElement;
+    protected readonly textGroup: S2TextGroup;
+    protected readonly codeBackground: S2Rect;
+    protected readonly lineBackground: S2Rect;
+    protected readonly extents: S2Extents;
+    protected readonly highlights: S2TextHighlight[] = [];
+    protected readonly center: S2Point;
     protected tokenStyleSetter: S2TokenStyleSetter = S2Code.defaultTokenStyleSetter;
-    protected highlights: S2TextHighlight[];
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2CodeData(scene));
@@ -226,7 +226,7 @@ export class S2Code extends S2Element<S2CodeData> {
         this.codeBackground = new S2Rect(scene);
         this.lineBackground = new S2Rect(scene);
         this.extents = new S2Extents(0, 0, scene.getViewSpace());
-        this.highlights = [];
+        this.center = new S2Point(0, 0, scene.getViewSpace());
 
         this.textGroup.setParent(this);
         this.codeBackground.setParent(this);
@@ -385,38 +385,41 @@ export class S2Code extends S2Element<S2CodeData> {
 
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
 
+        // Update text group (for correct measurement)
         this.textGroup.data.font.copyIfUnlocked(this.data.text.font);
-        this.textGroup.data.horizontalAlign.set('left');
+        this.textGroup.data.horizontalAlign.set(-1);
         this.textGroup.data.verticalAlign.copyIfUnlocked(this.data.text.verticalAlign);
         this.textGroup.data.fill.copyIfUnlocked(this.data.text.fill);
         this.textGroup.data.opacity.copyIfUnlocked(this.data.text.opacity);
         this.textGroup.data.stroke.copyIfUnlocked(this.data.text.stroke);
         this.textGroup.update();
 
-        const textExtents = this.textGroup.getExtents(viewSpace);
-        const padding = this.data.padding.get(viewSpace);
+        // Update extents
+        this.extents.space = viewSpace;
+        const extents = this.extents.value;
+        const textMinExtents = _vec0;
+        const padding = _vec1;
+        const minExtents = _vec2;
+        this.textGroup.getExtentsInto(extents, viewSpace);
+        this.data.padding.getInto(padding, viewSpace);
+        this.data.minExtents.getInto(minExtents, viewSpace);
 
-        const minExtents = this.data.minExtents.get(viewSpace);
-        const extents = textExtents.addV(padding);
-        extents.maxV(minExtents);
-        this.extents.setV(extents, viewSpace);
-        const textMinExtents = extents.clone().subV(padding);
+        extents.addV(padding).maxV(minExtents);
+        textMinExtents.copy(extents).subV(padding);
 
-        const codeCenter = this.data.anchor.getCenter(viewSpace, this.data.position, this.extents);
+        // Update center
+        this.center.space = viewSpace;
+        const center = this.center.value;
+        this.data.position.getInto(center, viewSpace);
+        this.data.anchor.getCenterIntoV(center, center, extents);
 
-        // const codeCenter = S2AnchorUtils.getCenter(
-        //     this.data.anchor.get(),
-        //     viewSpace,
-        //     this.scene,
-        //     this.data.position,
-        //     this.extents,
-        // );
-
+        // Update text group position
         this.textGroup.data.minExtents.setV(textMinExtents, viewSpace);
-        this.textGroup.data.position.setV(codeCenter, viewSpace);
+        this.textGroup.data.position.setV(center, viewSpace);
         this.textGroup.update();
 
-        this.codeBackground.data.position.setV(codeCenter, viewSpace);
+        // Update background
+        this.codeBackground.data.position.setV(center, viewSpace);
         this.codeBackground.data.extents.setV(extents, viewSpace);
         this.codeBackground.data.cornerRadius.copyIfUnlocked(this.data.background.cornerRadius);
         this.codeBackground.data.fill.copyIfUnlocked(this.data.background.fill);
@@ -436,13 +439,19 @@ export class S2Code extends S2Element<S2CodeData> {
             const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
 
             const t = currIndex - index0;
-            const extents0 = this.textGroup.getLine(index0).getExtents(viewSpace);
-            const extents1 = this.textGroup.getLine(index1).getExtents(viewSpace);
-            const position0 = this.textGroup.getLine(index0).getCenter(viewSpace);
-            const position1 = this.textGroup.getLine(index1).getCenter(viewSpace);
+            const extents0 = _vec0;
+            const extents1 = _vec1;
+            const position0 = _vec2;
+            const position1 = _vec3;
+            const line0 = this.textGroup.getLine(index0);
+            const line1 = this.textGroup.getLine(index1);
+            line0.getExtentsInto(extents0, viewSpace);
+            line1.getExtentsInto(extents1, viewSpace);
+            line0.getCenterInto(position0, viewSpace);
+            line1.getCenterInto(position1, viewSpace);
             const extentsY = extents0.y * (1 - t) + extents1.y * t;
             const y = position0.y * (1 - t) + position1.y * t;
-            this.lineBackground.data.position.set(codeCenter.x, y, viewSpace);
+            this.lineBackground.data.position.set(center.x, y, viewSpace);
             this.lineBackground.data.extents.set(extents.x + linePadding.x, extentsY + linePadding.y, viewSpace);
             this.lineBackground.data.anchor.set('center');
             this.lineBackground.update();
@@ -458,3 +467,8 @@ export class S2Code extends S2Element<S2CodeData> {
         this.clearDirty();
     }
 }
+
+const _vec0 = new S2Vec2();
+const _vec1 = new S2Vec2();
+const _vec2 = new S2Vec2();
+const _vec3 = new S2Vec2();

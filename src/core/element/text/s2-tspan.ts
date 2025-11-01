@@ -52,9 +52,9 @@ export class S2TSpanData extends S2ElementData {
 export class S2TSpan extends S2Element<S2TSpanData> {
     public category: string;
     protected content: string;
-    protected element: SVGTSpanElement;
-    protected localBBox: S2LocalBBox;
-    protected parentText: S2BaseRichText<S2TextData>;
+    protected readonly element: SVGTSpanElement;
+    protected readonly localBBox: S2LocalBBox;
+    protected readonly parentText: S2BaseRichText<S2TextData>;
 
     constructor(scene: S2BaseScene, parentText: S2BaseRichText<S2TextData>) {
         super(scene, new S2TSpanData(scene));
@@ -87,27 +87,37 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         return this.content;
     }
 
-    getLocalCenter(space: S2Space): S2Vec2 {
-        return this.localBBox.getCenter(space);
+    getCenterInto(dst: S2Vec2, space: S2Space): this {
+        const centerOffset = _vec0;
+        const position = _vec1;
+        this.localBBox.getCenterOffsetInto(centerOffset, space);
+        this.parentText.getPositionInto(position, space);
+        dst.copy(position).addV(centerOffset);
+        return this;
     }
 
-    getCenter(space: S2Space): S2Vec2 {
-        const localCenter = this.getLocalCenter(space);
-        return localCenter.addV(this.parentText.getPosition(space));
+    getCenterOffsetInto(dst: S2Vec2, space: S2Space): this {
+        this.localBBox.getCenterOffsetInto(dst, space);
+        return this;
     }
 
-    getExtents(space: S2Space): S2Vec2 {
-        return this.localBBox.getExtents(space);
+    getBBoxInto(dstLower: S2Vec2, dstUpper: S2Vec2, space: S2Space): this {
+        const position = _vec0;
+        this.parentText.getPositionInto(position, space);
+        this.localBBox.getBBoxOffsetsInto(dstLower, dstUpper, space);
+        dstLower.addV(position);
+        dstUpper.addV(position);
+        return this;
     }
 
-    getLower(space: S2Space): S2Vec2 {
-        const localLower = this.localBBox.getLower(space);
-        return localLower.addV(this.parentText.getPosition(space));
+    getBBoxOffsetsInto(dstLower: S2Vec2, dstUpper: S2Vec2, space: S2Space): this {
+        this.localBBox.getBBoxOffsetsInto(dstLower, dstUpper, space);
+        return this;
     }
 
-    getUpper(space: S2Space): S2Vec2 {
-        const localUpper = this.localBBox.getUpper(space);
-        return localUpper.addV(this.parentText.getPosition(space));
+    getExtentsInto(dst: S2Vec2, space: S2Space): this {
+        this.localBBox.getExtentsInto(dst, space);
+        return this;
     }
 
     update(): void {
@@ -129,3 +139,6 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         this.clearDirty();
     }
 }
+
+const _vec0 = new S2Vec2();
+const _vec1 = new S2Vec2();

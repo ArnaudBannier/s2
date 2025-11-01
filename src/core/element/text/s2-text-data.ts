@@ -1,6 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Dirtyable, S2TextAnchor } from '../../shared/s2-globals';
-import { S2Enum } from '../../shared/s2-enum';
+import type { S2Dirtyable } from '../../shared/s2-globals';
 import { S2ElementData, S2FillData, S2FontData, S2StrokeData } from '../base/s2-base-data';
 import { S2Number } from '../../shared/s2-number';
 import { S2Transform } from '../../shared/s2-transform';
@@ -16,7 +15,7 @@ export class S2TextData extends S2ElementData {
     public readonly position: S2Point;
     public readonly localShift: S2Offset;
     public readonly font: S2FontData;
-    public readonly textAnchor: S2Enum<S2TextAnchor>;
+    public readonly textAnchor: S2Number;
     public readonly preserveWhitespace: S2Boolean;
 
     constructor(scene: S2BaseScene) {
@@ -28,7 +27,7 @@ export class S2TextData extends S2ElementData {
         this.position = new S2Point(0, 0, scene.getWorldSpace());
         this.localShift = new S2Offset(0, 0, scene.getViewSpace());
         this.font = new S2FontData(scene);
-        this.textAnchor = new S2Enum<S2TextAnchor>('start');
+        this.textAnchor = new S2Number(0);
         this.preserveWhitespace = new S2Boolean(false);
 
         this.stroke.width.set(0, scene.getViewSpace());
@@ -36,6 +35,7 @@ export class S2TextData extends S2ElementData {
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
+        super.setOwner(owner);
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);

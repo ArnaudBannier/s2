@@ -52,10 +52,14 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         this.line.data.startPosition.setV(start, space);
         this.line.data.endPosition.setV(end, space);
 
-        this.line.data.stroke.copyIfUnlocked(this.data.stroke);
-        this.line.data.opacity.copyIfUnlocked(this.data.opacity);
-        this.line.data.startPadding.set(0);
-        this.line.data.endPadding.set(0);
+        if (t1 <= t0) {
+            this.line.data.opacity.set(0);
+        } else {
+            this.line.data.stroke.copyIfUnlocked(this.data.stroke);
+            this.line.data.opacity.copyIfUnlocked(this.data.opacity);
+            this.line.data.startPadding.set(0);
+            this.line.data.endPadding.set(0);
+        }
         this.line.update();
 
         this.updateArrowTips();
