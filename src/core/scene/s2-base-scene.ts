@@ -25,6 +25,11 @@ export abstract class S2BaseScene {
         element.innerHTML = '';
         this.svg = new S2SVG(this, element);
         this.svg.update();
+
+        const vecPoolCapacity = 32;
+        for (let i = 0; i < vecPoolCapacity; i++) {
+            this.vecPool.push(new S2Vec2());
+        }
     }
 
     acquireVec2(): S2Vec2 {

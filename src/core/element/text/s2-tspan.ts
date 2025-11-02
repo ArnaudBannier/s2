@@ -92,11 +92,13 @@ export class S2TSpan extends S2Element<S2TSpanData> {
     }
 
     getCenterInto(dst: S2Vec2, space: S2Space): this {
-        const centerOffset = _vec0;
-        const position = _vec1;
+        const centerOffset = this.scene.acquireVec2();
+        const position = this.scene.acquireVec2();
         this.localBBox.getCenterOffsetInto(centerOffset, space);
         this.parentText.getPositionInto(position, space);
         dst.copy(position).addV(centerOffset);
+        this.scene.releaseVec2(centerOffset);
+        this.scene.releaseVec2(position);
         return this;
     }
 
@@ -106,11 +108,12 @@ export class S2TSpan extends S2Element<S2TSpanData> {
     }
 
     getBBoxInto(dstLower: S2Vec2, dstUpper: S2Vec2, space: S2Space): this {
-        const position = _vec0;
+        const position = this.scene.acquireVec2();
         this.parentText.getPositionInto(position, space);
         this.localBBox.getBBoxOffsetsInto(dstLower, dstUpper, space);
         dstLower.addV(position);
         dstUpper.addV(position);
+        this.scene.releaseVec2(position);
         return this;
     }
 
@@ -126,25 +129,28 @@ export class S2TSpan extends S2Element<S2TSpanData> {
 
     protected updateBBox(): void {
         const viewSpace = this.scene.getViewSpace();
-        const svgPosition = _vec0;
+        const svgPosition = this.scene.acquireVec2();
         this.parentText.getSVGPositionInto(svgPosition, viewSpace);
         this.localBBox.set(this.element, svgPosition, viewSpace);
-        this.localBBox.clearDirty();
+        this.scene.releaseVec2(svgPosition);
+    }
+
+    applyStyle(): void {
+        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
+        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
+        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
+        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
     }
 
     update(): void {
         if (this.skipUpdate()) return;
 
-        S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
-        S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
-        S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
-        S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-        S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+        this.applyStyle();
 
-        if (this.localBBox.isDirty()) this.updateBBox();
+        if (this.localBBox.isDirty()) {
+            this.updateBBox();
+            this.localBBox.clearDirty();
+        }
         this.clearDirty();
     }
 }
-
-const _vec0 = new S2Vec2();
-const _vec1 = new S2Vec2();

@@ -161,6 +161,7 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         if (areBBoxesDirty) {
             for (const tspan of this.tspans) {
                 tspan.markBBoxDirty();
+                tspan.applyStyle();
             }
         }
         for (const tspan of this.tspans) {
@@ -186,11 +187,15 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
             throw new Error('S2RichText update resulted in NaN position');
         }
 
-        this.element.setAttribute('x', svgPosition.x.toString());
-        this.element.setAttribute('y', svgPosition.y.toString());
+        this.element.setAttribute('x', svgPosition.x.toFixed(2));
+        this.element.setAttribute('y', svgPosition.y.toFixed(2));
 
         this.scene.releaseVec2(extents);
         this.scene.releaseVec2(shift);
+
+        for (const tspan of this.tspans) {
+            tspan.update();
+        }
 
         this.clearDirty();
     }

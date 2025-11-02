@@ -13,6 +13,11 @@ import { S2Mat2x3 } from '../../src/core/math/s2-mat2x3.ts';
 import { S2PathCircle } from '../../src/core/element/s2-path-circle.ts';
 import { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
 import { S2CubicEdge } from '../../src/core/element/node/s2-cubic-edge.ts';
+import { S2TextGroup } from '../../src/core/element/text/s2-text-group.ts';
+import { S2Rect } from '../../src/core/element/s2-rect.ts';
+import { S2FontData } from '../../src/core/element/base/s2-base-data.ts';
+import type { S2BaseElement } from '../../src/core/element/base/s2-element.ts';
+import { S2TSpan } from '../../src/core/element/text/s2-tspan.ts';
 
 class SceneFigure extends S2Scene {
     public curve: S2PathNew;
@@ -147,27 +152,58 @@ class SceneFigure extends S2Scene {
         // edge.data.endTension.set(0.5);
         edge.createArrowTip();
 
+        const textGroup = new S2TextGroup(this);
+        textGroup.setParent(this.getSVG());
+        textGroup.data.position.set(3, -3, worldSpace);
+        textGroup.data.horizontalAlign.set(-1);
+        textGroup.data.verticalAlign.set(1);
+        textGroup.data.minExtents.set(2, 1, worldSpace);
+        textGroup.data.anchor.set(0, 0);
+
+        const font = new S2FontData(this);
+        //font.family.set('lucida console');
+        font.size.set(20, this.getViewSpace());
+        font.relativeAscenderHeight.set(0.7);
+        font.relativeLineHeight.set(1.3);
+
+        textGroup.data.font.copy(font);
+
+        let line = textGroup.addLine();
+        line.addTSpan('Coucou le monde !');
+        line = textGroup.addLine();
+        line.addTSpan('Ceci est un test de S2RichText.');
+        line = textGroup.addLine();
+        line.addTSpan("Les lignes s'empilent correctement.");
+        line = textGroup.addLine();
+        line.addTSpan('Chaque TSpan hérite');
+        line.addTSpan('Chaque TSpan hérite');
+        // line.addTSpan('Chaque TSpan hérite');
+
+        this.update();
+
+        const groupBBox = new S2Rect(this);
+        groupBBox.setParent(this.getSVG());
+        groupBBox.data.position.set(3, -3, worldSpace);
+        groupBBox.data.fill.color.copy(MTL.YELLOW);
+        groupBBox.data.fill.opacity.set(0.2);
+        const bboxExtents = this.acquireVec2();
+        textGroup.getExtentsInto(bboxExtents, worldSpace);
+        groupBBox.data.extents.setV(bboxExtents, worldSpace);
+
         this.update();
     }
 
     computeIntersections() {
-        // const cubic1 = this.curve1.data.polyCurve;
-        // const cubic2 = this.curve2.data.polyCurve;
-        // this.interUtils.setTolerance(1e-2).setMaxDepth(20);
-        // const points: CurveIntersection[] = [];
-        // let start = performance.now();
-        // for (let i = 0; i < 1000; i++) {
-        //     this.interUtils.intersectCubicCubic(cubic1, cubic2, points);
-        // }
-        // let end = performance.now();
-        // console.log(`Inter computed ${points.length} intersections in ${end - start} ms`);
-        // const ts = [];
-        // start = performance.now();
-        // // for (let i = 0; i < 1000; i++) {
-        // //     ts.push(this.sdfUtils.findPointAtDistance(0, 0, 1));
-        // // }
-        // end = performance.now();
-        // console.log(`SDF computed ${ts.length} points in ${end - start} ms`);
+        this.markBBoxesDirty(this.getSVG());
+        this.update();
+    }
+
+    markBBoxesDirty(element: S2BaseElement): void {
+        if (element instanceof S2TSpan) element.markBBoxDirty();
+
+        for (let i = 0; i < element.getChildCount(); i++) {
+            this.markBBoxesDirty(element.getChild(i));
+        }
     }
 
     showSpace(space: S2Space, gridSize: number, gridColor: S2Color): void {
@@ -220,12 +256,57 @@ if (appDiv) {
 
 const svgElement = appDiv?.querySelector<SVGSVGElement>('#test-svg');
 
-if (svgElement) {
-    const scene = new SceneFigure(svgElement);
-    void scene;
+function loadScene() {
+    if (svgElement) {
+        const scene = new SceneFigure(svgElement);
+        void scene;
 
-    document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
-        //scene.animator.playMaster();
-        scene.computeIntersections();
-    });
+        document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
+            //scene.animator.playMaster();
+            scene.computeIntersections();
+        });
+    }
+}
+
+if (svgElement) {
+    const fontSpec = '16px "Lucida Console"';
+
+    // Helper: create the scene after a short rAF to allow layout to settle.
+    const createSceneAfterFrame = () => {
+        // ensure the next frame so browser had time to apply the font metrics
+        requestAnimationFrame(() => {
+            loadScene();
+        });
+    };
+
+    if (document.fonts) {
+        // If the desired font is already available, create immediately.
+        if (document.fonts.check(fontSpec)) {
+            createSceneAfterFrame();
+        } else {
+            // Wait for the specific font to load, but guard with a timeout so we don't hang.
+            const loadPromise = document.fonts.load(fontSpec);
+            const timeout = new Promise<void>((resolve) => setTimeout(resolve, 3000));
+
+            // Also wait for the fonts subsystem to be ready to reduce layout races.
+            const fontsReady = document.fonts.ready.catch(() => undefined);
+
+            // Wait for fonts.ready AND (fontSpec load OR timeout). This favors font readiness
+            // while still ensuring we continue after `timeout`.
+            void (async () => {
+                try {
+                    await fontsReady;
+
+                    await Promise.race([loadPromise.then(() => undefined), timeout]);
+                } catch (e) {
+                    // ignore and proceed
+                }
+
+                createSceneAfterFrame();
+            })();
+        }
+    } else {
+        // Font Loading API not available — just proceed (old browsers)
+        createSceneAfterFrame();
+    }
 }

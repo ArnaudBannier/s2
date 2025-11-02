@@ -37,7 +37,7 @@ export abstract class S2BaseType implements S2Dirtyable {
     }
 
     markDirty(): void {
-        if (this.isDirty()) return;
+        //if (this.isDirty()) return;
         this.dirty = true;
         this.owner?.markDirty();
     }

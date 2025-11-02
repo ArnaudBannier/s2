@@ -35,11 +35,9 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
     }
 
     markDirty(): void {
-        if (this.isDirty()) return;
+        //if (this.isDirty()) return;
         this.dirty = true;
-        if (this.parent) {
-            this.parent.markDirty();
-        }
+        this.parent?.markDirty();
     }
 
     clearDirty(): void {
@@ -49,9 +47,7 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
 
     setEnabled(isEnabled: boolean): this {
         this.data.isEnabled.set(isEnabled);
-        if (this.parent) {
-            this.parent.updateSVGChildren();
-        }
+        this.parent?.updateSVGChildren();
         return this;
     }
 

@@ -120,7 +120,6 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         this.extents = new S2Extents(0, 0, scene.getViewSpace());
         this.center = new S2Point(0, 0, scene.getWorldSpace());
         this.element.dataset.role = 'text-group';
-        this.element.style.whiteSpaceCollapse = 'preserve';
     }
 
     getSVGElement(): SVGElement {
@@ -131,15 +130,17 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         const textLine = new S2TextLine(this.scene);
         textLine.setParent(this);
 
-        if (options?.align) {
+        if (options?.align !== undefined) {
             textLine.data.horizontalAlign.set(options.align);
             textLine.data.horizontalAlign.lock();
         }
         if (options?.skip !== undefined) {
             textLine.data.skip.set(options.skip);
+            textLine.data.skip.lock();
         }
         this.textLines.push(textLine);
         this.updateSVGChildren();
+        this.markDirty();
         return textLine;
     }
 
@@ -168,17 +169,18 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
 
     update(): void {
         if (this.skipUpdate()) return;
-        if (this.textLines.length === 0) return;
 
-        const viewSpace = this.scene.getViewSpace();
         this.updateSVGChildren();
+        if (this.textLines.length === 0) return;
 
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
 
         // Update text styles (for correct measurement) and compute content extents
+        const viewSpace = this.scene.getViewSpace();
         const font = this.data.font;
         const fontSize = font.size.get(viewSpace);
         const lineHeight = font.relativeLineHeight.get() * fontSize;
+        const tmpExtents = this.scene.acquireVec2();
 
         this.textExtents.space = viewSpace;
         const textExtents = this.textExtents.value;
@@ -192,8 +194,8 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
             line.data.skip.copyIfUnlocked(this.data.skip);
             line.update();
 
-            line.getExtentsInto(_vec0, viewSpace);
-            textExtents.x = Math.max(textExtents.x, _vec0.x);
+            line.getExtentsInto(tmpExtents, viewSpace);
+            textExtents.x = Math.max(textExtents.x, tmpExtents.x);
             textExtents.y += 0.5 * (lineHeight + line.data.skip.get(viewSpace));
         }
 
@@ -209,71 +211,25 @@ export class S2TextGroup extends S2Element<S2TextGroupData> {
         this.data.position.getInto(center, viewSpace);
         this.data.anchor.getCenterIntoV(center, center, extents);
 
-        console.log('text group extents', extents.x, extents.y);
-        console.log('text group content extents', textExtents.x, textExtents.y);
-
         // Update line positions
-
         const sign = viewSpace.isDirectSpace() ? 1 : -1;
         const ascenderHeight = font.relativeAscenderHeight.get() * fontSize;
         const vAlign = sign * this.data.verticalAlign.get();
 
         let lineY = center.y + vAlign * (extents.y - textExtents.y);
-        lineY += sign * (textExtents.y - 0.5 * ascenderHeight);
+        lineY += sign * (textExtents.y - lineHeight + 0.5 * ascenderHeight);
         for (let i = 0; i < this.textLines.length; i++) {
             const line = this.textLines[i];
             const hAlign = line.data.horizontalAlign.get();
-            line.getExtentsInto(_vec0, viewSpace);
-            const lineX = center.x + hAlign * (extents.x - _vec0.x);
+            line.getExtentsInto(tmpExtents, viewSpace);
+            const lineX = center.x + hAlign * (extents.x - tmpExtents.x);
             line.data.position.set(lineX, lineY, viewSpace);
             line.update();
 
             lineY += lineHeight + line.data.skip.get(viewSpace);
         }
-        // const groupNW = this.getCenter(viewSpace).subV(extents); // TODO
-        // let lineX = 0;
-        // let lineY = groupNW.y + ascenderHeight;
-        // switch (this.data.verticalAlign.get()) {
-        //     case 'top':
-        //         break;
-        //     case 'middle':
-        //         lineY += extents.y - contentExtents.y;
-        //         break;
-        //     case 'bottom':
-        //         lineY += 2 * (extents.y - contentExtents.y);
-        //         break;
-        // }
-
-        // for (let i = 0; i < this.textLines.length; i++) {
-        //     const line = this.textLines[i];
-        //     switch (line.data.horizontalAlign.get()) {
-        //         case 'left':
-        //             lineX = groupNW.x;
-        //             line.data.textAnchor.set('start');
-        //             break;
-        //         case 'center':
-        //             lineX = groupNW.x + extents.x;
-        //             line.data.textAnchor.set('middle');
-        //             break;
-        //         case 'right':
-        //             lineX = groupNW.x + 2 * extents.x;
-        //             line.data.textAnchor.set('end');
-        //             break;
-        //     }
-        //     console.log('line position', i, lineX, lineY);
-        //     line.data.position.set(lineX, lineY, viewSpace);
-        //     lineY += line.data.skip.value + lineHeight;
-        // }
-
-        // for (const line of this.textLines) {
-        //     line.update();
-        // }
+        this.scene.releaseVec2(tmpExtents);
 
         this.clearDirty();
     }
 }
-
-const _vec0 = new S2Vec2();
-// const _vec1 = new S2Vec2();
-// const _vec2 = new S2Vec2();
-// const _vec3 = new S2Vec2();
