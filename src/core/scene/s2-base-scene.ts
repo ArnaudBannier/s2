@@ -1,5 +1,5 @@
-import { S2Camera } from '../math/s2-camera';
 import type { S2Point } from '../shared/s2-point';
+import { S2Camera } from '../math/s2-camera';
 import { S2SVG } from '../element/s2-svg';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2Space } from '../math/s2-space';
@@ -11,6 +11,7 @@ export abstract class S2BaseScene {
     protected readonly viewportSize: S2Vec2 = new S2Vec2(640.0, 360.0);
     protected readonly spaces: S2Space[] = [];
     protected readonly camera: S2Camera;
+    protected readonly vecPool: S2Vec2[] = [];
 
     private nextElementId: number;
     private nextUpdateId: number;
@@ -24,6 +25,15 @@ export abstract class S2BaseScene {
         element.innerHTML = '';
         this.svg = new S2SVG(this, element);
         this.svg.update();
+    }
+
+    acquireVec2(): S2Vec2 {
+        const vec = this.vecPool.pop();
+        return vec ? vec : new S2Vec2();
+    }
+
+    releaseVec2(vec: S2Vec2): void {
+        this.vecPool.push(vec);
     }
 
     getViewportSizeInto(dst: S2Vec2): this {

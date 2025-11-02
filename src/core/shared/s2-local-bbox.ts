@@ -1,6 +1,5 @@
 import type { S2Space } from '../math/s2-space';
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2Point } from './s2-point';
 import { S2BaseType } from './s2-base-type';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2Extents } from './s2-extents';
@@ -8,31 +7,35 @@ import { S2Offset } from './s2-offset';
 
 export class S2LocalBBox extends S2BaseType {
     readonly kind = 'local-bbox' as const;
+    protected readonly scene: S2BaseScene;
     protected readonly center: S2Offset;
     protected readonly extents: S2Extents;
 
-    constructor(space: S2Space) {
+    constructor(scene: S2BaseScene) {
         super();
-        this.center = new S2Offset(0, 0, space);
-        this.extents = new S2Extents(0, 0, space);
+        this.scene = scene;
+        this.center = new S2Offset(0, 0, scene.getViewSpace());
+        this.extents = new S2Extents(0, 0, scene.getViewSpace());
     }
 
-    set(graphics: SVGGraphicsElement, parentPosition: S2Point | null, scene: S2BaseScene): void {
+    set(graphics: SVGGraphicsElement, parentPosition: S2Vec2, parentSpace: S2Space): void {
         if (!graphics.isConnected) {
             console.warn('Element is not connected to DOM, cannot compute bbox', graphics.isConnected);
             return;
         }
-        const viewSpace = scene.getViewSpace();
+        const viewSpace = this.scene.getViewSpace();
         const bbox = graphics.getBBox();
-        const center = _vec0.set(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
-        if (parentPosition) {
-            parentPosition.getInto(_vec1, viewSpace);
-            center.subV(_vec1);
-        }
+        const center = this.scene.acquireVec2().set(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
+        const referencePoint = this.scene.acquireVec2().set(0, 0);
+        parentSpace.convertPointIntoV(referencePoint, parentPosition, viewSpace);
+        center.subV(referencePoint);
 
         this.center.setV(center, viewSpace);
         this.extents.set(bbox.width / 2, bbox.height / 2, viewSpace);
         this.markDirty();
+
+        this.scene.releaseVec2(center);
+        this.scene.releaseVec2(referencePoint);
     }
 
     getCenterOffsetInto(dst: S2Vec2, space: S2Space): this {

@@ -62,15 +62,8 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         this.element = document.createElementNS(svgNS, 'tspan');
         this.category = '';
         this.content = '';
-        this.localBBox = new S2LocalBBox(scene.getViewSpace());
+        this.localBBox = new S2LocalBBox(scene);
         this.parentText = parentText;
-
-        this.localBBox.setOwner(this);
-    }
-
-    clearDirty(): void {
-        super.clearDirty();
-        this.localBBox.clearDirty();
     }
 
     getSVGElement(): SVGTextElement {
@@ -81,7 +74,17 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         this.element.textContent = content;
         this.content = content;
         this.localBBox.markDirty();
+        this.markDirty();
         return this;
+    }
+
+    markBBoxDirty(): void {
+        this.localBBox.markDirty();
+        this.markDirty();
+    }
+
+    isBBoxDirty(): boolean {
+        return this.localBBox.isDirty() || this.data.font.isDirty() || this.data.transform.isDirty();
     }
 
     getContent(): string {
@@ -121,13 +124,15 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         return this;
     }
 
-    update(): void {
-        const invalidBBox =
-            this.parentText.data.preserveWhitespace.isDirty() || this.data.font.isDirty() || this.data.stroke.isDirty();
-        if (invalidBBox) {
-            this.localBBox.markDirty();
-        }
+    protected updateBBox(): void {
+        const viewSpace = this.scene.getViewSpace();
+        const svgPosition = _vec0;
+        this.parentText.getSVGPositionInto(svgPosition, viewSpace);
+        this.localBBox.set(this.element, svgPosition, viewSpace);
+        this.localBBox.clearDirty();
+    }
 
+    update(): void {
         if (this.skipUpdate()) return;
 
         S2DataUtils.applyFill(this.data.fill, this.element, this.scene);
@@ -136,11 +141,7 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
 
-        this.localBBox.set(this.element, this.parentText.data.position, this.scene);
-        if (this.localBBox.isDirty()) {
-            this.localBBox.set(this.element, this.parentText.data.position, this.scene);
-        }
-
+        if (this.localBBox.isDirty()) this.updateBBox();
         this.clearDirty();
     }
 }
