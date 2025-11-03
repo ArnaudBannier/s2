@@ -8,6 +8,7 @@ import type { S2Number } from '../shared/s2-number';
 import type { S2Point } from '../shared/s2-point';
 import type { S2AnimProperty } from './s2-base-animation';
 import { S2BaseDurationAnimation } from './s2-base-duration-animation';
+import type { S2Anchor } from '../shared/s2-anchor';
 
 // Factory class
 export class S2LerpAnimFactory {
@@ -17,9 +18,10 @@ export class S2LerpAnimFactory {
     static create(scene: S2BaseScene, property: S2Offset): S2LerpAnim;
     static create(scene: S2BaseScene, property: S2Length): S2LerpAnim;
     static create(scene: S2BaseScene, property: S2Extents): S2LerpAnim;
+    static create(scene: S2BaseScene, property: S2Anchor): S2LerpAnim;
     static create(
         scene: S2BaseScene,
-        property: S2Number | S2Color | S2Point | S2Offset | S2Length | S2Extents,
+        property: S2Number | S2Color | S2Point | S2Offset | S2Length | S2Extents | S2Anchor,
     ): S2LerpAnim {
         switch (property.kind) {
             case 'number':
@@ -34,6 +36,8 @@ export class S2LerpAnimFactory {
                 return new S2BaseLerpAnim<S2Length>(scene, property as S2Length);
             case 'extents':
                 return new S2BaseLerpAnim<S2Extents>(scene, property as S2Extents);
+            case 'anchor':
+                return new S2BaseLerpAnim<S2Anchor>(scene, property as S2Anchor);
             default:
                 throw new Error('Unsupported property type');
         }
@@ -111,3 +115,4 @@ export class S2LerpAnimPosition extends S2BaseLerpAnim<S2Point> {}
 export class S2LerpAnimDirection extends S2BaseLerpAnim<S2Offset> {}
 export class S2LerpAnimLength extends S2BaseLerpAnim<S2Length> {}
 export class S2LerpAnimExtents extends S2BaseLerpAnim<S2Extents> {}
+export class S2LerpAnimAnchor extends S2BaseLerpAnim<S2Anchor> {}

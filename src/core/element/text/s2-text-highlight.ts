@@ -140,7 +140,7 @@ export class S2TextHighlight extends S2Element<S2TextHighlightData> {
 
         this.rect.data.position.setV(position, viewSpace);
         this.rect.data.extents.set(extents.x + padding.x, extents.y + padding.y, viewSpace);
-        this.rect.data.anchor.set('center');
+        this.rect.data.anchor.set(0, 0);
         this.rect.data.fill.copyIfUnlocked(this.data.fill);
         this.rect.data.stroke.copyIfUnlocked(this.data.stroke);
         this.rect.data.opacity.copyIfUnlocked(this.data.opacity);

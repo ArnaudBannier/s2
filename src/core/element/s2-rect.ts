@@ -1,8 +1,8 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2AnchorOld, S2Dirtyable } from '../shared/s2-globals';
-import { S2ShapeUtils } from '../math/s2-shape-utils';
+import type { S2Dirtyable } from '../shared/s2-globals';
+import type { S2Space } from '../math/s2-space';
 import { S2Vec2 } from '../math/s2-vec2';
-import { svgNS, S2AnchorUtils } from '../shared/s2-globals';
+import { svgNS } from '../shared/s2-globals';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2Element } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -10,9 +10,8 @@ import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2Point } from '../shared/s2-point';
 import { S2Extents } from '../shared/s2-extents';
-import { S2Enum } from '../shared/s2-enum';
 import { S2Length } from '../shared/s2-length';
-import type { S2Space } from '../math/s2-space';
+import { S2Anchor } from '../shared/s2-anchor';
 
 export class S2RectData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -22,7 +21,7 @@ export class S2RectData extends S2ElementData {
 
     public readonly position: S2Point;
     public readonly extents: S2Extents;
-    public readonly anchor: S2Enum<S2AnchorOld>;
+    public readonly anchor: S2Anchor;
     public readonly cornerRadius: S2Length;
 
     constructor(scene: S2BaseScene) {
@@ -33,7 +32,7 @@ export class S2RectData extends S2ElementData {
         this.transform = new S2Transform();
         this.position = new S2Point(0, 0, scene.getWorldSpace());
         this.extents = new S2Extents(1, 1, scene.getWorldSpace());
-        this.anchor = new S2Enum<S2AnchorOld>('center');
+        this.anchor = new S2Anchor(0, 0);
         this.cornerRadius = new S2Length(0, scene.getViewSpace());
 
         this.stroke.opacity.set(1);
@@ -66,37 +65,22 @@ export class S2RectData extends S2ElementData {
 }
 
 export class S2Rect extends S2Element<S2RectData> {
-    protected element: SVGRectElement;
+    protected readonly element: SVGRectElement;
+    protected readonly svgPosition: S2Point;
 
     constructor(scene: S2BaseScene) {
         super(scene, new S2RectData(scene));
         this.element = document.createElementNS(svgNS, 'rect');
-    }
-
-    getExtents(space: S2Space): S2Vec2 {
-        return this.data.extents.get(space);
-    }
-
-    getCornerRadius(space: S2Space): number {
-        return this.data.cornerRadius.get(space);
+        this.svgPosition = new S2Point(0, 0, scene.getViewSpace());
     }
 
     getSVGElement(): SVGElement {
         return this.element;
     }
 
-    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
-        const d = distance.get(space);
-        const extents = this.data.extents.get(space).add(d, d).max(0, 0);
-        const radius = Math.min(Math.max(this.data.cornerRadius.get(space) + d, 0), extents.x, extents.y);
-        const center = S2AnchorUtils.getCenter(
-            this.data.anchor.get(),
-            space,
-            this.scene,
-            this.data.position,
-            this.data.extents,
-        );
-        return S2ShapeUtils.intersectDirectionRoundedRectangle(direction, extents, radius).addV(center);
+    getCenterInto(dst: S2Vec2, space: S2Space): this {
+        this.data.anchor.getCenterInto(dst, space, this.data.position, this.data.extents);
+        return this;
     }
 
     update(): void {
@@ -107,15 +91,16 @@ export class S2Rect extends S2Element<S2RectData> {
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyTransform(this.data.transform, this.element, this.scene);
-        S2DataUtils.applyAnchoredPosition(
-            this.data.position,
-            this.data.extents,
-            this.data.anchor,
-            this.element,
-            this.scene,
-        );
         S2DataUtils.applyExtents(this.data.extents, this.element, this.scene);
         S2DataUtils.applyCornerRadius(this.data.cornerRadius, this.element, this.scene);
+
+        const viewSpace = this.scene.getViewSpace();
+        const position = this.scene.acquireVec2();
+        this.data.anchor.getRectPointInto(position, viewSpace, this.data.position, this.data.extents, -1, -1);
+        this.svgPosition.setV(position, viewSpace);
+        S2DataUtils.applyPosition(this.svgPosition, this.element, this.scene);
+        this.svgPosition.clearDirty();
+        this.scene.releaseVec2(position);
 
         this.clearDirty();
     }

@@ -1,15 +1,15 @@
 import type { S2BaseScene } from '../core/scene/s2-base-scene';
 import type { S2Color } from '../core/shared/s2-color';
 import type { S2StepAnimator } from '../core/animation/s2-step-animator';
+import type { S2Space } from '../core/math/s2-space';
 import { S2Element } from '../core/element/base/s2-element';
 import { S2Line } from '../core/element/s2-line';
 import { S2Rect } from '../core/element/s2-rect';
 import { S2PlainText } from '../core/element/text/s2-plain-text';
 import { S2Vec2 } from '../core/math/s2-vec2';
-import { S2AnchorUtils, svgNS } from '../core/shared/s2-globals';
+import { svgNS } from '../core/shared/s2-globals';
 import { S2MemoryData } from './s2-memory-data';
 import { S2MemoryRow } from './s2-memory-row';
-import type { S2Space } from '../core/math/s2-space';
 
 export class S2MemoryId {
     public readonly memoryRef: S2Memory;
@@ -210,18 +210,14 @@ export class S2Memory extends S2Element<S2MemoryData> {
         return this.element;
     }
 
-    getExtents(space: S2Space): S2Vec2 {
-        return this.data.extents.get(space);
+    getExtentsInto(dst: S2Vec2, space: S2Space): this {
+        this.data.extents.getInto(dst, space);
+        return this;
     }
 
-    getCenter(space: S2Space): S2Vec2 {
-        return S2AnchorUtils.getCenter(
-            this.data.anchor.get(),
-            space,
-            this.scene,
-            this.data.position,
-            this.data.extents,
-        );
+    getCenterInto(dst: S2Vec2, space: S2Space): this {
+        this.data.anchor.getCenterInto(dst, space, this.data.position, this.data.extents);
+        return this;
     }
 
     getRow(rowId: number): S2MemoryRow {
@@ -252,8 +248,10 @@ export class S2Memory extends S2Element<S2MemoryData> {
 
     protected updateBackground(): void {
         const viewSpace = this.scene.getViewSpace();
-        const center = this.getCenter(viewSpace);
-        const extents = this.getExtents(viewSpace);
+        const center = this.scene.acquireVec2();
+        const extents = this.scene.acquireVec2();
+        this.getCenterInto(center, viewSpace);
+        this.getExtentsInto(extents, viewSpace);
 
         // Background style
         this.background.data.stroke.copyIfUnlocked(this.data.background.stroke);
@@ -266,7 +264,7 @@ export class S2Memory extends S2Element<S2MemoryData> {
         // Background position
         this.background.data.position.setV(center, viewSpace);
         this.background.data.extents.setV(extents, viewSpace);
-        this.background.data.anchor.set('center');
+        this.background.data.anchor.set(0, 0);
 
         // Vertical line
         const valueWidth = this.data.valueWidth.get(viewSpace);
@@ -276,6 +274,10 @@ export class S2Memory extends S2Element<S2MemoryData> {
         this.vLine.data.stroke.color.copyIfUnlocked(this.data.background.stroke.color);
         this.vLine.data.stroke.width.copyIfUnlocked(this.data.background.stroke.width);
 
+        // Release memory
+        this.scene.releaseVec2(center);
+        this.scene.releaseVec2(extents);
+
         // Update
         this.background.update();
         this.vLine.update();
@@ -283,8 +285,10 @@ export class S2Memory extends S2Element<S2MemoryData> {
 
     protected updateVariables(): void {
         const worldSpace = this.scene.getWorldSpace();
-        const center = this.getCenter(worldSpace);
-        const extents = this.getExtents(worldSpace);
+        const center = this.scene.acquireVec2();
+        const extents = this.scene.acquireVec2();
+        this.getCenterInto(center, worldSpace);
+        this.getExtentsInto(extents, worldSpace);
         const sign = this.isStacked ? 1 : -1;
         const stepY = (2 * extents.y) / this.addressCount;
         for (let i = 0; i < this.rows.length; i++) {
@@ -296,6 +300,10 @@ export class S2Memory extends S2Element<S2MemoryData> {
             variable.hLine.data.stroke.color.copyIfUnlocked(this.data.background.stroke.color);
             variable.hLine.data.stroke.width.copyIfUnlocked(this.data.background.stroke.width);
         }
+
+        // Release memory
+        this.scene.releaseVec2(center);
+        this.scene.releaseVec2(extents);
 
         if (this.data.text.font.isDirty()) {
             for (const row of this.rows) {

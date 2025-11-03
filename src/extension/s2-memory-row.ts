@@ -68,7 +68,7 @@ export class S2MemoryRow {
         const text = new S2PlainText(this.scene);
         text.setParent(this.parentMemory);
         text.data.layer.set(2);
-        text.data.textAnchor.set('start');
+        text.data.textAnchor.set(-1);
         text.data.position.copyIfUnlocked(this.basePosValue);
         text.data.font.copyIfUnlocked(this.parentMemory.data.text.font);
         text.data.fill.color.copyIfUnlocked(this.parentMemory.data.text.fill.color);
@@ -85,7 +85,7 @@ export class S2MemoryRow {
         const text = new S2PlainText(this.scene);
         text.setParent(this.parentMemory);
         text.data.layer.set(2);
-        text.data.textAnchor.set('start');
+        text.data.textAnchor.set(-1);
         text.data.position.copyIfUnlocked(this.basePosName);
         text.data.font.copyIfUnlocked(this.parentMemory.data.text.font);
         text.data.fill.color.copyIfUnlocked(this.parentMemory.data.text.fill.color);
@@ -344,11 +344,13 @@ export class S2MemoryRow {
         }
 
         const worldSpace = this.scene.getWorldSpace();
-        const srcPosition = srcText.getPosition(worldSpace);
-        const dstPosition = dstText.getPosition(worldSpace);
-        if (srcText.data.textAnchor.get() === 'end') {
-            srcPosition.x -= 2 * srcText.getExtents(worldSpace).x;
-        }
+        const srcPosition = this.scene.acquireVec2();
+        const dstPosition = this.scene.acquireVec2();
+        srcText.getPositionInto(srcPosition, worldSpace);
+        dstText.getPositionInto(dstPosition, worldSpace);
+        // if (srcText.data.textAnchor.get() === 'end') {
+        //     srcPosition.x -= 2 * srcText.getExtents(worldSpace).x;
+        // }
         const motionAnim = new S2MotionPathDirection(this.scene, dstText.data.localShift)
             .setCycleDuration(duration)
             .setEasing(ease.inOut)
@@ -492,7 +494,7 @@ export class S2MemoryRow {
             worldSpace,
         );
         this.highlight.data.cornerRadius.set(parentData.highlight.cornerRadius.get(worldSpace), worldSpace);
-        this.highlight.data.anchor.set('center');
+        this.highlight.data.anchor.set(0, 0);
     }
 
     update(): void {

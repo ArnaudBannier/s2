@@ -17,6 +17,7 @@
 
 # Améliorations
 
+- S2RichNode à corriger (en commentaire pour l'instant).
 - S2SceneObject comme nouvelle classe de base de S2Element ?
     - Possibilité de définir une position simple comme point pour un edge
 - Ajouter des descriptions/titres sur les éléments

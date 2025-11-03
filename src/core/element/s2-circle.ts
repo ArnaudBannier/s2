@@ -1,7 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Dirtyable } from '../shared/s2-globals';
-import type { S2Space } from '../math/s2-space';
-import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../shared/s2-globals';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
@@ -61,23 +59,8 @@ export class S2Circle extends S2Element<S2CircleData> {
         this.element = document.createElementNS(svgNS, 'circle');
     }
 
-    getRadius(space: S2Space): number {
-        return this.data.radius.get(space);
-    }
-
-    getCenter(space: S2Space): S2Vec2 {
-        return this.data.position.get(space);
-    }
-
     getSVGElement(): SVGElement {
         return this.element;
-    }
-
-    getPointInDirection(direction: S2Vec2, space: S2Space, distance: S2Length): S2Vec2 {
-        const d = distance.get(space);
-        const radius = Math.max(this.data.radius.get(space) + d, 0);
-        const point = direction.clone().normalize().scale(radius);
-        return point.addV(this.data.position.get(space));
     }
 
     update(): void {

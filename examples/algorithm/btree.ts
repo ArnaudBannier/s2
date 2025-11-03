@@ -1,7 +1,6 @@
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
-//import { S2LineEdge } from '../../src/core/element/node/s2-edge-old.ts';
 import { S2Group } from '../../src/core/element/s2-group.ts';
 import { S2StepAnimator } from '../../src/core/animation/s2-step-animator.ts';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
@@ -11,7 +10,6 @@ import { S2ElementData, S2FontData } from '../../src/core/element/base/s2-base-d
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
 import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
 import type { S2BaseAnimation } from '../../src/core/animation/s2-base-animation.ts';
-//import type { S2PlainNode } from '../../src/core/element/node/s2-plain-node-old.ts';
 import { S2RichText } from '../../src/core/element/text/s2-rich-text.ts';
 import type { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { S2PlainText } from '../../src/core/element/text/s2-plain-text.ts';
@@ -398,6 +396,7 @@ class SceneFigure extends S2Scene {
     setOutputTextStyle(text: S2RichText): void {
         this.setDefaultFont(text.data.font);
         text.data.fill.color.copy(MTL.WHITE);
+        text.data.textAnchor.set(-1);
     }
 
     setOutputBackgroundStyle(rect: S2Rect): void {
@@ -432,6 +431,7 @@ class SceneFigure extends S2Scene {
         this.outputTitle.setParent(this.getSVG());
         this.outputTitle.setContent('Noeuds explorés :');
         this.outputTitle.data.fill.color.copyIfUnlocked(MTL.ORANGE_2);
+        this.outputTitle.data.textAnchor.set(-1);
         this.setDefaultFont(this.outputTitle.data.font);
         this.outputText = new S2RichText(this);
         this.outputText.setParent(this.getSVG());
@@ -490,7 +490,7 @@ class SceneFigure extends S2Scene {
         const outputNW = new S2Vec2(codeNW.x, -codeNW.y + outputHeight);
         this.outputBackground.data.position.setV(outputNW, worldSpace);
         this.outputBackground.data.extents.set(3.5, outputHeight / 2, worldSpace);
-        this.outputBackground.data.anchor.set('north-west');
+        this.outputBackground.data.anchor.set(-1, -1);
         this.outputTitle.data.position.set(
             outputNW.x + outputPadding,
             outputNW.y - fontAscender - 0.5 * outputPadding,

@@ -156,12 +156,12 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
             tspan.data.fill.copyIfUnlocked(this.data.fill);
             tspan.data.stroke.copyIfUnlocked(this.data.stroke);
             tspan.data.font.copyIfUnlocked(this.data.font);
+            tspan.applyStyle();
             areBBoxesDirty = areBBoxesDirty || tspan.isBBoxDirty();
         }
         if (areBBoxesDirty) {
             for (const tspan of this.tspans) {
                 tspan.markBBoxDirty();
-                tspan.applyStyle();
             }
         }
         for (const tspan of this.tspans) {
@@ -180,12 +180,8 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
         this.data.position.getInto(svgPosition, viewSpace);
         this.extents.getInto(extents, viewSpace);
         this.data.localShift.getInto(shift, viewSpace);
-        svgPosition.x += anchor * extents.x + shift.x;
+        svgPosition.x += -anchor * extents.x + shift.x;
         svgPosition.y += shift.y;
-
-        if (isNaN(svgPosition.x) || isNaN(svgPosition.y)) {
-            throw new Error('S2RichText update resulted in NaN position');
-        }
 
         this.element.setAttribute('x', svgPosition.x.toFixed(2));
         this.element.setAttribute('y', svgPosition.y.toFixed(2));

@@ -140,6 +140,10 @@ export class S2TSpan extends S2Element<S2TSpanData> {
         S2DataUtils.applyStroke(this.data.stroke, this.element, this.scene);
         S2DataUtils.applyOpacity(this.data.opacity, this.element, this.scene);
         S2DataUtils.applyFont(this.data.font, this.element, this.scene);
+        this.data.fill.clearDirty();
+        this.data.stroke.clearDirty();
+        this.data.opacity.clearDirty();
+        this.data.font.clearDirty();
     }
 
     update(): void {

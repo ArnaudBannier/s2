@@ -119,13 +119,8 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
             this.data.position.getInto(svgPosition, viewSpace);
             this.localBBox.getExtentsInto(extents, viewSpace);
             this.data.localShift.getInto(shift, viewSpace);
-            svgPosition.x += anchor * extents.x + shift.x;
-
+            svgPosition.x += -anchor * extents.x + shift.x;
             svgPosition.y += shift.y;
-
-            if (isNaN(svgPosition.x) || isNaN(svgPosition.y)) {
-                throw new Error('S2RichText update resulted in NaN position');
-            }
 
             this.element.setAttribute('x', svgPosition.x.toString());
             this.element.setAttribute('y', svgPosition.y.toString());

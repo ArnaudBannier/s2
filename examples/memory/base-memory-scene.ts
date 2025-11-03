@@ -62,7 +62,7 @@ export class BaseMemoryScene extends S2Scene {
         data.highlight.cornerRadius.set(7, viewSpace);
         data.highlight.padding.set(3, 3, viewSpace);
         data.position.set(+6, 0, worldSpace);
-        data.anchor.set('east');
+        data.anchor.set(1, 0);
     }
 
     constructor(svgElement: SVGSVGElement) {
@@ -94,9 +94,11 @@ export class BaseMemoryScene extends S2Scene {
         const shift = 30;
 
         const codeMainPos = mainCode.data.position.get(viewSpace);
-        const funcPos = funcTSpan.getUpper(viewSpace);
+        const funcUpper = this.acquireVec2();
+        const funcLower = this.acquireVec2();
+        funcTSpan.getBBoxInto(funcUpper, funcLower, viewSpace);
 
-        funcCode.data.position.set(codeMainPos.x + 10 + shift, funcPos.y + 5, viewSpace);
+        funcCode.data.position.set(codeMainPos.x + 10 + shift, funcLower.y + 5, viewSpace);
         funcCode.data.anchor.set(-1, -1);
         funcCode.data.opacity.set(0);
 
@@ -106,11 +108,14 @@ export class BaseMemoryScene extends S2Scene {
         const opacityAnim = S2LerpAnimFactory.create(this, funcCode.data.opacity)
             .setCycleDuration(duration)
             .setEasing(ease.inOut);
-        funcCode.data.position.set(codeMainPos.x + 10, funcPos.y + 5, viewSpace);
+        funcCode.data.position.set(codeMainPos.x + 10, funcLower.y + 5, viewSpace);
         funcCode.data.opacity.set(1);
         this.animator.enableElement(funcCode, true, label, offset);
         this.animator.addAnimation(posAnim.commitFinalState(), label, offset);
         this.animator.addAnimation(opacityAnim.commitFinalState(), label, offset);
+
+        this.releaseVec2(funcUpper);
+        this.releaseVec2(funcLower);
     }
 
     protected animateCallOut(

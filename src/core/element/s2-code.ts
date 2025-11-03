@@ -457,7 +457,7 @@ export class S2Code extends S2Element<S2CodeData> {
             const y = position0.y * (1 - t) + position1.y * t;
             this.lineBackground.data.position.set(center.x, y, viewSpace);
             this.lineBackground.data.extents.set(extents.x + linePadding.x, extentsY + linePadding.y, viewSpace);
-            this.lineBackground.data.anchor.set('center');
+            this.lineBackground.data.anchor.set(0, 0);
             this.lineBackground.update();
 
             this.scene.releaseVec2(extents0);

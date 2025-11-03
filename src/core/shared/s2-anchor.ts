@@ -8,9 +8,9 @@ import type { S2Extents } from './s2-extents';
 /**
  * Décrit comment un rectangle est ancré à sa position de référence.
  * Les coordonnées (x, y) indiquent l’ancrage relatif :
- *  - (-1, -1) → coin inférieur gauche
- *  - (0, 0)   → centre
- *  - (1, 1)   → coin supérieur droit
+ *  - (-1, -1) -> coin inférieur gauche
+ *  - (+0, +0) -> centre
+ *  - (+1, +1) -> coin supérieur droit
  */
 export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasCopy<S2Anchor>, S2HasLerp<S2Anchor> {
     readonly kind = 'anchor' as const;
@@ -102,11 +102,13 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
         anchorX: number,
         anchorY: number,
     ): this {
-        const pos = _vec0;
-        const ext = _vec1;
-        position.getInto(pos, space);
-        extents.getInto(ext, space);
-        dst.set(pos.x - (this.value.x - anchorX) * ext.x, pos.y - (this.value.y - anchorY) * ext.y);
+        position.getInto(dst, space);
+        const posX = dst.x;
+        const posY = dst.y;
+        extents.getInto(dst, space);
+        const extX = dst.x;
+        const extY = dst.y;
+        dst.set(posX - (this.value.x - anchorX) * extX, posY - (this.value.y - anchorY) * extY);
         return this;
     }
 
@@ -150,6 +152,3 @@ export class S2Anchor extends S2BaseType implements S2HasClone<S2Anchor>, S2HasC
         return this.getRectPointInto(dst, space, position, extents, +1, +1);
     }
 }
-
-const _vec0 = new S2Vec2();
-const _vec1 = new S2Vec2();
