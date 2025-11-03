@@ -187,13 +187,19 @@ class SceneFigure extends S2Scene {
 
         this.draggable.setOnDrag((draggable: S2BaseDraggable, event: PointerEvent) => {
             void event;
-            this.setPosition(draggable.getPosition(worldSpace), 'free');
+            const position = this.acquireVec2();
+            draggable.data.position.getInto(position, worldSpace);
+            this.setPosition(position, 'free');
+            this.releaseVec2(position);
         });
 
         this.draggable.setOnRelease((draggable: S2BaseDraggable, event: PointerEvent) => {
             void event;
-            const u = this.setPosition(draggable.getPosition(worldSpace), 'snap');
+            const position = this.acquireVec2();
+            draggable.data.position.getInto(position, worldSpace);
+            const u = this.setPosition(position, 'snap');
             draggable.data.position.setV(u, worldSpace);
+            this.releaseVec2(position);
         });
 
         this.setMatrix(0);

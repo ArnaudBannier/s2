@@ -38,9 +38,14 @@ export class S2DraggableContainerBox extends S2DraggableContainer<S2DraggableCon
 
     updatePosition(position: S2Point): void {
         const space = this.data.space.get();
-        const currPosition = position.get(space);
-        const boundA = this.data.boundA.get(space);
-        const boundB = this.data.boundB.get(space);
+        const currPosition = this.scene.acquireVec2();
+        const boundA = this.scene.acquireVec2();
+        const boundB = this.scene.acquireVec2();
+
+        position.getInto(currPosition, space);
+        this.data.boundA.getInto(boundA, space);
+        this.data.boundB.getInto(boundB, space);
+
         const lowerX = Math.min(boundA.x, boundB.x);
         const upperX = Math.max(boundA.x, boundB.x);
         const lowerY = Math.min(boundA.y, boundB.y);
@@ -48,6 +53,11 @@ export class S2DraggableContainerBox extends S2DraggableContainer<S2DraggableCon
         currPosition.max(lowerX, lowerY);
         currPosition.min(upperX, upperY);
         position.setV(currPosition, space);
+
+        this.scene.releaseVec2(currPosition);
+        this.scene.releaseVec2(boundA);
+        this.scene.releaseVec2(boundB);
+
         this.clearDirty();
     }
 }

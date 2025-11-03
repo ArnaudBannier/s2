@@ -294,6 +294,25 @@ export class S2Vec2 {
         return this;
     }
 
+    snap(stepX: number, stepY: number): this {
+        if (stepX > 0) this.x = Math.round(this.x / stepX) * stepX;
+        if (stepY > 0) this.y = Math.round(this.y / stepY) * stepY;
+        return this;
+    }
+
+    snapV(steps: S2Vec2): this {
+        if (steps.x > 0) this.x = Math.round(this.x / steps.x) * steps.x;
+        if (steps.y > 0) this.y = Math.round(this.y / steps.y) * steps.y;
+        return this;
+    }
+
+    snapScalar(step: number): this {
+        if (step <= 0) return this;
+        this.x = Math.round(this.x / step) * step;
+        this.y = Math.round(this.y / step) * step;
+        return this;
+    }
+
     abs(): this {
         this.x = Math.abs(this.x);
         this.y = Math.abs(this.y);

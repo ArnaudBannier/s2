@@ -110,11 +110,9 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         let t0 = S2SDFUtils.findPointAtDistance(sdf0, this.curve, _mat, d0, 0, 1);
         space.getThisToSpaceInto(_mat, space1);
         let t1 = S2SDFUtils.findPointAtDistance(sdf1, this.curve, _mat, d1, 0, 1);
-        console.log('end', d1, t1);
         const deltaT = t1 - t0;
         t0 += this.data.pathFrom.get() * deltaT;
         t1 -= (1 - this.data.pathTo.get()) * deltaT;
-        console.log('Cubic edge t0,t1:', t0, t1);
 
         this.curve.subdivideInto(this.curve, t0, t1);
         this.lengthMapper.update();

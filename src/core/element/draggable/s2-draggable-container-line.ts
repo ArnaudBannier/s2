@@ -39,11 +39,22 @@ export class S2DraggableContainerLine extends S2DraggableContainer<S2DraggableCo
 
     updatePosition(position: S2Point): void {
         const space = this.data.space.get();
-        const boundA = this.data.boundA.get(space);
-        const vecAB = this.data.boundB.get(space).subV(boundA);
-        const vecAP = position.get(space).subV(boundA);
+        const boundA = this.scene.acquireVec2();
+        const vecAB = this.scene.acquireVec2();
+        const vecAP = this.scene.acquireVec2();
+
+        this.data.boundA.getInto(boundA, space);
+        this.data.boundB.getInto(vecAB, space);
+        position.getInto(vecAP, space);
+        vecAB.subV(boundA);
+        vecAP.subV(boundA);
         const t = S2MathUtils.clamp01(vecAP.dot(vecAB) / vecAB.lengthSq());
         position.setV(boundA.addV(vecAB.scale(t)), space);
+
+        this.scene.releaseVec2(boundA);
+        this.scene.releaseVec2(vecAB);
+        this.scene.releaseVec2(vecAP);
+
         this.clearDirty();
     }
 }

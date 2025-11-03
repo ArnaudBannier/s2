@@ -69,4 +69,10 @@ export const tests: S2Example[] = [
         path: '/s2/examples/test/sdf.html',
         description: 'Test de Signed Distance Function.',
     },
+    {
+        id: 'draggable',
+        title: 'Test de draggable',
+        path: '/s2/examples/test/draggable.html',
+        description: 'Test de draggable avec un graphe.',
+    },
 ];

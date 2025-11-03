@@ -8,43 +8,29 @@ import { S2Element } from '../base/s2-element';
 import { S2Point } from '../../shared/s2-point';
 import { S2Offset } from '../../shared/s2-offset';
 import { S2AnimationManager } from '../../animation/s2-animation-manager';
-import { S2Boolean } from '../../shared/s2-boolean';
+import { S2DraggableTarget } from './s2-draggable-target';
 
 export type S2BaseDraggable = S2Draggable<S2DraggableData>;
 export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEvent) => void;
 
 export class S2DraggableData extends S2ElementData {
     public readonly position: S2Point;
-    public readonly xEnabled: S2Boolean = new S2Boolean(true);
-    public readonly yEnabled: S2Boolean = new S2Boolean(true);
-    public readonly containerBoundA: S2Point;
-    public readonly containerBoundB: S2Point;
 
     constructor(scene: S2BaseScene) {
         super();
         const worldSpace = scene.getWorldSpace();
         this.position = new S2Point(0, 0, worldSpace);
-        this.containerBoundA = new S2Point(-Infinity, -Infinity, worldSpace);
-        this.containerBoundB = new S2Point(+Infinity, +Infinity, worldSpace);
         this.pointerEvents.set('auto');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
         this.position.setOwner(owner);
-        this.xEnabled.setOwner(owner);
-        this.yEnabled.setOwner(owner);
-        this.containerBoundA.setOwner(owner);
-        this.containerBoundB.setOwner(owner);
     }
 
     clearDirty(): void {
         super.clearDirty();
         this.position.clearDirty();
-        this.xEnabled.clearDirty();
-        this.yEnabled.clearDirty();
-        this.containerBoundA.clearDirty();
-        this.containerBoundB.clearDirty();
     }
 }
 
@@ -59,6 +45,7 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
     protected userOnDrag: S2HandleEventListener | null = null;
     protected userOnRelease: S2HandleEventListener | null = null;
     protected container: S2BaseDraggableContainer | null = null;
+    protected attachedTargets: S2DraggableTarget[] = [];
 
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
@@ -74,6 +61,13 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         element.style.cursor = 'pointer';
         element.role = 'draggable';
         element.addEventListener('pointerdown', this.onGrab, { passive: false });
+    }
+
+    attachTarget(point: S2Point): S2DraggableTarget {
+        const target = new S2DraggableTarget(this.scene, point);
+        this.attachedTargets.push(target);
+        this.data.position.copy(point);
+        return target;
     }
 
     setContainer(container: S2BaseDraggableContainer | null): void {
@@ -95,47 +89,57 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         this.userOnRelease = listener;
     }
 
-    getPosition(space: S2Space): S2Vec2 {
-        return this.data.position.get(space);
+    getPositionInto(dst: S2Vec2, space: S2Space): void {
+        this.data.position.getInto(dst, space);
     }
 
-    getDelta(space: S2Space): S2Vec2 {
-        return this.delta.get(space);
+    getDeltaInto(dst: S2Vec2, space: S2Space): void {
+        this.delta.getInto(dst, space);
     }
 
-    getCenter(space: S2Space): S2Vec2 {
-        return this.data.position.get(space);
+    getCenterInto(dst: S2Vec2, space: S2Space): void {
+        this.data.position.getInto(dst, space);
     }
 
-    getPointerDelta(space: S2Space): S2Vec2 {
-        return this.pointerDelta.get(space);
+    getPointerDeltaInto(dst: S2Vec2, space: S2Space): void {
+        this.pointerDelta.getInto(dst, space);
     }
 
-    getPointerPosition(space: S2Space): S2Vec2 {
-        return this.pointerPosition.get(space);
+    getPointerPositionInto(dst: S2Vec2, space: S2Space): void {
+        this.pointerPosition.getInto(dst, space);
     }
 
     protected updatePointerPosition(x: number, y: number): void {
         const viewSpace = this.scene.getViewSpace();
+        const prevPointerPosition = this.scene.acquireVec2();
+        const currPointerPosition = this.scene.acquireVec2();
 
-        const prevPointerPosition = this.pointerPosition.get(viewSpace);
+        this.pointerPosition.getInto(prevPointerPosition, viewSpace);
         this.scene.convertDOMPointInto(this.pointerPosition, x, y);
-        const currPointerPosition = this.pointerPosition.get(viewSpace);
-        const pointerDelta = S2Vec2.subV(currPointerPosition, prevPointerPosition);
-        this.pointerDelta.setValueFromSpaceV(pointerDelta, viewSpace);
+        this.pointerPosition.getInto(currPointerPosition, viewSpace);
+        this.pointerDelta.setV(currPointerPosition.subV(prevPointerPosition), viewSpace);
+
+        this.scene.releaseVec2(prevPointerPosition);
+        this.scene.releaseVec2(currPointerPosition);
     }
 
     protected updatePositionFromPointer(): void {
         const space = this.data.position.space;
-        const prevPosition = this.data.position.get(space);
-        let currPosition = this.pointerPosition.get(space);
+        const prevPosition = this.scene.acquireVec2();
+        const currPosition = this.scene.acquireVec2();
+
+        this.data.position.getInto(prevPosition, space);
+        this.pointerPosition.getInto(currPosition, space);
         currPosition.addV(this.grabDelta.get(space));
-        this.data.position.setValueFromSpaceV(currPosition, space);
+        this.data.position.setV(currPosition, space);
         if (this.container) {
             this.container.updatePosition(this.data.position);
-            currPosition = this.data.position.get(space);
+            this.data.position.getInto(currPosition, space);
         }
         this.delta.setV(currPosition.subV(prevPosition), space);
+
+        this.scene.releaseVec2(prevPosition);
+        this.scene.releaseVec2(currPosition);
     }
 
     private onGrab = (event: PointerEvent): void => {
@@ -144,12 +148,15 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         event.preventDefault();
 
         const viewSpace = this.scene.getViewSpace();
+        const position = this.scene.acquireVec2();
 
         this.updatePointerPosition(event.clientX, event.clientY);
-        const position = this.data.position.get(viewSpace);
+        this.data.position.getInto(position, viewSpace);
         this.grabDelta.setV(S2Vec2.subV(position, this.pointerPosition.value), viewSpace);
         this.pointerDelta.set(0, 0, viewSpace);
         this.delta.set(0, 0, viewSpace);
+
+        this.scene.releaseVec2(position);
 
         // capture the pointer
         const element = this.getSVGElement();
@@ -174,6 +181,10 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         this.updatePointerPosition(event.clientX, event.clientY);
         this.updatePositionFromPointer();
 
+        for (const target of this.attachedTargets) {
+            target.onDrag(this, event);
+        }
+
         this.onDragImpl(event);
         this.userOnDrag?.(this, event);
         S2AnimationManager.requestUpdate(this.scene);
@@ -195,6 +206,10 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         element.releasePointerCapture(event.pointerId);
         element.removeEventListener('pointermove', this.onDrag);
         element.removeEventListener('pointerup', this.onRelease);
+
+        for (const target of this.attachedTargets) {
+            target.onRelease(this, event);
+        }
 
         this.onReleaseImpl(event);
         this.userOnRelease?.(this, event);
