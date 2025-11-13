@@ -27,10 +27,14 @@ class SceneFigure extends S2Scene {
 
         this.showSpace(worldSpace, 8, MTL.BLACK);
 
+        const nodeCount = 6;
         const nodes: S2PlainNode[] = [];
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < nodeCount; i++) {
             const node = new S2PlainNode(this);
             node.setParent(this.getSVG());
+            node.data.layer.set(1);
+            node.data.position.set(0, 0, worldSpace);
+            node.data.position.value.setPolar((i / nodeCount) * Math.PI * 2, 3);
             node.data.space.set(this.viewSpace);
             node.data.padding.set(5, 5, this.viewSpace);
             node.data.anchor.set(0, 0);
@@ -44,39 +48,35 @@ class SceneFigure extends S2Scene {
             node.data.text.font.size.set(24, this.getViewSpace());
             node.data.background.cornerRadius.set(0.5, worldSpace);
             node.data.background.shape.set('rectangle');
-            node.setContent('plain');
+            node.setContent('node ' + (i + 1));
             nodes.push(node);
         }
-        nodes[0].data.position.set(0, 1, worldSpace);
-        nodes[1].data.position.set(5, 0, worldSpace);
-        nodes[0].setContent('plain 1');
-        nodes[1].setContent('plain 2');
         this.update();
 
-        nodes[1].data.background.shape.set('rectangle');
+        for (let i = 0; i < nodeCount; i++) {
+            for (let j = 0; j < nodeCount; j++) {
+                if (i === j) continue;
+                if (Math.random() > 0.5) continue;
+                const edge = new S2CubicEdge(this, nodes[i], nodes[j]);
+                edge.setParent(this.getSVG());
+                edge.data.stroke.color.copy(MTL.CYAN);
+                edge.data.stroke.width.set(4, this.getViewSpace());
+                edge.data.startDistance.set(0, this.viewSpace);
+                edge.data.endDistance.set(10, this.viewSpace);
+                edge.data.pathFrom.set(0);
+                edge.data.bendAngle.set(15);
+                edge.createArrowTip();
+            }
+        }
 
-        // const edge = new S2LineEdge(this, nodes[0], nodes[1]);
-        const edge = new S2CubicEdge(this, nodes[0], nodes[1]);
-        edge.setParent(this.getSVG());
-        edge.data.stroke.color.copy(MTL.CYAN);
-        edge.data.stroke.width.set(4, this.getViewSpace());
-        edge.data.startDistance.set(0, this.viewSpace);
-        edge.data.endDistance.set(10, this.viewSpace);
-        edge.data.pathFrom.set(0);
-        edge.data.bendAngle.set(20);
-        edge.createArrowTip();
-        // edge.data.startAngle.set(90);
-        // edge.data.endAngle.set(-90);
-        // edge.data.startTension.set(0.5);
-        // edge.data.endTension.set(0.5);
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < nodeCount; i++) {
             const draggable = new S2DraggableCircle(this);
             draggable.setParent(this.getSVG());
             draggable.data.radius.set(1, worldSpace);
             const target = draggable.attachTarget(nodes[i].data.position);
             target.setSnapSteps(1, 1);
             target.setSnapMode('release');
-            target.animatable.setDuration(5000);
+            target.animatable.setDuration(500);
         }
 
         this.update();
