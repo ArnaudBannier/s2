@@ -1,5 +1,7 @@
 # TODO
 
+- Revoir le snap pour un draggable.
+    - Il faut plutôt l'appliquer au draggable plutôt qu'à la target sinon il ne se replace pas correctement après le release.
 - Revoir le local bbox
     - Elle utilise la position du parent alors qu'elle dépend de sa position x,y du svg qui n'est pas la même de pas forcément à jour.
 

@@ -36,7 +36,7 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2DraggableCircleData(scene));
         this.element = document.createElementNS(svgNS, 'circle');
-        this.opacity = new S2Number(0.0);
+        this.opacity = new S2Number(1.0);
 
         this.initSVGElement(this.element);
     }

@@ -1,5 +1,4 @@
 import type { S2Space } from '../../src/core/math/s2-space.ts';
-import type { S2BaseElement } from '../../src/core/element/base/s2-element.ts';
 import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
 import { S2Grid } from '../../src/core/element/s2-grid.ts';
@@ -8,8 +7,8 @@ import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
 import { S2CubicEdge } from '../../src/core/element/node/s2-cubic-edge.ts';
-import { S2TSpan } from '../../src/core/element/text/s2-tspan.ts';
 import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable-circle.ts';
+import { S2DraggableContainerBox } from '../../src/core/element/draggable/s2-draggable-container-box.ts';
 
 class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
@@ -69,30 +68,23 @@ class SceneFigure extends S2Scene {
             }
         }
 
+        const draggableContainer = new S2DraggableContainerBox(this);
+        draggableContainer.data.boundA.set(-6, -4, worldSpace);
+        draggableContainer.data.boundB.set(+6, +4, worldSpace);
+        draggableContainer.data.space.set(worldSpace);
+
         for (let i = 0; i < nodeCount; i++) {
             const draggable = new S2DraggableCircle(this);
+            draggable.setContainer(draggableContainer);
             draggable.setParent(this.getSVG());
             draggable.data.radius.set(1, worldSpace);
             const target = draggable.attachTarget(nodes[i].data.position);
             target.setSnapSteps(1, 1);
-            target.setSnapMode('release');
+            target.setSnapMode('always');
             target.animatable.setDuration(500);
         }
 
         this.update();
-    }
-
-    computeIntersections() {
-        this.markBBoxesDirty(this.getSVG());
-        this.update();
-    }
-
-    markBBoxesDirty(element: S2BaseElement): void {
-        if (element instanceof S2TSpan) element.markBBoxDirty();
-
-        for (let i = 0; i < element.getChildCount(); i++) {
-            this.markBBoxesDirty(element.getChild(i));
-        }
     }
 
     showSpace(space: S2Space, gridSize: number, gridColor: S2Color): void {
@@ -151,6 +143,5 @@ if (svgElement) {
 
     document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
         //scene.animator.playMaster();
-        scene.computeIntersections();
     });
 }
