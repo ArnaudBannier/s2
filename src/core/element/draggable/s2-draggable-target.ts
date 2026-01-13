@@ -1,8 +1,7 @@
-import type { S2Space } from '../../math/s2-space';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Point } from '../../shared/s2-point';
 import type { S2BaseDraggable } from './s2-draggable';
-import { S2Vec2 } from '../../math/s2-vec2';
+import type { S2DragSnapMode } from '../../shared/s2-globals';
 import { S2AnimatablePoint } from '../../animation/s2-animatable';
 
 export class S2DraggableTarget {
@@ -10,8 +9,6 @@ export class S2DraggableTarget {
     public readonly animatable: S2AnimatablePoint;
 
     protected readonly scene: S2BaseScene;
-    protected readonly snapSteps: S2Vec2 = new S2Vec2(1, 1);
-    protected space: S2Space;
     protected snapOnDrag: boolean = false;
     protected snapOnRelease: boolean = false;
 
@@ -19,22 +16,9 @@ export class S2DraggableTarget {
         this.scene = scene;
         this.point = point;
         this.animatable = new S2AnimatablePoint(scene, point);
-        this.space = point.space;
     }
 
-    setSpace(space: S2Space): void {
-        this.space = space;
-    }
-
-    setSnapSteps(stepX: number, stepY: number): void {
-        this.snapSteps.set(stepX, stepY);
-    }
-
-    setSnapStepsV(steps: S2Vec2): void {
-        this.snapSteps.copy(steps);
-    }
-
-    setSnapMode(mode: 'always' | 'release' | 'none'): void {
+    setSnapMode(mode: S2DragSnapMode): void {
         switch (mode) {
             case 'always':
                 this.snapOnDrag = true;
@@ -55,22 +39,50 @@ export class S2DraggableTarget {
     onDrag(draggable: S2BaseDraggable, event: PointerEvent): void {
         void event;
         const point = this.scene.acquireVec2();
-        draggable.data.position.getInto(point, this.space);
-        if (this.snapOnDrag) {
-            point.snapV(this.snapSteps);
-        }
-        this.animatable.setV(point, this.space);
+        const space = draggable.data.position.space;
+        draggable.data.position.getInto(point, space);
+        // if (this.snapOnDrag) {
+        //     point.snapV(this.snapSteps);
+        // }
+
+        // const space = this.data.position.space;
+        // const currPosition = this.scene.acquireVec2();
+        // this.data.position.getInto(currPosition, space);
+
+        // const snapSteps = this.scene.acquireVec2();
+        // this.data.snapSteps.getInto(snapSteps, space);
+        // currPosition.snapV(snapSteps);
+        // this.data.position.setV(currPosition, space);
+
+        // this.scene.releaseVec2(snapSteps);
+        // this.scene.releaseVec2(currPosition);
+
+        this.animatable.setV(point, space);
         this.scene.releaseVec2(point);
     }
 
     onRelease(draggable: S2BaseDraggable, event: PointerEvent): void {
         void event;
         const point = this.scene.acquireVec2();
-        draggable.data.position.getInto(point, this.space);
-        if (this.snapOnRelease) {
-            point.snapV(this.snapSteps);
-        }
-        this.animatable.setV(point, this.space);
+        const space = draggable.data.position.space;
+        draggable.data.position.getInto(point, space);
+        // if (this.snapOnDrag) {
+        //     point.snapV(this.snapSteps);
+        // }
+
+        // const space = this.data.position.space;
+        // const currPosition = this.scene.acquireVec2();
+        // this.data.position.getInto(currPosition, space);
+
+        // const snapSteps = this.scene.acquireVec2();
+        // this.data.snapSteps.getInto(snapSteps, space);
+        // currPosition.snapV(snapSteps);
+        // this.data.position.setV(currPosition, space);
+
+        // this.scene.releaseVec2(snapSteps);
+        // this.scene.releaseVec2(currPosition);
+
+        this.animatable.setV(point, space);
         this.scene.releaseVec2(point);
     }
 }

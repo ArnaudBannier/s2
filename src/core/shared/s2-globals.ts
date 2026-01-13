@@ -16,6 +16,8 @@ export type S2VerticalAlign = 'top' | 'middle' | 'bottom';
 export type S2FontStyle = 'normal' | 'italic' | 'oblique';
 export type S2PointerEvents = 'auto' | 'none';
 
+export type S2DragSnapMode = 'always' | 'release' | 'none';
+
 export interface S2Dirtyable {
     isDirty(): boolean;
     markDirty(): void;

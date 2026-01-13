@@ -75,12 +75,12 @@ class SceneFigure extends S2Scene {
 
         for (let i = 0; i < nodeCount; i++) {
             const draggable = new S2DraggableCircle(this);
+            draggable.setSnapMode('none');
             draggable.setContainer(draggableContainer);
             draggable.setParent(this.getSVG());
             draggable.data.radius.set(1, worldSpace);
             const target = draggable.attachTarget(nodes[i].data.position);
-            target.setSnapSteps(1, 1);
-            target.setSnapMode('always');
+            target.setSnapMode('none');
             target.animatable.setDuration(500);
         }
 

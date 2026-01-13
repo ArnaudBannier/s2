@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../../scene/s2-base-scene';
-import type { S2Dirtyable } from '../../shared/s2-globals';
+import type { S2Dirtyable, S2DragSnapMode } from '../../shared/s2-globals';
 import type { S2BaseDraggableContainer } from './s2-draggable-container';
 import type { S2Space } from '../../math/s2-space';
 import { S2Vec2 } from '../../math/s2-vec2';
@@ -9,17 +9,20 @@ import { S2Point } from '../../shared/s2-point';
 import { S2Offset } from '../../shared/s2-offset';
 import { S2AnimationManager } from '../../animation/s2-animation-manager';
 import { S2DraggableTarget } from './s2-draggable-target';
+import { S2Extents } from '../../shared/s2-extents';
 
 export type S2BaseDraggable = S2Draggable<S2DraggableData>;
 export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEvent) => void;
 
 export class S2DraggableData extends S2ElementData {
     public readonly position: S2Point;
+    public readonly snapSteps: S2Extents;
 
     constructor(scene: S2BaseScene) {
         super();
         const worldSpace = scene.getWorldSpace();
         this.position = new S2Point(0, 0, worldSpace);
+        this.snapSteps = new S2Extents(1, 1, worldSpace);
         this.pointerEvents.set('auto');
     }
 
@@ -47,6 +50,9 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
     protected container: S2BaseDraggableContainer | null = null;
     protected attachedTargets: S2DraggableTarget[] = [];
 
+    protected snapOnDrag: boolean = false;
+    protected snapOnRelease: boolean = false;
+
     constructor(scene: S2BaseScene, data: Data) {
         super(scene, data);
         const viewSpace = scene.getViewSpace();
@@ -61,6 +67,24 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         element.style.cursor = 'pointer';
         element.role = 'draggable';
         element.addEventListener('pointerdown', this.onGrab, { passive: false });
+    }
+
+    setSnapMode(mode: S2DragSnapMode): void {
+        switch (mode) {
+            case 'always':
+                this.snapOnDrag = true;
+                this.snapOnRelease = true;
+                break;
+            case 'release':
+                this.snapOnDrag = false;
+                this.snapOnRelease = true;
+                break;
+            default:
+            case 'none':
+                this.snapOnDrag = false;
+                this.snapOnRelease = false;
+                break;
+        }
     }
 
     attachTarget(point: S2Point): S2DraggableTarget {
@@ -131,6 +155,13 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         this.data.position.getInto(prevPosition, space);
         this.pointerPosition.getInto(currPosition, space);
         currPosition.addV(this.grabDelta.get(space));
+
+        if (this.snapOnDrag) {
+            const snapSteps = this.scene.acquireVec2();
+            this.data.snapSteps.getInto(snapSteps, space);
+            currPosition.snapV(snapSteps);
+            this.scene.releaseVec2(snapSteps);
+        }
         this.data.position.setV(currPosition, space);
         if (this.container) {
             this.container.updatePosition(this.data.position);
@@ -139,6 +170,21 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         this.delta.setV(currPosition.subV(prevPosition), space);
 
         this.scene.releaseVec2(prevPosition);
+        this.scene.releaseVec2(currPosition);
+    }
+
+    protected updatePositionOnRelease(): void {
+        if (!this.snapOnRelease) return;
+        const space = this.data.position.space;
+        const currPosition = this.scene.acquireVec2();
+        this.data.position.getInto(currPosition, space);
+
+        const snapSteps = this.scene.acquireVec2();
+        this.data.snapSteps.getInto(snapSteps, space);
+        currPosition.snapV(snapSteps);
+        this.data.position.setV(currPosition, space);
+
+        this.scene.releaseVec2(snapSteps);
         this.scene.releaseVec2(currPosition);
     }
 
@@ -193,6 +239,8 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
     private onRelease = (event: PointerEvent): void => {
         if (!this.dragging || event.pointerId !== this.pointerId) return;
         event.preventDefault();
+
+        this.updatePositionOnRelease();
 
         const viewSpace = this.scene.getViewSpace();
         this.delta.set(0, 0, viewSpace);
