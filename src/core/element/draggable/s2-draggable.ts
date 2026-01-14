@@ -10,6 +10,7 @@ import { S2Offset } from '../../shared/s2-offset';
 import { S2AnimationManager } from '../../animation/s2-animation-manager';
 import { S2DraggableTarget } from './s2-draggable-target';
 import { S2Extents } from '../../shared/s2-extents';
+import { S2Enum } from '../../shared/s2-enum';
 
 export type S2BaseDraggable = S2Draggable<S2DraggableData>;
 export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEvent) => void;
@@ -17,23 +18,29 @@ export type S2HandleEventListener = (handle: S2BaseDraggable, event: PointerEven
 export class S2DraggableData extends S2ElementData {
     public readonly position: S2Point;
     public readonly snapSteps: S2Extents;
+    public readonly snapMode: S2Enum<S2DragSnapMode>;
 
     constructor(scene: S2BaseScene) {
         super();
         const worldSpace = scene.getWorldSpace();
         this.position = new S2Point(0, 0, worldSpace);
         this.snapSteps = new S2Extents(1, 1, worldSpace);
+        this.snapMode = new S2Enum<S2DragSnapMode>('none');
         this.pointerEvents.set('auto');
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
         this.position.setOwner(owner);
+        this.snapSteps.setOwner(owner);
+        this.snapMode.setOwner(owner);
     }
 
     clearDirty(): void {
         super.clearDirty();
         this.position.clearDirty();
+        this.snapSteps.clearDirty();
+        this.snapMode.clearDirty();
     }
 }
 
@@ -67,24 +74,6 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
         element.style.cursor = 'pointer';
         element.role = 'draggable';
         element.addEventListener('pointerdown', this.onGrab, { passive: false });
-    }
-
-    setSnapMode(mode: S2DragSnapMode): void {
-        switch (mode) {
-            case 'always':
-                this.snapOnDrag = true;
-                this.snapOnRelease = true;
-                break;
-            case 'release':
-                this.snapOnDrag = false;
-                this.snapOnRelease = true;
-                break;
-            default:
-            case 'none':
-                this.snapOnDrag = false;
-                this.snapOnRelease = false;
-                break;
-        }
     }
 
     attachTarget(point: S2Point): S2DraggableTarget {
@@ -131,6 +120,31 @@ export abstract class S2Draggable<Data extends S2DraggableData> extends S2Elemen
 
     getPointerPositionInto(dst: S2Vec2, space: S2Space): void {
         this.pointerPosition.getInto(dst, space);
+    }
+
+    protected updateTargets(): void {
+        for (const target of this.attachedTargets) {
+            target.updateSnapMode();
+        }
+    }
+
+    protected updateSnapMode(): void {
+        const mode = this.data.snapMode.get();
+        switch (mode) {
+            case 'always':
+                this.snapOnDrag = true;
+                this.snapOnRelease = true;
+                break;
+            case 'release':
+                this.snapOnDrag = false;
+                this.snapOnRelease = true;
+                break;
+            default:
+            case 'none':
+                this.snapOnDrag = false;
+                this.snapOnRelease = false;
+                break;
+        }
     }
 
     protected updatePointerPosition(x: number, y: number): void {

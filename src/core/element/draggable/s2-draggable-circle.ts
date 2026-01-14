@@ -8,7 +8,7 @@ import { S2Number } from '../../shared/s2-number';
 import { S2Length } from '../../shared/s2-length';
 import { S2Draggable, S2DraggableData } from './s2-draggable';
 
-export type S2HandleEventListener = (handle: S2DraggableCircle, event: PointerEvent) => void;
+//export type S2HandleEventListener = (handle: S2DraggableCircle, event: PointerEvent) => void;
 
 export class S2DraggableCircleData extends S2DraggableData {
     public readonly radius: S2Length;
@@ -36,7 +36,7 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
     constructor(scene: S2BaseScene) {
         super(scene, new S2DraggableCircleData(scene));
         this.element = document.createElementNS(svgNS, 'circle');
-        this.opacity = new S2Number(1.0);
+        this.opacity = new S2Number(0.5);
 
         this.initSVGElement(this.element);
     }
@@ -56,6 +56,8 @@ export class S2DraggableCircle extends S2Draggable<S2DraggableCircleData> {
     update(): void {
         if (this.skipUpdate()) return;
 
+        this.updateSnapMode();
+        this.updateTargets();
         S2DataUtils.applyPointerEvents(this.data.pointerEvents, this.element, this.scene);
         S2DataUtils.applyOpacity(this.opacity, this.element, this.scene);
         S2DataUtils.applyPosition(this.data.position, this.element, this.scene, 'cx', 'cy');

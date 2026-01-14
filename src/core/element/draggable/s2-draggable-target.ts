@@ -3,10 +3,11 @@ import type { S2Point } from '../../shared/s2-point';
 import type { S2BaseDraggable } from './s2-draggable';
 import type { S2DragSnapMode } from '../../shared/s2-globals';
 import { S2AnimatablePoint } from '../../animation/s2-animatable';
+import { S2Enum } from '../../shared/s2-enum';
 
 export class S2DraggableTarget {
-    public readonly point: S2Point;
     public readonly animatable: S2AnimatablePoint;
+    public readonly snapMode: S2Enum<S2DragSnapMode>;
 
     protected readonly scene: S2BaseScene;
     protected snapOnDrag: boolean = false;
@@ -14,11 +15,17 @@ export class S2DraggableTarget {
 
     constructor(scene: S2BaseScene, point: S2Point) {
         this.scene = scene;
-        this.point = point;
         this.animatable = new S2AnimatablePoint(scene, point);
+        this.snapMode = new S2Enum('none');
     }
 
-    setSnapMode(mode: S2DragSnapMode): void {
+    getPoint(): S2Point {
+        return this.animatable.point;
+    }
+
+    updateSnapMode(): void {
+        if (!this.snapMode.isDirty()) return;
+        const mode = this.snapMode.get();
         switch (mode) {
             case 'always':
                 this.snapOnDrag = true;
@@ -34,6 +41,7 @@ export class S2DraggableTarget {
                 this.snapOnRelease = false;
                 break;
         }
+        this.snapMode.clearDirty();
     }
 
     onDrag(draggable: S2BaseDraggable, event: PointerEvent): void {
@@ -41,21 +49,13 @@ export class S2DraggableTarget {
         const point = this.scene.acquireVec2();
         const space = draggable.data.position.space;
         draggable.data.position.getInto(point, space);
-        // if (this.snapOnDrag) {
-        //     point.snapV(this.snapSteps);
-        // }
 
-        // const space = this.data.position.space;
-        // const currPosition = this.scene.acquireVec2();
-        // this.data.position.getInto(currPosition, space);
-
-        // const snapSteps = this.scene.acquireVec2();
-        // this.data.snapSteps.getInto(snapSteps, space);
-        // currPosition.snapV(snapSteps);
-        // this.data.position.setV(currPosition, space);
-
-        // this.scene.releaseVec2(snapSteps);
-        // this.scene.releaseVec2(currPosition);
+        if (this.snapOnDrag) {
+            const snapSteps = this.scene.acquireVec2();
+            draggable.data.snapSteps.getInto(snapSteps, space);
+            point.snapV(snapSteps);
+            this.scene.releaseVec2(snapSteps);
+        }
 
         this.animatable.setV(point, space);
         this.scene.releaseVec2(point);
@@ -66,21 +66,13 @@ export class S2DraggableTarget {
         const point = this.scene.acquireVec2();
         const space = draggable.data.position.space;
         draggable.data.position.getInto(point, space);
-        // if (this.snapOnDrag) {
-        //     point.snapV(this.snapSteps);
-        // }
 
-        // const space = this.data.position.space;
-        // const currPosition = this.scene.acquireVec2();
-        // this.data.position.getInto(currPosition, space);
-
-        // const snapSteps = this.scene.acquireVec2();
-        // this.data.snapSteps.getInto(snapSteps, space);
-        // currPosition.snapV(snapSteps);
-        // this.data.position.setV(currPosition, space);
-
-        // this.scene.releaseVec2(snapSteps);
-        // this.scene.releaseVec2(currPosition);
+        if (this.snapOnRelease) {
+            const snapSteps = this.scene.acquireVec2();
+            draggable.data.snapSteps.getInto(snapSteps, space);
+            point.snapV(snapSteps);
+            this.scene.releaseVec2(snapSteps);
+        }
 
         this.animatable.setV(point, space);
         this.scene.releaseVec2(point);

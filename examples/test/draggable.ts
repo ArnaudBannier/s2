@@ -7,8 +7,9 @@ import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
 import { S2CubicEdge } from '../../src/core/element/node/s2-cubic-edge.ts';
-import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable-circle.ts';
+//import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable-circle.ts';
 import { S2DraggableContainerBox } from '../../src/core/element/draggable/s2-draggable-container-box.ts';
+import { S2DraggableRect } from '../../src/core/element/draggable/s2-draggable-rect.ts';
 
 class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
@@ -74,13 +75,23 @@ class SceneFigure extends S2Scene {
         draggableContainer.data.space.set(worldSpace);
 
         for (let i = 0; i < nodeCount; i++) {
-            const draggable = new S2DraggableCircle(this);
-            draggable.setSnapMode('none');
+            // const draggable = new S2DraggableCircle(this);
+            // draggable.data.snapMode.set('none');
+            // draggable.setContainer(draggableContainer);
+            // draggable.setParent(this.getSVG());
+            // draggable.data.radius.set(1, worldSpace);
+
+            const draggable = new S2DraggableRect(this);
+            draggable.data.snapMode.set('release');
+            draggable.data.extents.set(1.0 + 0.1, 0.5 + 0.1, worldSpace);
+            draggable.data.cornerRadius.set(0.6, worldSpace);
+            draggable.data.anchor.set(0, 0);
             draggable.setContainer(draggableContainer);
             draggable.setParent(this.getSVG());
-            draggable.data.radius.set(1, worldSpace);
+            //draggable.data.radius.set(1, worldSpace);
+
             const target = draggable.attachTarget(nodes[i].data.position);
-            target.setSnapMode('none');
+            target.snapMode.set('none');
             target.animatable.setDuration(500);
         }
 
