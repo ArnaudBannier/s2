@@ -37,6 +37,12 @@ export const examples: S2Example[] = [
         description: "Parcours préfixe/infixe/suffixe d'un arbre binaire.",
     },
     {
+        id: 'graph-s04-dijkstra',
+        title: 'INF2031 : Dijkstra',
+        path: '/s2/examples/algorithm/s04-graph-dijkstra.html',
+        description: 'Algorithme de Dijkstra pour les plus courts chemins dans un graphe.',
+    },
+    {
         id: 'linear-algebra-s03-eigenvector-01',
         title: 'MAT2051 : Vecteurs propres',
         path: '/s2/examples/linear-algebra/s03-eigenvectors-01.html',

@@ -13,6 +13,7 @@ export default defineConfig({
                 memS01Stat02: 'examples/memory/s01-statements-02.html',
                 memS01Cond01: 'examples/memory/s01-conditionals-01.html',
                 memS01Func01: 'examples/memory/s01-functions-01.html',
+                grpS04Dijkstra: 'examples/algorithm/s04-graph-dijkstra.html',
                 algS03EigenVec01: 'examples/linear-algebra/s03-eigenvectors-01.html',
                 basicAnim: 'examples/test/basic-anim.html',
                 testSpace: 'examples/test/space.html',
