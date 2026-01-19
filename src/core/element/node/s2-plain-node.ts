@@ -1,4 +1,3 @@
-import { S2Vec2 } from '../../math/s2-vec2';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import { S2PlainText } from '../text/s2-plain-text';
 import { S2BaseNode } from './s2-base-node';
@@ -35,9 +34,9 @@ export class S2PlainNode extends S2BaseNode {
         // Update extents
         this.extents.space = space;
         const nodeExtents = this.extents.value;
-        const textExtents = _vec0;
-        const nodePadding = _vec1;
-        const contentExtents = _vec2;
+        const textExtents = this.scene.acquireVec2();
+        const nodePadding = this.scene.acquireVec2();
+        const contentExtents = this.scene.acquireVec2();
         this.text.getExtentsInto(textExtents, space);
         this.data.padding.getInto(nodePadding, space);
         this.data.minExtents.getInto(nodeExtents, space);
@@ -66,13 +65,12 @@ export class S2PlainNode extends S2BaseNode {
         );
         this.text.update();
 
+        this.scene.releaseVec2(textExtents);
+        this.scene.releaseVec2(nodePadding);
+        this.scene.releaseVec2(contentExtents);
+
         this.updateBackground();
         this.updateEdges();
         this.clearDirty();
     }
 }
-
-const _vec0 = new S2Vec2();
-const _vec1 = new S2Vec2();
-const _vec2 = new S2Vec2();
-//const _vec3 = new S2Vec2();

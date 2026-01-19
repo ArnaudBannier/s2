@@ -4,7 +4,6 @@ import type { S2BaseNode } from './s2-base-node';
 import { S2LineCurve } from '../../math/curve/s2-line-curve';
 import { S2SDFUtils } from '../../math/curve/s2-sdf';
 import { S2Mat2x3 } from '../../math/s2-mat2x3';
-import { S2Vec2 } from '../../math/s2-vec2';
 import { S2Line } from '../s2-line';
 import { S2Edge, S2EdgeData } from './s2-base-edge';
 
@@ -29,8 +28,8 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         this.updateSVGChildren();
         const space = this.scene.getWorldSpace();
 
-        const start = _vec0;
-        const end = _vec1;
+        const start = this.scene.acquireVec2();
+        const end = this.scene.acquireVec2();
         this.start.getCenterInto(start, space);
         this.end.getCenterInto(end, space);
         this.lineCurve.setPointsV(start, end);
@@ -62,11 +61,12 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         }
         this.line.update();
 
+        this.scene.releaseVec2(start);
+        this.scene.releaseVec2(end);
+
         this.updateArrowTips();
         this.clearDirty();
     }
 }
 
 const _mat = new S2Mat2x3();
-const _vec0 = new S2Vec2();
-const _vec1 = new S2Vec2();

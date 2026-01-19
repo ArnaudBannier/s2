@@ -5,7 +5,6 @@ import { S2BezierLengthMapper } from '../../math/curve/length-mapper/s2-bezier-l
 import { S2CubicCurve } from '../../math/curve/s2-cubic-curve';
 import { S2SDFUtils } from '../../math/curve/s2-sdf';
 import { S2Mat2x3 } from '../../math/s2-mat2x3';
-import { S2Vec2 } from '../../math/s2-vec2';
 import { S2Number } from '../../shared/s2-number';
 import { S2StringPath } from '../base/s2-string-path';
 import { S2Edge, S2EdgeData } from './s2-base-edge';
@@ -74,10 +73,10 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
 
     protected updateCurve(): void {
         const space = this.scene.getWorldSpace();
-        const p0 = _vec0;
-        const p1 = _vec1;
-        const p2 = _vec2;
-        const p3 = _vec3;
+        const p0 = this.scene.acquireVec2();
+        const p1 = this.scene.acquireVec2();
+        const p2 = this.scene.acquireVec2();
+        const p3 = this.scene.acquireVec2();
         this.start.getCenterInto(p0, space);
         this.end.getCenterInto(p3, space);
         const distance = p0.distance(p3);
@@ -99,6 +98,11 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         p2.scale(this.data.endTension.get() * distance).addV(p3);
 
         this.curve.setControlPointsV(p0, p1, p2, p3);
+
+        this.scene.releaseVec2(p0);
+        this.scene.releaseVec2(p1);
+        this.scene.releaseVec2(p2);
+        this.scene.releaseVec2(p3);
 
         const sdf0 = this.start.getSDF();
         const sdf1 = this.end.getSDF();
@@ -122,7 +126,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         const space = this.scene.getWorldSpace();
         const viewSpace = this.scene.getViewSpace();
         const curve = this.curve;
-        const point = _vec0;
+        const point = this.scene.acquireVec2();
         let svgPath = '';
 
         point.set(curve.x0, curve.y0);
@@ -137,6 +141,8 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         point.set(curve.x3, curve.y3);
         space.convertPointIntoV(point, point, viewSpace);
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} `;
+
+        this.scene.releaseVec2(point);
 
         this.path.data.path.set(svgPath);
         this.path.data.stroke.copyIfUnlocked(this.data.stroke);
@@ -158,7 +164,3 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
 }
 
 const _mat = new S2Mat2x3();
-const _vec0 = new S2Vec2();
-const _vec1 = new S2Vec2();
-const _vec2 = new S2Vec2();
-const _vec3 = new S2Vec2();

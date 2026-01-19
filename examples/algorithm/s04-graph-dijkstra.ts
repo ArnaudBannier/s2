@@ -1,36 +1,55 @@
 import { MTL } from '../../src/utils/mtl-colors.ts';
-import { S2Circle } from '../../src/core/element/s2-circle.ts';
-import { S2Path } from '../../src/core/element/s2-path.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
 import { S2StepAnimator } from '../../src/core/animation/s2-step-animator.ts';
-import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
-import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
-import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
-import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable-circle.ts';
-import { S2DraggableContainerLine } from '../../src/core/element/draggable/s2-draggable-container-line.ts';
+import { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
+import { S2CubicEdge } from '../../src/core/element/node/s2-cubic-edge.ts';
 
 const titleString = 'Algorithme de Dijkstra';
 
 class SceneFigure extends S2Scene {
-    protected circle: S2Circle;
-    protected path: S2Path;
     public animator: S2StepAnimator;
 
-    setCircleDefaultStyle(circle: S2Circle): void {
-        const data = circle.data;
-        data.fill.color.copy(MTL.GREY_6);
-        data.stroke.color.copy(MTL.GREY_4);
+    setNodeDefaultStyle(node: S2PlainNode): void {
+        const worldSpace = this.getWorldSpace();
+        const data = node.data;
+        data.layer.set(1);
+        data.padding.set(5, 5, this.viewSpace);
+        data.anchor.set(0, 0);
+        data.background.fill.color.copy(MTL.BLUE_9);
+        data.background.stroke.color.copy(MTL.BLUE_5);
+        data.background.stroke.width.set(4, this.viewSpace);
+        //data.background.fill.opacity.set(0.5);
+        data.minExtents.set(0.5, 0.5, worldSpace);
+        data.text.horizontalAlign.set(0);
+        data.text.verticalAlign.set(0);
+        //data.text.stroke.color.copy(MTL.BLACK);
+        //data.text.stroke.width.set(3, this.viewSpace);
+        data.text.font.size.set(24, this.getViewSpace());
+        data.background.shape.set('circle');
+    }
+
+    setEdgeDefaultStyle(edge: S2CubicEdge): void {
+        const data = edge.data;
+        data.stroke.color.copy(MTL.BLUE_3);
         data.stroke.width.set(4, this.getViewSpace());
-        data.fill.opacity.set(1.0);
-        data.radius.set(1, this.getWorldSpace());
+        data.startDistance.set(5, this.viewSpace);
+        data.endDistance.set(12, this.viewSpace);
+        data.pathFrom.set(0);
+    }
+
+    setEdgeEmphStyle(edge: S2CubicEdge): void {
+        const data = edge.data;
+        data.stroke.color.copy(MTL.WHITE);
+        data.stroke.width.set(6, this.getViewSpace());
+        data.startDistance.set(0, this.viewSpace);
+        data.endDistance.set(12, this.viewSpace);
+        data.pathFrom.set(0);
     }
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
         this.camera.setExtents(8.0, 4.5);
-        this.camera.setRotationDeg(30);
-        this.camera.setZoom(0.8);
         this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
 
         this.animator = new S2StepAnimator(this);
@@ -46,106 +65,74 @@ class SceneFigure extends S2Scene {
 
         const grid = this.addWorldGrid();
         grid.data.stroke.color.copy(MTL.GREY_6);
-        grid.data.geometry.boundA.set(-7, -4, worldSpace);
-        grid.data.geometry.boundB.set(+7, +4, worldSpace);
+        grid.data.geometry.boundA.set(-8, -4.5, worldSpace);
+        grid.data.geometry.boundB.set(+8, +4.5, worldSpace);
         grid.data.geometry.space.set(worldSpace);
 
-        const draggable = new S2DraggableCircle(this);
-        draggable.setParent(this.getSVG());
-        draggable.data.position.set(-3, 0, worldSpace);
-        draggable.data.radius.set(1, worldSpace);
+        const nodeCount = 7;
+        const nodes: S2PlainNode[] = [];
+        for (let i = 0; i < nodeCount; i++) {
+            const node = new S2PlainNode(this);
+            node.setParent(this.getSVG());
+            this.setNodeDefaultStyle(node);
+            node.setContent(i.toString());
+            nodes.push(node);
+        }
 
-        // const container = new S2DraggableContainerBox(this);
-        // container.data.space.set('view');
-        // container.data.boundA.set(-7, -4, 'world');
-        // container.data.boundB.set(+7, +4, 'world');
-        // draggable.setContainer(container);
+        const halfW = 4;
+        const halfH = 2;
+        nodes[0].data.position.set(-halfW, 0, worldSpace);
+        nodes[1].data.position.set(-halfW / 2, +halfH, worldSpace);
+        nodes[2].data.position.set(-halfW / 2, -halfH, worldSpace);
+        nodes[3].data.position.set(0, 0, worldSpace);
+        nodes[4].data.position.set(+halfW / 2, +halfH, worldSpace);
+        nodes[5].data.position.set(+halfW / 2, -halfH, worldSpace);
+        nodes[6].data.position.set(halfW, 0, worldSpace);
 
-        const container = new S2DraggableContainerLine(this);
-        container.data.space.set(worldSpace);
-        container.data.boundA.set(-3, 3, worldSpace);
-        //container.data.boundA.set(0, 0, 'view');
-        container.data.boundB.set(+3, -3, worldSpace);
-        draggable.setContainer(container);
-
-        const path = this.addPath();
-        path.moveTo(-7, -4).lineTo(-7, +4).lineTo(+7, +4).lineTo(+7, -4).close();
-        path.data.space.set(worldSpace);
-        path.data.stroke.width.set(4, viewSpace);
-
-        this.path = this.addPath();
-        this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
-        this.path.data.space.set(worldSpace);
-        this.path.data.stroke.lineCap.set('round');
-        this.path.data.stroke.width.set(6, viewSpace);
-        this.path.data.stroke.color.copy(MTL.CYAN_5);
-        this.path.data.pathFrom.set(0.0);
-        this.path.data.pathTo.set(0.0);
-
-        this.circle = this.addCircle();
-        this.setCircleDefaultStyle(this.circle);
-        this.circle.data.position.set(0, 0, worldSpace);
-        this.circle.data.opacity.set(0.0);
-
-        const tip = this.path.createArrowTip();
-        tip.setParent(this.getSVG());
-        tip.setTipInset(0.25).setReversed(false).setAnchorAlignment(0);
+        const edgesInfo = [
+            [0, 1, -45],
+            [0, 2, +45],
+            [1, 3, 0],
+            [1, 4, 0],
+            [2, 1, 0],
+            [2, 3, 0],
+            [2, 5, 0],
+            [3, 5, 0],
+            [3, 6, 0],
+            [4, 6, -45],
+            [5, 6, +45],
+        ];
+        for (const edgeInfo of edgesInfo) {
+            const edge = new S2CubicEdge(this, nodes[edgeInfo[0]], nodes[edgeInfo[1]]);
+            edge.setParent(this.getSVG());
+            this.setEdgeDefaultStyle(edge);
+            if (edgeInfo[2] !== 0) {
+                edge.data.bendAngle.set(edgeInfo[2]);
+                edge.data.startTension.set(0.4);
+                edge.data.endTension.set(0.4);
+            }
+            const tip = edge.createArrowTip();
+            tip.data.pathStrokeFactor.set(0.5);
+        }
+        // for (const edgeInfo of edgesInfo) {
+        //     const edge = new S2CubicEdge(this, nodes[edgeInfo[0]], nodes[edgeInfo[1]]);
+        //     edge.setParent(this.getSVG());
+        //     this.setEdgeEmphStyle(edge);
+        //     if (edgeInfo[2] !== 0) {
+        //         edge.data.bendAngle.set(edgeInfo[2]);
+        //         edge.data.startTension.set(0.4);
+        //         edge.data.endTension.set(0.4);
+        //     }
+        //     edge.createArrowTip();
+        // }
 
         this.update();
-
         this.createAnimation();
     }
 
     createAnimation(): void {
-        let anim = S2LerpAnimFactory.create(this, this.path.data.pathTo).setCycleDuration(2000).setEasing(ease.inOut);
-
-        this.path.data.pathTo.set(1.0);
-        anim.commitFinalState();
-        this.animator.addAnimation(anim);
-
-        anim = S2LerpAnimFactory.create(this, this.path.data.pathFrom).setCycleDuration(1000).setEasing(ease.inOut);
-
-        this.path.data.pathFrom.set(0.8);
-
-        this.animator.addAnimation(anim.commitFinalState(), 'previous-start', 1000);
-
-        this.animator.makeStep();
-
-        this.animator.enableElement(this.circle, true);
-        anim = S2LerpAnimFactory.create(this, this.circle.data.opacity).setCycleDuration(500).setEasing(ease.inOut);
-
-        this.circle.data.opacity.set(1.0);
-        this.animator.addAnimation(anim.commitFinalState());
-
-        this.animator.makeStep();
-
-        const animGroup = new S2AnimGroup(this)
-            .addLerpProperties(
-                [
-                    this.circle.data.position,
-                    this.circle.data.fill.color,
-                    this.circle.data.stroke.color,
-                    this.circle.data.stroke.color,
-                    this.path.data.stroke.color,
-                ],
-                600,
-                ease.inOut,
-            )
-            .setCycleCount(3)
-            .setAlternate(true);
-
-        anim = S2LerpAnimFactory.create(this, this.circle.data.radius).setCycleDuration(1800).setEasing(ease.inOut);
-
-        this.circle.data.position.set(-2, 0, this.getWorldSpace());
-        this.circle.data.fill.color.copy(MTL.LIGHT_GREEN_9);
-        this.circle.data.stroke.color.copy(MTL.LIGHT_GREEN_5);
-        this.circle.data.radius.set(20, this.getViewSpace());
-        this.path.data.stroke.color.copy(MTL.LIGHT_GREEN_5);
-
-        this.animator.addAnimation(animGroup.commitLerpFinalStates());
-        this.animator.addAnimation(anim.commitFinalState(), 'previous-start', 0);
-        this.animator.makeStep();
-        this.animator.finalize();
+        // this.animator.makeStep();
+        // this.animator.finalize();
     }
 }
 
@@ -159,7 +146,7 @@ if (appDiv) {
                 <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
                 <button id="reset-button"><i class="fa-solid fa-backward-fast"></i></button>
                 <button id="prev-button"><i class="fa-solid fa-step-backward"></i></button>
-                <button id="play-button"><i class="fa-solid fa-redo"></i></button>
+                <button id="play-button"><i class="fa-solid fa-redo"><n/i></button>
                 <button id="next-button"><i class="fa-solid fa-step-forward"></i></button>
                 <button id="full-button"><i class="fa-solid fa-play"></i></button>
             </div>

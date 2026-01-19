@@ -80,6 +80,14 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         return arrowTip;
     }
 
+    getStart(): S2BaseNode {
+        return this.start;
+    }
+
+    getEnd(): S2BaseNode {
+        return this.end;
+    }
+
     getTip(index: number): S2ArrowTip {
         return this.arrowTips[index];
     }
