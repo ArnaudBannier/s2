@@ -126,7 +126,7 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
 
     toString(): string {
         const c = (x: number) => S2Color.linearToSRGB255(x).toString(16).padStart(2, '0');
-        return `#${c(this.r)}${c(this.g)}${c(this.b)}`;
+        return `#${c(this.r)}${c(this.g)}${c(this.b)}${c(this.a)}`;
     }
 
     get(): { r: number; g: number; b: number; a: number } {

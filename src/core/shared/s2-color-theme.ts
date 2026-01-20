@@ -17,4 +17,13 @@ export class S2ColorTheme {
         }
         return color;
     }
+
+    opacity(name: S2ColorName, scale: S2ColorScale): number {
+        const hex = this.color(name, scale);
+        if (hex.length === 9) {
+            const alphaHex = hex.substring(7, 9);
+            return parseInt(alphaHex, 16) / 255;
+        }
+        return 1;
+    }
 }

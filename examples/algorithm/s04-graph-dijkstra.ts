@@ -7,27 +7,33 @@ import { S2CubicEdge } from '../../src/core/element/node/s2-cubic-edge.ts';
 
 const titleString = 'Algorithme de Dijkstra';
 
-import { S2ColorTheme } from '../../src/core/shared/s2-color-theme.ts';
+import { S2ColorTheme, type S2Palette } from '../../src/core/shared/s2-color-theme.ts';
 
-import * as radix from '../../src/utils/radix-colors-dark.ts';
-const colorTheme = new S2ColorTheme({
-    back: radix.slateDark,
-    main: radix.cyanDark,
-    secondary: radix.slateDark,
-    blue: radix.blueDark,
-    red: radix.redDark,
-    cyan: radix.cyanDark,
-});
+import * as radixDark from '../../src/utils/radix-colors-dark.ts';
+import * as radixLight from '../../src/utils/radix-colors-light.ts';
 
-// import * as radix from '../../src/utils/radix-colors-light.ts';
-// const colorTheme = new S2ColorTheme({
-//     back: radix.slate,
-//     main: radix.blue,
-//     secondary: radix.slate,
-//     blue: radix.blue,
-//     red: radix.red,
-//     cyan: radix.cyan,
-// });
+let mode = 1; // 0 = dark, 1 = light
+let palette: S2Palette;
+if (mode === 0) {
+    palette = {
+        back: radixDark.slateDark,
+        main: radixDark.cyanDark,
+        secondary: radixDark.slateDark,
+        blue: radixDark.blueDark,
+        red: radixDark.redDark,
+        cyan: radixDark.cyanDark,
+    };
+} else {
+    palette = {
+        back: radixLight.slate,
+        main: radixLight.cyan,
+        secondary: radixLight.slate,
+        blue: radixLight.blue,
+        red: radixLight.red,
+        cyan: radixLight.cyan,
+    };
+}
+const colorTheme = new S2ColorTheme(palette);
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
@@ -41,7 +47,7 @@ class SceneFigure extends S2Scene {
         data.background.fill.color.setFromTheme(colorTheme, 'main', 5);
         data.background.stroke.color.setFromTheme(colorTheme, 'main', 8);
         data.background.stroke.width.set(4, this.viewSpace);
-        //data.background.fill.opacity.set(0.5);
+        data.background.fill.opacity.set(1.0);
         data.minExtents.set(0.5, 0.5, worldSpace);
         data.text.horizontalAlign.set(0);
         data.text.verticalAlign.set(0);
@@ -88,6 +94,7 @@ class SceneFigure extends S2Scene {
 
         const grid = this.addWorldGrid();
         grid.data.stroke.color.setFromTheme(colorTheme, 'back', 3);
+        grid.data.stroke.width.set(2, viewSpace);
         grid.data.geometry.boundA.set(-8, -4.5, worldSpace);
         grid.data.geometry.boundB.set(+8, +4.5, worldSpace);
         grid.data.geometry.space.set(worldSpace);
