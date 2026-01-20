@@ -1,4 +1,5 @@
 import type { S2HasClone, S2HasCopy, S2HasLerp } from './s2-base-type';
+import type { S2ColorTheme } from './s2-color-theme';
 import { S2BaseType } from './s2-base-type';
 import { S2MathUtils } from '../math/s2-math-utils';
 
@@ -92,13 +93,13 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
     }
 
     setFromHex(hex: string): this {
-        if (!/^#([0-9A-Fa-f]{6})$/.test(hex)) {
+        if (/^#([0-9A-Fa-f]{6})$/.test(hex)) {
             const num = parseInt(hex.substring(1), 16);
             this.r = S2Color.sRGB255ToLinear((num >> 16) & 0xff);
             this.g = S2Color.sRGB255ToLinear((num >> 8) & 0xff);
             this.b = S2Color.sRGB255ToLinear(num & 0xff);
             this.a = 1.0;
-        } else if (!/^#([0-9A-Fa-f]{8})$/.test(hex)) {
+        } else if (/^#([0-9A-Fa-f]{8})$/.test(hex)) {
             const num = parseInt(hex.substring(1), 16);
             this.r = S2Color.sRGB255ToLinear((num >> 24) & 0xff);
             this.g = S2Color.sRGB255ToLinear((num >> 16) & 0xff);
@@ -113,6 +114,14 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
 
     static fromHex(hex: string): S2Color {
         return new S2Color().setFromHex(hex);
+    }
+
+    setFromTheme(colorTheme: S2ColorTheme, name: string, scale: number): this {
+        return this.setFromHex(colorTheme.color(name, scale));
+    }
+
+    static fromTheme(colorTheme: S2ColorTheme, name: string, scale: number): S2Color {
+        return new S2Color().setFromTheme(colorTheme, name, scale);
     }
 
     toString(): string {
