@@ -7,10 +7,6 @@ import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
-import { S2DraggableCircle } from '../../src/core/element/draggable/s2-draggable-circle.ts';
-import type { S2BaseDraggable } from '../../src/core/element/draggable/s2-draggable.ts';
-import { S2Playable } from '../../src/core/animation/s2-playable.ts';
-import { S2DraggableContainerLine } from '../../src/core/element/draggable/s2-draggable-container-line.ts';
 
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
@@ -29,8 +25,8 @@ class SceneFigure extends S2Scene {
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
         this.camera.setExtents(8.0, 4.5);
-        this.camera.setRotationDeg(30);
-        this.camera.setZoom(0.8);
+        // this.camera.setRotationDeg(30);
+        // this.camera.setZoom(0.8);
         this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
 
         this.animator = new S2StepAnimator(this);
@@ -50,29 +46,6 @@ class SceneFigure extends S2Scene {
         grid.data.geometry.boundB.set(+7, +4, worldSpace);
         grid.data.geometry.space.set(worldSpace);
 
-        const draggable = new S2DraggableCircle(this);
-        draggable.setParent(this.getSVG());
-        draggable.data.position.set(-3, 0, worldSpace);
-        draggable.data.radius.set(1, worldSpace);
-
-        // const container = new S2DraggableContainerBox(this);
-        // container.data.space.set('view');
-        // container.data.boundA.set(-7, -4, 'world');
-        // container.data.boundB.set(+7, +4, 'world');
-        // draggable.setContainer(container);
-
-        const container = new S2DraggableContainerLine(this);
-        container.data.space.set(worldSpace);
-        container.data.boundA.set(-3, 3, worldSpace);
-        //container.data.boundA.set(0, 0, 'view');
-        container.data.boundB.set(+3, -3, worldSpace);
-        draggable.setContainer(container);
-
-        const path = this.addPath();
-        path.moveTo(-7, -4).lineTo(-7, +4).lineTo(+7, +4).lineTo(+7, -4).close();
-        path.data.space.set(worldSpace);
-        path.data.stroke.width.set(4, viewSpace);
-
         this.path = this.addPath();
         this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
         this.path.data.space.set(worldSpace);
@@ -87,50 +60,11 @@ class SceneFigure extends S2Scene {
         this.circle.data.position.set(0, 0, worldSpace);
         this.circle.data.opacity.set(0.0);
 
-        const line = this.addLine();
-        line.data.startPosition.set(0, 0, worldSpace);
-        line.data.endPosition.copy(draggable.data.position);
-        line.data.stroke.color.copy(MTL.LIGHT_BLUE_5);
-        line.data.stroke.width.set(2, viewSpace);
-        line.data.pointerEvents.set('none');
-
-        const circle = this.addCircle();
-        circle.data.radius.set(0.3, worldSpace);
-        circle.data.fill.color.copy(MTL.LIGHT_BLUE_5);
-
-        const lerpAnim = S2LerpAnimFactory.create(this, circle.data.position)
-            .setCycleDuration(1500)
-            .setEasing(ease.outExpo);
-        lerpAnim.commitFinalState();
-        const playable = new S2Playable(lerpAnim);
-
-        draggable.setOnDrag((handle: S2BaseDraggable, event: PointerEvent) => {
-            void event;
-            const pos = handle.getPosition(worldSpace);
-            line.data.endPosition.set(S2MathUtils.snap(pos.x, 0.5), S2MathUtils.snap(pos.y, 1), worldSpace);
-
-            lerpAnim.commitInitialState();
-            circle.data.position.setV(pos, worldSpace);
-            lerpAnim.commitFinalState();
-            playable.play();
-        });
-
-        draggable.setOnRelease((draggable: S2BaseDraggable, event: PointerEvent) => {
-            void event;
-            draggable.data.position.copy(line.data.endPosition);
-
-            lerpAnim.commitInitialState();
-            circle.data.position.copy(line.data.endPosition);
-            lerpAnim.commitFinalState();
-            playable.play();
-        });
-
         const tip = this.path.createArrowTip();
         tip.setParent(this.getSVG());
         tip.setTipInset(0.25).setReversed(false).setAnchorAlignment(0);
 
         this.update();
-
         this.createAnimation();
     }
 

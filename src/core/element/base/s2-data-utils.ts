@@ -32,7 +32,7 @@ export class S2DataUtils {
             element.setAttribute('stroke-width', width.toFixed(2));
         }
         if (stroke.color.isDirty()) {
-            element.setAttribute('stroke', stroke.color.toRgb());
+            element.setAttribute('stroke', stroke.color.toString());
         }
         if (stroke.opacity.isDirty()) {
             if (stroke.opacity.value <= 1) {
@@ -53,7 +53,7 @@ export class S2DataUtils {
         void scene;
         if (fill.isDirty() === false) return;
         if (fill.color.isDirty()) {
-            element.setAttribute('fill', fill.color.toRgb());
+            element.setAttribute('fill', fill.color.toString());
         }
         if (fill.opacity.isDirty()) {
             if (fill.opacity.value <= 1) {
@@ -67,7 +67,7 @@ export class S2DataUtils {
     static applyColor(color: S2Color, element: SVGElement, scene: S2BaseScene): void {
         void scene;
         if (color.isDirty()) {
-            element.setAttribute('fill', color.toRgb());
+            element.setAttribute('fill', color.toString());
         }
     }
 
