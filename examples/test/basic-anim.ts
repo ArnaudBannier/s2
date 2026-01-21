@@ -1,4 +1,3 @@
-import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2Path } from '../../src/core/element/s2-path.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
@@ -8,6 +7,29 @@ import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2AnimGroup } from '../../src/core/animation/s2-anim-group.ts';
 
+import { S2ColorTheme, type S2Palette } from '../../src/core/shared/s2-color-theme.ts';
+import { slateDark, cyanDark, rubyDark } from '../../src/utils/radix-colors-dark.ts';
+import { slate, cyan, ruby } from '../../src/utils/radix-colors-light.ts';
+
+const titleString = 'Animation simple';
+
+let mode = 0; // 0 = dark, 1 = light
+let palette: S2Palette;
+if (mode === 0) {
+    palette = {
+        back: slateDark,
+        primary: cyanDark,
+        secondary: rubyDark,
+    };
+} else {
+    palette = {
+        back: slate,
+        primary: cyan,
+        secondary: ruby,
+    };
+}
+const colorTheme = new S2ColorTheme(palette);
+
 class SceneFigure extends S2Scene {
     protected circle: S2Circle;
     protected path: S2Path;
@@ -15,11 +37,19 @@ class SceneFigure extends S2Scene {
 
     setCircleDefaultStyle(circle: S2Circle): void {
         const data = circle.data;
-        data.fill.color.copy(MTL.GREY_6);
-        data.stroke.color.copy(MTL.GREY_4);
+        data.fill.color.setFromTheme(colorTheme, 'primary', 5);
+        data.stroke.color.setFromTheme(colorTheme, 'primary', 7);
         data.stroke.width.set(4, this.getViewSpace());
         data.fill.opacity.set(1.0);
         data.radius.set(1, this.getWorldSpace());
+    }
+
+    setPathDefaultStyle(path: S2Path): void {
+        const data = path.data;
+        data.space.set(this.getWorldSpace());
+        data.stroke.lineCap.set('round');
+        data.stroke.width.set(6, this.getViewSpace());
+        data.stroke.color.setFromTheme(colorTheme, 'primary', 9);
     }
 
     constructor(svgElement: SVGSVGElement) {
@@ -34,24 +64,19 @@ class SceneFigure extends S2Scene {
         const viewSpace = this.getViewSpace();
         const worldSpace = this.getWorldSpace();
 
-        console.log('view', viewSpace);
-        console.log('world', worldSpace);
-
         const fillRect = this.addFillRect();
-        fillRect.data.color.copy(MTL.GREY_8);
+        fillRect.data.color.setFromTheme(colorTheme, 'back', 2);
 
         const grid = this.addWorldGrid();
-        grid.data.stroke.color.copy(MTL.GREY_6);
+        grid.data.stroke.color.setFromTheme(colorTheme, 'back', 4);
         grid.data.geometry.boundA.set(-7, -4, worldSpace);
         grid.data.geometry.boundB.set(+7, +4, worldSpace);
         grid.data.geometry.space.set(worldSpace);
+        grid.data.stroke.width.set(2, viewSpace);
 
         this.path = this.addPath();
+        this.setPathDefaultStyle(this.path);
         this.path.moveTo(-5, 0).cubicTo(0, -4, 0, -4, +5, 0).cubicTo(0, +4, 0, +4, -5, 0);
-        this.path.data.space.set(worldSpace);
-        this.path.data.stroke.lineCap.set('round');
-        this.path.data.stroke.width.set(6, viewSpace);
-        this.path.data.stroke.color.copy(MTL.CYAN_5);
         this.path.data.pathFrom.set(0.0);
         this.path.data.pathTo.set(0.0);
 
@@ -70,17 +95,13 @@ class SceneFigure extends S2Scene {
 
     createAnimation(): void {
         let anim = S2LerpAnimFactory.create(this, this.path.data.pathTo).setCycleDuration(2000).setEasing(ease.inOut);
-
         this.path.data.pathTo.set(1.0);
         anim.commitFinalState();
         this.animator.addAnimation(anim);
 
         anim = S2LerpAnimFactory.create(this, this.path.data.pathFrom).setCycleDuration(1000).setEasing(ease.inOut);
-
         this.path.data.pathFrom.set(0.8);
-
         this.animator.addAnimation(anim.commitFinalState(), 'previous-start', 1000);
-
         this.animator.makeStep();
 
         this.animator.enableElement(this.circle, true);
@@ -88,7 +109,6 @@ class SceneFigure extends S2Scene {
 
         this.circle.data.opacity.set(1.0);
         this.animator.addAnimation(anim.commitFinalState());
-
         this.animator.makeStep();
 
         const animGroup = new S2AnimGroup(this)
@@ -105,14 +125,13 @@ class SceneFigure extends S2Scene {
             )
             .setCycleCount(3)
             .setAlternate(true);
-
         anim = S2LerpAnimFactory.create(this, this.circle.data.radius).setCycleDuration(1800).setEasing(ease.inOut);
 
         this.circle.data.position.set(-2, 0, this.getWorldSpace());
-        this.circle.data.fill.color.copy(MTL.LIGHT_GREEN_9);
-        this.circle.data.stroke.color.copy(MTL.LIGHT_GREEN_5);
+        this.circle.data.fill.color.setFromTheme(colorTheme, 'secondary', 5);
+        this.circle.data.stroke.color.setFromTheme(colorTheme, 'secondary', 7);
         this.circle.data.radius.set(20, this.getViewSpace());
-        this.path.data.stroke.color.copy(MTL.LIGHT_GREEN_5);
+        this.path.data.stroke.color.setFromTheme(colorTheme, 'secondary', 9);
 
         this.animator.addAnimation(animGroup.commitLerpFinalStates());
         this.animator.addAnimation(anim.commitFinalState(), 'previous-start', 0);
@@ -125,7 +144,7 @@ const appDiv = document.querySelector<HTMLDivElement>('#app');
 if (appDiv) {
     appDiv.innerHTML = `
         <div>
-            <h1>Animation simple</h1>
+            <h1>${titleString}</h1>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
                 <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
