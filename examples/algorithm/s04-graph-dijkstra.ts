@@ -90,14 +90,14 @@ class SceneFigure extends S2Scene {
         console.log('world', worldSpace);
 
         const fillRect = this.addFillRect();
-        fillRect.data.color.setFromTheme(colorTheme, 'back', 1);
+        fillRect.data.color.setFromTheme(colorTheme, 'back', 2);
 
-        const grid = this.addWorldGrid();
-        grid.data.stroke.color.setFromTheme(colorTheme, 'back', 3);
-        grid.data.stroke.width.set(2, viewSpace);
-        grid.data.geometry.boundA.set(-8, -4.5, worldSpace);
-        grid.data.geometry.boundB.set(+8, +4.5, worldSpace);
-        grid.data.geometry.space.set(worldSpace);
+        // const grid = this.addWorldGrid();
+        // grid.data.stroke.color.setFromTheme(colorTheme, 'back', 4);
+        // grid.data.stroke.width.set(2, viewSpace);
+        // grid.data.geometry.boundA.set(-8, -4.5, worldSpace);
+        // grid.data.geometry.boundB.set(+8, +4.5, worldSpace);
+        // grid.data.geometry.space.set(worldSpace);
 
         const nodeCount = 7;
         const nodes: S2PlainNode[] = [];
@@ -176,7 +176,7 @@ if (appDiv) {
                 <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
                 <button id="reset-button"><i class="fa-solid fa-backward-fast"></i></button>
                 <button id="prev-button"><i class="fa-solid fa-step-backward"></i></button>
-                <button id="play-button"><i class="fa-solid fa-redo"><n/i></button>
+                <button id="play-button"><i class="fa-solid fa-redo"></i></button>
                 <button id="next-button"><i class="fa-solid fa-step-forward"></i></button>
                 <button id="full-button"><i class="fa-solid fa-play"></i></button>
             </div>
