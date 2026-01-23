@@ -14,6 +14,7 @@ import { DirectedGraph, type VertexId } from './directed-graph.ts';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
+import { S2AnimatableColor } from '../../src/core/animation/s2-animatable.ts';
 
 let mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -67,8 +68,11 @@ class VertexData {
     public wasInPath: boolean = false;
     public depth: number = -1;
 
+    public animFill: S2AnimatableColor;
+
     constructor(cell: S2Rect) {
         this.cell = cell;
+        this.animFill = new S2AnimatableColor(cell.getScene(), cell.data.fill.color);
     }
 }
 

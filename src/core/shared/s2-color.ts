@@ -15,6 +15,7 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
         this.r = S2Color.sRGB255ToLinear(r);
         this.g = S2Color.sRGB255ToLinear(g);
         this.b = S2Color.sRGB255ToLinear(b);
+        this.a = 1.0;
         this.locked = locked;
     }
 
@@ -82,12 +83,17 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
         return new S2Color().lerp(color0, color1, t);
     }
 
-    set(r: number, g: number, b: number, a: number): this {
-        if (this.r === r && this.g === g && this.b === b && this.a === a) return this;
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
+    set(r: number, g: number, b: number, a: number = 255): this {
+        const linearR = S2Color.sRGB255ToLinear(r);
+        const linearG = S2Color.sRGB255ToLinear(g);
+        const linearB = S2Color.sRGB255ToLinear(b);
+        const linearA = S2Color.sRGB255ToLinear(a);
+
+        if (this.r === linearR && this.g === linearG && this.b === linearB && this.a === linearA) return this;
+        this.r = linearR;
+        this.g = linearG;
+        this.b = linearB;
+        this.a = linearA;
         this.markDirty();
         return this;
     }
