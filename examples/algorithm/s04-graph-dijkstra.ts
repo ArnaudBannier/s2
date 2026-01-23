@@ -92,12 +92,12 @@ class SceneFigure extends S2Scene {
         const fillRect = this.addFillRect();
         fillRect.data.color.setFromTheme(colorTheme, 'back', 2);
 
-        // const grid = this.addWorldGrid();
-        // grid.data.stroke.color.setFromTheme(colorTheme, 'back', 4);
-        // grid.data.stroke.width.set(2, viewSpace);
-        // grid.data.geometry.boundA.set(-8, -4.5, worldSpace);
-        // grid.data.geometry.boundB.set(+8, +4.5, worldSpace);
-        // grid.data.geometry.space.set(worldSpace);
+        // const helperGrid = this.addWorldGrid();
+        // helperGrid.data.stroke.color.setFromTheme(colorTheme, 'back', 4);
+        // helperGrid.data.stroke.width.set(2, viewSpace);
+        // helperGrid.data.geometry.boundA.set(-8, -4.5, worldSpace);
+        // helperGrid.data.geometry.boundB.set(+8, +4.5, worldSpace);
+        // helperGrid.data.geometry.space.set(worldSpace);
 
         const nodeCount = 7;
         const nodes: S2PlainNode[] = [];

@@ -43,6 +43,12 @@ export const examples: S2Example[] = [
         description: 'Algorithme de Dijkstra pour les plus courts chemins dans un graphe.',
     },
     {
+        id: 'graph-s04-search',
+        title: 'INF2031 : Parcours de graphes',
+        path: '/s2/examples/algorithm/s04-graph-search.html',
+        description: 'Algorithme de parcours de graphes.',
+    },
+    {
         id: 'linear-algebra-s03-eigenvector-01',
         title: 'MAT2051 : Vecteurs propres',
         path: '/s2/examples/linear-algebra/s03-eigenvectors-01.html',
