@@ -5,17 +5,17 @@ import { S2MathUtils } from '../math/s2-math-utils';
 
 export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCopy<S2Color>, S2HasLerp<S2Color> {
     readonly kind = 'color' as const;
-    public r: number;
-    public g: number;
-    public b: number;
-    public a: number = 1.0;
+    public linearR: number;
+    public linearG: number;
+    public linearB: number;
+    public linearA: number;
 
     constructor(r: number = 0, g: number = 0, b: number = 0, locked: boolean = false) {
         super();
-        this.r = S2Color.sRGB255ToLinear(r);
-        this.g = S2Color.sRGB255ToLinear(g);
-        this.b = S2Color.sRGB255ToLinear(b);
-        this.a = 1.0;
+        this.linearR = S2Color.sRGB255ToLinear(r);
+        this.linearG = S2Color.sRGB255ToLinear(g);
+        this.linearB = S2Color.sRGB255ToLinear(b);
+        this.linearA = 1.0;
         this.locked = locked;
     }
 
@@ -47,10 +47,10 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
 
     clone(): S2Color {
         const color = new S2Color();
-        color.r = this.r;
-        color.g = this.g;
-        color.b = this.b;
-        color.a = this.a;
+        color.linearR = this.linearR;
+        color.linearG = this.linearG;
+        color.linearB = this.linearB;
+        color.linearA = this.linearA;
         color.locked = this.locked;
         return color;
     }
@@ -61,20 +61,21 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
     }
 
     copy(color: S2Color): this {
-        if (this.r === color.r && this.g === color.g && this.b === color.b) return this;
-        this.r = color.r;
-        this.g = color.g;
-        this.b = color.b;
-        this.a = color.a;
+        if (this.linearR === color.linearR && this.linearG === color.linearG && this.linearB === color.linearB)
+            return this;
+        this.linearR = color.linearR;
+        this.linearG = color.linearG;
+        this.linearB = color.linearB;
+        this.linearA = color.linearA;
         this.markDirty();
         return this;
     }
 
     lerp(state0: S2Color, state1: S2Color, t: number): this {
-        const r = S2MathUtils.lerp(state0.r, state1.r, t);
-        const g = S2MathUtils.lerp(state0.g, state1.g, t);
-        const b = S2MathUtils.lerp(state0.b, state1.b, t);
-        const a = S2MathUtils.lerp(state0.a, state1.a, t);
+        const r = S2MathUtils.lerp(state0.linearR, state1.linearR, t);
+        const g = S2MathUtils.lerp(state0.linearG, state1.linearG, t);
+        const b = S2MathUtils.lerp(state0.linearB, state1.linearB, t);
+        const a = S2MathUtils.lerp(state0.linearA, state1.linearA, t);
         this.set(r, g, b, a);
         return this;
     }
@@ -83,39 +84,43 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
         return new S2Color().lerp(color0, color1, t);
     }
 
-    set(r: number, g: number, b: number, a: number = 255): this {
-        const linearR = S2Color.sRGB255ToLinear(r);
-        const linearG = S2Color.sRGB255ToLinear(g);
-        const linearB = S2Color.sRGB255ToLinear(b);
-        const linearA = S2Color.sRGB255ToLinear(a);
-
-        if (this.r === linearR && this.g === linearG && this.b === linearB && this.a === linearA) return this;
-        this.r = linearR;
-        this.g = linearG;
-        this.b = linearB;
-        this.a = linearA;
+    set(linearR: number, linearG: number, linearB: number, linearA: number): this {
+        if (
+            this.linearR === linearR &&
+            this.linearG === linearG &&
+            this.linearB === linearB &&
+            this.linearA === linearA
+        )
+            return this;
+        this.linearR = linearR;
+        this.linearG = linearG;
+        this.linearB = linearB;
+        this.linearA = linearA;
         this.markDirty();
         return this;
     }
 
     setFromHex(hex: string): this {
+        let linearR = 0;
+        let linearG = 0;
+        let linearB = 0;
+        let linearA = 1.0;
+
         if (/^#([0-9A-Fa-f]{6})$/.test(hex)) {
             const num = parseInt(hex.substring(1), 16);
-            this.r = S2Color.sRGB255ToLinear((num >> 16) & 0xff);
-            this.g = S2Color.sRGB255ToLinear((num >> 8) & 0xff);
-            this.b = S2Color.sRGB255ToLinear(num & 0xff);
-            this.a = 1.0;
+            linearR = S2Color.sRGB255ToLinear((num >> 16) & 0xff);
+            linearG = S2Color.sRGB255ToLinear((num >> 8) & 0xff);
+            linearB = S2Color.sRGB255ToLinear(num & 0xff);
         } else if (/^#([0-9A-Fa-f]{8})$/.test(hex)) {
             const num = parseInt(hex.substring(1), 16);
-            this.r = S2Color.sRGB255ToLinear((num >> 24) & 0xff);
-            this.g = S2Color.sRGB255ToLinear((num >> 16) & 0xff);
-            this.b = S2Color.sRGB255ToLinear((num >> 8) & 0xff);
-            this.a = S2Color.sRGB255ToLinear(num & 0xff);
+            linearR = S2Color.sRGB255ToLinear((num >> 24) & 0xff);
+            linearG = S2Color.sRGB255ToLinear((num >> 16) & 0xff);
+            linearB = S2Color.sRGB255ToLinear((num >> 8) & 0xff);
+            linearA = S2Color.sRGB255ToLinear(num & 0xff);
         } else {
             throw new Error(`Invalid hex color: ${hex}`);
         }
-        this.markDirty();
-        return this;
+        return this.set(linearR, linearG, linearB, linearA);
     }
 
     static fromHex(hex: string): S2Color {
@@ -132,11 +137,11 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
 
     toString(): string {
         const c = (x: number) => S2Color.linearToSRGB255(x).toString(16).padStart(2, '0');
-        return `#${c(this.r)}${c(this.g)}${c(this.b)}${c(this.a)}`;
+        return `#${c(this.linearR)}${c(this.linearG)}${c(this.linearB)}${c(this.linearA)}`;
     }
 
     get(): { r: number; g: number; b: number; a: number } {
         const c = (x: number) => S2Color.linearToSRGB255(x);
-        return { r: c(this.r), g: c(this.g), b: c(this.b), a: c(this.a) };
+        return { r: c(this.linearR), g: c(this.linearG), b: c(this.linearB), a: c(this.linearA) };
     }
 }

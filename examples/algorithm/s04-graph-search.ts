@@ -11,10 +11,11 @@ import * as radixLight from '../../src/utils/radix-colors-light.ts';
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { DirectedGraph, type VertexId } from './directed-graph.ts';
-import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
-import { ease } from '../../src/core/animation/s2-easing.ts';
+// import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
+// import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2AnimatableColor } from '../../src/core/animation/s2-animatable.ts';
+import { S2TriggerAnimatableColor } from '../../src/core/animation/s2-timeline-trigger.ts';
 
 let mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -32,7 +33,8 @@ if (mode === 0) {
     palette = {
         back: radixLight.slate,
         main: radixLight.cyan,
-        secondary: radixLight.slate,
+        secondary: radixLight.lime,
+        wall: radixLight.ruby,
         blue: radixLight.blue,
         red: radixLight.red,
         cyan: radixLight.cyan,
@@ -69,17 +71,21 @@ class VertexData {
     public depth: number = -1;
 
     public animFill: S2AnimatableColor;
+    public animStroke: S2AnimatableColor;
 
     constructor(cell: S2Rect) {
         this.cell = cell;
         this.animFill = new S2AnimatableColor(cell.getScene(), cell.data.fill.color);
+        this.animStroke = new S2AnimatableColor(cell.getScene(), cell.data.stroke.color);
     }
 }
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
     public graph: DirectedGraph<VertexData>;
-    public size: number = 30;
+    public size: number = 10;
+
+    protected cellWidth: number;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -108,6 +114,7 @@ class SceneFigure extends S2Scene {
         const gridSpacing = 0.05;
         const cellWidth = (gridWidth - gridSpacing * (this.size - 1)) / this.size;
         const cellSep = cellWidth + gridSpacing;
+        this.cellWidth = cellWidth;
 
         const neighborShifts = [
             [+1, +0],
@@ -121,13 +128,16 @@ class SceneFigure extends S2Scene {
         const nw = new S2Vec2(-gridWidth / 2, -gridWidth / 2);
         for (let i = 0; i < this.size; i++) {
             for (let j = 0; j < this.size; j++) {
-                const nodeNW = new S2Vec2(nw.x + j * cellSep, nw.y + (this.size - 1 - i) * cellSep);
+                const center = new S2Vec2(
+                    nw.x + j * cellSep + cellWidth / 2,
+                    nw.y + (this.size - 1 - i) * cellSep + cellWidth / 2,
+                );
                 const cell = new S2Rect(this);
                 cell.setParent(this.getSVG());
                 cell.data.layer.set(1);
                 cell.data.extents.set(cellWidth / 2, cellWidth / 2, worldSpace);
-                cell.data.position.setV(nodeNW, worldSpace);
-                cell.data.anchor.set(-1, 1);
+                cell.data.position.setV(center, worldSpace);
+                cell.data.anchor.set(0, 0);
                 cell.data.fill.color.setFromTheme(colorTheme, 'back', 1);
                 cell.data.stroke.color.setFromTheme(colorTheme, 'back', 5);
                 cell.data.stroke.width.set(2, viewSpace);
@@ -148,8 +158,8 @@ class SceneFigure extends S2Scene {
                 }
                 if (Math.random() < wallThreshold) {
                     graph.getVertex(`${i},${j}`).isWall = true;
-                    graph.getVertex(`${i},${j}`).cell.data.fill.color.setFromTheme(colorTheme, 'wall', 5);
-                    graph.getVertex(`${i},${j}`).cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 7);
+                    graph.getVertex(`${i},${j}`).cell.data.fill.color.setFromTheme(colorTheme, 'wall', 8);
+                    graph.getVertex(`${i},${j}`).cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 11);
                 }
             }
         }
@@ -178,19 +188,44 @@ class SceneFigure extends S2Scene {
     }
 
     createAnimation(start: VertexId): void {
+        console.log('Creating animation');
         const stack: VertexId[] = [];
         const color0 = new S2Color();
         const color1 = new S2Color();
-        color0.setFromTheme(colorTheme, 'main', 10);
-        color1.setFromTheme(colorTheme, 'secondary', 10);
+        const strokeColor0 = new S2Color();
+        const strokeColor1 = new S2Color();
+        const tmpColor = new S2Color();
+        color0.setFromTheme(colorTheme, 'main', 6);
+        color1.setFromTheme(colorTheme, 'secondary', 6);
+        strokeColor0.setFromTheme(colorTheme, 'main', 10);
+        strokeColor1.setFromTheme(colorTheme, 'secondary', 10);
 
         const maxPathIndex = 0.5 * this.size * this.size - 1;
         stack.push(start);
         this.graph.getVertex(start).depth = 0;
 
         let currTime = 0;
-        const timeStep = 20;
-        const cycleDuration = 100;
+        const timeStep = 50;
+        const cycleDuration = 500;
+
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                const v = this.graph.getVertex(`${i},${j}`);
+                v.animFill.setDuration(cycleDuration);
+
+                const trigger = new S2TriggerAnimatableColor(v.animFill, v.cell.data.fill.color);
+                this.animator.addTrigger(trigger, 'timeline-start', currTime);
+
+                const triggerStroke = new S2TriggerAnimatableColor(v.animStroke, v.cell.data.stroke.color);
+                this.animator.addTrigger(triggerStroke, 'timeline-start', currTime);
+
+                // if (v.isWall === false) {
+                //     const w = this.cellWidth * 0.25;
+                //     v.cell.data.extents.set(w, w, this.getWorldSpace());
+                // }
+            }
+        }
+
         while (stack.length > 0) {
             const current = stack.pop()!;
             const vertex = this.graph.getVertex(current);
@@ -239,19 +274,34 @@ class SceneFigure extends S2Scene {
                     // }
 
                     if (v.isInPath && !v.wasInPath) {
-                        const fillAnim = S2LerpAnimFactory.create(this, v.cell.data.fill.color)
-                            .setCycleDuration(cycleDuration)
-                            .setEasing(ease.inOut);
+                        // const fillAnim = S2LerpAnimFactory.create(this, v.cell.data.fill.color)
+                        //     .setCycleDuration(cycleDuration)
+                        //     .setEasing(ease.inOut);
                         const t = S2MathUtils.clamp01(v.depth / maxPathIndex);
-                        v.cell.data.fill.color.lerp(color0, color1, t);
-                        this.animator.addAnimation(fillAnim.commitFinalState(), 'start', currTime);
+                        tmpColor.lerp(color0, color1, t);
+                        //this.animator.addAnimation(fillAnim.commitFinalState(), 'start', currTime);
+
+                        const trigger = new S2TriggerAnimatableColor(v.animFill, tmpColor);
+                        this.animator.addTrigger(trigger, 'timeline-start', currTime);
+
+                        tmpColor.lerp(strokeColor0, strokeColor1, t);
+                        const triggerStroke = new S2TriggerAnimatableColor(v.animStroke, tmpColor);
+                        this.animator.addTrigger(triggerStroke, 'timeline-start', currTime);
                     }
                     if (!v.isInPath && v.wasInPath) {
-                        const fillAnim = S2LerpAnimFactory.create(this, v.cell.data.fill.color)
-                            .setCycleDuration(cycleDuration)
-                            .setEasing(ease.inOut);
-                        v.cell.data.fill.color.setFromTheme(colorTheme, 'back', 7);
-                        this.animator.addAnimation(fillAnim.commitFinalState(), 'start', currTime);
+                        // const fillAnim = S2LerpAnimFactory.create(this, v.cell.data.fill.color)
+                        //     .setCycleDuration(cycleDuration)
+                        //     .setEasing(ease.inOut);
+                        // v.cell.data.fill.color.setFromTheme(colorTheme, 'back', 7);
+                        // this.animator.addAnimation(fillAnim.commitFinalState(), 'start', currTime);
+
+                        tmpColor.setFromTheme(colorTheme, 'back', 5);
+                        const trigger = new S2TriggerAnimatableColor(v.animFill, tmpColor);
+                        this.animator.addTrigger(trigger, 'timeline-start', currTime);
+
+                        tmpColor.setFromTheme(colorTheme, 'back', 6);
+                        const strokeTrigger = new S2TriggerAnimatableColor(v.animStroke, tmpColor);
+                        this.animator.addTrigger(strokeTrigger, 'timeline-start', currTime);
                     }
                 }
             }

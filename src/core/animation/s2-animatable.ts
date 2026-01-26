@@ -3,6 +3,7 @@ import type { S2Vec2 } from '../math/s2-vec2';
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Color } from '../shared/s2-color';
 import type { S2ColorTheme } from '../shared/s2-color-theme';
+import type { S2Extents } from '../shared/s2-extents';
 import type { S2Point } from '../shared/s2-point';
 import type { S2EaseType } from './s2-easing';
 import { ease } from './s2-easing';
@@ -31,6 +32,27 @@ export abstract class S2Animatable {
         return this;
     }
 }
+
+// export class S2AnimatableCopyable<
+//     T extends S2AnimProperty & S2HasClone<T> & S2HasCopy<T> & S2HasLerp<T>,
+// > extends S2Animatable {
+//     public readonly property: T;
+
+//     constructor(scene: S2BaseScene, property: T) {
+//         const lerpAnim = new S2BaseLerpAnim(scene, property);
+//         super(scene, lerpAnim);
+//         this.property = property.clone() as T;
+//     }
+
+//     copyFrom(value: T): this {
+//         this.lerpAnim.commitInitialState();
+//         this.property.copy(value);
+//         this.lerpAnim.commitFinalState();
+//         this.playable.setRange(0, this.lerpAnim.getDuration());
+//         this.playable.play();
+//         return this;
+//     }
+// }
 
 export class S2AnimatablePoint extends S2Animatable {
     public readonly point: S2Point;
@@ -80,6 +102,28 @@ export class S2AnimatableColor extends S2Animatable {
         this.lerpAnim.commitInitialState();
         this.color.setFromTheme(colorTheme, name, scale);
         if (this.color.isDirty() === false) {
+            return this;
+        }
+        this.lerpAnim.commitFinalState();
+        this.playable.setRange(0, this.lerpAnim.getDuration());
+        this.playable.play();
+        return this;
+    }
+}
+
+export class S2AnimatableExtents extends S2Animatable {
+    public readonly extents: S2Extents;
+
+    constructor(scene: S2BaseScene, extents: S2Extents) {
+        const lerpAnim = S2LerpAnimFactory.create(scene, extents);
+        super(scene, lerpAnim);
+        this.extents = extents;
+    }
+
+    copyFrom(extents: S2Extents): this {
+        this.lerpAnim.commitInitialState();
+        this.extents.copy(extents);
+        if (this.extents.isDirty() === false) {
             return this;
         }
         this.lerpAnim.commitFinalState();

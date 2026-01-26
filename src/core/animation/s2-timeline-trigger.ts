@@ -2,9 +2,10 @@ import type { S2AnimProperty } from './s2-base-animation';
 import type { S2Boolean } from '../shared/s2-boolean';
 import type { S2String } from '../shared/s2-string';
 import type { S2Number } from '../shared/s2-number';
-import type { S2Color } from '../shared/s2-color';
+import { S2Color } from '../shared/s2-color';
 import type { S2SpaceRef } from '../shared/s2-space-ref';
 import type { S2Space } from '../math/s2-space';
+import type { S2AnimatableColor } from './s2-animatable';
 
 export abstract class S2TimelineTrigger<T extends S2AnimProperty = S2AnimProperty> {
     public property: T;
@@ -78,5 +79,19 @@ export class S2TriggerColor extends S2TimelineTrigger<S2Color> {
 
     onTrigger(): void {
         this.property.copy(this.value);
+    }
+}
+
+export class S2TriggerAnimatableColor extends S2TimelineTrigger<S2AnimatableColor> {
+    public value: S2Color;
+
+    constructor(property: S2AnimatableColor, value: S2Color) {
+        super(property);
+        this.value = new S2Color();
+        this.value.copy(value);
+    }
+
+    onTrigger(): void {
+        this.property.copyFrom(this.value);
     }
 }

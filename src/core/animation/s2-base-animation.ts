@@ -12,6 +12,7 @@ import type { S2SpaceRef } from '../shared/s2-space-ref';
 import { S2MathUtils } from '../math/s2-math-utils';
 import { ease } from './s2-easing';
 import type { S2Anchor } from '../shared/s2-anchor';
+import type { S2AnimatableColor } from './s2-animatable';
 
 export type S2AnimProperty =
     | S2Number
@@ -23,7 +24,8 @@ export type S2AnimProperty =
     | S2Boolean
     | S2SpaceRef
     | S2String
-    | S2Anchor;
+    | S2Anchor
+    | S2AnimatableColor;
 
 export abstract class S2BaseAnimation {
     protected scene: S2BaseScene;
