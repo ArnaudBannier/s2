@@ -5,7 +5,8 @@ import type { S2Number } from '../shared/s2-number';
 import { S2Color } from '../shared/s2-color';
 import type { S2SpaceRef } from '../shared/s2-space-ref';
 import type { S2Space } from '../math/s2-space';
-import type { S2AnimatableColor } from './s2-animatable';
+import type { S2AnimatableColor, S2AnimatableExtents } from './s2-animatable';
+import { S2Extents } from '../shared/s2-extents';
 
 export abstract class S2TimelineTrigger<T extends S2AnimProperty = S2AnimProperty> {
     public property: T;
@@ -91,6 +92,18 @@ export class S2TriggerAnimatableColor extends S2TimelineTrigger<S2AnimatableColo
         this.value.copy(value);
     }
 
+    onTrigger(): void {
+        this.property.copyFrom(this.value);
+    }
+}
+
+export class S2TriggerAnimatableExtents extends S2TimelineTrigger<S2AnimatableExtents> {
+    public value: S2Extents;
+
+    constructor(property: S2AnimatableExtents, value: S2Extents) {
+        super(property);
+        this.value = value.clone();
+    }
     onTrigger(): void {
         this.property.copyFrom(this.value);
     }

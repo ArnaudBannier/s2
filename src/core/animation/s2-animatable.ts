@@ -5,69 +5,54 @@ import type { S2Color } from '../shared/s2-color';
 import type { S2ColorTheme } from '../shared/s2-color-theme';
 import type { S2Extents } from '../shared/s2-extents';
 import type { S2Point } from '../shared/s2-point';
+import type { S2BaseAnimation } from './s2-base-animation';
+import { S2BaseDurationAnimation } from './s2-base-duration-animation';
 import type { S2EaseType } from './s2-easing';
 import { ease } from './s2-easing';
 import { S2LerpAnim, S2LerpAnimFactory } from './s2-lerp-anim';
 import { S2Playable } from './s2-playable';
 
-export abstract class S2Animatable {
+export abstract class S2Animatable<Anim extends S2BaseAnimation = S2BaseAnimation> {
     protected scene: S2BaseScene;
-    protected readonly lerpAnim: S2LerpAnim;
+    protected animation: Anim;
     protected readonly playable: S2Playable;
 
-    constructor(scene: S2BaseScene, lerpAnim: S2LerpAnim) {
+    constructor(scene: S2BaseScene, animation: Anim) {
         this.scene = scene;
-        this.lerpAnim = lerpAnim;
-        this.lerpAnim.setCycleDuration(500).setEasing(ease.outExpo);
-        this.playable = new S2Playable(this.lerpAnim);
+        this.animation = animation;
+        this.playable = new S2Playable(this.animation);
+
+        this.setDuration(500);
+        this.animation.setEasing(ease.outExpo);
     }
 
     setDuration(duration: number): this {
-        this.lerpAnim.setCycleDuration(duration);
+        if (this.animation instanceof S2BaseDurationAnimation) {
+            this.animation.setCycleDuration(duration);
+        }
         return this;
     }
 
     setEasing(ease: S2EaseType): this {
-        this.lerpAnim.setEasing(ease);
+        this.animation.setEasing(ease);
         return this;
     }
 }
 
-// export class S2AnimatableCopyable<
-//     T extends S2AnimProperty & S2HasClone<T> & S2HasCopy<T> & S2HasLerp<T>,
-// > extends S2Animatable {
-//     public readonly property: T;
-
-//     constructor(scene: S2BaseScene, property: T) {
-//         const lerpAnim = new S2BaseLerpAnim(scene, property);
-//         super(scene, lerpAnim);
-//         this.property = property.clone() as T;
-//     }
-
-//     copyFrom(value: T): this {
-//         this.lerpAnim.commitInitialState();
-//         this.property.copy(value);
-//         this.lerpAnim.commitFinalState();
-//         this.playable.setRange(0, this.lerpAnim.getDuration());
-//         this.playable.play();
-//         return this;
-//     }
-// }
-
-export class S2AnimatablePoint extends S2Animatable {
+export class S2AnimatablePoint extends S2Animatable<S2LerpAnim> {
     public readonly point: S2Point;
 
     constructor(scene: S2BaseScene, point: S2Point) {
-        const lerpAnim = S2LerpAnimFactory.create(scene, point);
-        super(scene, lerpAnim);
+        const animation = S2LerpAnimFactory.create(scene, point);
+        super(scene, animation);
         this.point = point;
     }
 
     set(x: number = 0, y: number = 0, space?: S2Space): this {
-        this.lerpAnim.commitInitialState();
+        this.animation.commitInitialState();
         this.point.set(x, y, space);
-        this.lerpAnim.commitFinalState();
-        this.playable.setRange(0, this.lerpAnim.getDuration());
+        this.animation.commitFinalState();
+        this.playable.setRange(0, this.animation.getDuration());
         this.playable.play();
         return this;
     }
@@ -77,7 +62,7 @@ export class S2AnimatablePoint extends S2Animatable {
     }
 }
 
-export class S2AnimatableColor extends S2Animatable {
+export class S2AnimatableColor extends S2Animatable<S2LerpAnim> {
     public readonly color: S2Color;
 
     constructor(scene: S2BaseScene, color: S2Color) {
@@ -87,31 +72,31 @@ export class S2AnimatableColor extends S2Animatable {
     }
 
     copyFrom(color: S2Color): this {
-        this.lerpAnim.commitInitialState();
+        this.animation.commitInitialState();
         this.color.copy(color);
         if (this.color.isDirty() === false) {
             return this;
         }
-        this.lerpAnim.commitFinalState();
-        this.playable.setRange(0, this.lerpAnim.getDuration());
+        this.animation.commitFinalState();
+        this.playable.setRange(0, this.animation.getDuration());
         this.playable.play();
         return this;
     }
 
     setFromTheme(colorTheme: S2ColorTheme, name: string, scale: number): this {
-        this.lerpAnim.commitInitialState();
+        this.animation.commitInitialState();
         this.color.setFromTheme(colorTheme, name, scale);
         if (this.color.isDirty() === false) {
             return this;
         }
-        this.lerpAnim.commitFinalState();
-        this.playable.setRange(0, this.lerpAnim.getDuration());
+        this.animation.commitFinalState();
+        this.playable.setRange(0, this.animation.getDuration());
         this.playable.play();
         return this;
     }
 }
 
-export class S2AnimatableExtents extends S2Animatable {
+export class S2AnimatableExtents extends S2Animatable<S2LerpAnim> {
     public readonly extents: S2Extents;
 
     constructor(scene: S2BaseScene, extents: S2Extents) {
@@ -121,13 +106,13 @@ export class S2AnimatableExtents extends S2Animatable {
     }
 
     copyFrom(extents: S2Extents): this {
-        this.lerpAnim.commitInitialState();
+        this.animation.commitInitialState();
         this.extents.copy(extents);
         if (this.extents.isDirty() === false) {
             return this;
         }
-        this.lerpAnim.commitFinalState();
-        this.playable.setRange(0, this.lerpAnim.getDuration());
+        this.animation.commitFinalState();
+        this.playable.setRange(0, this.animation.getDuration());
         this.playable.play();
         return this;
     }

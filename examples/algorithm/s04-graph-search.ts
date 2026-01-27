@@ -14,8 +14,8 @@ import { DirectedGraph, type VertexId } from './directed-graph.ts';
 // import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 // import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
-import { S2AnimatableColor } from '../../src/core/animation/s2-animatable.ts';
-import { S2TriggerAnimatableColor } from '../../src/core/animation/s2-timeline-trigger.ts';
+import { S2AnimatableColor, S2AnimatableExtents } from '../../src/core/animation/s2-animatable.ts';
+import { S2TriggerAnimatableColor, S2TriggerAnimatableExtents } from '../../src/core/animation/s2-timeline-trigger.ts';
 
 let mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -40,6 +40,7 @@ if (mode === 0) {
         cyan: radixLight.cyan,
     };
 }
+
 const colorTheme = new S2ColorTheme(palette);
 
 // class Queue<T> {
@@ -62,6 +63,7 @@ const colorTheme = new S2ColorTheme(palette);
 
 class VertexData {
     public cell: S2Rect;
+    public cellEmph: S2Rect;
     public isWall: boolean = false;
     public visited: boolean = false;
     public inStack: boolean = false;
@@ -72,11 +74,14 @@ class VertexData {
 
     public animFill: S2AnimatableColor;
     public animStroke: S2AnimatableColor;
+    public animExtents: S2AnimatableExtents;
 
-    constructor(cell: S2Rect) {
+    constructor(cell: S2Rect, cellEmph: S2Rect) {
         this.cell = cell;
-        this.animFill = new S2AnimatableColor(cell.getScene(), cell.data.fill.color);
-        this.animStroke = new S2AnimatableColor(cell.getScene(), cell.data.stroke.color);
+        this.cellEmph = cellEmph;
+        this.animFill = new S2AnimatableColor(cell.getScene(), cellEmph.data.fill.color);
+        this.animStroke = new S2AnimatableColor(cell.getScene(), cellEmph.data.stroke.color);
+        this.animExtents = new S2AnimatableExtents(cellEmph.getScene(), cellEmph.data.extents);
     }
 }
 
@@ -142,7 +147,18 @@ class SceneFigure extends S2Scene {
                 cell.data.stroke.color.setFromTheme(colorTheme, 'back', 5);
                 cell.data.stroke.width.set(2, viewSpace);
 
-                const data = new VertexData(cell);
+                const cellEmph = new S2Rect(this);
+                cellEmph.setParent(this.getSVG());
+                cellEmph.data.layer.set(2);
+                cellEmph.data.extents.set(cellWidth / 20, cellWidth / 20, worldSpace);
+                cellEmph.data.position.setV(center, worldSpace);
+                cellEmph.data.anchor.set(0, 0);
+                cellEmph.data.opacity.set(1);
+                cellEmph.data.fill.color.setFromTheme(colorTheme, 'main', 1);
+                cellEmph.data.stroke.color.setFromTheme(colorTheme, 'main', 5);
+                cellEmph.data.stroke.width.set(2, viewSpace);
+
+                const data = new VertexData(cell, cellEmph);
                 graph.addVertex(`${i},${j}`, data);
             }
         }
@@ -219,6 +235,9 @@ class SceneFigure extends S2Scene {
                 const triggerStroke = new S2TriggerAnimatableColor(v.animStroke, v.cell.data.stroke.color);
                 this.animator.addTrigger(triggerStroke, 'timeline-start', currTime);
 
+                const triggerExtents = new S2TriggerAnimatableExtents(v.animExtents, v.cellEmph.data.extents);
+                this.animator.addTrigger(triggerExtents, 'timeline-start', currTime);
+
                 // if (v.isWall === false) {
                 //     const w = this.cellWidth * 0.25;
                 //     v.cell.data.extents.set(w, w, this.getWorldSpace());
@@ -287,6 +306,10 @@ class SceneFigure extends S2Scene {
                         tmpColor.lerp(strokeColor0, strokeColor1, t);
                         const triggerStroke = new S2TriggerAnimatableColor(v.animStroke, tmpColor);
                         this.animator.addTrigger(triggerStroke, 'timeline-start', currTime);
+
+                        v.cellEmph.data.extents.set(this.cellWidth / 2, this.cellWidth / 2, this.getWorldSpace());
+                        const triggerExtents = new S2TriggerAnimatableExtents(v.animExtents, v.cellEmph.data.extents);
+                        this.animator.addTrigger(triggerExtents, 'timeline-start', currTime);
                     }
                     if (!v.isInPath && v.wasInPath) {
                         // const fillAnim = S2LerpAnimFactory.create(this, v.cell.data.fill.color)
