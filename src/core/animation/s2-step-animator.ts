@@ -162,12 +162,7 @@ export class S2StepAnimator {
         return this.timeline.getCycleDuration();
     }
 
-    getMasterTimeline(): S2Timeline {
-        return this.timeline;
-    }
-
-    getStepTimeline(index: number): S2Timeline {
-        void index;
+    getTimeline(): S2Timeline {
         return this.timeline;
     }
 

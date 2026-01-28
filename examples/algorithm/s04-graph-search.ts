@@ -103,6 +103,7 @@ class SceneFigure extends S2Scene {
     protected startI: number = -1;
     protected startJ: number = -1;
     protected cellWidth: number;
+    protected stepByStep: boolean = false;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -259,7 +260,7 @@ class SceneFigure extends S2Scene {
 
                 const cellEmph = vertex.cellEmph;
                 cellEmph.data.layer.set(2);
-                cellEmph.data.extents.set(cellWidth / 20, cellWidth / 20, worldSpace);
+                cellEmph.data.extents.set(1, 1, viewSpace);
                 cellEmph.data.position.setV(center, worldSpace);
                 cellEmph.data.anchor.set(0, 0);
                 cellEmph.data.opacity.set(1);
@@ -269,8 +270,8 @@ class SceneFigure extends S2Scene {
                 cellEmph.data.opacity.set(0.0);
 
                 if (vertex.isWall) {
-                    cell.data.fill.color.setFromTheme(colorTheme, 'wall', 8);
-                    cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 11);
+                    cell.data.fill.color.setFromTheme(colorTheme, 'wall', 9);
+                    cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 6);
                 }
             }
         }
@@ -281,19 +282,27 @@ class SceneFigure extends S2Scene {
         const color1 = new S2Color();
         const strokeColor0 = new S2Color();
         const strokeColor1 = new S2Color();
+        const treeColor0 = new S2Color();
+        const treeColor1 = new S2Color();
         const tmpColor = new S2Color();
-        color0.setFromTheme(colorTheme, 'main', 5);
-        color1.setFromTheme(colorTheme, 'secondary', 5);
+        color0.setFromTheme(colorTheme, 'main', 4);
+        color1.setFromTheme(colorTheme, 'secondary', 4);
         strokeColor0.setFromTheme(colorTheme, 'main', 9);
         strokeColor1.setFromTheme(colorTheme, 'secondary', 9);
+        treeColor0.setFromTheme(colorTheme, 'main', 12);
+        treeColor1.setFromTheme(colorTheme, 'secondary', 12);
 
         const maxPathIndex = 0.5 * this.size * this.size - 1;
         stack.push(start);
         this.graph.getVertex(start).depth = 0;
 
         let currTime = 0;
-        const timeStep = 50;
-        const cycleDuration = 500;
+        let timeStep = 50;
+        let cycleDuration = 500;
+        if (this.stepByStep) {
+            timeStep = 300;
+            cycleDuration = 300;
+        }
 
         while (stack.length > 0) {
             const current = stack.pop()!;
@@ -302,14 +311,16 @@ class SceneFigure extends S2Scene {
                 continue;
             }
             vertex.visited = true;
+            const t = S2MathUtils.clamp01(vertex.depth / maxPathIndex);
 
             // Circle
+            tmpColor.lerp(treeColor0, treeColor1, t);
+            vertex.circle.data.fill.color.copy(tmpColor);
             vertex.circle.data.isEnabled.set(true);
             vertex.circle.data.layer.set(4);
             vertex.circle.data.position.copy(vertex.cell.data.position);
             vertex.circle.data.radius.set(1, this.getViewSpace());
             vertex.circle.data.opacity.set(0.0);
-            vertex.circle.data.fill.color.setFromTheme(colorTheme, 'back', 12);
 
             const animCircleRadius = S2LerpAnimFactory.create(this, vertex.circle.data.radius)
                 .setCycleDuration(cycleDuration)
@@ -324,7 +335,6 @@ class SceneFigure extends S2Scene {
             this.animator.addTrigger(triggerCircleOpacity1, 'timeline-start', currTime + 1);
 
             // Cell emphasis
-            const t = S2MathUtils.clamp01(vertex.depth / maxPathIndex);
             tmpColor.lerp(color0, color1, t);
             vertex.cellEmph.data.fill.color.copy(tmpColor);
 
@@ -355,8 +365,8 @@ class SceneFigure extends S2Scene {
                 vertex.lineToPrev.data.pathFrom.set(0.0);
                 vertex.lineToPrev.data.pathTo.set(0.0);
                 vertex.lineToPrev.data.opacity.set(0.0);
-                // tmpColor.lerp(strokeColor0, strokeColor1, t);
-                // vertex.lineToPrev.data.stroke.color.copy(tmpColor);
+                tmpColor.lerp(treeColor0, treeColor1, t);
+                vertex.lineToPrev.data.stroke.color.copy(tmpColor);
 
                 const triggerLineOpacity0 = new S2TriggerNumber(vertex.lineToPrev.data.opacity, 0.0);
                 this.animator.addTrigger(triggerLineOpacity0, 'timeline-start', 0);
@@ -366,7 +376,7 @@ class SceneFigure extends S2Scene {
 
                 const animPath = S2LerpAnimFactory.create(this, vertex.lineToPrev.data.pathTo)
                     .setCycleDuration(timeStep)
-                    .setEasing(ease.out);
+                    .setEasing(ease.linear);
                 vertex.lineToPrev.data.pathTo.set(1.0);
                 this.animator.addAnimation(animPath.commitFinalState(), 'timeline-start', currTime);
             }
