@@ -365,7 +365,7 @@ class SceneFigure extends S2Scene {
                 this.animator.addTrigger(triggerLineOpacity1, 'timeline-start', currTime);
 
                 const animPath = S2LerpAnimFactory.create(this, vertex.lineToPrev.data.pathTo)
-                    .setCycleDuration(cycleDuration)
+                    .setCycleDuration(timeStep)
                     .setEasing(ease.out);
                 vertex.lineToPrev.data.pathTo.set(1.0);
                 this.animator.addAnimation(animPath.commitFinalState(), 'timeline-start', currTime);
