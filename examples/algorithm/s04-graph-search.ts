@@ -31,7 +31,7 @@ if (mode === 0) {
         back: radixDark.slateDark,
         main: radixDark.cyanDark,
         secondary: radixDark.limeDark,
-        wall: radixDark.rubyDark,
+        wall: radixDark.slateDark,
         blue: radixDark.blueDark,
         red: radixDark.redDark,
         cyan: radixDark.cyanDark,
@@ -41,7 +41,7 @@ if (mode === 0) {
         back: radixLight.slate,
         main: radixLight.cyan,
         secondary: radixLight.lime,
-        wall: radixLight.ruby,
+        wall: radixLight.slate,
         blue: radixLight.blue,
         red: radixLight.red,
         cyan: radixLight.cyan,
@@ -175,8 +175,6 @@ class SceneFigure extends S2Scene {
                 if (i === 0 && j === 0) continue;
                 if (Math.random() < wallThreshold) {
                     graph.getVertex(`${i},${j}`).isWall = true;
-                    graph.getVertex(`${i},${j}`).cell.data.fill.color.setFromTheme(colorTheme, 'wall', 8);
-                    graph.getVertex(`${i},${j}`).cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 11);
                 }
             }
         }
@@ -270,8 +268,8 @@ class SceneFigure extends S2Scene {
                 cellEmph.data.opacity.set(0.0);
 
                 if (vertex.isWall) {
-                    cell.data.fill.color.setFromTheme(colorTheme, 'wall', 9);
-                    cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 6);
+                    cell.data.fill.color.setFromTheme(colorTheme, 'wall', 10);
+                    cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 10);
                 }
             }
         }
