@@ -51,6 +51,19 @@ export class DirectedGraph<VertexData = {}, EdgeData = {}> {
         }
     }
 
+    removeEdgesFrom(vertex: VertexId) {
+        const edges = this.adjacency.get(vertex);
+        if (edges) {
+            edges.length = 0;
+        }
+    }
+
+    clearEdges() {
+        for (const edges of this.adjacency.values()) {
+            edges.length = 0;
+        }
+    }
+
     hasEdge(from: VertexId, to: VertexId): boolean {
         return this.adjacency.get(from)?.some((e) => e.to === to) ?? false;
     }

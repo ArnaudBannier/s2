@@ -12,7 +12,9 @@ export abstract class S2BaseScene {
     protected readonly spaces: S2Space[] = [];
     protected readonly camera: S2Camera;
     protected readonly vecPool: S2Vec2[] = [];
+    protected readonly usedVecs: Set<S2Vec2> = new Set();
 
+    public tracePoolAllocations: boolean = false;
     private nextElementId: number;
     private nextUpdateId: number;
 
@@ -33,12 +35,27 @@ export abstract class S2BaseScene {
     }
 
     acquireVec2(): S2Vec2 {
-        const vec = this.vecPool.pop();
-        return vec ? vec : new S2Vec2();
+        let vec = this.vecPool.pop();
+        vec = vec ? vec : new S2Vec2();
+        if (this.tracePoolAllocations) {
+            this.usedVecs.add(vec);
+        }
+        return vec;
     }
 
     releaseVec2(vec: S2Vec2): void {
         this.vecPool.push(vec);
+        if (this.tracePoolAllocations) {
+            this.usedVecs.delete(vec);
+        }
+    }
+
+    getVecPoolSize(): number {
+        return this.vecPool.length;
+    }
+
+    getUsedVecCount(): number {
+        return this.usedVecs.size;
     }
 
     getViewportSizeInto(dst: S2Vec2): this {

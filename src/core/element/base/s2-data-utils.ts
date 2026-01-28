@@ -118,10 +118,11 @@ export class S2DataUtils {
         yAttribute: string = 'y',
     ): void {
         if (position.isDirty()) {
-            const p = _vec0;
+            const p = scene.acquireVec2();
             position.getInto(p, scene.getViewSpace());
             element.setAttribute(xAttribute, p.x.toFixed(2));
             element.setAttribute(yAttribute, p.y.toFixed(2));
+            scene.releaseVec2(p);
         }
     }
 
@@ -135,12 +136,14 @@ export class S2DataUtils {
     ): void {
         if (position.isDirty() || shift.isDirty()) {
             const view = scene.getViewSpace();
-            const p = _vec0;
-            const s = _vec1;
+            const p = scene.acquireVec2();
+            const s = scene.acquireVec2();
             position.getInto(p, view);
             shift.getInto(s, view);
             element.setAttribute(xAttribute, (p.x + s.x).toFixed(2));
             element.setAttribute(yAttribute, (p.y + s.y).toFixed(2));
+            scene.releaseVec2(p);
+            scene.releaseVec2(s);
         }
     }
 
@@ -160,11 +163,12 @@ export class S2DataUtils {
 
     static applyExtents(extents: S2Extents, element: SVGElement, scene: S2BaseScene): void {
         if (extents.isDirty()) {
-            const e = _vec0;
+            const e = scene.acquireVec2();
             extents.getInto(e, scene.getViewSpace());
             e.scale(2);
             element.setAttribute('width', e.width.toFixed(2));
             element.setAttribute('height', e.height.toFixed(2));
+            scene.releaseVec2(e);
         }
     }
 
@@ -271,6 +275,3 @@ export class S2DataUtils {
         }
     }
 }
-
-const _vec0 = new S2Vec2();
-const _vec1 = new S2Vec2();
