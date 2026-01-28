@@ -19,6 +19,8 @@ export class S2LineData extends S2ElementData {
     public readonly endPosition: S2Point;
     public readonly startPadding: S2Length;
     public readonly endPadding: S2Length;
+    public readonly pathFrom: S2Number;
+    public readonly pathTo: S2Number;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -29,6 +31,8 @@ export class S2LineData extends S2ElementData {
         this.endPosition = new S2Point(0, 0, scene.getWorldSpace());
         this.startPadding = new S2Length(0, scene.getViewSpace());
         this.endPadding = new S2Length(0, scene.getViewSpace());
+        this.pathFrom = new S2Number(0);
+        this.pathTo = new S2Number(1);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -40,6 +44,8 @@ export class S2LineData extends S2ElementData {
         this.endPosition.setOwner(owner);
         this.startPadding.setOwner(owner);
         this.endPadding.setOwner(owner);
+        this.pathFrom.setOwner(owner);
+        this.pathTo.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -51,6 +57,8 @@ export class S2LineData extends S2ElementData {
         this.endPosition.clearDirty();
         this.startPadding.clearDirty();
         this.endPadding.clearDirty();
+        this.pathFrom.clearDirty();
+        this.pathTo.clearDirty();
     }
 }
 
@@ -111,13 +119,17 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
 
     getTipTransformAtInto(dst: S2TipTransform, t: number): S2TipTransform {
         const space = this.scene.getWorldSpace();
-        const p0 = this.data.startPosition.get(space);
-        const p1 = this.data.endPosition.get(space);
+        const p0 = this.scene.acquireVec2();
+        const p1 = this.scene.acquireVec2();
+        this.data.startPosition.getInto(p0, space);
+        this.data.endPosition.getInto(p1, space);
         dst.position.copy(p0).lerpV(p1, t);
         dst.tangent.copy(p1).subV(p0);
         dst.space = space;
         dst.pathLength = p0.distance(p1);
         dst.strokeWidth = this.data.stroke.width.get(space);
+        this.scene.releaseVec2(p0);
+        this.scene.releaseVec2(p1);
         return dst;
     }
 
@@ -139,25 +151,41 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
             this.data.startPosition.isDirty() ||
             this.data.endPosition.isDirty() ||
             this.data.startPadding.isDirty() ||
-            this.data.endPadding.isDirty();
+            this.data.endPadding.isDirty() ||
+            this.data.pathFrom.isDirty() ||
+            this.data.pathTo.isDirty();
         if (isPosDirty) {
-            const pos0 = this.data.startPosition.get(space);
-            const pos1 = this.data.endPosition.get(space);
-            const length = pos0.distance(pos1);
+            const p0 = this.scene.acquireVec2();
+            const p1 = this.scene.acquireVec2();
+            const tmp0 = this.scene.acquireVec2();
+            const tmp1 = this.scene.acquireVec2();
+
+            this.data.startPosition.getInto(p0, space);
+            this.data.endPosition.getInto(p1, space);
+            tmp0.copy(p0).lerpV(p1, this.data.pathFrom.get());
+            tmp1.copy(p0).lerpV(p1, this.data.pathTo.get());
+            p0.copy(tmp0);
+            p1.copy(tmp1);
+
+            const length = p0.distance(p1);
             const padding0 = this.data.startPadding.get(space);
             const padding1 = this.data.endPadding.get(space);
 
             if (length < 1e-6 || length < padding0 + padding1) {
                 // Too close, hide the line
-                this.position0.setV(pos0, space);
-                this.position1.setV(pos0, space);
+                this.position0.setV(p0, space);
+                this.position1.setV(p0, space);
             } else {
-                const dir = S2Vec2.subV(pos1, pos0).normalize();
-                pos0.addV(dir.clone().scale(padding0));
-                pos1.subV(dir.clone().scale(padding1));
-                this.position0.setV(pos0, space);
-                this.position1.setV(pos1, space);
+                const dir = S2Vec2.subV(p1, p0).normalize();
+                p0.addV(dir.clone().scale(padding0));
+                p1.subV(dir.clone().scale(padding1));
+                this.position0.setV(p0, space);
+                this.position1.setV(p1, space);
             }
+            this.scene.releaseVec2(p0);
+            this.scene.releaseVec2(p1);
+            this.scene.releaseVec2(tmp0);
+            this.scene.releaseVec2(tmp1);
 
             S2DataUtils.applyPosition(this.position0, this.element, this.scene, 'x1', 'y1');
             S2DataUtils.applyPosition(this.position1, this.element, this.scene, 'x2', 'y2');

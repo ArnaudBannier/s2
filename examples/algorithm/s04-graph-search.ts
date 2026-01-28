@@ -14,11 +14,14 @@ import { DirectedGraph, type VertexId } from './directed-graph.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../src/core/animation/s2-easing.ts';
+import { S2Circle } from '../../src/core/element/s2-circle.ts';
+import { S2Line } from '../../src/core/element/s2-line.ts';
+import { S2TriggerNumber } from '../../src/core/animation/s2-timeline-trigger.ts';
 
 // Ordre haut bas gauche droite
 // point de départ
-// Arbre
-// Chemin oui/non (point d'arrivée modifiable)
+// Chemin oui/non
+// point d'arrivée modifiable
 // Murs modifiables
 //
 
@@ -67,19 +70,30 @@ const colorTheme = new S2ColorTheme(palette);
 // }
 
 class VertexData {
-    public cell: S2Rect;
-    public cellEmph: S2Rect;
     public isWall: boolean = false;
     public visited: boolean = false;
     public prevId: VertexId | null = null;
     public depth: number = -1;
 
-    constructor(cell: S2Rect, cellEmph: S2Rect) {
-        this.cell = cell;
-        this.cellEmph = cellEmph;
-        // this.animFill = new S2AnimatableColor(cell.getScene(), cellEmph.data.fill.color);
-        // this.animStroke = new S2AnimatableColor(cell.getScene(), cellEmph.data.stroke.color);
-        // this.animExtents = new S2AnimatableExtents(cellEmph.getScene(), cellEmph.data.extents);
+    public cell: S2Rect;
+    public cellEmph: S2Rect;
+    public circle: S2Circle;
+    public lineToPrev: S2Line;
+
+    constructor(scene: S2Scene) {
+        this.cell = new S2Rect(scene);
+        this.cell.setParent(scene.getSVG());
+
+        this.cellEmph = new S2Rect(scene);
+        this.cellEmph.setParent(scene.getSVG());
+
+        this.circle = new S2Circle(scene);
+        this.circle.setParent(scene.getSVG());
+        this.circle.data.isEnabled.set(false);
+
+        this.lineToPrev = new S2Line(scene);
+        this.lineToPrev.setParent(scene.getSVG());
+        this.lineToPrev.data.isEnabled.set(false);
     }
 }
 
@@ -87,6 +101,8 @@ class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
     public graph: DirectedGraph<VertexData>;
     public size: number = 10;
+    protected startI: number = -1;
+    protected startJ: number = -1;
 
     protected cellWidth: number;
 
@@ -114,7 +130,7 @@ class SceneFigure extends S2Scene {
         // helperGrid.data.geometry.space.set(worldSpace);
 
         const gridWidth = 8.0;
-        const gridSpacing = 0.05;
+        const gridSpacing = 0.1;
         const cellWidth = (gridWidth - gridSpacing * (this.size - 1)) / this.size;
         const cellSep = cellWidth + gridSpacing;
         this.cellWidth = cellWidth;
@@ -135,8 +151,9 @@ class SceneFigure extends S2Scene {
                     nw.x + j * cellSep + cellWidth / 2,
                     nw.y + (this.size - 1 - i) * cellSep + cellWidth / 2,
                 );
-                const cell = new S2Rect(this);
-                cell.setParent(this.getSVG());
+                const vertexData = new VertexData(this);
+
+                const cell = vertexData.cell;
                 cell.data.layer.set(1);
                 cell.data.extents.set(cellWidth / 2, cellWidth / 2, worldSpace);
                 cell.data.position.setV(center, worldSpace);
@@ -144,9 +161,21 @@ class SceneFigure extends S2Scene {
                 cell.data.fill.color.setFromTheme(colorTheme, 'back', 1);
                 cell.data.stroke.color.setFromTheme(colorTheme, 'back', 5);
                 cell.data.stroke.width.set(2, viewSpace);
+                cell.data.pointerEvents.set('auto');
+                cell.getSVGElement().addEventListener(
+                    'pointerdown',
+                    (event: PointerEvent): void => {
+                        void event;
+                        console.log(`Cell clicked: ${i},${j}`);
 
-                const cellEmph = new S2Rect(this);
-                cellEmph.setParent(this.getSVG());
+                        this.createAnimation(i, j);
+                    },
+                    {
+                        passive: false,
+                    },
+                );
+
+                const cellEmph = vertexData.cellEmph;
                 cellEmph.data.layer.set(2);
                 cellEmph.data.extents.set(cellWidth / 20, cellWidth / 20, worldSpace);
                 cellEmph.data.position.setV(center, worldSpace);
@@ -157,8 +186,7 @@ class SceneFigure extends S2Scene {
                 cellEmph.data.stroke.width.set(2, viewSpace);
                 cellEmph.data.opacity.set(0.0);
 
-                const data = new VertexData(cell, cellEmph);
-                graph.addVertex(`${i},${j}`, data);
+                graph.addVertex(`${i},${j}`, vertexData);
             }
         }
 
@@ -196,10 +224,70 @@ class SceneFigure extends S2Scene {
         }
 
         this.update();
-        this.createAnimation(`${start.x},${start.y}`);
+        //this.createAnimation(`${start.x},${start.y}`);
     }
 
-    createAnimation(start: VertexId): void {
+    createGraph(): void {}
+
+    createAnimation(startI: number, startJ: number): void {
+        if (startI == this.startI && startJ == this.startJ) return;
+        this.startI = startI;
+        this.startJ = startJ;
+        const start = `${startI},${startJ}`;
+
+        this.animator.stop();
+        this.animator.reset();
+        this.animator = new S2StepAnimator(this);
+
+        const viewSpace = this.getViewSpace();
+        const worldSpace = this.getWorldSpace();
+        const gridWidth = 8.0;
+        const gridSpacing = 0.1;
+        const cellWidth = (gridWidth - gridSpacing * (this.size - 1)) / this.size;
+        const cellSep = cellWidth + gridSpacing;
+        this.cellWidth = cellWidth;
+
+        const nw = new S2Vec2(-gridWidth / 2, -gridWidth / 2);
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                const vertex = this.graph.getVertex(`${i},${j}`);
+                vertex.visited = false;
+                vertex.prevId = null;
+                vertex.depth = -1;
+
+                const center = new S2Vec2(
+                    nw.x + j * cellSep + cellWidth / 2,
+                    nw.y + (this.size - 1 - i) * cellSep + cellWidth / 2,
+                );
+
+                const cell = vertex.cell;
+                cell.data.layer.set(1);
+                cell.data.extents.set(cellWidth / 2, cellWidth / 2, worldSpace);
+                cell.data.position.setV(center, worldSpace);
+                cell.data.anchor.set(0, 0);
+                cell.data.fill.color.setFromTheme(colorTheme, 'back', 1);
+                cell.data.stroke.color.setFromTheme(colorTheme, 'back', 5);
+                cell.data.stroke.width.set(2, viewSpace);
+                cell.data.pointerEvents.set('auto');
+
+                const cellEmph = vertex.cellEmph;
+                cellEmph.data.layer.set(2);
+                cellEmph.data.extents.set(cellWidth / 20, cellWidth / 20, worldSpace);
+                cellEmph.data.position.setV(center, worldSpace);
+                cellEmph.data.anchor.set(0, 0);
+                cellEmph.data.opacity.set(1);
+                cellEmph.data.fill.color.setFromTheme(colorTheme, 'main', 1);
+                cellEmph.data.stroke.color.setFromTheme(colorTheme, 'main', 5);
+                cellEmph.data.stroke.width.set(2, viewSpace);
+                cellEmph.data.opacity.set(0.0);
+
+                if (vertex.isWall) {
+                    cell.data.fill.color.setFromTheme(colorTheme, 'wall', 8);
+                    cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 11);
+                }
+            }
+        }
+
         console.log('Creating animation');
         const stack: VertexId[] = [];
         const color0 = new S2Color();
@@ -207,17 +295,17 @@ class SceneFigure extends S2Scene {
         const strokeColor0 = new S2Color();
         const strokeColor1 = new S2Color();
         const tmpColor = new S2Color();
-        color0.setFromTheme(colorTheme, 'main', 6);
-        color1.setFromTheme(colorTheme, 'secondary', 6);
-        strokeColor0.setFromTheme(colorTheme, 'main', 10);
-        strokeColor1.setFromTheme(colorTheme, 'secondary', 10);
+        color0.setFromTheme(colorTheme, 'main', 5);
+        color1.setFromTheme(colorTheme, 'secondary', 5);
+        strokeColor0.setFromTheme(colorTheme, 'main', 9);
+        strokeColor1.setFromTheme(colorTheme, 'secondary', 9);
 
         const maxPathIndex = 0.5 * this.size * this.size - 1;
         stack.push(start);
         this.graph.getVertex(start).depth = 0;
 
         let currTime = 0;
-        const timeStep = 200;
+        const timeStep = 100;
         const cycleDuration = 500;
 
         while (stack.length > 0) {
@@ -228,6 +316,33 @@ class SceneFigure extends S2Scene {
             }
             vertex.visited = true;
 
+            // Circle
+            vertex.circle.data.isEnabled.set(true);
+            vertex.circle.data.layer.set(4);
+            vertex.circle.data.position.copy(vertex.cell.data.position);
+            vertex.circle.data.radius.set(1, this.getViewSpace());
+            vertex.circle.data.opacity.set(0.0);
+            vertex.circle.data.fill.color.setFromTheme(colorTheme, 'back', 12);
+
+            const animCircleRadius = S2LerpAnimFactory.create(this, vertex.circle.data.radius)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            vertex.circle.data.radius.set(5, this.getViewSpace());
+            this.animator.addAnimation(animCircleRadius.commitFinalState(), 'timeline-start', currTime);
+
+            // const animCircleOpacity = S2LerpAnimFactory.create(this, vertex.circle.data.opacity)
+            //     .setCycleDuration(cycleDuration)
+            //     .setEasing(ease.out);
+            // vertex.circle.data.opacity.set(1.0);
+            // this.animator.addAnimation(animCircleOpacity.commitFinalState(), 'timeline-start', currTime);
+
+            const triggerCircleOpacity0 = new S2TriggerNumber(vertex.circle.data.opacity, 0.0);
+            this.animator.addTrigger(triggerCircleOpacity0, 'timeline-start', 0);
+
+            const triggerCircleOpacity1 = new S2TriggerNumber(vertex.circle.data.opacity, 1.0);
+            this.animator.addTrigger(triggerCircleOpacity1, 'timeline-start', currTime + 1);
+
+            // Cell emphasis
             const t = S2MathUtils.clamp01(vertex.depth / maxPathIndex);
             tmpColor.lerp(color0, color1, t);
             vertex.cellEmph.data.fill.color.copy(tmpColor);
@@ -247,6 +362,34 @@ class SceneFigure extends S2Scene {
             vertex.cellEmph.data.extents.set(this.cellWidth / 2, this.cellWidth / 2, this.getWorldSpace());
             this.animator.addAnimation(animExt.commitFinalState(), 'timeline-start', currTime);
 
+            // Line to previous
+            if (vertex.prevId !== null) {
+                const prevVertex = this.graph.getVertex(vertex.prevId);
+                vertex.lineToPrev.data.isEnabled.set(true);
+                vertex.lineToPrev.data.layer.set(3);
+                vertex.lineToPrev.data.startPosition.copy(prevVertex.cell.data.position);
+                vertex.lineToPrev.data.endPosition.copy(vertex.cell.data.position);
+                vertex.lineToPrev.data.stroke.color.setFromTheme(colorTheme, 'back', 12);
+                vertex.lineToPrev.data.stroke.width.set(3, this.getViewSpace());
+                vertex.lineToPrev.data.pathFrom.set(0.0);
+                vertex.lineToPrev.data.pathTo.set(0.0);
+                vertex.lineToPrev.data.opacity.set(0.0);
+                // tmpColor.lerp(strokeColor0, strokeColor1, t);
+                // vertex.lineToPrev.data.stroke.color.copy(tmpColor);
+
+                const triggerLineOpacity0 = new S2TriggerNumber(vertex.lineToPrev.data.opacity, 0.0);
+                this.animator.addTrigger(triggerLineOpacity0, 'timeline-start', 0);
+
+                const triggerLineOpacity1 = new S2TriggerNumber(vertex.lineToPrev.data.opacity, 1.0);
+                this.animator.addTrigger(triggerLineOpacity1, 'timeline-start', currTime);
+
+                const animPath = S2LerpAnimFactory.create(this, vertex.lineToPrev.data.pathTo)
+                    .setCycleDuration(cycleDuration)
+                    .setEasing(ease.out);
+                vertex.lineToPrev.data.pathTo.set(1.0);
+                this.animator.addAnimation(animPath.commitFinalState(), 'timeline-start', currTime);
+            }
+
             currTime += timeStep;
 
             for (const edge of this.graph.edgesOf(current)) {
@@ -261,6 +404,7 @@ class SceneFigure extends S2Scene {
             this.animator.makeStep();
         }
         this.animator.finalize();
+        this.animator.playMaster();
     }
 }
 
