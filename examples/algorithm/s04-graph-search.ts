@@ -11,11 +11,16 @@ import * as radixLight from '../../src/utils/radix-colors-light.ts';
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
 import { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { DirectedGraph, type VertexId } from './directed-graph.ts';
-// import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
-// import { ease } from '../../src/core/animation/s2-easing.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
-import { S2AnimatableColor, S2AnimatableExtents } from '../../src/core/animation/s2-animatable.ts';
-import { S2TriggerAnimatableColor, S2TriggerAnimatableExtents } from '../../src/core/animation/s2-timeline-trigger.ts';
+import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
+import { ease } from '../../src/core/animation/s2-easing.ts';
+
+// Ordre haut bas gauche droite
+// point de départ
+// Arbre
+// Chemin oui/non (point d'arrivée modifiable)
+// Murs modifiables
+//
 
 let mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -66,22 +71,15 @@ class VertexData {
     public cellEmph: S2Rect;
     public isWall: boolean = false;
     public visited: boolean = false;
-    public inStack: boolean = false;
     public prevId: VertexId | null = null;
-    public isInPath: boolean = false;
-    public wasInPath: boolean = false;
     public depth: number = -1;
-
-    public animFill: S2AnimatableColor;
-    public animStroke: S2AnimatableColor;
-    public animExtents: S2AnimatableExtents;
 
     constructor(cell: S2Rect, cellEmph: S2Rect) {
         this.cell = cell;
         this.cellEmph = cellEmph;
-        this.animFill = new S2AnimatableColor(cell.getScene(), cellEmph.data.fill.color);
-        this.animStroke = new S2AnimatableColor(cell.getScene(), cellEmph.data.stroke.color);
-        this.animExtents = new S2AnimatableExtents(cellEmph.getScene(), cellEmph.data.extents);
+        // this.animFill = new S2AnimatableColor(cell.getScene(), cellEmph.data.fill.color);
+        // this.animStroke = new S2AnimatableColor(cell.getScene(), cellEmph.data.stroke.color);
+        // this.animExtents = new S2AnimatableExtents(cellEmph.getScene(), cellEmph.data.extents);
     }
 }
 
@@ -157,6 +155,7 @@ class SceneFigure extends S2Scene {
                 cellEmph.data.fill.color.setFromTheme(colorTheme, 'main', 1);
                 cellEmph.data.stroke.color.setFromTheme(colorTheme, 'main', 5);
                 cellEmph.data.stroke.width.set(2, viewSpace);
+                cellEmph.data.opacity.set(0.0);
 
                 const data = new VertexData(cell, cellEmph);
                 graph.addVertex(`${i},${j}`, data);
@@ -166,7 +165,7 @@ class SceneFigure extends S2Scene {
         const start = new S2Vec2(this.size - 1, 0);
 
         // Define some random walls
-        const wallThreshold = 0.3;
+        const wallThreshold = 0.25;
         for (let i = 0; i < this.size; i++) {
             for (let j = 0; j < this.size; j++) {
                 if (i === start.x && j === start.y) {
@@ -196,10 +195,7 @@ class SceneFigure extends S2Scene {
             }
         }
 
-        graph.getVertex(`${start.x},${start.y}`).cell.data.fill.color.setFromTheme(colorTheme, 'main', 7);
-
         this.update();
-
         this.createAnimation(`${start.x},${start.y}`);
     }
 
@@ -221,29 +217,8 @@ class SceneFigure extends S2Scene {
         this.graph.getVertex(start).depth = 0;
 
         let currTime = 0;
-        const timeStep = 50;
+        const timeStep = 200;
         const cycleDuration = 500;
-
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                const v = this.graph.getVertex(`${i},${j}`);
-                v.animFill.setDuration(cycleDuration);
-
-                const trigger = new S2TriggerAnimatableColor(v.animFill, v.cell.data.fill.color);
-                this.animator.addTrigger(trigger, 'timeline-start', currTime);
-
-                const triggerStroke = new S2TriggerAnimatableColor(v.animStroke, v.cell.data.stroke.color);
-                this.animator.addTrigger(triggerStroke, 'timeline-start', currTime);
-
-                const triggerExtents = new S2TriggerAnimatableExtents(v.animExtents, v.cellEmph.data.extents);
-                this.animator.addTrigger(triggerExtents, 'timeline-start', currTime);
-
-                // if (v.isWall === false) {
-                //     const w = this.cellWidth * 0.25;
-                //     v.cell.data.extents.set(w, w, this.getWorldSpace());
-                // }
-            }
-        }
 
         while (stack.length > 0) {
             const current = stack.pop()!;
@@ -253,81 +228,25 @@ class SceneFigure extends S2Scene {
             }
             vertex.visited = true;
 
-            // const fillAnim = S2LerpAnimFactory.create(this, vertex.cell.data.fill.color)
-            //     .setCycleDuration(50)
-            //     .setEasing(ease.inOut);
-            // vertex.cell.data.fill.color.setFromTheme(colorTheme, 'main', 5);
-            // this.animator.addAnimation(fillAnim.commitFinalState());
+            const t = S2MathUtils.clamp01(vertex.depth / maxPathIndex);
+            tmpColor.lerp(color0, color1, t);
+            vertex.cellEmph.data.fill.color.copy(tmpColor);
 
-            // const strokeAnim = S2LerpAnimFactory.create(this, vertex.cell.data.stroke.color)
-            //     .setCycleDuration(50)
-            //     .setEasing(ease.inOut);
-            // vertex.cell.data.stroke.color.setFromTheme(colorTheme, 'main', 7);
-            // this.animator.addAnimation(strokeAnim.commitFinalState(), 'previous-start', 0);
-            //this.animator.makeStep();
+            tmpColor.lerp(strokeColor0, strokeColor1, t);
+            vertex.cellEmph.data.stroke.color.copy(tmpColor);
 
-            for (let i = 0; i < this.size; i++) {
-                for (let j = 0; j < this.size; j++) {
-                    const v = this.graph.getVertex(`${i},${j}`);
-                    v.wasInPath = v.isInPath;
-                    v.isInPath = false;
-                }
-            }
+            const animOpacity = S2LerpAnimFactory.create(this, vertex.cellEmph.data.opacity)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            vertex.cellEmph.data.opacity.set(1.0);
+            this.animator.addAnimation(animOpacity.commitFinalState(), 'timeline-start', currTime);
 
-            let currVertex = vertex;
-            while (true) {
-                currVertex.isInPath = true;
-                if (currVertex.prevId === null) {
-                    break;
-                }
-                currVertex = this.graph.getVertex(currVertex.prevId);
-            }
+            const animExt = S2LerpAnimFactory.create(this, vertex.cellEmph.data.extents)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            vertex.cellEmph.data.extents.set(this.cellWidth / 2, this.cellWidth / 2, this.getWorldSpace());
+            this.animator.addAnimation(animExt.commitFinalState(), 'timeline-start', currTime);
 
-            //const label = this.animator.createLabelAtCurrentTime();
-            for (let i = 0; i < this.size; i++) {
-                for (let j = 0; j < this.size; j++) {
-                    const vertexId = `${i},${j}`;
-                    const v = this.graph.getVertex(vertexId);
-
-                    // if (inStack.has(vertexId) && !visited.has(vertexId)) {
-                    // }
-
-                    if (v.isInPath && !v.wasInPath) {
-                        // const fillAnim = S2LerpAnimFactory.create(this, v.cell.data.fill.color)
-                        //     .setCycleDuration(cycleDuration)
-                        //     .setEasing(ease.inOut);
-                        const t = S2MathUtils.clamp01(v.depth / maxPathIndex);
-                        tmpColor.lerp(color0, color1, t);
-                        //this.animator.addAnimation(fillAnim.commitFinalState(), 'start', currTime);
-
-                        const trigger = new S2TriggerAnimatableColor(v.animFill, tmpColor);
-                        this.animator.addTrigger(trigger, 'timeline-start', currTime);
-
-                        tmpColor.lerp(strokeColor0, strokeColor1, t);
-                        const triggerStroke = new S2TriggerAnimatableColor(v.animStroke, tmpColor);
-                        this.animator.addTrigger(triggerStroke, 'timeline-start', currTime);
-
-                        v.cellEmph.data.extents.set(this.cellWidth / 2, this.cellWidth / 2, this.getWorldSpace());
-                        const triggerExtents = new S2TriggerAnimatableExtents(v.animExtents, v.cellEmph.data.extents);
-                        this.animator.addTrigger(triggerExtents, 'timeline-start', currTime);
-                    }
-                    if (!v.isInPath && v.wasInPath) {
-                        // const fillAnim = S2LerpAnimFactory.create(this, v.cell.data.fill.color)
-                        //     .setCycleDuration(cycleDuration)
-                        //     .setEasing(ease.inOut);
-                        // v.cell.data.fill.color.setFromTheme(colorTheme, 'back', 7);
-                        // this.animator.addAnimation(fillAnim.commitFinalState(), 'start', currTime);
-
-                        tmpColor.setFromTheme(colorTheme, 'back', 5);
-                        const trigger = new S2TriggerAnimatableColor(v.animFill, tmpColor);
-                        this.animator.addTrigger(trigger, 'timeline-start', currTime);
-
-                        tmpColor.setFromTheme(colorTheme, 'back', 6);
-                        const strokeTrigger = new S2TriggerAnimatableColor(v.animStroke, tmpColor);
-                        this.animator.addTrigger(strokeTrigger, 'timeline-start', currTime);
-                    }
-                }
-            }
             currTime += timeStep;
 
             for (const edge of this.graph.edgesOf(current)) {
@@ -335,16 +254,13 @@ class SceneFigure extends S2Scene {
                 const nextVertex = this.graph.getVertex(nextId);
                 if (!nextVertex.visited) {
                     stack.push(nextId);
-                    nextVertex.inStack = true;
                     nextVertex.prevId = current;
                     nextVertex.depth = vertex.depth + 1;
                 }
             }
-
-            vertex.inStack = false;
+            this.animator.makeStep();
         }
-        // this.animator.makeStep();
-        // this.animator.finalize();
+        this.animator.finalize();
     }
 }
 
