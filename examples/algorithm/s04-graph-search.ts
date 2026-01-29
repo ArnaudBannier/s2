@@ -67,6 +67,7 @@ const colorTheme = new S2ColorTheme(palette);
 //         return this.output.pop();
 //     }
 // }
+type Direction = 'U' | 'D' | 'L' | 'R';
 
 class VertexData {
     public isWall: boolean = false;
@@ -105,6 +106,14 @@ class SceneFigure extends S2Scene {
     protected cellWidth: number;
     protected stepByStep: boolean = false;
 
+    public directionOrder: Direction[] = ['U', 'D', 'L', 'R'];
+    protected directionVectors: Record<Direction, [number, number]> = {
+        U: [-1, 0],
+        D: [+1, 0],
+        L: [0, -1],
+        R: [0, +1],
+    };
+
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
         this.camera.setExtents(8.0, 4.5);
@@ -134,13 +143,6 @@ class SceneFigure extends S2Scene {
         const cellWidth = (gridWidth - gridSpacing * (this.size - 1)) / this.size;
         this.cellWidth = cellWidth;
 
-        const neighborShifts = [
-            [+1, +0],
-            [+0, -1],
-            [-1, +0],
-            [+0, +1],
-        ];
-
         const graph = new DirectedGraph<VertexData>();
         this.graph = graph;
 
@@ -168,35 +170,13 @@ class SceneFigure extends S2Scene {
             }
         }
 
-        // Define some random walls
-        const wallThreshold = 0.25;
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                if (i === 0 && j === 0) continue;
-                if (Math.random() < wallThreshold) {
-                    graph.getVertex(`${i},${j}`).isWall = true;
-                }
-            }
-        }
-
-        for (let i = 0; i < this.size; i++) {
-            for (let j = 0; j < this.size; j++) {
-                for (const shifts of neighborShifts) {
-                    const ni = i + shifts[0];
-                    const nj = j + shifts[1];
-                    if (ni < 0 || ni >= this.size || nj < 0 || nj >= this.size) {
-                        continue;
-                    }
-                    if (graph.getVertex(`${ni},${nj}`).isWall) {
-                        continue;
-                    }
-                    graph.setEdge(`${i},${j}`, `${ni},${nj}`, {});
-                }
-            }
-        }
+        this.createRandomWalls();
+        this.createEdges();
 
         this.update();
-        this.createAnimation(0, 0);
+        this.startI = 0;
+        this.startJ = 0;
+        this.createAnimation();
     }
 
     onClick(i: number, j: number): void {
@@ -212,14 +192,44 @@ class SceneFigure extends S2Scene {
         this.startI = i;
         this.startJ = j;
 
-        this.createAnimation(this.startI, this.startJ);
+        this.createAnimation();
         this.animator.playMaster();
     }
 
-    createGraph(): void {}
+    createRandomWalls(): void {
+        const wallThreshold = 0.25;
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                const isWall = Math.random() < wallThreshold ? true : false;
+                this.graph.getVertex(`${i},${j}`).isWall = isWall;
+            }
+        }
+    }
 
-    createAnimation(startI: number, startJ: number): void {
-        const start: VertexId = `${startI},${startJ}`;
+    createEdges(): void {
+        this.graph.clearEdges();
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                for (let k = this.directionOrder.length - 1; k >= 0; k--) {
+                    //for (let k = 0; k < this.directionOrder.length; k++) {
+                    const dir = this.directionOrder[k];
+                    const vec = this.directionVectors[dir];
+                    const ni = i + vec[0];
+                    const nj = j + vec[1];
+                    if (ni < 0 || ni >= this.size || nj < 0 || nj >= this.size) {
+                        continue;
+                    }
+                    if (this.graph.getVertex(`${ni},${nj}`).isWall) {
+                        continue;
+                    }
+                    this.graph.setEdge(`${i},${j}`, `${ni},${nj}`, {});
+                }
+            }
+        }
+    }
+
+    createAnimation(): void {
+        const start: VertexId = `${this.startI},${this.startJ}`;
 
         this.animator.stop();
         this.animator.reset();
@@ -401,6 +411,16 @@ if (appDiv) {
     appDiv.innerHTML = `
         <div>
             <h1>${titleString}</h1>
+            <div class="figure-panel">
+                <p>Choisissez l'ordre des directions (glisser/déposer pour réordonner) :</p>
+                <ul id="direction-order" class="dir-list">
+                    <li draggable="true" data-dir="U">Haut</li>
+                    <li draggable="true" data-dir="D">Bas</li>
+                    <li draggable="true" data-dir="L">Gauche</li>
+                    <li draggable="true" data-dir="R">Droite</li>
+                </ul>
+            </div>
+            <p>Cliquer sur une cellule pour lancer le parcours depuis cette cellule.</p>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="figure-nav">
                 <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
@@ -415,8 +435,10 @@ if (appDiv) {
 
 const svgElement = appDiv?.querySelector<SVGSVGElement>('#test-svg');
 const slider = document.querySelector<HTMLInputElement>('#slider');
+const list = document.getElementById('direction-order')!;
+let draggedItem: HTMLElement | null = null;
 
-if (svgElement && slider) {
+if (svgElement && slider && list) {
     const scene = new SceneFigure(svgElement);
     void scene;
 
@@ -461,5 +483,65 @@ if (svgElement && slider) {
         scene.animator.setMasterElapsed(elapsed);
         index = scene.animator.getStepIndexFromElapsed(elapsed);
         scene.getSVG().update();
+    });
+
+    // Drag start
+    list.addEventListener('dragstart', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.tagName !== 'LI') return;
+
+        draggedItem = target;
+        target.classList.add('dragging');
+    });
+
+    // Drag end
+    list.addEventListener('dragend', () => {
+        draggedItem?.classList.remove('dragging');
+        draggedItem = null;
+
+        list.querySelectorAll('.over').forEach((el) => el.classList.remove('over'));
+    });
+
+    // Drag over (obligatoire pour autoriser le drop)
+    list.addEventListener('dragover', (e) => {
+        e.preventDefault();
+
+        const target = e.target as HTMLElement;
+        if (!draggedItem || target === draggedItem || target.tagName !== 'LI') return;
+
+        target.classList.add('over');
+    });
+
+    list.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+
+        const target = e.target as HTMLElement;
+        if (!draggedItem || target === draggedItem || target.tagName !== 'LI') return;
+
+        target.classList.remove('over');
+    });
+
+    // Drop
+    list.addEventListener('drop', (e) => {
+        e.preventDefault();
+
+        const target = e.target as HTMLElement;
+        if (!draggedItem || target === draggedItem || target.tagName !== 'LI') return;
+
+        target.classList.remove('over');
+
+        const rect = draggedItem.getBoundingClientRect();
+        const offset = e.clientX - rect.x;
+
+        if (offset < 0) {
+            list.insertBefore(draggedItem, target);
+        } else {
+            list.insertBefore(draggedItem, target.nextSibling);
+        }
+
+        scene.directionOrder = Array.from(list.children).map((li) => (li as HTMLElement).dataset.dir! as Direction);
+        scene.createEdges();
+        scene.createAnimation();
+        //scene.createAnimation();
     });
 }

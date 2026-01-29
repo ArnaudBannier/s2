@@ -12,7 +12,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    --primary-color: #0090FF;
+    --primary-color: #23AFD0;
     --secondary-color: #FFC53D;
 }
 
@@ -45,7 +45,7 @@ body {
 }
 
 .back-btn:hover {
-    border-color: #2870BD;
+    border-color: #23AFD0;
 }
 
 h1 {
@@ -82,8 +82,8 @@ button {
 }
 
 button:hover {
-    border-color: #2870BD;
-    color: #2870BD;
+    border-color: #23AFD0;
+    color: #23AFD0;
 }
 
 button:focus,
@@ -109,7 +109,7 @@ select {
 }
 
 select:hover {
-    border-color: #2870BD;
+    border-color: #23AFD0;
 }
 
 select:focus,
