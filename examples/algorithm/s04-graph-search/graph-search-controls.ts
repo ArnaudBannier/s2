@@ -1,8 +1,10 @@
+import { S2MathUtils } from '../../../src/core/math/s2-math-utils.ts';
 import { GraphSearchScene, type Direction } from './graph-search-scene.ts';
 
 export class GraphSearchControls {
     private container: HTMLElement;
     private scene: GraphSearchScene;
+    private stepIndex: number = -1;
 
     constructor(container: HTMLElement, scene: GraphSearchScene) {
         this.container = container;
@@ -156,6 +158,8 @@ export class GraphSearchControls {
     // ─────────────────────────────────────────────
     private createAnimationModeCard(): HTMLElement {
         const card = this.createCard('Animation', 'Contrôle la vitesse de l’animation.');
+        let elapsed = 0;
+        let isPlaying = false;
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -163,11 +167,64 @@ export class GraphSearchControls {
         const label = document.createElement('label');
         label.append(checkbox, document.createTextNode(' Pas à pas'));
 
+        const stopButton = document.createElement('button');
+        stopButton.innerHTML = '<i class="fa-solid fa-stop"></i>';
+
+        const playButton = document.createElement('button');
+        playButton.innerHTML = '<i class="fa-solid fa-play"></i>';
+
+        stopButton.addEventListener('click', () => {
+            console.log('stop');
+            playButton.innerHTML = '<i class="fa-solid fa-play"></i>';
+            this.stepIndex = -1;
+            this.scene.animator.stop();
+            this.scene.animator.setMasterElapsed(elapsed);
+            this.scene.update();
+            isPlaying = false;
+        });
+
+        playButton.addEventListener('click', () => {
+            console.log('play/pause');
+            if (isPlaying) {
+                this.scene.animator.pause();
+                playButton.innerHTML = '<i class="fa-solid fa-play"></i>';
+            } else {
+                this.scene.animator.setRangeAsMaster();
+                const currentElapsed = this.scene.animator.getElapsed();
+                if (currentElapsed >= this.scene.animator.getMasterDuration()) {
+                    this.scene.animator.setMasterElapsed(0);
+                }
+                this.scene.animator.resume();
+                playButton.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            }
+            isPlaying = !isPlaying;
+        });
+
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = '<i class="fa-solid fa-step-forward"></i>';
+
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = '<i class="fa-solid fa-step-backward"></i>';
+
+        nextButton.addEventListener('click', () => {
+            this.stepIndex = this.scene.animator.getStepIndex();
+            this.scene.animator.setRangeAsStep(this.stepIndex);
+            this.scene.animator.resetStep(this.stepIndex);
+            this.scene.animator.resume();
+        });
+
+        prevButton.addEventListener('click', () => {
+            this.stepIndex = this.scene.animator.getStepIndex();
+            this.stepIndex = S2MathUtils.clamp(this.stepIndex - 1, 0, this.scene.animator.getStepCount() - 1);
+            this.scene.animator.resetStep(this.stepIndex);
+            this.scene.update();
+        });
+
         checkbox.addEventListener('change', () => {
             this.scene.setStepByStep(checkbox.checked);
         });
 
-        card.body.appendChild(label);
+        card.body.append(label, playButton, stopButton, prevButton, nextButton);
         return card.root;
     }
 

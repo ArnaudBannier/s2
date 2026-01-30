@@ -154,6 +154,8 @@ export class GraphSearchScene extends S2Scene {
 
         this.update();
         this.createAnimation();
+        this.animator.playMaster();
+        this.animator.pause();
     }
 
     onClick(i: number, j: number): void {

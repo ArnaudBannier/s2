@@ -50,6 +50,17 @@ export class S2StepAnimator {
         return this;
     }
 
+    setRangeAsMaster(): this {
+        this.playable.setRange(0, this.timeline.getDuration());
+        return this;
+    }
+
+    setRangeAsStep(index: number): this {
+        index = S2MathUtils.clamp(index, 0, this.stepTimes.length - 2);
+        this.playable.setRange(this.stepTimes[index], this.stepTimes[index + 1]);
+        return this;
+    }
+
     playMaster(): this {
         this.stop();
         this.playable.setRange(0, this.timeline.getDuration());
@@ -101,6 +112,10 @@ export class S2StepAnimator {
         return this.timeline.getDuration();
     }
 
+    getElapsed(): number {
+        return this.timeline.getElapsed();
+    }
+
     getStepDuration(index: number): number {
         index = S2MathUtils.clamp(index, 0, this.stepTimes.length - 2);
         return this.stepTimes[index + 1] - this.stepTimes[index];
@@ -108,6 +123,11 @@ export class S2StepAnimator {
 
     getStepCount(): number {
         return this.stepTimes.length - 1;
+    }
+
+    getStepIndex(): number {
+        const elapsed = this.timeline.getElapsed();
+        return this.getStepIndexFromElapsed(elapsed);
     }
 
     makeStep(): this {

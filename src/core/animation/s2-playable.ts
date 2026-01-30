@@ -40,6 +40,10 @@ export class S2Playable {
         return this;
     }
 
+    getElapsed(): number {
+        return this.animation.getElapsed();
+    }
+
     isPlaying(): boolean {
         return this.state === 'playing';
     }
@@ -73,12 +77,8 @@ export class S2Playable {
     }
 
     resume(): this {
-        if (this.state === 'paused') {
-            this.state = 'playing';
-            S2AnimationManager.addAnimation(this);
-        } else if (this.state === 'stopped') {
-            this.play();
-        }
+        this.state = 'playing';
+        S2AnimationManager.addAnimation(this);
         return this;
     }
 
