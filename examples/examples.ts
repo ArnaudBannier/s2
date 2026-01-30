@@ -45,7 +45,8 @@ export const examples: S2Example[] = [
     {
         id: 'graph-s04-search',
         title: 'INF2031 : Parcours de graphes',
-        path: '/s2/examples/algorithm/s04-graph-search.html',
+        //path: '/s2/examples/algorithm/s04-graph-search.html',
+        path: '/s2/examples/algorithm/s04-graph-search/graph-search-index.html',
         description: 'Algorithme de parcours de graphes.',
     },
     {

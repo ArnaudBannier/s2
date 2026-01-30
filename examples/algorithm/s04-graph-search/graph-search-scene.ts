@@ -1,26 +1,20 @@
-import { S2Scene } from '../../src/core/scene/s2-scene.ts';
-import { S2StepAnimator } from '../../src/core/animation/s2-step-animator.ts';
-import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
+import { S2Scene } from '../../../src/core/scene/s2-scene.ts';
+import { S2StepAnimator } from '../../../src/core/animation/s2-step-animator.ts';
+import { S2MathUtils } from '../../../src/core/math/s2-math-utils.ts';
 
-const titleString = 'Parcours de graphes';
+import { S2ColorTheme, type S2Palette } from '../../../src/core/shared/s2-color-theme.ts';
 
-import { S2ColorTheme, type S2Palette } from '../../src/core/shared/s2-color-theme.ts';
-
-import * as radixDark from '../../src/utils/radix-colors-dark.ts';
-import * as radixLight from '../../src/utils/radix-colors-light.ts';
-import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
-import { S2Rect } from '../../src/core/element/s2-rect.ts';
-import { DirectedGraph, type VertexId } from './directed-graph.ts';
-import { S2Color } from '../../src/core/shared/s2-color.ts';
-import { S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
-import { ease } from '../../src/core/animation/s2-easing.ts';
-import { S2Circle } from '../../src/core/element/s2-circle.ts';
-import { S2Line } from '../../src/core/element/s2-line.ts';
-import { S2TriggerNumber } from '../../src/core/animation/s2-timeline-trigger.ts';
-
-// point d'arrivée modifiable
-// Murs modifiables
-//
+import * as radixDark from '../../../src/utils/radix-colors-dark.ts';
+import * as radixLight from '../../../src/utils/radix-colors-light.ts';
+import { S2Vec2 } from '../../../src/core/math/s2-vec2.ts';
+import { S2Rect } from '../../../src/core/element/s2-rect.ts';
+import { DirectedGraph, type VertexId } from '../directed-graph.ts';
+import { S2Color } from '../../../src/core/shared/s2-color.ts';
+import { S2LerpAnimFactory } from '../../../src/core/animation/s2-lerp-anim.ts';
+import { ease } from '../../../src/core/animation/s2-easing.ts';
+import { S2Circle } from '../../../src/core/element/s2-circle.ts';
+import { S2Line } from '../../../src/core/element/s2-line.ts';
+import { S2TriggerNumber } from '../../../src/core/animation/s2-timeline-trigger.ts';
 
 let mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -48,24 +42,7 @@ if (mode === 0) {
 
 const colorTheme = new S2ColorTheme(palette);
 
-// class Queue<T> {
-//     private input: T[] = [];
-//     private output: T[] = [];
-
-//     enqueue(x: T) {
-//         this.input.push(x);
-//     }
-
-//     dequeue(): T | undefined {
-//         if (this.output.length === 0) {
-//             while (this.input.length > 0) {
-//                 this.output.push(this.input.pop()!);
-//             }
-//         }
-//         return this.output.pop();
-//     }
-// }
-type Direction = 'U' | 'D' | 'L' | 'R';
+export type Direction = 'U' | 'D' | 'L' | 'R';
 
 class VertexData {
     public isWall: boolean = false;
@@ -95,15 +72,16 @@ class VertexData {
     }
 }
 
-class SceneFigure extends S2Scene {
+export class GraphSearchScene extends S2Scene {
     public animator: S2StepAnimator;
     public graph: DirectedGraph<VertexData>;
     public size: number = 10;
-    public mode: 'wall' | 'search' = 'wall';
+    public mode: 'wall' | 'search' = 'search';
     protected startI: number = 0;
     protected startJ: number = 0;
     protected cellWidth: number;
     protected stepByStep: boolean = false;
+    protected showHelperGrid: boolean = false;
 
     public directionOrder: Direction[] = ['U', 'D', 'L', 'R'];
     protected directionVectors: Record<Direction, [number, number]> = {
@@ -130,12 +108,14 @@ class SceneFigure extends S2Scene {
         const fillRect = this.addFillRect();
         fillRect.data.color.setFromTheme(colorTheme, 'back', 2);
 
-        // const helperGrid = this.addWorldGrid();
-        // helperGrid.data.stroke.color.setFromTheme(colorTheme, 'back', 4);
-        // helperGrid.data.stroke.width.set(2, viewSpace);
-        // helperGrid.data.geometry.boundA.set(-8, -4.5, worldSpace);
-        // helperGrid.data.geometry.boundB.set(+8, +4.5, worldSpace);
-        // helperGrid.data.geometry.space.set(worldSpace);
+        if (this.showHelperGrid) {
+            const helperGrid = this.addWorldGrid();
+            helperGrid.data.stroke.color.setFromTheme(colorTheme, 'back', 4);
+            helperGrid.data.stroke.width.set(2, viewSpace);
+            helperGrid.data.geometry.boundA.set(-8, -4.5, worldSpace);
+            helperGrid.data.geometry.boundB.set(+8, +4.5, worldSpace);
+            helperGrid.data.geometry.space.set(worldSpace);
+        }
 
         const gridWidth = 8.0;
         const gridSpacing = 0.1;
@@ -506,168 +486,45 @@ class SceneFigure extends S2Scene {
             this.animator.makeStep();
         }
         this.animator.finalize();
+        this.animator.setMasterElapsed(0);
         this.update();
+    }
+
+    setDirectionOrder(order: Direction[]): void {
+        if (order.length !== 4) {
+            throw new Error('Direction order must have exactly 4 elements.');
+        }
+        this.directionOrder = order;
+        this.createEdges();
+        this.createAnimation();
+        this.animator.setMasterElapsed(this.animator.getMasterDuration());
+        this.update();
+    }
+
+    setStepByStep(enabled: boolean): void {
+        this.stepByStep = enabled;
+        this.createAnimation();
+        this.animator.setMasterElapsed(this.animator.getMasterDuration());
+        this.update();
+    }
+
+    setMode(mode: 'wall' | 'search'): void {
+        this.mode = mode;
     }
 }
 
-const appDiv = document.querySelector<HTMLDivElement>('#app');
-if (appDiv) {
-    appDiv.innerHTML = `
-        <div>
-            <h1>${titleString}</h1>
-            <div class="figure-panel">
-                <label>Choisissez l'ordre des directions (glisser/déposer pour réordonner) :</label>
-                <ul id="direction-order" class="dir-list">
-                    <li draggable="true" data-dir="U">Haut</li>
-                    <li draggable="true" data-dir="D">Bas</li>
-                    <li draggable="true" data-dir="L">Gauche</li>
-                    <li draggable="true" data-dir="R">Droite</li>
-                </ul>
-                <label>Mode de parcours :</label>
-                <select id="mode-select">
-                    <option value="wall">Modification des murs</option>
-                    <option value="search">Animation du parcours</option>
-                </select>
-                </div>
-            </div>
-            <p>Cliquer sur une cellule pour lancer le parcours depuis cette cellule.</p>
-            <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
-            <div class="figure-nav">
-                <div>Animation : <input type="range" id="slider" min="0" max="100" step="1" value="0" style="width:50%"></div>
-                <button id="reset-button"><i class="fa-solid fa-backward-fast"></i></button>
-                <button id="prev-button"><i class="fa-solid fa-step-backward"></i></button>
-                <button id="play-button"><i class="fa-solid fa-redo"></i></button>
-                <button id="next-button"><i class="fa-solid fa-step-forward"></i></button>
-                <button id="full-button"><i class="fa-solid fa-play"></i></button>
-            </div>
-        </div>`;
-}
-
-const svgElement = appDiv?.querySelector<SVGSVGElement>('#test-svg');
-const slider = document.querySelector<HTMLInputElement>('#slider');
-const list = document.getElementById('direction-order')!;
-const modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
-let draggedItem: HTMLElement | null = null;
-
-if (svgElement && slider && list && modeSelect) {
-    const scene = new SceneFigure(svgElement);
-    void scene;
-
-    let index = -1;
-    scene.animator.reset();
-
-    document.querySelector<HTMLButtonElement>('#reset-button')?.addEventListener('click', () => {
-        index = -1;
-        scene.animator.stop();
-        scene.animator.reset();
-        slider.value = '0';
-        console.log('Used vec2 count:', scene.getUsedVecCount());
-        console.log('Vec2 pool size:', scene.getVecPoolSize());
-    });
-    document.querySelector<HTMLButtonElement>('#prev-button')?.addEventListener('click', () => {
-        index = S2MathUtils.clamp(index - 1, 0, scene.animator.getStepCount() - 1);
-        scene.animator.resetStep(index);
-        scene.update();
-        const stepStart = scene.animator.getStepStartTime(index);
-        const ratio = stepStart / scene.animator.getMasterDuration();
-        slider.value = (ratio * 100).toString();
-    });
-    document.querySelector<HTMLButtonElement>('#next-button')?.addEventListener('click', () => {
-        index = S2MathUtils.clamp(index + 1, 0, scene.animator.getStepCount() - 1);
-        scene.animator.playStep(index);
-        const stepStart = scene.animator.getStepStartTime(index);
-        const ratio = stepStart / scene.animator.getMasterDuration();
-        slider.value = (ratio * 100).toString();
-    });
-    document.querySelector<HTMLButtonElement>('#play-button')?.addEventListener('click', () => {
-        scene.animator.playStep(index);
-    });
-    document.querySelector<HTMLButtonElement>('#full-button')?.addEventListener('click', () => {
-        scene.animator.playMaster();
-        slider.value = '0';
-    });
-
-    slider.addEventListener('input', () => {
-        const ratio = slider.valueAsNumber / 100;
-        const elapsed = ratio * scene.animator.getMasterDuration();
-        scene.animator.stop();
-        scene.animator.setMasterElapsed(elapsed);
-        index = scene.animator.getStepIndexFromElapsed(elapsed);
-        scene.getSVG().update();
-    });
-
-    // Drag start
-    list.addEventListener('dragstart', (e) => {
-        const target = e.target as HTMLElement;
-        if (target.tagName !== 'LI') return;
-
-        draggedItem = target;
-        target.classList.add('dragging');
-    });
-
-    // Drag end
-    list.addEventListener('dragend', () => {
-        draggedItem?.classList.remove('dragging');
-        draggedItem = null;
-
-        list.querySelectorAll('.over').forEach((el) => el.classList.remove('over'));
-    });
-
-    // Drag over (obligatoire pour autoriser le drop)
-    list.addEventListener('dragover', (e) => {
-        e.preventDefault();
-
-        const target = e.target as HTMLElement;
-        if (!draggedItem || target === draggedItem || target.tagName !== 'LI') return;
-
-        target.classList.add('over');
-    });
-
-    list.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-
-        const target = e.target as HTMLElement;
-        if (!draggedItem || target === draggedItem || target.tagName !== 'LI') return;
-
-        target.classList.remove('over');
-    });
-
-    // Drop
-    list.addEventListener('drop', (e) => {
-        e.preventDefault();
-
-        const target = e.target as HTMLElement;
-        if (!draggedItem || target === draggedItem || target.tagName !== 'LI') return;
-
-        target.classList.remove('over');
-
-        const rect = draggedItem.getBoundingClientRect();
-        const offset = e.clientX - rect.x;
-
-        if (offset < 0) {
-            list.insertBefore(draggedItem, target);
-        } else {
-            list.insertBefore(draggedItem, target.nextSibling);
-        }
-
-        scene.directionOrder = Array.from(list.children).map((li) => (li as HTMLElement).dataset.dir! as Direction);
-        scene.createEdges();
-        scene.createAnimation();
-        scene.animator.setMasterElapsed(scene.animator.getMasterDuration());
-        scene.update();
-        //scene.createAnimation();
-    });
-
-    modeSelect.addEventListener('change', (event) => {
-        const target = event.target as HTMLSelectElement;
-        scene.animator.stop();
-        switch (target.value) {
-            case 'wall':
-                scene.mode = 'wall';
-                break;
-            case 'search':
-                scene.mode = 'search';
-                break;
-        }
-    });
-}
+// class Queue<T> {
+//     private input: T[] = [];
+//     private output: T[] = [];
+//     enqueue(x: T) {
+//         this.input.push(x);
+//     }
+//     dequeue(): T | undefined {
+//         if (this.output.length === 0) {
+//             while (this.input.length > 0) {
+//                 this.output.push(this.input.pop()!);
+//             }
+//         }
+//         return this.output.pop();
+//     }
+// }
