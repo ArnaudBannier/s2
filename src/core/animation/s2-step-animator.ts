@@ -126,7 +126,7 @@ export class S2StepAnimator {
     }
 
     getStepIndex(): number {
-        const elapsed = this.timeline.getElapsed();
+        const elapsed = this.timeline.getElapsed() - 1;
         return this.getStepIndexFromElapsed(elapsed);
     }
 

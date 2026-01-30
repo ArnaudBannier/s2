@@ -208,6 +208,7 @@ export class GraphSearchControls {
 
         nextButton.addEventListener('click', () => {
             this.stepIndex = this.scene.animator.getStepIndex();
+            this.stepIndex = S2MathUtils.clamp(this.stepIndex + 1, 0, this.scene.animator.getStepCount() - 1);
             this.scene.animator.setRangeAsStep(this.stepIndex);
             this.scene.animator.resetStep(this.stepIndex);
             this.scene.animator.resume();
@@ -215,7 +216,7 @@ export class GraphSearchControls {
 
         prevButton.addEventListener('click', () => {
             this.stepIndex = this.scene.animator.getStepIndex();
-            this.stepIndex = S2MathUtils.clamp(this.stepIndex - 1, 0, this.scene.animator.getStepCount() - 1);
+            //this.stepIndex = S2MathUtils.clamp(this.stepIndex - 1, 0, this.scene.animator.getStepCount() - 1);
             this.scene.animator.resetStep(this.stepIndex);
             this.scene.update();
         });

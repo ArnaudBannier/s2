@@ -90,3 +90,7 @@
 .dir-list li.over {
     outline: 2px dashed var(--primary-color);
 }
+
+.dir-list li i {
+    pointer-events: none;
+}
