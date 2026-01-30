@@ -18,8 +18,6 @@ import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2Line } from '../../src/core/element/s2-line.ts';
 import { S2TriggerNumber } from '../../src/core/animation/s2-timeline-trigger.ts';
 
-// Ordre haut bas gauche droite
-// Chemin oui/non
 // point d'arrivée modifiable
 // Murs modifiables
 //
@@ -101,8 +99,9 @@ class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
     public graph: DirectedGraph<VertexData>;
     public size: number = 10;
-    protected startI: number = -1;
-    protected startJ: number = -1;
+    public mode: 'wall' | 'search' = 'wall';
+    protected startI: number = 0;
+    protected startJ: number = 0;
     protected cellWidth: number;
     protected stepByStep: boolean = false;
 
@@ -174,26 +173,39 @@ class SceneFigure extends S2Scene {
         this.createEdges();
 
         this.update();
-        this.startI = 0;
-        this.startJ = 0;
         this.createAnimation();
     }
 
     onClick(i: number, j: number): void {
         console.log(`Cell clicked: ${i},${j}`);
         const vertex = this.graph.getVertex(`${i},${j}`);
-        if (vertex.isWall) {
-            console.log('is wall, ignoring');
 
-            return;
+        switch (this.mode) {
+            case 'wall':
+                if (i == this.startI && j == this.startJ) return;
+
+                vertex.isWall = !vertex.isWall;
+
+                this.createEdges();
+                this.createAnimation();
+                this.animator.setMasterElapsed(this.animator.getMasterDuration());
+                this.update();
+                break;
+
+            case 'search':
+                if (vertex.isWall) return;
+                if (i == this.startI && j == this.startJ) {
+                    this.animator.playMaster();
+                    return;
+                }
+
+                this.startI = i;
+                this.startJ = j;
+
+                this.createAnimation();
+                this.animator.playMaster();
+                break;
         }
-
-        if (i == this.startI && j == this.startJ) return;
-        this.startI = i;
-        this.startJ = j;
-
-        this.createAnimation();
-        this.animator.playMaster();
     }
 
     createRandomWalls(): void {
@@ -204,6 +216,98 @@ class SceneFigure extends S2Scene {
                 this.graph.getVertex(`${i},${j}`).isWall = isWall;
             }
         }
+
+        this.graph.getVertex(`${this.startI},${this.startJ}`).isWall = false;
+    }
+
+    initializeGraphCells(): void {
+        const viewSpace = this.getViewSpace();
+        const worldSpace = this.getWorldSpace();
+        const gridWidth = 8.0;
+        const gridSpacing = 0.1;
+        const cellWidth = (gridWidth - gridSpacing * (this.size - 1)) / this.size;
+        const cellSep = cellWidth + gridSpacing;
+        this.cellWidth = cellWidth;
+
+        const nw = new S2Vec2(-gridWidth / 2, -gridWidth / 2);
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                const vertex = this.graph.getVertex(`${i},${j}`);
+                vertex.visited = false;
+                vertex.prevId = null;
+                vertex.depth = -1;
+
+                const center = new S2Vec2(
+                    nw.x + j * cellSep + cellWidth / 2,
+                    nw.y + (this.size - 1 - i) * cellSep + cellWidth / 2,
+                );
+
+                const cell = vertex.cell;
+                cell.data.layer.set(1);
+                cell.data.extents.set(cellWidth / 2, cellWidth / 2, worldSpace);
+                cell.data.position.setV(center, worldSpace);
+                cell.data.anchor.set(0, 0);
+                cell.data.pointerEvents.set('auto');
+
+                const cellEmph = vertex.cellEmph;
+                cellEmph.data.layer.set(2);
+                cellEmph.data.extents.set(1, 1, viewSpace);
+                cellEmph.data.position.setV(center, worldSpace);
+                cellEmph.data.anchor.set(0, 0);
+                cellEmph.data.opacity.set(0.0);
+            }
+        }
+    }
+
+    setInitialStyle(): void {
+        const viewSpace = this.getViewSpace();
+        const worldSpace = this.getWorldSpace();
+        const gridWidth = 8.0;
+        const gridSpacing = 0.1;
+        const cellWidth = (gridWidth - gridSpacing * (this.size - 1)) / this.size;
+        const cellSep = cellWidth + gridSpacing;
+        this.cellWidth = cellWidth;
+
+        const nw = new S2Vec2(-gridWidth / 2, -gridWidth / 2);
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                const vertex = this.graph.getVertex(`${i},${j}`);
+                vertex.visited = false;
+                vertex.prevId = null;
+                vertex.depth = -1;
+
+                const center = new S2Vec2(
+                    nw.x + j * cellSep + cellWidth / 2,
+                    nw.y + (this.size - 1 - i) * cellSep + cellWidth / 2,
+                );
+
+                const cell = vertex.cell;
+                cell.data.layer.set(1);
+                cell.data.extents.set(cellWidth / 2, cellWidth / 2, worldSpace);
+                cell.data.position.setV(center, worldSpace);
+                cell.data.anchor.set(0, 0);
+                cell.data.fill.color.setFromTheme(colorTheme, 'back', 1);
+                cell.data.stroke.color.setFromTheme(colorTheme, 'back', 5);
+                cell.data.stroke.width.set(2, viewSpace);
+                cell.data.pointerEvents.set('auto');
+
+                const cellEmph = vertex.cellEmph;
+                cellEmph.data.layer.set(2);
+                cellEmph.data.extents.set(1, 1, viewSpace);
+                cellEmph.data.position.setV(center, worldSpace);
+                cellEmph.data.anchor.set(0, 0);
+                cellEmph.data.opacity.set(1);
+                cellEmph.data.fill.color.setFromTheme(colorTheme, 'main', 1);
+                cellEmph.data.stroke.color.setFromTheme(colorTheme, 'main', 5);
+                cellEmph.data.stroke.width.set(2, viewSpace);
+                cellEmph.data.opacity.set(0.0);
+
+                if (vertex.isWall) {
+                    cell.data.fill.color.setFromTheme(colorTheme, 'wall', 10);
+                    cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 10);
+                }
+            }
+        }
     }
 
     createEdges(): void {
@@ -211,7 +315,6 @@ class SceneFigure extends S2Scene {
         for (let i = 0; i < this.size; i++) {
             for (let j = 0; j < this.size; j++) {
                 for (let k = this.directionOrder.length - 1; k >= 0; k--) {
-                    //for (let k = 0; k < this.directionOrder.length; k++) {
                     const dir = this.directionOrder[k];
                     const vec = this.directionVectors[dir];
                     const ni = i + vec[0];
@@ -403,6 +506,7 @@ class SceneFigure extends S2Scene {
             this.animator.makeStep();
         }
         this.animator.finalize();
+        this.update();
     }
 }
 
@@ -412,13 +516,19 @@ if (appDiv) {
         <div>
             <h1>${titleString}</h1>
             <div class="figure-panel">
-                <p>Choisissez l'ordre des directions (glisser/déposer pour réordonner) :</p>
+                <label>Choisissez l'ordre des directions (glisser/déposer pour réordonner) :</label>
                 <ul id="direction-order" class="dir-list">
                     <li draggable="true" data-dir="U">Haut</li>
                     <li draggable="true" data-dir="D">Bas</li>
                     <li draggable="true" data-dir="L">Gauche</li>
                     <li draggable="true" data-dir="R">Droite</li>
                 </ul>
+                <label>Mode de parcours :</label>
+                <select id="mode-select">
+                    <option value="wall">Modification des murs</option>
+                    <option value="search">Animation du parcours</option>
+                </select>
+                </div>
             </div>
             <p>Cliquer sur une cellule pour lancer le parcours depuis cette cellule.</p>
             <svg xmlns="http://www.w3.org/2000/svg" id=test-svg class="responsive-svg" preserveAspectRatio="xMidYMid meet"></svg>
@@ -436,9 +546,10 @@ if (appDiv) {
 const svgElement = appDiv?.querySelector<SVGSVGElement>('#test-svg');
 const slider = document.querySelector<HTMLInputElement>('#slider');
 const list = document.getElementById('direction-order')!;
+const modeSelect = document.getElementById('mode-select') as HTMLSelectElement;
 let draggedItem: HTMLElement | null = null;
 
-if (svgElement && slider && list) {
+if (svgElement && slider && list && modeSelect) {
     const scene = new SceneFigure(svgElement);
     void scene;
 
@@ -542,6 +653,21 @@ if (svgElement && slider && list) {
         scene.directionOrder = Array.from(list.children).map((li) => (li as HTMLElement).dataset.dir! as Direction);
         scene.createEdges();
         scene.createAnimation();
+        scene.animator.setMasterElapsed(scene.animator.getMasterDuration());
+        scene.update();
         //scene.createAnimation();
+    });
+
+    modeSelect.addEventListener('change', (event) => {
+        const target = event.target as HTMLSelectElement;
+        scene.animator.stop();
+        switch (target.value) {
+            case 'wall':
+                scene.mode = 'wall';
+                break;
+            case 'search':
+                scene.mode = 'search';
+                break;
+        }
     });
 }
