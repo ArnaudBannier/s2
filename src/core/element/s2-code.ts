@@ -249,26 +249,26 @@ export class S2Code extends S2Element<S2CodeData> {
     static defaultTokenStyleSetter(tspan: S2TSpan, type: string): void {
         switch (type) {
             case 'fn':
-                tspan.data.fill.color.copyIfUnlocked(MTL.ORANGE_2).lock();
+                tspan.data.fill.color.setFromHex('#DCDC8B').lock();
                 break;
             case 'type':
-                tspan.data.fill.color.copyIfUnlocked(MTL.BLUE_3).lock();
+                tspan.data.fill.color.setFromHex('#4EC9B0').lock();
                 break;
             case 'kw':
-                tspan.data.fill.color.copyIfUnlocked(MTL.PURPLE_3).lock();
+                tspan.data.fill.color.setFromHex('#BB86C0').lock();
                 //tspan.data.font.weight.set(700).lock();
                 break;
             case 'var':
-                tspan.data.fill.color.copyIfUnlocked(MTL.LIGHT_BLUE_1).lock();
+                tspan.data.fill.color.setFromHex('#9CDCFE').lock();
                 break;
             case 'num':
-                tspan.data.fill.color.copyIfUnlocked(MTL.LIME_2).lock();
+                tspan.data.fill.color.setFromHex('#B5CEA8').lock();
                 break;
             case 'str':
-                tspan.data.fill.color.copyIfUnlocked(MTL.DEEP_ORANGE_2).lock();
+                tspan.data.fill.color.setFromHex('#CE9178').lock();
                 break;
             case 'punct':
-                tspan.data.fill.color.copyIfUnlocked(MTL.PURPLE_1).lock();
+                tspan.data.fill.color.setFromHex('#CCCCCC').lock();
                 break;
         }
     }
