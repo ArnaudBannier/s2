@@ -13,7 +13,7 @@ import { slate, cyan, ruby } from '../../src/utils/radix-colors-light.ts';
 
 const titleString = 'Animation simple';
 
-let mode = 0; // 0 = dark, 1 = light
+const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
 if (mode === 0) {
     palette = {

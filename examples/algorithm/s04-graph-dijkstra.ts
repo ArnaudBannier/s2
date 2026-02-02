@@ -12,7 +12,7 @@ import { S2ColorTheme, type S2Palette } from '../../src/core/shared/s2-color-the
 import * as radixDark from '../../src/utils/radix-colors-dark.ts';
 import * as radixLight from '../../src/utils/radix-colors-light.ts';
 
-let mode = 0; // 0 = dark, 1 = light
+const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
 if (mode === 0) {
     palette = {

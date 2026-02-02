@@ -16,7 +16,7 @@ import { S2Circle } from '../../../src/core/element/s2-circle.ts';
 import { S2Line } from '../../../src/core/element/s2-line.ts';
 import { S2TriggerNumber } from '../../../src/core/animation/s2-timeline-trigger.ts';
 
-let mode = 0; // 0 = dark, 1 = light
+const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
 if (mode === 0) {
     palette = {

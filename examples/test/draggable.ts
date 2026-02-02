@@ -14,7 +14,7 @@ import { slate, cyan, ruby, red, grass } from '../../src/utils/radix-colors-ligh
 
 const titleString = 'Test des éléments déplaçables';
 
-let mode = 0; // 0 = dark, 1 = light
+const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
 if (mode === 0) {
     palette = {

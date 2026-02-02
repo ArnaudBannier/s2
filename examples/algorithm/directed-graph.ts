@@ -8,7 +8,7 @@
 // }
 
 export type VertexId = string;
-export interface Edge<EdgeData = {}> {
+export interface Edge<EdgeData = object> {
     to: VertexId;
     data: EdgeData;
 }
@@ -16,7 +16,7 @@ export interface Edge<EdgeData = {}> {
 // This graph does not support multiple edges between the same vertices.
 // If multiple relationships are needed, they should be encoded in the edge data.
 
-export class DirectedGraph<VertexData = {}, EdgeData = {}> {
+export class DirectedGraph<VertexData = object, EdgeData = object> {
     protected vertices = new Map<VertexId, VertexData>();
     protected adjacency = new Map<VertexId, Edge<EdgeData>[]>();
 

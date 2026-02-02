@@ -29,7 +29,7 @@ export class S2EdgeData extends S2ElementData {
         this.endDistance = new S2Length(0, viewSpace);
 
         this.stroke.width.set(4, viewSpace);
-        this.stroke.color.set(0, 0, 0);
+        this.stroke.color.set(0, 0, 0, 1);
         this.opacity.set(1);
     }
 

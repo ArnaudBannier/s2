@@ -158,7 +158,6 @@ export class GraphSearchControls {
     // ─────────────────────────────────────────────
     private createAnimationModeCard(): HTMLElement {
         const card = this.createCard('Animation', 'Contrôle la vitesse de l’animation.');
-        let elapsed = 0;
         let isPlaying = false;
 
         const checkbox = document.createElement('input');
@@ -167,18 +166,34 @@ export class GraphSearchControls {
         const label = document.createElement('label');
         label.append(checkbox, document.createTextNode(' Pas à pas'));
 
+        const playbackControls = document.createElement('div');
+        playbackControls.className = 'playback-controls';
+
         const stopButton = document.createElement('button');
         stopButton.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        stopButton.classList.add('anim-button');
 
         const playButton = document.createElement('button');
         playButton.innerHTML = '<i class="fa-solid fa-play"></i>';
+        playButton.classList.add('anim-button');
+
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = '<i class="fa-solid fa-step-forward"></i>';
+        nextButton.disabled = true;
+        nextButton.classList.add('anim-button');
+
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = '<i class="fa-solid fa-step-backward"></i>';
+        prevButton.disabled = true;
+        prevButton.classList.add('anim-button');
 
         stopButton.addEventListener('click', () => {
             console.log('stop');
             playButton.innerHTML = '<i class="fa-solid fa-play"></i>';
             this.stepIndex = -1;
             this.scene.animator.stop();
-            this.scene.animator.setMasterElapsed(elapsed);
+            this.scene.animator.setRangeAsMaster();
+            this.scene.animator.setMasterElapsed(0);
             this.scene.update();
             isPlaying = false;
         });
@@ -200,14 +215,14 @@ export class GraphSearchControls {
             isPlaying = !isPlaying;
         });
 
-        const nextButton = document.createElement('button');
-        nextButton.innerHTML = '<i class="fa-solid fa-step-forward"></i>';
-
-        const prevButton = document.createElement('button');
-        prevButton.innerHTML = '<i class="fa-solid fa-step-backward"></i>';
-
         nextButton.addEventListener('click', () => {
-            this.stepIndex = this.scene.animator.getStepIndex();
+            playButton.innerHTML = '<i class="fa-solid fa-play"></i>';
+            const elapsed = this.scene.animator.getElapsed();
+            if (elapsed < 1.0) {
+                this.stepIndex = -1;
+            } else {
+                this.stepIndex = this.scene.animator.getStepIndexFromElapsed(elapsed - 1.0);
+            }
             this.stepIndex = S2MathUtils.clamp(this.stepIndex + 1, 0, this.scene.animator.getStepCount() - 1);
             this.scene.animator.setRangeAsStep(this.stepIndex);
             this.scene.animator.resetStep(this.stepIndex);
@@ -215,17 +230,30 @@ export class GraphSearchControls {
         });
 
         prevButton.addEventListener('click', () => {
-            this.stepIndex = this.scene.animator.getStepIndex();
-            //this.stepIndex = S2MathUtils.clamp(this.stepIndex - 1, 0, this.scene.animator.getStepCount() - 1);
+            playButton.innerHTML = '<i class="fa-solid fa-play"></i>';
+            const elapsed = this.scene.animator.getElapsed();
+            if (elapsed < 1.0) {
+                this.stepIndex = -1;
+            } else {
+                this.stepIndex = this.scene.animator.getStepIndexFromElapsed(elapsed - 1.0);
+            }
             this.scene.animator.resetStep(this.stepIndex);
             this.scene.update();
         });
 
         checkbox.addEventListener('change', () => {
             this.scene.setStepByStep(checkbox.checked);
+            if (checkbox.checked) {
+                nextButton.disabled = false;
+                prevButton.disabled = false;
+            } else {
+                nextButton.disabled = true;
+                prevButton.disabled = true;
+            }
         });
 
-        card.body.append(label, playButton, stopButton, prevButton, nextButton);
+        playbackControls.append(playButton, stopButton, prevButton, nextButton);
+        card.body.append(label, playbackControls);
         return card.root;
     }
 

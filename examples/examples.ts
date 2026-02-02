@@ -36,12 +36,12 @@ export const examples: S2Example[] = [
         path: '/s2/examples/algorithm/btree.html',
         description: "Parcours préfixe/infixe/suffixe d'un arbre binaire.",
     },
-    {
-        id: 'graph-s04-dijkstra',
-        title: 'INF2031 : Dijkstra',
-        path: '/s2/examples/algorithm/s04-graph-dijkstra.html',
-        description: 'Algorithme de Dijkstra pour les plus courts chemins dans un graphe.',
-    },
+    // {
+    //     id: 'graph-s04-dijkstra',
+    //     title: 'INF2031 : Dijkstra',
+    //     path: '/s2/examples/algorithm/s04-graph-dijkstra.html',
+    //     description: 'Algorithme de Dijkstra pour les plus courts chemins dans un graphe.',
+    // },
     {
         id: 'graph-s04-search',
         title: 'INF2031 : Parcours de graphes',

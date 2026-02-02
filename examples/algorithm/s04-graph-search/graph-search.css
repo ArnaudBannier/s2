@@ -52,6 +52,19 @@
     font-size: 0.9rem;
 }
 
+/* Boutons d'animation */
+.anim-button {
+    padding: 8px 12px;
+    width: 3em;
+}
+
+.playback-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
 /* ─────────────────────────────────────────────
    Liste des directions (drag & drop)
    ───────────────────────────────────────────── */
