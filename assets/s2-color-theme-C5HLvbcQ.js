@@ -1,0 +1,1 @@
+class s{palette;constructor(t){this.palette=t}color(t,r){const o=this.palette[t]?.[r];if(!o)throw new Error(`Color not found: ${t} / ${r}`);return o}opacity(t,r){const o=this.color(t,r);if(o.length===9){const e=o.substring(7,9);return parseInt(e,16)/255}return 1}}export{s as S};
