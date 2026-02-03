@@ -1,8 +1,9 @@
-import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2Memory } from '../../src/extension/s2-memory.ts';
 import { BaseMemoryScene } from './base-memory-scene.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
+import { cyanDark, limeDark, plumDark, slateDark } from '../../src/utils/radix-colors-dark.ts';
+import { S2Color } from '../../src/core/shared/s2-color.ts';
 
 const titleString = 'Etat de la mémoire : fonctions simples 1';
 
@@ -68,9 +69,11 @@ class SceneFigure extends BaseMemoryScene {
 
     createAnimation(): void {
         this.animator.makeStep();
-        const numberColor = MTL.LIME_2;
-        //const undefinedColor = MTL.RED_3;
-        const freeColor = MTL.GREY_5;
+        const numberColor = S2Color.fromHex(limeDark[12]);
+        //const undefinedColor = S2Color.fromHex(rubyDark[11]);
+        const freeColor = S2Color.fromHex(slateDark[10]);
+        const highlightColor1 = S2Color.fromHex(cyanDark[10]);
+        const highlightColor2 = S2Color.fromHex(plumDark[10]);
         let currLine = 1;
 
         // short a = 1337
@@ -92,12 +95,11 @@ class SceneFigure extends BaseMemoryScene {
         let label = this.animator.createLabelAtCurrentTime();
         const codeHighlight = this.codeMain.createTokenHighlight(
             [{ lineIndex: currLine - 1, content: 'func' }],
-            MTL.CYAN,
+            highlightColor1,
         );
         codeHighlight.animateFadeIn(this.animator, { label: label });
         this.animateCallIn(this.codeMain, this.codeFunc, 3);
-        varB.animateHLine(this.animator, { color: MTL.CYAN, width: 4, label: label });
-
+        varB.animateHLine(this.animator, { color: highlightColor1, width: 4, label: label });
         this.animator.makeStep();
         this.update();
 
@@ -142,13 +144,16 @@ class SceneFigure extends BaseMemoryScene {
         this.codeFunc.animateSetCurrentLine(4, this.animator);
         varFuncI.animateColor(freeColor, this.animator);
 
-        const codeHighlightB = this.codeMain.createTokenHighlight([{ lineIndex: 3, content: 'b' }], MTL.PURPLE_4);
-        const codeHighlightRes = this.codeFunc.createTokenHighlight([{ lineIndex: 4, content: 'res' }], MTL.PURPLE_4);
+        const codeHighlightB = this.codeMain.createTokenHighlight([{ lineIndex: 3, content: 'b' }], highlightColor2);
+        const codeHighlightRes = this.codeFunc.createTokenHighlight(
+            [{ lineIndex: 4, content: 'res' }],
+            highlightColor2,
+        );
         label = this.animator.createLabelAtCurrentTime();
         codeHighlightB.animateFadeIn(this.animator, { label: label });
         codeHighlightRes.animateFadeIn(this.animator, { label: label });
-        varFuncRes.animateHighlightIn(this.animator, { label: label, offset: 100, color: MTL.PURPLE_4 });
-        varB.animateHighlightIn(this.animator, { label: label, offset: 100, color: MTL.PURPLE_4 });
+        varFuncRes.animateHighlightIn(this.animator, { label: label, offset: 100, color: highlightColor2 });
+        varB.animateHighlightIn(this.animator, { label: label, offset: 100, color: highlightColor2 });
         this.animator.makeStep();
         this.update();
 

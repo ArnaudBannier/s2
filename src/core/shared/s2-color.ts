@@ -135,6 +135,15 @@ export class S2Color extends S2BaseType implements S2HasClone<S2Color>, S2HasCop
         return new S2Color().setFromTheme(colorTheme, name, scale);
     }
 
+    setWhite(intensity: number = 1, opacity: number = 1): this {
+        return this.set(intensity, intensity, intensity, opacity);
+    }
+
+    setBlack(intensity: number = 1, opacity: number = 1): this {
+        intensity = 1 - intensity;
+        return this.set(intensity, intensity, intensity, opacity);
+    }
+
     toString(): string {
         const c = (x: number) => S2Color.linearToSRGB255(x).toString(16).padStart(2, '0');
         return `#${c(this.linearR)}${c(this.linearG)}${c(this.linearB)}${c(this.linearA)}`;

@@ -6,8 +6,7 @@ import { S2StepAnimator } from '../../src/core/animation/s2-step-animator';
 import { S2FontData } from '../../src/core/element/base/s2-base-data';
 import { S2Code } from '../../src/core/element/s2-code';
 import { S2Scene } from '../../src/core/scene/s2-scene';
-import { S2Color } from '../../src/core/shared/s2-color';
-import { MTL } from '../../src/utils/mtl-colors';
+import { slateDark } from '../../src/utils/radix-colors-dark';
 
 export class BaseMemoryScene extends S2Scene {
     public animator: S2StepAnimator;
@@ -26,16 +25,16 @@ export class BaseMemoryScene extends S2Scene {
         const worldSpace = this.getWorldSpace();
         const data = code.data;
         data.text.font.copy(this.font);
-        data.text.fill.color.copy(MTL.WHITE);
+        data.text.fill.color.setFromHex(slateDark[12]);
         data.padding.set(20, 15, viewSpace);
-        data.background.fill.color.copy(MTL.GREY_9);
-        data.background.stroke.color.copy(MTL.GREY_7);
+        data.background.fill.color.setFromHex(slateDark[3]);
+        data.background.stroke.color.setFromHex(slateDark[8]);
         data.background.stroke.width.set(2, viewSpace);
         data.background.cornerRadius.set(10, viewSpace);
         data.currentLine.opacity.set(1);
-        data.currentLine.fill.color.copy(MTL.BLACK);
+        data.currentLine.fill.color.setFromHex(slateDark[1]);
         data.currentLine.fill.opacity.set(0.5);
-        data.currentLine.stroke.color.copy(MTL.WHITE);
+        data.currentLine.stroke.color.setFromHex(slateDark[12]);
         data.currentLine.stroke.width.set(1, viewSpace);
         data.currentLine.stroke.opacity.set(0.2);
         data.currentLine.padding.set(-0.5, 2, viewSpace);
@@ -52,11 +51,11 @@ export class BaseMemoryScene extends S2Scene {
         data.extents.set(2, 4.0, worldSpace);
         data.padding.set(15, 0, viewSpace);
         data.valueWidth.set(2, worldSpace);
-        data.text.fill.color.copyIfUnlocked(MTL.WHITE);
-        data.text.addressFill.color.copyIfUnlocked(MTL.GREY_4);
+        data.text.fill.color.setFromHex(slateDark[12]);
+        data.text.addressFill.color.setFromHex(slateDark[10]);
         data.text.font.copyIfUnlocked(this.font);
-        data.background.fill.color.copyIfUnlocked(MTL.GREY_9);
-        data.background.stroke.color.copyIfUnlocked(MTL.GREY_7);
+        data.background.fill.color.setFromHex(slateDark[3]);
+        data.background.stroke.color.setFromHex(slateDark[8]);
         data.background.stroke.width.set(2, viewSpace);
         data.background.cornerRadius.set(10, viewSpace);
         data.highlight.cornerRadius.set(7, viewSpace);
@@ -73,7 +72,7 @@ export class BaseMemoryScene extends S2Scene {
         this.animator = new S2StepAnimator(this);
         this.font = new S2FontData(this);
         this.fillRect = this.addFillRect();
-        this.fillRect.data.color.copy(S2Color.lerp(MTL.GREY_8, MTL.GREY_9, 0.7));
+        this.fillRect.data.color.setFromHex(slateDark[2]);
 
         this.setDefaultFont(16);
     }

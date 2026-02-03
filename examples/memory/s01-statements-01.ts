@@ -1,8 +1,9 @@
-import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2Memory } from '../../src/extension/s2-memory.ts';
 import { BaseMemoryScene } from './base-memory-scene.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
+import { S2Color } from '../../src/core/shared/s2-color.ts';
+import { cyanDark, limeDark, rubyDark, slateDark } from '../../src/utils/radix-colors-dark.ts';
 
 const titleString = 'Etat de la mémoire : instructions simples 1';
 
@@ -50,9 +51,10 @@ class SceneFigure extends BaseMemoryScene {
 
     createAnimation(): void {
         this.animator.makeStep();
-        const numberColor = MTL.LIME_2;
-        const undefinedColor = MTL.RED_3;
-        const freeColor = MTL.GREY_5;
+        const numberColor = S2Color.fromHex(limeDark[12]);
+        const undefinedColor = S2Color.fromHex(rubyDark[11]);
+        const freeColor = S2Color.fromHex(slateDark[10]);
+        const highlightColor = S2Color.fromHex(cyanDark[10]);
         let currLine = 1;
 
         // int a = 10, b = 5;
@@ -107,11 +109,11 @@ class SceneFigure extends BaseMemoryScene {
                 { lineIndex: currLine - 1, content: 'd' },
                 { lineIndex: currLine - 1, content: 'f' },
             ],
-            MTL.CYAN,
+            highlightColor,
         );
         codeHighlight.animateFadeIn(this.animator, { label: label });
-        varF.animateHighlightIn(this.animator, { label: label, offset: 100, color: MTL.CYAN });
-        varD.animateHighlightIn(this.animator, { label: label, offset: 200, color: MTL.CYAN });
+        varF.animateHighlightIn(this.animator, { label: label, offset: 100, color: highlightColor });
+        varD.animateHighlightIn(this.animator, { label: label, offset: 200, color: highlightColor });
         varD.animateCopyValue(varF, this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();
@@ -124,11 +126,11 @@ class SceneFigure extends BaseMemoryScene {
                 { lineIndex: currLine - 1, content: 'c' },
                 { lineIndex: currLine - 1, content: 'd' },
             ],
-            MTL.CYAN,
+            highlightColor,
         );
         codeHighlight.animateFadeIn(this.animator, { label: label });
         varF.animateHighlightOut(this.animator, { label: label, offset: 100 });
-        varC.animateHighlightIn(this.animator, { label: label, offset: 200, color: MTL.CYAN });
+        varC.animateHighlightIn(this.animator, { label: label, offset: 200, color: highlightColor });
         varC.animateCopyValue(varD, this.animator, { color: numberColor });
         this.animator.makeStep();
         this.update();

@@ -3,6 +3,8 @@ import { S2MathUtils } from '../../src/core/math/s2-math-utils.ts';
 import { S2Memory } from '../../src/extension/s2-memory.ts';
 import { BaseMemoryScene } from './base-memory-scene.ts';
 import { S2Code, tokenizeAlgorithm } from '../../src/core/element/s2-code.ts';
+import { S2Color } from '../../src/core/shared/s2-color.ts';
+import { limeDark, slateDark } from '../../src/utils/radix-colors-dark.ts';
 
 const titleString = 'Etat de la mémoire : conditionnelles';
 
@@ -67,9 +69,9 @@ class SceneFigure extends BaseMemoryScene {
 
     createAnimation(): void {
         this.animator.makeStep();
-        const numberColor = MTL.LIME_2;
-        //const undefinedColor = MTL.RED_3;
-        const freeColor = MTL.GREY_5;
+        const numberColor = S2Color.fromHex(limeDark[12]);
+        //const undefinedColor = S2Color.fromHex(rubyDark[11]);
+        const freeColor = S2Color.fromHex(slateDark[10]);
         let currLine = 1;
 
         // int a = 10, b = 5;

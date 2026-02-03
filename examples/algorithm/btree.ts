@@ -13,9 +13,9 @@ import type { S2BaseAnimation } from '../../src/core/animation/s2-base-animation
 import { S2RichText } from '../../src/core/element/text/s2-rich-text.ts';
 import type { S2Rect } from '../../src/core/element/s2-rect.ts';
 import { S2PlainText } from '../../src/core/element/text/s2-plain-text.ts';
-import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2PlainNode } from '../../src/core/element/node/s2-plain-node.ts';
 import { S2LineEdge } from '../../src/core/element/node/s2-line-edge.ts';
+import { slateDark, cyanDark } from '../../src/utils/radix-colors-dark';
 
 const titleString = 'Parcours infixe, préfixe et suffixe';
 
@@ -58,11 +58,11 @@ class BTreeStyle {
     setNodeDefault(node: S2PlainNode): void {
         const viewSpace = this.scene.getViewSpace();
         const data = node.data;
-        data.background.fill.color.copy(MTL.GREY_8);
-        data.background.stroke.color.copy(MTL.GREY_6);
+        data.background.fill.color.setFromHex(slateDark[3]);
+        data.background.stroke.color.setFromHex(slateDark[8]);
         data.background.stroke.width.set(4, viewSpace);
         data.background.cornerRadius.set(10, viewSpace);
-        data.text.fill.color.copy(MTL.WHITE);
+        data.text.fill.color.setFromHex(slateDark[12]);
         data.text.horizontalAlign.set(0);
         data.text.verticalAlign.set(0);
         data.text.font.copy(this.font);
@@ -74,9 +74,9 @@ class BTreeStyle {
 
     setNodeSelected(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copy(MTL.GREY_9);
-        data.background.stroke.color.copy(MTL.BLUE_5);
-        data.text.fill.color.copy(MTL.BLUE_2);
+        data.background.fill.color.setFromHex(slateDark[1]);
+        data.background.stroke.color.setFromHex(cyanDark[9]);
+        data.text.fill.color.setFromHex(cyanDark[12]);
     }
 
     createSelectNodeAnim(node: S2PlainNode): S2AnimGroup {
@@ -94,9 +94,9 @@ class BTreeStyle {
 
     setNodeExplored(node: S2PlainNode): void {
         const data = node.data;
-        data.background.fill.color.copy(MTL.CYAN_7);
-        data.background.stroke.color.copy(MTL.CYAN_3);
-        data.text.fill.color.copy(MTL.WHITE);
+        data.background.fill.color.setFromHex(cyanDark[5]);
+        data.background.stroke.color.setFromHex(cyanDark[9]);
+        data.text.fill.color.setFromHex(cyanDark[12]);
     }
 
     createExploreNodeAnim(node: S2PlainNode): S2AnimGroup {
@@ -115,7 +115,7 @@ class BTreeStyle {
     setEdgeBase(edge: S2LineEdge): void {
         const viewSpace = this.scene.getViewSpace();
         const data = edge.data;
-        data.stroke.color.copy(MTL.GREY_6);
+        data.stroke.color.setFromHex(slateDark[8]);
         data.stroke.width.set(4, viewSpace);
         data.stroke.lineCap.set('round');
         data.startDistance.set(0, viewSpace);
@@ -126,7 +126,7 @@ class BTreeStyle {
     setEdgeEmphasized(edge: S2LineEdge): void {
         const viewSpace = this.scene.getViewSpace();
         const data = edge.data;
-        data.stroke.color.copy(MTL.WHITE);
+        data.stroke.color.setFromHex(slateDark[12]);
         data.stroke.width.set(5, viewSpace);
         data.stroke.lineCap.set('round');
         data.startDistance.set(0, viewSpace);
@@ -138,7 +138,7 @@ class BTreeStyle {
     }
 
     setEdgeSelected(edge: S2LineEdge): void {
-        edge.data.stroke.color.copyIfUnlocked(MTL.BLUE_5);
+        edge.data.stroke.color.setFromHex(cyanDark[9]);
     }
 
     createSelectEdgeAnim(edge: S2LineEdge): S2BaseAnimation {
@@ -151,7 +151,7 @@ class BTreeStyle {
     }
 
     setEdgeExplored(edge: S2LineEdge): void {
-        edge.data.stroke.color.copyIfUnlocked(MTL.GREY_7);
+        edge.data.stroke.color.setFromHex(slateDark[7]);
     }
 
     createExploreEdgeAnim(edge: S2LineEdge): S2BaseAnimation {
@@ -376,17 +376,17 @@ class SceneFigure extends S2Scene {
         font.relativeLineHeight.set(1.3);
 
         this.setDefaultFont(code.data.text.font);
-        code.data.text.fill.color.copy(MTL.WHITE);
+        code.data.text.fill.color.setFromHex(slateDark[12]);
         code.data.padding.set(20, 10, viewSpace);
         code.data.minExtents.set(3.5, 1, worldSpace);
-        code.data.background.fill.color.copy(MTL.GREY_9);
-        code.data.background.stroke.color.copy(MTL.GREY_7);
+        code.data.background.fill.color.setFromHex(slateDark[3]);
+        code.data.background.stroke.color.setFromHex(slateDark[8]);
         code.data.background.stroke.width.set(2, viewSpace);
         code.data.background.cornerRadius.set(10, viewSpace);
         code.data.currentLine.opacity.set(1);
-        code.data.currentLine.fill.color.copy(MTL.BLACK);
+        code.data.currentLine.fill.color.setFromHex(slateDark[1]);
         code.data.currentLine.fill.opacity.set(0.5);
-        code.data.currentLine.stroke.color.copy(MTL.WHITE);
+        code.data.currentLine.stroke.color.setFromHex(slateDark[12]);
         code.data.currentLine.stroke.width.set(1, viewSpace);
         code.data.currentLine.stroke.opacity.set(0.2);
         code.data.currentLine.padding.set(-0.5, 2, viewSpace);
@@ -395,14 +395,14 @@ class SceneFigure extends S2Scene {
 
     setOutputTextStyle(text: S2RichText): void {
         this.setDefaultFont(text.data.font);
-        text.data.fill.color.copy(MTL.WHITE);
+        text.data.fill.color.setFromHex(slateDark[12]);
         text.data.textAnchor.set(-1);
     }
 
     setOutputBackgroundStyle(rect: S2Rect): void {
         const data = rect.data;
-        data.fill.color.copy(MTL.GREY_9);
-        data.stroke.color.copy(MTL.GREY_7);
+        data.fill.color.setFromHex(slateDark[3]);
+        data.stroke.color.setFromHex(slateDark[8]);
         data.stroke.width.set(2, this.getViewSpace());
         data.cornerRadius.set(10, this.getViewSpace());
     }
@@ -421,7 +421,7 @@ class SceneFigure extends S2Scene {
         const worldSpace = this.getWorldSpace();
 
         const fillRect = this.addFillRect();
-        fillRect.data.color.copy(S2Color.lerp(MTL.GREY_8, MTL.GREY_9, 0.7));
+        fillRect.data.color.setFromHex(slateDark[2]);
 
         // const grid = this.addWorldGrid();
         // S2DataSetter.setTargets(grid.data).setStrokeColor(MTL.GREY_6);
@@ -430,7 +430,7 @@ class SceneFigure extends S2Scene {
         this.outputTitle = new S2PlainText(this);
         this.outputTitle.setParent(this.getSVG());
         this.outputTitle.setContent('Noeuds explorés :');
-        this.outputTitle.data.fill.color.copyIfUnlocked(MTL.ORANGE_2);
+        this.outputTitle.data.fill.color.setFromHex(slateDark[12]);
         this.outputTitle.data.textAnchor.set(-1);
         this.setDefaultFont(this.outputTitle.data.font);
         this.outputText = new S2RichText(this);

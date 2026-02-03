@@ -10,7 +10,6 @@ import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from 
 import { S2Element } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
 import { S2Rect } from './s2-rect';
-import { MTL } from '../../utils/mtl-colors';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2MathUtils } from '../math/s2-math-utils';
 import { S2Point } from '../shared/s2-point';
@@ -249,26 +248,26 @@ export class S2Code extends S2Element<S2CodeData> {
     static defaultTokenStyleSetter(tspan: S2TSpan, type: string): void {
         switch (type) {
             case 'fn':
-                tspan.data.fill.color.setFromHex('#DCDC8B').lock();
+                tspan.data.fill.color.setFromHex('#ffcd82').lock();
                 break;
             case 'type':
-                tspan.data.fill.color.setFromHex('#4EC9B0').lock();
+                tspan.data.fill.color.setFromHex('#70B8FF').lock();
                 break;
             case 'kw':
-                tspan.data.fill.color.setFromHex('#BB86C0').lock();
+                tspan.data.fill.color.setFromHex('#E796F3').lock();
                 //tspan.data.font.weight.set(700).lock();
                 break;
             case 'var':
-                tspan.data.fill.color.setFromHex('#9CDCFE').lock();
+                tspan.data.fill.color.setFromHex('#B6ECF7').lock();
                 break;
             case 'num':
-                tspan.data.fill.color.setFromHex('#B5CEA8').lock();
+                tspan.data.fill.color.setFromHex('#E3F7BA').lock();
                 break;
             case 'str':
-                tspan.data.fill.color.setFromHex('#CE9178').lock();
+                tspan.data.fill.color.setFromHex('#ffac97').lock();
                 break;
             case 'punct':
-                tspan.data.fill.color.setFromHex('#CCCCCC').lock();
+                tspan.data.fill.color.setFromHex('#E9C2EC').lock();
                 break;
         }
     }
@@ -300,11 +299,15 @@ export class S2Code extends S2Element<S2CodeData> {
         tokens: { lineIndex: number; content?: string; category?: string }[],
         color?: S2Color,
     ): S2TextHighlight {
-        const highlightColor = color ?? MTL.BLUE_5;
         const highlight = new S2TextHighlight(this.scene);
         highlight.data.fill.opacity.set(0.15);
-        highlight.data.fill.color.copyIfUnlocked(highlightColor);
-        highlight.data.stroke.color.copyIfUnlocked(highlightColor);
+        if (color) {
+            highlight.data.fill.color.copyIfUnlocked(color);
+            highlight.data.stroke.color.copyIfUnlocked(color);
+        } else {
+            highlight.data.fill.color.setFromHex('#00BEFD28');
+            highlight.data.stroke.color.setFromHex('#11809C');
+        }
         highlight.data.stroke.width.set(1, this.scene.getViewSpace());
         highlight.data.layer.set(1);
         highlight.setParent(this);
@@ -332,9 +335,9 @@ export class S2Code extends S2Element<S2CodeData> {
         if (!span) return null;
 
         const emph = new S2TextHighlight(this.scene);
-        emph.data.fill.opacity.set(0.2);
-        emph.data.fill.color.copyIfUnlocked(MTL.BLUE_9);
-        emph.data.stroke.color.copyIfUnlocked(MTL.BLUE_5);
+        emph.data.fill.opacity.set(0.15);
+        emph.data.fill.color.setFromHex('#00BEFD28');
+        emph.data.stroke.color.setFromHex('#11809C');
         emph.data.stroke.width.set(1, this.scene.getViewSpace());
         emph.data.layer.set(1);
         emph.setParent(this);
