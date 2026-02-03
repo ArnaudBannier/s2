@@ -1,11 +1,6 @@
 import { S2Scene } from '../../../src/core/scene/s2-scene.ts';
 import { S2StepAnimator } from '../../../src/core/animation/s2-step-animator.ts';
 import { S2MathUtils } from '../../../src/core/math/s2-math-utils.ts';
-
-import { S2ColorTheme, type S2Palette } from '../../../src/core/shared/s2-color-theme.ts';
-
-import * as radixDark from '../../../src/utils/radix-colors-dark.ts';
-import * as radixLight from '../../../src/utils/radix-colors-light.ts';
 import { S2Vec2 } from '../../../src/core/math/s2-vec2.ts';
 import { S2Rect } from '../../../src/core/element/s2-rect.ts';
 import { DirectedGraph, type VertexId } from '../directed-graph.ts';
@@ -15,6 +10,10 @@ import { ease } from '../../../src/core/animation/s2-easing.ts';
 import { S2Circle } from '../../../src/core/element/s2-circle.ts';
 import { S2Line } from '../../../src/core/element/s2-line.ts';
 import { S2TriggerNumber } from '../../../src/core/animation/s2-timeline-trigger.ts';
+
+import { S2ColorTheme, type S2Palette } from '../../../src/core/shared/s2-color-theme.ts';
+import * as radixDark from '../../../src/utils/radix-colors-dark.ts';
+import * as radixLight from '../../../src/utils/radix-colors-light.ts';
 
 const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -39,7 +38,6 @@ if (mode === 0) {
         cyan: radixLight.cyan,
     };
 }
-
 const colorTheme = new S2ColorTheme(palette);
 
 export type Direction = 'U' | 'D' | 'L' | 'R';

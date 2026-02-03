@@ -1,5 +1,4 @@
 import { S2Vec2 } from '../../src/core/math/s2-vec2.ts';
-import { MTL } from '../../src/utils/mtl-colors.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2Scene } from '../../src/core/scene/s2-scene.ts';
 import { S2LerpAnim, S2LerpAnimFactory } from '../../src/core/animation/s2-lerp-anim.ts';
@@ -12,6 +11,31 @@ import { S2DraggableContainerBox } from '../../src/core/element/draggable/s2-dra
 import { S2Line } from '../../src/core/element/s2-line.ts';
 import { S2Mat2 } from '../../src/core/math/s2-mat2.ts';
 import { S2PlainText } from '../../src/core/element/text/s2-plain-text.ts';
+
+import { S2ColorTheme, type S2Palette } from '../../src/core/shared/s2-color-theme.ts';
+import * as radixDark from '../../src/utils/radix-colors-dark.ts';
+import * as radixLight from '../../src/utils/radix-colors-light.ts';
+
+const mode = 0; // 0 = dark, 1 = light
+let palette: S2Palette;
+if (mode === 0) {
+    palette = {
+        back: radixDark.slateDark,
+        main: radixDark.cyanDark,
+        valid: radixDark.grassDark,
+        invalid: radixDark.redDark,
+        lines: radixDark.cyanDark,
+    };
+} else {
+    palette = {
+        back: radixLight.slate,
+        main: radixLight.cyan,
+        valid: radixLight.grass,
+        invalid: radixLight.red,
+        lines: radixLight.cyan,
+    };
+}
+const colorTheme = new S2ColorTheme(palette);
 
 declare global {
     interface Window {
@@ -45,15 +69,6 @@ class SceneFigure extends S2Scene {
     protected precision: number = 0.5;
     protected draggable: S2DraggableCircle;
 
-    // setCircleDefaultStyle(circle: S2Circle): void {
-    //     S2DataSetter.setTargets(circle.data)
-    //         .setFillColor(MTL.GREY_6)
-    //         .setStrokeColor(MTL.GREY_4)
-    //         .setStrokeWidth(4, viewSpace)
-    //         .setFillOpacity(1.0)
-    //         .setRadius(5, viewSpace);
-    // }
-
     constructor(
         svgElement: SVGSVGElement,
         htmlEq: HTMLSpanElement,
@@ -72,24 +87,23 @@ class SceneFigure extends S2Scene {
         const viewSpace = this.getViewSpace();
 
         const fillRect = this.addFillRect();
-        fillRect.data.color.copy(MTL.BLUE_GREY_9);
+        fillRect.data.color.setFromTheme(colorTheme, 'back', 2);
 
         const gridHalf = this.addWorldGrid();
         gridHalf.data.geometry.space.set(worldSpace);
         gridHalf.data.geometry.steps.set(1, 1, worldSpace);
         gridHalf.data.geometry.referencePoint.set(0.5, 0.5, worldSpace);
-        gridHalf.data.stroke.color.copy(MTL.CYAN_7);
+        gridHalf.data.stroke.color.setFromTheme(colorTheme, 'lines', 5);
         gridHalf.data.stroke.width.set(1, viewSpace);
-        gridHalf.data.opacity.set(0.3);
 
         const grid = this.addWorldGrid();
-        grid.data.stroke.color.copy(MTL.CYAN_7);
+        grid.data.stroke.color.setFromTheme(colorTheme, 'lines', 7);
 
         for (let i = -5; i <= 5; i++) {
             const text = new S2PlainText(this);
             text.data.position.set(i - 0.1, -0.25, worldSpace);
             text.data.font.size.set(12, viewSpace);
-            text.data.fill.color.copy(MTL.BLUE_GREY_2);
+            text.data.fill.color.setFromTheme(colorTheme, 'back', 11);
             text.data.layer.set(10);
             text.data.textAnchor.set(1);
             text.setParent(this.getSVG());
@@ -100,7 +114,7 @@ class SceneFigure extends S2Scene {
             const text = new S2PlainText(this);
             text.data.position.set(-0.1, j - 0.25, worldSpace);
             text.data.font.size.set(12, viewSpace);
-            text.data.fill.color.copy(MTL.BLUE_GREY_2);
+            text.data.fill.color.setFromTheme(colorTheme, 'back', 11);
             text.data.layer.set(10);
             text.data.textAnchor.set(1);
             text.setParent(this.getSVG());
@@ -109,10 +123,16 @@ class SceneFigure extends S2Scene {
 
         this.matrix = new S2Mat2(1, 0, 0, 1);
 
+        this.circleU = this.addCircle();
+        this.circleU.data.fill.color.setFromTheme(colorTheme, 'main', 7);
+        this.circleU.data.radius.set(0.15, worldSpace);
+        //this.circleU.data.opacity.set(0.5);
+        this.circleU.data.layer.set(1);
+
         this.vecU = this.addLine();
         this.vecU.data.startPosition.set(0, 0, worldSpace);
         this.vecU.data.endPosition.set(0, 0, worldSpace);
-        this.vecU.data.stroke.color.copy(MTL.LIGHT_BLUE_5);
+        this.vecU.data.stroke.color.setFromTheme(colorTheme, 'main', 9);
         this.vecU.data.stroke.width.set(6, viewSpace);
         this.vecU.data.endPadding.set(10, viewSpace);
         this.vecU.data.layer.set(1);
@@ -120,21 +140,15 @@ class SceneFigure extends S2Scene {
         this.vecV = this.addLine();
         this.vecV.data.startPosition.set(0, 0, worldSpace);
         this.vecV.data.endPosition.set(0, 0, worldSpace);
-        this.vecV.data.stroke.color.copy(MTL.RED_5);
+        this.vecV.data.stroke.color.setFromTheme(colorTheme, 'invalid', 9);
         this.vecV.data.stroke.width.set(6, viewSpace);
         this.vecV.data.endPadding.set(10, viewSpace);
         this.vecV.data.layer.set(2);
 
-        this.circleU = this.addCircle();
-        this.circleU.data.fill.color.copy(MTL.LIGHT_BLUE_5);
-        this.circleU.data.radius.set(0.15, worldSpace);
-        this.circleU.data.opacity.set(0.5);
-        this.circleU.data.layer.set(0);
-
         this.circleEigen1 = this.addCircle();
         this.circleEigen2 = this.addCircle();
         for (const data of [this.circleEigen1.data, this.circleEigen2.data]) {
-            data.stroke.color.copy(MTL.WHITE);
+            data.stroke.color.setFromTheme(colorTheme, 'back', 11);
             data.stroke.width.set(2, viewSpace);
             data.fill.opacity.set(0);
             data.radius.set(0.15, worldSpace);
@@ -153,14 +167,14 @@ class SceneFigure extends S2Scene {
         const lineX = this.addLine();
         lineX.data.startPosition.set(lower.x, 0, worldSpace);
         lineX.data.endPosition.set(upper.x - 0.25, 0, worldSpace);
-        lineX.data.stroke.color.copy(MTL.GREY_1);
+        lineX.data.stroke.color.setFromTheme(colorTheme, 'back', 12);
         lineX.data.stroke.width.set(4, viewSpace);
         lineX.createArrowTip();
 
         const lineY = this.addLine();
         lineY.data.startPosition.set(0, lower.y, worldSpace);
         lineY.data.endPosition.set(0, upper.y - 0.25, worldSpace);
-        lineY.data.stroke.color.copy(MTL.GREY_1);
+        lineY.data.stroke.color.setFromTheme(colorTheme, 'back', 12);
         lineY.data.stroke.width.set(4, viewSpace);
         lineY.createArrowTip();
 
@@ -168,6 +182,7 @@ class SceneFigure extends S2Scene {
         this.draggable.setParent(this.getSVG());
         this.draggable.data.position.copy(this.vecU.data.endPosition);
         this.draggable.data.radius.set(30, viewSpace);
+        this.draggable.data.layer.set(0);
 
         const container = new S2DraggableContainerBox(this);
         container.data.space.set(viewSpace);
@@ -273,9 +288,9 @@ class SceneFigure extends S2Scene {
         const isEigenvector =
             S2Vec2.isZeroV(u) === false && (S2Vec2.isZeroV(v) || Math.abs(u.det(v)) < 1e-2 * u.length() * v.length());
         if (isEigenvector) {
-            this.vecV.data.stroke.color.copy(MTL.LIGHT_GREEN_5);
+            this.vecV.data.stroke.color.setFromTheme(colorTheme, 'valid', 9);
         } else {
-            this.vecV.data.stroke.color.copy(MTL.RED_5);
+            this.vecV.data.stroke.color.setFromTheme(colorTheme, 'invalid', 9);
         }
         this.colorAnim.commitFinalState();
         this.playableColor.play();
