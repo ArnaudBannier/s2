@@ -21,31 +21,25 @@ if (mode === 0) {
     palette = {
         back: radixDark.slateDark,
         main: radixDark.cyanDark,
-        secondary: radixDark.limeDark,
         'scale-a': radixDark.cyanDark,
-        'scale-b': radixDark.limeDark,
-        'scale-c': radixDark.amberDark,
-        'scale-d': radixDark.tomatoDark,
-        'scale-e': radixDark.plumDark,
+        'scale-b': radixDark.irisDark,
+        'scale-c': radixDark.plumDark,
+        'scale-d': radixDark.rubyDark,
+        'scale-e': radixDark.amberDark,
+        'scale-f': radixDark.limeDark,
         wall: radixDark.slateDark,
-        blue: radixDark.blueDark,
-        red: radixDark.redDark,
-        cyan: radixDark.cyanDark,
     };
 } else {
     palette = {
         back: radixLight.slate,
         main: radixLight.cyan,
-        secondary: radixLight.lime,
         'scale-a': radixLight.cyan,
-        'scale-b': radixLight.lime,
-        'scale-c': radixLight.yellow,
-        'scale-d': radixLight.tomato,
-        'scale-e': radixLight.plum,
+        'scale-b': radixLight.iris,
+        'scale-c': radixLight.plum,
+        'scale-d': radixLight.ruby,
+        'scale-e': radixLight.amber,
+        'scale-f': radixLight.lime,
         wall: radixLight.slate,
-        blue: radixLight.blue,
-        red: radixLight.red,
-        cyan: radixLight.cyan,
     };
 }
 const colorTheme = new S2ColorTheme(palette);
@@ -160,6 +154,7 @@ export class GraphSearchScene extends S2Scene {
             S2Color.fromTheme(colorTheme, 'scale-c', 4),
             S2Color.fromTheme(colorTheme, 'scale-d', 4),
             S2Color.fromTheme(colorTheme, 'scale-e', 4),
+            S2Color.fromTheme(colorTheme, 'scale-f', 4),
         ];
         this.strokeColorScale.colors = [
             S2Color.fromTheme(colorTheme, 'scale-a', 9),
@@ -167,6 +162,7 @@ export class GraphSearchScene extends S2Scene {
             S2Color.fromTheme(colorTheme, 'scale-c', 9),
             S2Color.fromTheme(colorTheme, 'scale-d', 9),
             S2Color.fromTheme(colorTheme, 'scale-e', 9),
+            S2Color.fromTheme(colorTheme, 'scale-f', 9),
         ];
         this.treeColorScale.colors = [
             S2Color.fromTheme(colorTheme, 'scale-a', 12),
@@ -174,6 +170,7 @@ export class GraphSearchScene extends S2Scene {
             S2Color.fromTheme(colorTheme, 'scale-c', 12),
             S2Color.fromTheme(colorTheme, 'scale-d', 12),
             S2Color.fromTheme(colorTheme, 'scale-e', 12),
+            S2Color.fromTheme(colorTheme, 'scale-f', 12),
         ];
 
         const fillRect = this.addFillRect();
