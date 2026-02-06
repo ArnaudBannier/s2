@@ -41,6 +41,19 @@ export class GraphSearchControls {
         return card.root;
     }
 
+    private swapElements(a: HTMLElement, b: HTMLElement) {
+        const parent = a.parentNode;
+        if (!parent || parent !== b.parentNode) return;
+
+        const marker = document.createTextNode('');
+        parent.insertBefore(marker, a);
+
+        parent.insertBefore(a, b);
+        parent.insertBefore(b, marker);
+
+        parent.removeChild(marker);
+    }
+
     // ─────────────────────────────────────────────
     // Carte 2 — Ordre des voisins
     // ─────────────────────────────────────────────
@@ -111,14 +124,16 @@ export class GraphSearchControls {
 
             target.classList.remove('over');
 
-            const rect = dragged.getBoundingClientRect();
-            const offset = e.clientX - rect.x;
+            this.swapElements(dragged, target);
+            // const rect = dragged.getBoundingClientRect();
+            // const offset = e.clientX - rect.x;
 
-            if (offset < 0) {
-                list.insertBefore(dragged, target);
-            } else {
-                list.insertBefore(dragged, target.nextSibling);
-            }
+            // if (offset < 0) {
+            //     list.children.
+            //     list.insertBefore(dragged, target);
+            // } else {
+            //     list.insertBefore(dragged, target.nextSibling);
+            // }
 
             const order = Array.from(list.children).map((li) => (li as HTMLElement).dataset.dir as Direction);
             this.scene.setDirectionOrder(order);

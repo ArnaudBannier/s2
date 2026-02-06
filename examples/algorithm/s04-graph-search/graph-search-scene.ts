@@ -22,6 +22,11 @@ if (mode === 0) {
         back: radixDark.slateDark,
         main: radixDark.cyanDark,
         secondary: radixDark.limeDark,
+        'scale-a': radixDark.cyanDark,
+        'scale-b': radixDark.limeDark,
+        'scale-c': radixDark.amberDark,
+        'scale-d': radixDark.tomatoDark,
+        'scale-e': radixDark.plumDark,
         wall: radixDark.slateDark,
         blue: radixDark.blueDark,
         red: radixDark.redDark,
@@ -32,6 +37,11 @@ if (mode === 0) {
         back: radixLight.slate,
         main: radixLight.cyan,
         secondary: radixLight.lime,
+        'scale-a': radixLight.cyan,
+        'scale-b': radixLight.lime,
+        'scale-c': radixLight.yellow,
+        'scale-d': radixLight.tomato,
+        'scale-e': radixLight.plum,
         wall: radixLight.slate,
         blue: radixLight.blue,
         red: radixLight.red,
@@ -39,6 +49,22 @@ if (mode === 0) {
     };
 }
 const colorTheme = new S2ColorTheme(palette);
+
+class ColorScale {
+    public colors: S2Color[] = [];
+
+    getInto(color: S2Color, t: number): void {
+        if (this.colors.length === 0) {
+            color.setBlack();
+            return;
+        }
+        const scaledT = t * (this.colors.length - 1);
+        const index0 = Math.floor(scaledT);
+        const index1 = Math.min(index0 + 1, this.colors.length - 1);
+        const localT = scaledT - index0;
+        color.lerp(this.colors[index0], this.colors[index1], localT);
+    }
+}
 
 class Queue<T> {
     private input: T[] = [];
@@ -105,12 +131,9 @@ export class GraphSearchScene extends S2Scene {
     protected stepByStep: boolean = false;
     protected showHelperGrid: boolean = false;
 
-    private color0 = new S2Color();
-    private color1 = new S2Color();
-    private strokeColor0 = new S2Color();
-    private strokeColor1 = new S2Color();
-    private treeColor0 = new S2Color();
-    private treeColor1 = new S2Color();
+    private fillColorScale = new ColorScale();
+    private strokeColorScale = new ColorScale();
+    private treeColorScale = new ColorScale();
 
     public directionOrder: Direction[] = ['U', 'D', 'L', 'R'];
     protected directionVectors: Record<Direction, [number, number]> = {
@@ -131,15 +154,27 @@ export class GraphSearchScene extends S2Scene {
         const viewSpace = this.getViewSpace();
         const worldSpace = this.getWorldSpace();
 
-        this.color0.setFromTheme(colorTheme, 'main', 4);
-        this.color1.setFromTheme(colorTheme, 'secondary', 4);
-        this.strokeColor0.setFromTheme(colorTheme, 'main', 9);
-        this.strokeColor1.setFromTheme(colorTheme, 'secondary', 9);
-        this.treeColor0.setFromTheme(colorTheme, 'main', 12);
-        this.treeColor1.setFromTheme(colorTheme, 'secondary', 12);
-
-        console.log('view', viewSpace);
-        console.log('world', worldSpace);
+        this.fillColorScale.colors = [
+            S2Color.fromTheme(colorTheme, 'scale-a', 4),
+            S2Color.fromTheme(colorTheme, 'scale-b', 4),
+            S2Color.fromTheme(colorTheme, 'scale-c', 4),
+            S2Color.fromTheme(colorTheme, 'scale-d', 4),
+            S2Color.fromTheme(colorTheme, 'scale-e', 4),
+        ];
+        this.strokeColorScale.colors = [
+            S2Color.fromTheme(colorTheme, 'scale-a', 9),
+            S2Color.fromTheme(colorTheme, 'scale-b', 9),
+            S2Color.fromTheme(colorTheme, 'scale-c', 9),
+            S2Color.fromTheme(colorTheme, 'scale-d', 9),
+            S2Color.fromTheme(colorTheme, 'scale-e', 9),
+        ];
+        this.treeColorScale.colors = [
+            S2Color.fromTheme(colorTheme, 'scale-a', 12),
+            S2Color.fromTheme(colorTheme, 'scale-b', 12),
+            S2Color.fromTheme(colorTheme, 'scale-c', 12),
+            S2Color.fromTheme(colorTheme, 'scale-d', 12),
+            S2Color.fromTheme(colorTheme, 'scale-e', 12),
+        ];
 
         const fillRect = this.addFillRect();
         fillRect.data.color.setFromTheme(colorTheme, 'back', 2);
@@ -349,7 +384,7 @@ export class GraphSearchScene extends S2Scene {
         this.setInitialStyle();
 
         const queue = new Queue<VertexId>();
-        const maxDepth = 2 * this.size;
+        const maxDepth = this.size * this.size;
         queue.enqueue(start);
         this.graph.getVertex(start).depth = 0;
         this.graph.getVertex(start).visited = true;
@@ -405,7 +440,7 @@ export class GraphSearchScene extends S2Scene {
 
         const stack: VertexId[] = [];
 
-        const maxDepth = 0.5 * this.size * this.size - 1;
+        const maxDepth = this.size * this.size;
         stack.push(start);
         this.graph.getVertex(start).depth = 0;
 
@@ -462,7 +497,7 @@ export class GraphSearchScene extends S2Scene {
         if (isStart) {
             vertex.circle.data.fill.color.setFromTheme(colorTheme, 'back', 12);
         } else {
-            vertex.circle.data.fill.color.lerp(this.treeColor0, this.treeColor1, t);
+            this.treeColorScale.getInto(vertex.circle.data.fill.color, t);
         }
         vertex.circle.data.isEnabled.set(true);
         vertex.circle.data.layer.set(4);
@@ -487,8 +522,8 @@ export class GraphSearchScene extends S2Scene {
         this.animator.addTrigger(triggerCircleOpacity1, 'timeline-start', currTime + 1);
 
         // Cell emphasis
-        vertex.cellEmph.data.fill.color.lerp(this.color0, this.color1, t);
-        vertex.cellEmph.data.stroke.color.lerp(this.strokeColor0, this.strokeColor1, t);
+        this.fillColorScale.getInto(vertex.cellEmph.data.fill.color, t);
+        this.strokeColorScale.getInto(vertex.cellEmph.data.stroke.color, t);
 
         const animOpacity = S2LerpAnimFactory.create(this, vertex.cellEmph.data.opacity)
             .setCycleDuration(cycleDuration)
@@ -514,7 +549,7 @@ export class GraphSearchScene extends S2Scene {
             vertex.lineToPrev.data.pathFrom.set(0.0);
             vertex.lineToPrev.data.pathTo.set(0.0);
             vertex.lineToPrev.data.opacity.set(0.0);
-            vertex.lineToPrev.data.stroke.color.lerp(this.treeColor0, this.treeColor1, t);
+            this.treeColorScale.getInto(vertex.lineToPrev.data.stroke.color, t);
 
             const triggerLineOpacity0 = new S2TriggerNumber(vertex.lineToPrev.data.opacity, 0.0);
             this.animator.addTrigger(triggerLineOpacity0, 'timeline-start', 0);
