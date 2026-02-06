@@ -1,4 +1,4 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{S as f,j as p}from"./s2-playable-Bdq8E5_G.js";import{B as y,S as C}from"./base-memory-scene-NfkavvPR.js";import{S as b,t as k}from"./s2-code-DjLR-8B-.js";import{l as L,r as A,s as x,c as M}from"./radix-colors-dark-CwnOedwT.js";import"./s2-lerp-anim-CJb7usyt.js";import"./s2-step-animator-B7uTbjFC.js";const I="Etat de la mémoire : instructions simples 1",V=`**type:int** **fn:main**(**type:void**) {
+import"./modulepreload-polyfill-B5Qt9EMX.js";import{S as f,j as p}from"./s2-playable-Bdq8E5_G.js";import{B as y,S as C}from"./base-memory-scene-DN59_yEU.js";import{S as b,t as k}from"./s2-code-DjLR-8B-.js";import{l as L,r as A,s as x,c as M}from"./radix-colors-dark-CR1Y1j7h.js";import"./s2-lerp-anim-CJb7usyt.js";import"./s2-step-animator-B7uTbjFC.js";const I="Etat de la mémoire : instructions simples 1",V=`**type:int** **fn:main**(**type:void**) {
     **type:int** **var:a** = **num:10**, **var:b** = **num:5**;
     **type:char** **var:c**, **var:d**, **var:e**, **var:f** = **str:'s'**;
     **var:a** = **var:b** + **num:2**;
