@@ -8,7 +8,7 @@ export class S2Length extends S2BaseType implements S2HasClone<S2Length>, S2HasC
     public value: number;
     public space: S2Space;
 
-    constructor(value: number = 0, space: S2Space, locked: boolean = false) {
+    constructor(value: number, space: S2Space, locked: boolean = false) {
         super();
         this.value = value;
         this.space = space;

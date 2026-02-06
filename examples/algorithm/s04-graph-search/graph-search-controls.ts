@@ -28,19 +28,16 @@ export class GraphSearchControls {
     private createTraversalCard(): HTMLElement {
         const card = this.createCard('Type de parcours', 'Choisit la stratégie d’exploration du graphe.');
 
-        // const bfs = this.createRadio('traversal', 'bfs', 'BFS', true);
-        const dfs = this.createRadio('traversal', 'dfs', 'DFS');
-        dfs.input.checked = true;
-        // bfs.input.addEventListener('change', () => {
-        //     //this.scene.setTraversal('bfs');
-        // });
-
-        dfs.input.addEventListener('change', () => {
-            //this.scene.setTraversal('dfs');
+        const dfs = this.createRadio('traversal', 'dfs', 'DFS', true);
+        const bfs = this.createRadio('traversal', 'bfs', 'BFS', false);
+        bfs.input.addEventListener('change', () => {
+            this.scene.setTraversal('bfs');
         });
 
-        card.body.append(dfs.label);
-        //card.body.append(bfs.label, dfs.label);
+        dfs.input.addEventListener('change', () => {
+            this.scene.setTraversal('dfs');
+        });
+        card.body.append(dfs.label, bfs.label);
         return card.root;
     }
 
