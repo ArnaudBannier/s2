@@ -13,7 +13,7 @@ export class S2TextData extends S2ElementData {
     public readonly opacity: S2Number;
     public readonly transform: S2Transform;
     public readonly position: S2Point;
-    public readonly localShift: S2Offset;
+    public readonly offset: S2Offset;
     public readonly font: S2FontData;
     public readonly textAnchor: S2Number;
     public readonly preserveWhitespace: S2Boolean;
@@ -25,7 +25,7 @@ export class S2TextData extends S2ElementData {
         this.opacity = new S2Number(1);
         this.transform = new S2Transform();
         this.position = new S2Point(0, 0, scene.getWorldSpace());
-        this.localShift = new S2Offset(0, 0, scene.getViewSpace());
+        this.offset = new S2Offset(0, 0, scene.getViewSpace());
         this.font = new S2FontData(scene);
         this.textAnchor = new S2Number(0);
         this.preserveWhitespace = new S2Boolean(false);
@@ -41,7 +41,7 @@ export class S2TextData extends S2ElementData {
         this.opacity.setOwner(owner);
         this.transform.setOwner(owner);
         this.position.setOwner(owner);
-        this.localShift.setOwner(owner);
+        this.offset.setOwner(owner);
         this.font.setOwner(owner);
         this.textAnchor.setOwner(owner);
         this.preserveWhitespace.setOwner(owner);
@@ -54,7 +54,7 @@ export class S2TextData extends S2ElementData {
         this.opacity.clearDirty();
         this.transform.clearDirty();
         this.position.clearDirty();
-        this.localShift.clearDirty();
+        this.offset.clearDirty();
         this.font.clearDirty();
         this.textAnchor.clearDirty();
         this.preserveWhitespace.clearDirty();

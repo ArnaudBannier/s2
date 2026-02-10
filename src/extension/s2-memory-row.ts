@@ -351,7 +351,7 @@ export class S2MemoryRow {
         // if (srcText.data.textAnchor.get() === 'end') {
         //     srcPosition.x -= 2 * srcText.getExtents(worldSpace).x;
         // }
-        const motionAnim = new S2MotionPathDirection(this.scene, dstText.data.localShift)
+        const motionAnim = new S2MotionPathDirection(this.scene, dstText.data.offset)
             .setCycleDuration(duration)
             .setEasing(ease.inOut)
             .setSpace(worldSpace);
@@ -369,7 +369,7 @@ export class S2MemoryRow {
                 sampleCount,
             )
             .updateLength();
-        dstText.data.localShift.set(0, 0, worldSpace);
+        dstText.data.offset.set(0, 0, worldSpace);
         animator.enableElement(dstText, true, label, offset + delay);
         animator.addAnimation(motionAnim, label, offset + delay);
 
@@ -401,11 +401,11 @@ export class S2MemoryRow {
         animator.addAnimation(opacityAnim, label, offset);
 
         if (S2Vec2.isZeroV(shift) === false) {
-            text.data.localShift.setV(shift, this.scene.getViewSpace());
-            const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.localShift)
+            text.data.offset.setV(shift, this.scene.getViewSpace());
+            const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.offset)
                 .setCycleDuration(duration)
                 .setEasing(ease.inOut);
-            text.data.localShift.set(0, 0, this.scene.getViewSpace());
+            text.data.offset.set(0, 0, this.scene.getViewSpace());
             shiftAnim.commitFinalState();
             animator.addAnimation(shiftAnim, label, offset);
         }
@@ -427,11 +427,11 @@ export class S2MemoryRow {
         opacityAnim.commitFinalState();
         animator.addAnimation(opacityAnim, label, offset);
         if (S2Vec2.isZeroV(shift) === false) {
-            text.data.localShift.set(0, 0, this.scene.getViewSpace());
-            const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.localShift)
+            text.data.offset.set(0, 0, this.scene.getViewSpace());
+            const shiftAnim = S2LerpAnimFactory.create(this.scene, text.data.offset)
                 .setCycleDuration(duration)
                 .setEasing(ease.inOut);
-            text.data.localShift.setV(shift, this.scene.getViewSpace());
+            text.data.offset.setV(shift, this.scene.getViewSpace());
             shiftAnim.commitFinalState();
             animator.addAnimation(shiftAnim, label, offset);
         }

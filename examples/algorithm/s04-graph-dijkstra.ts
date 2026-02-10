@@ -158,6 +158,8 @@ class SceneFigure extends S2Scene {
 
         this.update();
         this.createAnimation();
+
+        nodes[0].animateSetContent('1', this.animator, { offset: 0 });
     }
 
     createAnimation(): void {

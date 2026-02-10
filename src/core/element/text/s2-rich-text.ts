@@ -179,7 +179,7 @@ export class S2BaseRichText<Data extends S2TextData> extends S2Element<Data> {
 
         this.data.position.getInto(svgPosition, viewSpace);
         this.extents.getInto(extents, viewSpace);
-        this.data.localShift.getInto(shift, viewSpace);
+        this.data.offset.getInto(shift, viewSpace);
         svgPosition.x += -anchor * extents.x + shift.x;
         svgPosition.y += shift.y;
 

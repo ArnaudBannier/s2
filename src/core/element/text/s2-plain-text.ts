@@ -105,10 +105,7 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
         }
 
         const isPositionDirty =
-            isBBoxDirty ||
-            this.data.position.isDirty() ||
-            this.data.localShift.isDirty() ||
-            this.data.textAnchor.isDirty();
+            isBBoxDirty || this.data.position.isDirty() || this.data.offset.isDirty() || this.data.textAnchor.isDirty();
 
         if (isPositionDirty) {
             const viewSpace = this.scene.getViewSpace();
@@ -118,7 +115,7 @@ export class S2BasePlainText<Data extends S2TextData> extends S2Element<Data> {
 
             this.data.position.getInto(svgPosition, viewSpace);
             this.localBBox.getExtentsInto(extents, viewSpace);
-            this.data.localShift.getInto(shift, viewSpace);
+            this.data.offset.getInto(shift, viewSpace);
             svgPosition.x += -anchor * extents.x + shift.x;
             svgPosition.y += shift.y;
 
