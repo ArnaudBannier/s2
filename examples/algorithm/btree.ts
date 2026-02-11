@@ -337,7 +337,7 @@ class BTreeNode {
         this.data = data;
         this.node = new S2PlainNode(scene);
         this.node.setParent(scene.getSVG());
-        this.node.setContent(data.toString());
+        this.node.addState(data.toString());
     }
 
     setLeft(bTreeNode: BTreeNode) {

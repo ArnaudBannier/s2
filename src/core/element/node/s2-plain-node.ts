@@ -8,7 +8,7 @@ import { S2Offset } from '../../shared/s2-offset';
 import { S2PlainText } from '../text/s2-plain-text';
 import { S2BaseNode } from './s2-base-node';
 
-class S2PlainNodeContent {
+class S2PlainNodeState {
     public readonly text: S2PlainText;
     public readonly offset: S2Offset;
     public readonly opacity: S2Number;
@@ -21,16 +21,24 @@ class S2PlainNodeContent {
 }
 
 export class S2PlainNode extends S2BaseNode {
-    protected readonly contents: S2PlainNodeContent[] = [];
+    protected readonly states: S2PlainNodeState[] = [];
+    protected stateIndex: number = -1;
 
     constructor(scene: S2BaseScene) {
         super(scene);
         this.element.dataset.role = 'plain-node';
     }
 
-    setContent(value: string): S2PlainText {
-        const content = new S2PlainNodeContent(this.scene);
-        this.contents.push(content);
+    getStateCount(): number {
+        return this.states.length;
+    }
+
+    getState(index: number): S2PlainText {
+        return this.states[index].text;
+    }
+
+    addState(value: string): number {
+        const content = new S2PlainNodeState(this.scene);
         content.offset.setOwner(this);
         content.opacity.setOwner(this);
 
@@ -42,29 +50,35 @@ export class S2PlainNode extends S2BaseNode {
         content.text.data.fill.color.copyIfUnlocked(this.data.text.fill.color);
         content.text.data.fill.opacity.copyIfUnlocked(this.data.text.fill.opacity);
 
-        return content.text;
+        const index = this.states.length;
+        this.states.push(content);
+
+        if (this.stateIndex === -1) {
+            this.stateIndex = index;
+        }
+        this.markDirty();
+        return index;
     }
 
-    animateSetContent(
-        content: string,
+    animateChangeState(
+        index: number,
         animator: S2StepAnimator,
-        options: { label?: string; offset?: number; duration?: number } = {},
-    ): S2PlainText {
+        options: { label?: string; timeOffset?: number; duration?: number; positionOffset?: S2Offset } = {},
+    ): void {
         const label = animator.ensureLabel(options.label);
-        const offset = options.offset ?? 0;
+        const timeOffset = options.timeOffset ?? 0;
         const duration = options.duration ?? 500;
-        let delay = 0;
-        // if (this.values.length > 0) {
-        //     const lastValue = this.values[this.values.length - 1];
-        //     if (lastValue.data.isEnabled) {
-        //         this.animateFadeOut(lastValue, animator, new S2Vec2(30, 0), label, duration, offset);
-        //         delay = 250;
-        //     }
-        // }
 
-        const text = this.setContent(content);
-        this.animateFadeIn(this.contents.length - 1, animator, new S2Vec2(-5, 0), label, duration, offset + delay);
-        return text;
+        let delay = 0;
+        if (this.stateIndex >= 0 && this.stateIndex < this.states.length) {
+            this.animateFadeOut(this.stateIndex, animator, new S2Vec2(10, 0), label, duration, timeOffset);
+            delay = 0.5 * duration;
+        }
+
+        if (index >= 0 && index < this.states.length) {
+            this.animateFadeIn(index, animator, new S2Vec2(-10, 0), label, duration, timeOffset + delay);
+        }
+        this.stateIndex = index;
     }
 
     protected animateFadeIn(
@@ -73,10 +87,9 @@ export class S2PlainNode extends S2BaseNode {
         shift: S2Vec2,
         label: string,
         duration: number,
-        offset: number,
+        timeOffset: number,
     ): void {
-        const content = this.contents[index];
-        const text = content.text;
+        const content = this.states[index];
         content.opacity.set(0.0);
         const opacityAnim = S2LerpAnimFactory.create(this.scene, content.opacity)
             .setCycleDuration(duration)
@@ -84,8 +97,8 @@ export class S2PlainNode extends S2BaseNode {
         content.opacity.set(1.0);
         opacityAnim.commitFinalState();
 
-        animator.enableElement(text, true, label, offset);
-        animator.addAnimation(opacityAnim, label, offset);
+        animator.enableElement(content.text, true, label, timeOffset);
+        animator.addAnimation(opacityAnim, label, timeOffset);
 
         if (S2Vec2.isZeroV(shift) === false) {
             content.offset.setV(shift, this.scene.getViewSpace());
@@ -94,8 +107,36 @@ export class S2PlainNode extends S2BaseNode {
                 .setEasing(ease.inOut);
             content.offset.set(0, 0, this.scene.getViewSpace());
             shiftAnim.commitFinalState();
-            animator.addAnimation(shiftAnim, label, offset);
+            animator.addAnimation(shiftAnim, label, timeOffset);
         }
+    }
+
+    protected animateFadeOut(
+        index: number,
+        animator: S2StepAnimator,
+        shift: S2Vec2,
+        label: string,
+        duration: number,
+        timeOffset: number,
+    ): void {
+        const content = this.states[index];
+        content.opacity.set(1.0);
+        const opacityAnim = S2LerpAnimFactory.create(this.scene, content.opacity)
+            .setCycleDuration(duration)
+            .setEasing(ease.out);
+        content.opacity.set(0.0);
+        opacityAnim.commitFinalState();
+        animator.addAnimation(opacityAnim, label, timeOffset);
+        if (S2Vec2.isZeroV(shift) === false) {
+            content.offset.set(0, 0, this.scene.getViewSpace());
+            const shiftAnim = S2LerpAnimFactory.create(this.scene, content.offset)
+                .setCycleDuration(duration)
+                .setEasing(ease.inOut);
+            content.offset.setV(shift, this.scene.getViewSpace());
+            shiftAnim.commitFinalState();
+            animator.addAnimation(shiftAnim, label, timeOffset);
+        }
+        animator.enableElement(content.text, false, label, timeOffset + duration);
     }
 
     update(): void {
@@ -105,7 +146,7 @@ export class S2PlainNode extends S2BaseNode {
         const space = this.data.space.get();
 
         // Update text styles (for correct measurement)
-        for (const content of this.contents) {
+        for (const content of this.states) {
             const opacity = content.opacity.get() * this.data.text.opacity.get();
             content.text.data.opacity.set(opacity);
             content.text.data.font.copyIfUnlocked(this.data.text.font);
@@ -124,7 +165,7 @@ export class S2PlainNode extends S2BaseNode {
         const contentExtents = this.scene.acquireVec2();
 
         textExtents.set(0, 0);
-        for (const content of this.contents) {
+        for (const content of this.states) {
             content.text.getExtentsInto(currTextExtents, space);
             textExtents.maxV(currTextExtents);
         }
@@ -153,7 +194,7 @@ export class S2PlainNode extends S2BaseNode {
             nodeCenter.x + hAlign * (contentExtents.x - textExtents.x),
             nodeCenter.y + vAlign * (contentExtents.y - textExtents.y) - (sign * ascenderHeight) / 2,
         );
-        for (const content of this.contents) {
+        for (const content of this.states) {
             content.offset.getInto(textOffset, space);
             content.text.data.textAnchor.set(0);
             content.text.data.position.set(textPosition.x + textOffset.x, textPosition.y + textOffset.y, space);

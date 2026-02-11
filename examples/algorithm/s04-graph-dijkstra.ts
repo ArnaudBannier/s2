@@ -105,7 +105,7 @@ class SceneFigure extends S2Scene {
             const node = new S2PlainNode(this);
             node.setParent(this.getSVG());
             this.setNodeDefaultStyle(node);
-            node.setContent(i.toString());
+            node.addState(i.toString());
             nodes.push(node);
         }
 
@@ -157,9 +157,15 @@ class SceneFigure extends S2Scene {
         // }
 
         this.update();
-        this.createAnimation();
+        //this.createAnimation();
 
-        nodes[0].animateSetContent('1', this.animator, { offset: 0 });
+        nodes[0].addState('1');
+        nodes[0].addState('2');
+        this.update();
+        nodes[0].animateChangeState(1, this.animator, { timeOffset: 0 });
+        nodes[0].animateChangeState(0, this.animator, { timeOffset: 0 });
+        nodes[0].animateChangeState(2, this.animator, { timeOffset: 0 });
+        nodes[0].animateChangeState(-1, this.animator, { timeOffset: 0 });
     }
 
     createAnimation(): void {

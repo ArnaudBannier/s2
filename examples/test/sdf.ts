@@ -47,13 +47,13 @@ class SceneFigure extends S2Scene {
             node.data.text.font.size.set(24, this.getViewSpace());
             node.data.background.cornerRadius.set(0.5, worldSpace);
             node.data.background.shape.set('rectangle');
-            node.setContent('plain');
+            node.addState('plain');
             nodes.push(node);
         }
         nodes[0].data.position.set(0, 1, worldSpace);
         nodes[1].data.position.set(5, 0, worldSpace);
-        nodes[0].setContent('plain 1');
-        nodes[1].setContent('plain 2');
+        nodes[0].addState('plain 1');
+        nodes[1].addState('plain 2');
         this.update();
 
         nodes[1].data.background.shape.set('rectangle');

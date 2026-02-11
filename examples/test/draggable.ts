@@ -94,7 +94,7 @@ class SceneFigure extends S2Scene {
             node.setParent(this.getSVG());
             this.setNodeDefaultStyle(node);
             node.data.position.value.setPolar((i / nodeCount) * Math.PI * 2, 3);
-            node.setContent('node ' + (i + 1));
+            node.addState('node ' + (i + 1));
             nodes.push(node);
         }
         this.update();

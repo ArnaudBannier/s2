@@ -80,9 +80,14 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         this.start.getCenterInto(p0, space);
         this.end.getCenterInto(p3, space);
         const distance = p0.distance(p3);
-        p1.copy(p3).subV(p0);
-        p1.scale(1 / distance);
-        p2.copy(p1).negate();
+        if (distance <= 1e-6) {
+            p1.set(0, 0);
+            p2.set(0, 0);
+        } else {
+            p1.copy(p3).subV(p0);
+            p1.scale(1 / distance);
+            p2.copy(p1).negate();
+        }
 
         if (this.data.startAngle.get() !== -Infinity) {
             p1.setPolar(this.data.startAngle.get(), 1, 'deg');
