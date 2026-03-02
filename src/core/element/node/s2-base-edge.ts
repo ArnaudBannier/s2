@@ -7,6 +7,7 @@ import { S2ElementData, S2StrokeData } from '../base/s2-base-data';
 import { S2Number } from '../../shared/s2-number';
 import { S2Length } from '../../shared/s2-length';
 import { S2ArrowTip } from '../s2-arrow-tip';
+import type { S2EdgeLabel } from './s2-edge-label';
 
 export type S2BaseEdge = S2Edge<S2EdgeData>;
 
@@ -58,6 +59,7 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
     protected readonly start: S2BaseNode;
     protected readonly end: S2BaseNode;
     protected arrowTips: S2ArrowTip[] = [];
+    protected labels: S2EdgeLabel[] = [];
 
     constructor(scene: S2BaseScene, data: Data, start: S2BaseNode, end: S2BaseNode) {
         super(scene, data);
@@ -80,6 +82,25 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
         return arrowTip;
     }
 
+    attachLabel(label: S2EdgeLabel): this {
+        label.setParent(this);
+        label.setEdgeReference(this);
+        label.markDirty();
+        this.labels.push(label);
+        this.markDirty();
+        return this;
+    }
+
+    detachLabel(label: S2EdgeLabel): this {
+        label.setParent(null);
+        const index = this.labels.indexOf(label);
+        if (index === -1) return this;
+        this.labels.splice(index, 1);
+        label.markDirty();
+        this.markDirty();
+        return this;
+    }
+
     getStart(): S2BaseNode {
         return this.start;
     }
@@ -97,14 +118,11 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
     }
 
     detachTip(index: number): this {
-        if (index >= 0 && index < this.arrowTips.length) {
-            this.arrowTips.splice(index, 1);
-        }
-        this.markDirty();
-        return this;
+        return this.detachTipElement(this.getTip(index));
     }
 
     detachTipElement(arrowTip: S2ArrowTip): this {
+        arrowTip.setParent(null);
         const index = this.arrowTips.indexOf(arrowTip);
         if (index >= 0) {
             this.arrowTips.splice(index, 1);
@@ -129,6 +147,13 @@ export abstract class S2Edge<Data extends S2EdgeData> extends S2Element<Data> im
             arrowTip.data.fill.opacity.copyIfUnlocked(this.data.stroke.opacity);
             arrowTip.markDirty();
             arrowTip.update();
+        }
+    }
+
+    protected updateLabels(): void {
+        for (const label of this.labels) {
+            label.markDirty();
+            label.update();
         }
     }
 }

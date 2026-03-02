@@ -116,6 +116,7 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
 
     setTipableReference(tipable: S2BaseTipable | null): this {
         this.tipableReference = tipable;
+        this.markDirty();
         return this;
     }
 

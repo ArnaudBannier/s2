@@ -65,6 +65,7 @@ export class S2LineEdge extends S2Edge<S2EdgeData> {
         this.scene.releaseVec2(end);
 
         this.updateArrowTips();
+        this.updateLabels();
         this.clearDirty();
     }
 }

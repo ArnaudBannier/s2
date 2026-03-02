@@ -163,6 +163,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         this.updateCurve();
         this.updatePath();
         this.updateArrowTips();
+        this.updateLabels();
 
         this.clearDirty();
     }

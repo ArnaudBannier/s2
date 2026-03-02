@@ -7,6 +7,7 @@ import * as radixDark from '../../../src/utils/radix-colors-dark.ts';
 import * as radixLight from '../../../src/utils/radix-colors-light.ts';
 import { S2PlainNode } from '../../../src/core/element/node/s2-plain-node.ts';
 import { S2CubicEdge } from '../../../src/core/element/node/s2-cubic-edge.ts';
+import { S2EdgeLabel } from '../../../src/core/element/node/s2-edge-label.ts';
 
 const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -40,6 +41,7 @@ class VertexData {
 
 class EdgeData {
     public edge: S2CubicEdge;
+    public weight: number = 1;
 
     constructor(scene: S2Scene, from: S2PlainNode, to: S2PlainNode) {
         this.edge = new S2CubicEdge(scene, from, to);
@@ -142,20 +144,21 @@ export class GraphDijkstraScene extends S2Scene {
         nodes[6].data.position.set(halfW, 0, worldSpace);
 
         const edgesInfo = [
-            { from: 0, to: 1, bend: -45 },
-            { from: 0, to: 2, bend: +45 },
-            { from: 1, to: 3, bend: 0 },
-            { from: 1, to: 4, bend: 0 },
-            { from: 2, to: 1, bend: 0 },
-            { from: 2, to: 3, bend: 0 },
-            { from: 2, to: 5, bend: 0 },
-            { from: 3, to: 5, bend: 0 },
-            { from: 3, to: 6, bend: 0 },
-            { from: 4, to: 6, bend: -45 },
-            { from: 5, to: 6, bend: +45 },
+            { from: 0, to: 1, weight: 5, bend: -45 },
+            { from: 0, to: 2, weight: 2, bend: +45 },
+            { from: 1, to: 3, weight: 1, bend: 0 },
+            { from: 1, to: 4, weight: 5, bend: 0 },
+            { from: 2, to: 1, weight: 2, bend: 0 },
+            { from: 2, to: 3, weight: 1, bend: 0 },
+            { from: 2, to: 5, weight: 5, bend: 0 },
+            { from: 3, to: 5, weight: 3, bend: 0 },
+            { from: 3, to: 6, weight: 6, bend: 0 },
+            { from: 4, to: 6, weight: 1, bend: -45 },
+            { from: 5, to: 6, weight: 1, bend: +45 },
         ];
         for (const edgeInfo of edgesInfo) {
             const edgeData = new EdgeData(this, nodes[edgeInfo.from], nodes[edgeInfo.to]);
+            edgeData.weight = edgeInfo.weight;
             this.graph.setEdge(edgeInfo.from.toString(), edgeInfo.to.toString(), edgeData);
             const edge = edgeData.edge;
             this.setEdgeDefaultStyle(edge);
@@ -164,9 +167,21 @@ export class GraphDijkstraScene extends S2Scene {
                 edge.data.startTension.set(0.4);
                 edge.data.endTension.set(0.4);
             }
+            const labelNode = new S2PlainNode(this);
+            labelNode.addState(edgeInfo.weight.toString());
+            labelNode.data.layer.set(3);
+            labelNode.data.background.shape.set('none');
+            //labelNode.setParent(this.getSVG());
+
+            const label = new S2EdgeLabel(this, labelNode);
+            label.data.pathPosition.set(0.5);
+            label.data.isFlipped.set(false);
+            edge.attachLabel(label);
+
             const tip = edge.createArrowTip();
             tip.data.pathStrokeFactor.set(0.5);
         }
+        this.update();
     }
 
     createAnimation(): void {
