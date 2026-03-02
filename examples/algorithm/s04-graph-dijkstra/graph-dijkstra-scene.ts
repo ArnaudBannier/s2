@@ -20,13 +20,14 @@ if (mode === 0) {
     palette = {
         back: radixDark.slateDark,
         main: radixDark.cyanDark,
-        secondary: radixDark.slateDark,
+        secondary: radixDark.mintDark,
+        temp: radixDark.rubyDark,
     };
 } else {
     palette = {
         back: radixLight.slate,
         main: radixLight.cyan,
-        secondary: radixLight.slate,
+        secondary: radixLight.mint,
     };
 }
 const colorTheme = new S2ColorTheme(palette);
@@ -117,14 +118,14 @@ export class GraphDijkstraScene extends S2Scene {
         nodeData.layer.set(1);
         nodeData.padding.set(5, 5, this.viewSpace);
         nodeData.anchor.set(0, 0);
-        nodeData.background.fill.color.setFromTheme(colorTheme, 'main', 5);
-        nodeData.background.stroke.color.setFromTheme(colorTheme, 'main', 8);
+        nodeData.background.fill.color.setFromTheme(colorTheme, 'back', 3);
+        nodeData.background.stroke.color.setFromTheme(colorTheme, 'back', 8);
         nodeData.background.stroke.width.set(4, this.viewSpace);
         nodeData.background.fill.opacity.set(1.0);
         nodeData.minExtents.set(0.5, 0.5, worldSpace);
         nodeData.text.horizontalAlign.set(0);
         nodeData.text.verticalAlign.set(0);
-        nodeData.text.fill.color.setFromTheme(colorTheme, 'main', 12);
+        nodeData.text.fill.color.setFromTheme(colorTheme, 'back', 12);
         nodeData.text.font.size.set(24, this.getViewSpace());
         nodeData.background.shape.set('circle');
 
@@ -132,75 +133,57 @@ export class GraphDijkstraScene extends S2Scene {
         distData.layer.set(4);
         distData.padding.set(5, 5, this.viewSpace);
         distData.anchor.set(0, 0);
-        distData.background.fill.color.setFromTheme(colorTheme, 'main', 4);
+        distData.background.fill.color.setFromTheme(colorTheme, 'temp', 4);
         distData.background.stroke.width.set(0, this.viewSpace);
         distData.background.fill.opacity.set(1.0);
         distData.background.shape.set('rectangle');
         distData.minExtents.set(0.25, 0.25, worldSpace);
         distData.text.horizontalAlign.set(0);
         distData.text.verticalAlign.set(0);
-        distData.text.fill.color.setFromTheme(colorTheme, 'main', 12);
+        distData.text.fill.color.setFromTheme(colorTheme, 'temp', 12);
         distData.text.font.size.set(16, this.getViewSpace());
 
         const prevData = vertex.prevCircle.data;
         prevData.layer.set(4);
         prevData.radius.set(0, this.viewSpace);
-        prevData.fill.color.setFromTheme(colorTheme, 'main', 12);
+        prevData.fill.color.setFromTheme(colorTheme, 'secondary', 9);
     }
 
-    setNodeDefaultStyle(node: S2PlainNode): void {
-        const worldSpace = this.getWorldSpace();
-        const data = node.data;
-        data.layer.set(1);
-        data.padding.set(5, 5, this.viewSpace);
-        data.anchor.set(0, 0);
-        data.background.fill.color.setFromTheme(colorTheme, 'main', 5);
-        data.background.stroke.color.setFromTheme(colorTheme, 'main', 8);
-        data.background.stroke.width.set(4, this.viewSpace);
-        data.background.fill.opacity.set(1.0);
-        data.minExtents.set(0.5, 0.5, worldSpace);
-        data.text.horizontalAlign.set(0);
-        data.text.verticalAlign.set(0);
-        data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
-        data.text.font.size.set(24, this.getViewSpace());
-        data.background.shape.set('circle');
+    setEdgeStyle(edge: EdgeData): void {
+        const edgeData = edge.edge.data;
+        edgeData.stroke.color.setFromTheme(colorTheme, 'back', 7);
+        edgeData.stroke.width.set(4, this.getViewSpace());
+        edgeData.startDistance.set(5, this.viewSpace);
+        edgeData.endDistance.set(this.edgeEndDistance, this.viewSpace);
+        edgeData.pathFrom.set(0);
+
+        const emphData = edge.emph.data;
+        emphData.stroke.color.setFromTheme(colorTheme, 'back', 12);
+        emphData.stroke.width.set(8, this.getViewSpace());
+        emphData.startDistance.set(5, this.viewSpace);
+        emphData.endDistance.set(this.edgeEndDistance, this.viewSpace);
+        emphData.pathFrom.set(0);
+        emphData.pathTo.set(0.0);
     }
 
-    setNodeDistanceStyle(node: S2PlainNode): void {
-        const worldSpace = this.getWorldSpace();
-        const data = node.data;
-        data.layer.set(4);
-        data.padding.set(5, 5, this.viewSpace);
-        data.anchor.set(0, 0);
-        data.background.fill.color.setFromTheme(colorTheme, 'main', 4);
-        data.background.stroke.width.set(0, this.viewSpace);
-        data.background.fill.opacity.set(1.0);
-        data.background.shape.set('rectangle');
-        data.minExtents.set(0.25, 0.25, worldSpace);
-        data.text.horizontalAlign.set(0);
-        data.text.verticalAlign.set(0);
-        data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
-        data.text.font.size.set(16, this.getViewSpace());
-    }
+    // setEdgeDefaultStyle(edge: S2CubicEdge): void {
+    //     const data = edge.data;
+    //     data.stroke.color.setFromTheme(colorTheme, 'main', 8);
+    //     data.stroke.width.set(4, this.getViewSpace());
+    //     data.startDistance.set(5, this.viewSpace);
+    //     data.endDistance.set(this.edgeEndDistance, this.viewSpace);
+    //     data.pathFrom.set(0);
+    // }
 
-    setEdgeDefaultStyle(edge: S2CubicEdge): void {
-        const data = edge.data;
-        data.stroke.color.setFromTheme(colorTheme, 'main', 8);
-        data.stroke.width.set(4, this.getViewSpace());
-        data.startDistance.set(5, this.viewSpace);
-        data.endDistance.set(this.edgeEndDistance, this.viewSpace);
-        data.pathFrom.set(0);
-    }
-
-    setEdgeEmphasizedStyle(edge: S2CubicEdge): void {
-        const data = edge.data;
-        data.stroke.color.setFromTheme(colorTheme, 'main', 12);
-        data.stroke.width.set(8, this.getViewSpace());
-        data.startDistance.set(5, this.viewSpace);
-        data.endDistance.set(this.edgeEndDistance, this.viewSpace);
-        data.pathFrom.set(0);
-        data.pathTo.set(0.0);
-    }
+    // setEdgeEmphasizedStyle(edge: S2CubicEdge): void {
+    //     const data = edge.data;
+    //     data.stroke.color.setFromTheme(colorTheme, 'main', 12);
+    //     data.stroke.width.set(8, this.getViewSpace());
+    //     data.startDistance.set(5, this.viewSpace);
+    //     data.endDistance.set(this.edgeEndDistance, this.viewSpace);
+    //     data.pathFrom.set(0);
+    //     data.pathTo.set(0.0);
+    // }
 
     createGraph(): void {
         this.graph.clearEdges();
@@ -265,8 +248,8 @@ export class GraphDijkstraScene extends S2Scene {
             this.graph.setEdge(edgeInfo.from.toString(), edgeInfo.to.toString(), edgeData);
             const edge = edgeData.edge;
             const emph = edgeData.emph;
-            this.setEdgeDefaultStyle(edge);
-            this.setEdgeEmphasizedStyle(emph);
+            this.setEdgeStyle(edgeData);
+
             if (edgeInfo.bend !== 0) {
                 edge.data.bendAngle.set(edgeInfo.bend);
                 edge.data.startTension.set(0.4);
@@ -338,11 +321,13 @@ export class GraphDijkstraScene extends S2Scene {
 
             currVertex = this.graph.getVertex(currId);
             currVertex.visited = true;
-            this.animateVisitVertex(currVertex);
+            this.animateVisitVertex(currVertex, currId);
+            this.animator.makeStep();
 
             for (const edge of this.graph.edgesOf(currId)) {
                 const edgeData = edge.data;
                 this.animatedVisitEdge(edgeData);
+                this.animator.makeStep();
 
                 const nextId = edge.to;
                 const vertexData = this.graph.getVertex(nextId);
@@ -357,19 +342,54 @@ export class GraphDijkstraScene extends S2Scene {
                     }
                 }
                 this.animatedEndVisitEdge(edgeData);
+                this.animator.makeStep();
             }
         }
         this.update();
     }
 
-    animateVisitVertex(vertex: VertexData): void {
+    animateVisitVertex(vertex: VertexData, id: VertexId): void {
         const cycleDuration = 500;
         const node = vertex.node;
+        const animLabel = this.animator.createLabelAtCurrentTime();
         const animFill = S2LerpAnimFactory.create(this, node.data.background.fill.color)
             .setCycleDuration(cycleDuration)
             .setEasing(ease.out);
-        node.data.background.fill.color.setFromTheme(colorTheme, 'main', 12);
-        this.animator.addAnimation(animFill.commitFinalState(), 'previous-end', 0);
+        node.data.background.fill.color.setFromTheme(colorTheme, 'main', 5);
+        this.animator.addAnimation(animFill.commitFinalState(), animLabel, 0);
+
+        const animStroke = S2LerpAnimFactory.create(this, node.data.background.stroke.color)
+            .setCycleDuration(cycleDuration)
+            .setEasing(ease.out);
+        node.data.background.stroke.color.setFromTheme(colorTheme, 'main', 8);
+        this.animator.addAnimation(animStroke.commitFinalState(), animLabel, 0);
+
+        const animText = S2LerpAnimFactory.create(this, node.data.text.fill.color)
+            .setCycleDuration(cycleDuration)
+            .setEasing(ease.out);
+        node.data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
+        this.animator.addAnimation(animText.commitFinalState(), animLabel, 0);
+
+        const animDist = S2LerpAnimFactory.create(this, vertex.distanceNode.data.background.fill.color)
+            .setCycleDuration(cycleDuration)
+            .setEasing(ease.out);
+        vertex.distanceNode.data.background.fill.color.setFromTheme(colorTheme, 'main', 4);
+        this.animator.addAnimation(animDist.commitFinalState(), animLabel, 0);
+
+        const animTextDist = S2LerpAnimFactory.create(this, vertex.distanceNode.data.text.fill.color)
+            .setCycleDuration(cycleDuration)
+            .setEasing(ease.out);
+        vertex.distanceNode.data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
+        this.animator.addAnimation(animTextDist.commitFinalState(), animLabel, 0);
+
+        for (const edge of this.graph.edgesOf(id)) {
+            const edgeData = edge.data;
+            const animEdge = S2LerpAnimFactory.create(this, edgeData.edge.data.stroke.color)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            edgeData.edge.data.stroke.color.setFromTheme(colorTheme, 'main', 8);
+            this.animator.addAnimation(animEdge.commitFinalState(), animLabel, 0);
+        }
     }
 
     animatedVisitEdge(edge: EdgeData): void {
@@ -389,6 +409,12 @@ export class GraphDijkstraScene extends S2Scene {
             .setEasing(ease.out);
         edge.emph.data.pathTo.set(0);
         this.animator.addAnimation(animPath.commitFinalState(), 'previous-end', 0);
+
+        const animFill = S2LerpAnimFactory.create(this, edge.edge.data.stroke.color)
+            .setCycleDuration(cycleDuration)
+            .setEasing(ease.out);
+        edge.edge.data.stroke.color.setFromTheme(colorTheme, 'back', 7);
+        this.animator.addAnimation(animFill.commitFinalState(), 'previous-end', 0);
     }
 
     animateUpdateDistance(vertex: VertexData, newDistance: number): void {

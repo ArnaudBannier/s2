@@ -1,5 +1,5 @@
 import type { S2BaseScene } from '../scene/s2-base-scene';
-import type { S2BaseAnimation } from './s2-base-animation';
+import type { S2AnimationListener, S2BaseAnimation } from './s2-base-animation';
 import type { S2TimelineTrigger } from './s2-timeline-trigger';
 import type { S2BaseElement } from '../element/base/s2-element';
 import { S2MathUtils } from '../math/s2-math-utils';
@@ -193,5 +193,20 @@ export class S2StepAnimator {
 
     getMasterPlayable(): S2Playable {
         return this.playable;
+    }
+
+    addListener(listener: S2AnimationListener): this {
+        this.timeline.addListener(listener);
+        return this;
+    }
+
+    removeListener(listener: S2AnimationListener): this {
+        this.timeline.removeListener(listener);
+        return this;
+    }
+
+    clearListeners(): this {
+        this.timeline.clearListeners();
+        return this;
     }
 }

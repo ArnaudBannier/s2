@@ -14,6 +14,8 @@ import { ease } from './s2-easing';
 import type { S2Anchor } from '../shared/s2-anchor';
 import type { S2AnimatableColor, S2AnimatableExtents } from './s2-animatable';
 
+export type S2AnimationListener = (anim: S2BaseAnimation) => void;
+
 export type S2AnimProperty =
     | S2Number
     | S2Color
@@ -42,6 +44,7 @@ export abstract class S2BaseAnimation {
     protected reversed: boolean = false;
     protected alternate: boolean = false;
     protected properties: Set<S2AnimProperty>;
+    protected listeners: S2AnimationListener[] = [];
 
     constructor(scene: S2BaseScene) {
         this.scene = scene;
@@ -97,10 +100,31 @@ export abstract class S2BaseAnimation {
         return this;
     }
 
+    addListener(listener: S2AnimationListener): this {
+        this.listeners.push(listener);
+        return this;
+    }
+
+    removeListener(listener: S2AnimationListener): this {
+        const index = this.listeners.indexOf(listener);
+        if (index !== -1) {
+            this.listeners.splice(index, 1);
+        }
+        return this;
+    }
+
+    clearListeners(): this {
+        this.listeners.length = 0;
+        return this;
+    }
+
     setElapsed(elapsed: number): this {
         this.setRawElapsed(elapsed);
         for (const target of this.properties) {
             this.setElapsedPropertyImpl(target);
+        }
+        for (const listener of this.listeners) {
+            listener(this);
         }
         return this;
     }

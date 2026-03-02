@@ -2,9 +2,9 @@ import { S2MathUtils } from '../../../src/core/math/s2-math-utils.ts';
 import { GraphSearchScene, type Direction } from './graph-search-scene.ts';
 
 export class GraphSearchControls {
-    private container: HTMLElement;
-    private scene: GraphSearchScene;
-    private stepIndex: number = -1;
+    protected container: HTMLElement;
+    protected scene: GraphSearchScene;
+    protected stepIndex: number = -1;
 
     constructor(container: HTMLElement, scene: GraphSearchScene) {
         this.container = container;

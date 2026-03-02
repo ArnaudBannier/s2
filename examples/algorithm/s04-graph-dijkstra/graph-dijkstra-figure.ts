@@ -25,7 +25,7 @@ export class GraphDijkstraFigure {
         // création de la scène et de l'interface
         this.scene = new GraphDijkstraScene(svg);
 
-        this.navigation = new GraphDijkstraNavigation(divNavigation, this.scene);
+        this.navigation = new GraphDijkstraNavigation(divNavigation, this.scene, this.scene.animator);
         this.navigation.init();
     }
 }
