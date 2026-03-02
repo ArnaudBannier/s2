@@ -18,6 +18,7 @@ export class S2EdgeData extends S2ElementData {
     public readonly pathTo: S2Number;
     public readonly startDistance: S2Length;
     public readonly endDistance: S2Length;
+    public readonly pathThreshold: S2Length;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -28,6 +29,7 @@ export class S2EdgeData extends S2ElementData {
         this.pathTo = new S2Number(1);
         this.startDistance = new S2Length(0, viewSpace);
         this.endDistance = new S2Length(0, viewSpace);
+        this.pathThreshold = new S2Length(2, viewSpace);
 
         this.stroke.width.set(4, viewSpace);
         this.stroke.color.set(0, 0, 0, 1);
@@ -41,6 +43,7 @@ export class S2EdgeData extends S2ElementData {
         this.pathTo.setOwner(owner);
         this.startDistance.setOwner(owner);
         this.endDistance.setOwner(owner);
+        this.pathThreshold.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -51,6 +54,7 @@ export class S2EdgeData extends S2ElementData {
         this.pathTo.clearDirty();
         this.startDistance.clearDirty();
         this.endDistance.clearDirty();
+        this.pathThreshold.clearDirty();
     }
 }
 

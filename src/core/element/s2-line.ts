@@ -21,6 +21,7 @@ export class S2LineData extends S2ElementData {
     public readonly endPadding: S2Length;
     public readonly pathFrom: S2Number;
     public readonly pathTo: S2Number;
+    public readonly pathThreshold: S2Length;
 
     constructor(scene: S2BaseScene) {
         super();
@@ -33,6 +34,7 @@ export class S2LineData extends S2ElementData {
         this.endPadding = new S2Length(0, scene.getViewSpace());
         this.pathFrom = new S2Number(0);
         this.pathTo = new S2Number(1);
+        this.pathThreshold = new S2Length(2, scene.getViewSpace());
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
@@ -46,6 +48,7 @@ export class S2LineData extends S2ElementData {
         this.endPadding.setOwner(owner);
         this.pathFrom.setOwner(owner);
         this.pathTo.setOwner(owner);
+        this.pathThreshold.setOwner(owner);
     }
 
     clearDirty(): void {
@@ -59,6 +62,7 @@ export class S2LineData extends S2ElementData {
         this.endPadding.clearDirty();
         this.pathFrom.clearDirty();
         this.pathTo.clearDirty();
+        this.pathThreshold.clearDirty();
     }
 }
 
@@ -172,8 +176,9 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
             const length = p0.distance(p1);
             const padding0 = this.data.startPadding.get(space);
             const padding1 = this.data.endPadding.get(space);
+            const pathThreshold = this.data.pathThreshold.get(space);
 
-            if (length < 1e-6 || length < padding0 + padding1) {
+            if (length < 1e-6 || length < padding0 + padding1 + pathThreshold) {
                 // Too close, hide the line
                 this.position0.setV(p0, space);
                 this.position1.setV(p0, space);

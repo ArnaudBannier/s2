@@ -132,6 +132,7 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
     protected updatePath(): void {
         const space = this.scene.getWorldSpace();
         const viewSpace = this.scene.getViewSpace();
+        const worldSpace = this.scene.getWorldSpace();
         const curve = this.curve;
         const point = this.scene.acquireVec2();
         let svgPath = '';
@@ -155,6 +156,13 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         this.path.data.stroke.copyIfUnlocked(this.data.stroke);
         this.path.data.opacity.copyIfUnlocked(this.data.opacity);
         this.path.data.fill.opacity.set(0);
+
+        const pathThreshold = this.data.pathThreshold.get(viewSpace);
+        const length = worldSpace.convertLength(this.lengthMapper.getLength(), viewSpace);
+        if (pathThreshold > 0 && length < pathThreshold) {
+            this.path.data.opacity.set(0);
+        }
+
         this.path.update();
     }
 
