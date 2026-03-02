@@ -39,7 +39,7 @@ export const examples: S2Example[] = [
     {
         id: 'graph-s04-dijkstra',
         title: 'INF2031 : Dijkstra',
-        path: '/s2/examples/algorithm/s04-graph-dijkstra.html',
+        path: '/s2/examples/algorithm/s04-graph-dijkstra/graph-dijkstra-index.html',
         description: 'Algorithme de Dijkstra pour les plus courts chemins dans un graphe.',
     },
     {
