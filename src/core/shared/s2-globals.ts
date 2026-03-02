@@ -1,9 +1,10 @@
 import type { S2Space } from '../math/s2-space';
 import type { S2BaseScene } from '../scene/s2-base-scene';
 import type { S2Extents } from './s2-extents';
-import type { S2Point } from './s2-point';
 import type { S2ArrowTip } from '../element/s2-arrow-tip';
+import { S2Point } from './s2-point';
 import { S2Vec2 } from '../math/s2-vec2';
+import { S2Offset } from './s2-offset';
 
 export const svgNS = 'http://www.w3.org/2000/svg';
 export type S2SVGAttributes = Record<string, string>;
@@ -26,13 +27,15 @@ export interface S2Dirtyable {
 
 export class S2TipTransform {
     public space: S2Space;
-    public position: S2Vec2 = new S2Vec2();
-    public tangent: S2Vec2 = new S2Vec2();
+    public position: S2Point;
+    public tangent: S2Offset;
     public strokeWidth: number = 1;
     public pathLength: number = 1;
 
     constructor(scene: S2BaseScene) {
         this.space = scene.getWorldSpace();
+        this.position = new S2Point(0, 0, this.space);
+        this.tangent = new S2Offset(0, 0, this.space);
     }
 }
 

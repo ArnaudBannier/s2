@@ -66,8 +66,10 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         dst.space = space;
         dst.pathLength = this.lengthMapper.getLength();
         dst.strokeWidth = this.data.stroke.width.get(space);
-        this.curve.getPointInto(dst.position, t);
-        this.curve.getTangentInto(dst.tangent, t);
+        this.curve.getPointInto(dst.position.value, t);
+        this.curve.getTangentInto(dst.tangent.value, t);
+        dst.position.space = space;
+        dst.tangent.space = space;
         return dst;
     }
 

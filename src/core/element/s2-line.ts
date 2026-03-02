@@ -123,8 +123,10 @@ export class S2Line extends S2Element<S2LineData> implements S2Tipable {
         const p1 = this.scene.acquireVec2();
         this.data.startPosition.getInto(p0, space);
         this.data.endPosition.getInto(p1, space);
-        dst.position.copy(p0).lerpV(p1, t);
-        dst.tangent.copy(p1).subV(p0);
+        dst.position.value.copy(p0).lerpV(p1, t);
+        dst.tangent.value.copy(p1).subV(p0);
+        dst.position.space = space;
+        dst.tangent.space = space;
         dst.space = space;
         dst.pathLength = p0.distance(p1);
         dst.strokeWidth = this.data.stroke.width.get(space);

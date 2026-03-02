@@ -65,12 +65,15 @@ export class S2EdgeLabel extends S2Element<S2EdgeLabelData> {
 
         if (!this.edgeReference) return;
 
+        const worldSpace = this.scene.getWorldSpace();
+
         this.edgeReference.getTipTransformAtInto(this.transform, this.data.pathPosition.get());
 
         const position = this.scene.acquireVec2();
-        position.copy(this.transform.position);
+        this.transform.position.getInto(position, worldSpace);
+        //position.copy(this.transform.position);
 
-        this.node.data.position.setV(this.transform.position, this.transform.space);
+        this.node.data.position.setV(position, worldSpace);
 
         this.scene.releaseVec2(position);
         this.node.update();

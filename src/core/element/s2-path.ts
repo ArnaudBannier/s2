@@ -119,8 +119,10 @@ export class S2Path extends S2Element<S2PathData> implements S2Tipable {
         const to = this.data.pathTo.get();
         t = t * (to - from) + from;
         dst.space = this.data.space.get();
-        dst.position.copy(this.data.polyCurve.getPointAt(t));
-        dst.tangent.copy(this.data.polyCurve.getTangentAt(t));
+        dst.position.value.copy(this.data.polyCurve.getPointAt(t));
+        dst.tangent.value.copy(this.data.polyCurve.getTangentAt(t));
+        dst.position.space = dst.space;
+        dst.tangent.space = dst.space;
         dst.pathLength = this.data.polyCurve.getLength() * (to - from);
         dst.strokeWidth = this.data.stroke.width.get(dst.space);
         return dst;

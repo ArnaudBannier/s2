@@ -10,7 +10,6 @@ import { S2Transform } from '../shared/s2-transform';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Element } from './base/s2-element';
-import { S2Vec2 } from '../math/s2-vec2';
 
 export class S2ArrowTipData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -146,11 +145,17 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
             extents.scale(ease.out(pathLength / pathThreshold));
         }
 
-        const tmp = new S2Vec2();
-        tipSpace.convertOffsetIntoV(tmp, this.tipTransform.tangent, viewSpace);
-        const angle = -tmp.angle();
+        const tangent = this.scene.acquireVec2();
+        const position = this.scene.acquireVec2();
+        this.tipTransform.position.getInto(position, viewSpace);
+        this.tipTransform.tangent.getInto(tangent, viewSpace);
+        const angle = -tangent.angle();
 
-        tipSpace.convertPointIntoV(tmp, this.tipTransform.position, viewSpace);
+        // const tmp = new S2Vec2();
+        // tipSpace.convertOffsetIntoV(tmp, this.tipTransform.tangent, viewSpace);
+        // const angle = -tmp.angle();
+
+        //tipSpace.convertPointIntoV(tmp, this.tipTransform.position, viewSpace);
 
         const xScaleSign = this.isReversed ? -1 : +1;
         this.transform.value
@@ -158,7 +163,10 @@ export class S2ArrowTip extends S2Element<S2ArrowTipData> {
             .translate(this.anchorAlignment * 10, 0)
             .scale((xScaleSign * extents.x) / 10, extents.y / 10)
             .rotate(angle, 'rad')
-            .translateV(tmp);
+            .translateV(position);
+
+        this.scene.releaseVec2(tangent);
+        this.scene.releaseVec2(position);
     }
 
     update(): void {
