@@ -8,6 +8,7 @@ import * as radixLight from '../../../src/utils/radix-colors-light.ts';
 import { S2PlainNode } from '../../../src/core/element/node/s2-plain-node.ts';
 import { S2CubicEdge } from '../../../src/core/element/node/s2-cubic-edge.ts';
 import { S2EdgeLabel } from '../../../src/core/element/node/s2-edge-label.ts';
+import { S2Vec2 } from '../../../src/core/math/s2-vec2.ts';
 
 const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -32,10 +33,15 @@ class VertexData {
     public depth: number = -1;
 
     public node: S2PlainNode;
+    public distanceNode: S2PlainNode;
 
     constructor(scene: S2Scene) {
         this.node = new S2PlainNode(scene);
         this.node.setParent(scene.getSVG());
+        this.distanceNode = new S2PlainNode(scene);
+        this.distanceNode.setParent(scene.getSVG());
+        this.distanceNode.addState('+∞');
+        this.distanceNode.data.layer.set(4);
     }
 }
 
@@ -111,6 +117,23 @@ export class GraphDijkstraScene extends S2Scene {
         data.background.shape.set('circle');
     }
 
+    setNodeDistanceStyle(node: S2PlainNode): void {
+        const worldSpace = this.getWorldSpace();
+        const data = node.data;
+        data.layer.set(4);
+        data.padding.set(5, 5, this.viewSpace);
+        data.anchor.set(0, 0);
+        data.background.fill.color.setFromTheme(colorTheme, 'main', 4);
+        data.background.stroke.width.set(0, this.viewSpace);
+        data.background.fill.opacity.set(1.0);
+        data.background.shape.set('rectangle');
+        data.minExtents.set(0.25, 0.25, worldSpace);
+        data.text.horizontalAlign.set(0);
+        data.text.verticalAlign.set(0);
+        data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
+        data.text.font.size.set(16, this.getViewSpace());
+    }
+
     setEdgeDefaultStyle(edge: S2CubicEdge): void {
         const data = edge.data;
         data.stroke.color.setFromTheme(colorTheme, 'main', 8);
@@ -129,6 +152,7 @@ export class GraphDijkstraScene extends S2Scene {
             nodes.push(node);
             this.setNodeDefaultStyle(node);
             node.addState(i.toString());
+            this.setNodeDistanceStyle(vertexData.distanceNode);
             this.graph.addVertex(i.toString(), vertexData);
         }
 
@@ -142,6 +166,27 @@ export class GraphDijkstraScene extends S2Scene {
         nodes[4].data.position.set(+halfW / 2, +halfH, worldSpace);
         nodes[5].data.position.set(+halfW / 2, -halfH, worldSpace);
         nodes[6].data.position.set(halfW, 0, worldSpace);
+
+        const d = 1;
+        const distancesInfo = [
+            { from: 0, offset: new S2Vec2(-d, 0) },
+            { from: 1, offset: new S2Vec2(0, +d) },
+            { from: 2, offset: new S2Vec2(0, -d) },
+            { from: 3, offset: new S2Vec2(0, +d) },
+            { from: 4, offset: new S2Vec2(0, +d) },
+            { from: 5, offset: new S2Vec2(0, -d) },
+            { from: 6, offset: new S2Vec2(+d, 0) },
+        ];
+
+        for (const distanceInfo of distancesInfo) {
+            const vertexData = this.graph.getVertex(distanceInfo.from.toString());
+            const distanceNode = vertexData.distanceNode;
+            const position = this.acquireVec2();
+            vertexData.node.data.position.getInto(position, worldSpace);
+            position.addV(distanceInfo.offset);
+            distanceNode.data.position.setV(position, worldSpace);
+            this.releaseVec2(position);
+        }
 
         const edgesInfo = [
             { from: 0, to: 1, weight: 5, bend: -45 },
@@ -171,11 +216,11 @@ export class GraphDijkstraScene extends S2Scene {
             labelNode.addState(edgeInfo.weight.toString());
             labelNode.data.layer.set(3);
             labelNode.data.background.shape.set('none');
-            //labelNode.setParent(this.getSVG());
 
             const label = new S2EdgeLabel(this, labelNode);
             label.data.pathPosition.set(0.5);
-            label.data.isFlipped.set(false);
+            label.data.flip.set(edgeInfo.bend > 0);
+            label.data.distance.set(20, this.viewSpace);
             edge.attachLabel(label);
 
             const tip = edge.createArrowTip();

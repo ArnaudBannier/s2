@@ -12,27 +12,27 @@ import type { S2BaseEdge } from './s2-base-edge';
 export class S2EdgeLabelData extends S2ElementData {
     public readonly pathPosition: S2Number;
     public readonly distance: S2Length;
-    public readonly isFlipped: S2Boolean;
+    public readonly flip: S2Boolean;
 
     constructor(scene: S2BaseScene) {
         super();
         const viewSpace = scene.getViewSpace();
         this.pathPosition = new S2Number(0.5);
         this.distance = new S2Length(10, viewSpace);
-        this.isFlipped = new S2Boolean(false);
+        this.flip = new S2Boolean(false);
     }
 
     setOwner(owner: S2Dirtyable | null = null): void {
         this.pathPosition.setOwner(owner);
         this.distance.setOwner(owner);
-        this.isFlipped.setOwner(owner);
+        this.flip.setOwner(owner);
     }
 
     clearDirty(): void {
         super.clearDirty();
         this.pathPosition.clearDirty();
         this.distance.clearDirty();
-        this.isFlipped.clearDirty();
+        this.flip.clearDirty();
     }
 }
 
@@ -70,12 +70,20 @@ export class S2EdgeLabel extends S2Element<S2EdgeLabelData> {
         this.edgeReference.getTipTransformAtInto(this.transform, this.data.pathPosition.get());
 
         const position = this.scene.acquireVec2();
+        const tangent = this.scene.acquireVec2();
+
+        const distance = this.data.distance.get(worldSpace);
+        const flip = this.data.flip.get();
         this.transform.position.getInto(position, worldSpace);
+        this.transform.tangent.getInto(tangent, worldSpace);
+        tangent.normalize().scale(distance).perp(flip);
+        position.addV(tangent);
         //position.copy(this.transform.position);
 
         this.node.data.position.setV(position, worldSpace);
 
         this.scene.releaseVec2(position);
+        this.scene.releaseVec2(tangent);
         this.node.update();
         this.clearDirty();
     }
