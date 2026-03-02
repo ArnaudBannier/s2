@@ -1,5 +1,14 @@
 # TODO
 
+- Revoir le système de "owner".
+    - Remplacer par un "dependency graph": dependents = new S2Dirtyable[];
+        markDirty() {
+            if (this.dirty) return;
+            this.dirty = true;
+            for (const d of this.dependents)
+                d.markDirty();
+        }
+
 - Revoir le snap pour un draggable.
     - Il faut plutôt l'appliquer au draggable plutôt qu'à la target sinon il ne se replace pas correctement après le release.
 - Revoir le local bbox
@@ -11,7 +20,7 @@
     - L'espace vue met tous les objets en dirty (mais pas les données, à vérifier)
     - Le prochain update met à jour tous les éléments qu'il faut
 
-- Possibilité d'ajouter des labels sur un edge (qui devient un groupe)
+- Possibilité d'ajouter des labels sur un edge
 - Tracer une fonction
 - stroke-dasharray : faut-il définir un nouveau type de données (principalement pour setParent avec un space global) ?
 - SpacialCurve = PolyCurve et space dans un nouveau type de données

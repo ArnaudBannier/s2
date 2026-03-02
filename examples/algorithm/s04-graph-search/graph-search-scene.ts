@@ -14,6 +14,7 @@ import { S2TriggerNumber } from '../../../src/core/animation/s2-timeline-trigger
 import { S2ColorTheme, type S2Palette } from '../../../src/core/shared/s2-color-theme.ts';
 import * as radixDark from '../../../src/utils/radix-colors-dark.ts';
 import * as radixLight from '../../../src/utils/radix-colors-light.ts';
+import { ColorScale } from '../../../src/core/shared/s2-color-scale.ts';
 
 const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -43,22 +44,6 @@ if (mode === 0) {
     };
 }
 const colorTheme = new S2ColorTheme(palette);
-
-class ColorScale {
-    public colors: S2Color[] = [];
-
-    getInto(color: S2Color, t: number): void {
-        if (this.colors.length === 0) {
-            color.setBlack();
-            return;
-        }
-        const scaledT = t * (this.colors.length - 1);
-        const index0 = Math.floor(scaledT);
-        const index1 = Math.min(index0 + 1, this.colors.length - 1);
-        const localT = scaledT - index0;
-        color.lerp(this.colors[index0], this.colors[index1], localT);
-    }
-}
 
 class Queue<T> {
     private input: T[] = [];
