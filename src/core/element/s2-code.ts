@@ -442,6 +442,10 @@ export class S2Code extends S2Element<S2CodeData> {
         this.lineBackground.data.stroke.copyIfUnlocked(this.data.currentLine.stroke);
         this.lineBackground.data.opacity.copyIfUnlocked(this.data.currentLine.opacity);
 
+        const font = this.data.text.font;
+        const fontSize = font.size.get(viewSpace);
+        const lineHeight = font.relativeLineHeight.get() * fontSize;
+
         const lineCount = this.textGroup.getLineCount();
         if (lineCount > 0) {
             const linePadding = this.data.currentLine.padding.get(viewSpace);
@@ -450,30 +454,28 @@ export class S2Code extends S2Element<S2CodeData> {
             const index1 = S2MathUtils.clamp(Math.ceil(currIndex), 0, lineCount - 1);
 
             const t = currIndex - index0;
-            const extents0 = this.scene.acquireVec2();
-            const extents1 = this.scene.acquireVec2();
             const position0 = this.scene.acquireVec2();
             const position1 = this.scene.acquireVec2();
             const line0 = this.textGroup.getLine(index0);
             const line1 = this.textGroup.getLine(index1);
-            line0.getExtentsInto(extents0, viewSpace);
-            line1.getExtentsInto(extents1, viewSpace);
             line0.getCenterInto(position0, viewSpace);
             line1.getCenterInto(position1, viewSpace);
 
-            position0.subV(extents0);
-            position1.subV(extents1);
+            position0.y -= 0.5 * lineHeight;
+            position1.y -= 0.5 * lineHeight;
 
             const span = this.data.currentLine.span.get();
-            const extentsY = S2MathUtils.lerp(extents0.y, extents1.y, t) * span;
+            // const extentsY = S2MathUtils.lerp(extents0.y, extents1.y, t) * span;
             const y = S2MathUtils.lerp(position0.y, position1.y, t);
             this.lineBackground.data.position.set(center.x, y - linePadding.y, viewSpace);
-            this.lineBackground.data.extents.set(extents.x + linePadding.x, extentsY + linePadding.y, viewSpace);
+            this.lineBackground.data.extents.set(
+                extents.x + linePadding.x,
+                0.5 * lineHeight * span + linePadding.y,
+                viewSpace,
+            );
             this.lineBackground.data.anchor.set(0, -1);
             this.lineBackground.update();
 
-            this.scene.releaseVec2(extents0);
-            this.scene.releaseVec2(extents1);
             this.scene.releaseVec2(position0);
             this.scene.releaseVec2(position1);
         }

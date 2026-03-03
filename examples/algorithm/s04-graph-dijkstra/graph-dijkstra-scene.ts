@@ -146,17 +146,10 @@ export class GraphDijkstraScene extends S2Scene {
     }
 
     setCodeStyle(code: S2Code): void {
-        //const worldSpace = this.getWorldSpace();
         const viewSpace = this.getViewSpace();
-        // const font = new S2FontData(this);
-        // font.family.set('monospace');
-        // font.size.set(16, viewSpace);
-        // font.relativeLineHeight.set(1.3);
-
         this.setDefaultFont(code.data.text.font);
         code.data.text.fill.color.setFromTheme(colorTheme, 'back', 12);
-        code.data.padding.set(10, 10, viewSpace);
-        //code.data.minExtents.set(3.5, 1, worldSpace);
+        code.data.padding.set(20, 10, viewSpace);
         code.data.background.fill.color.setFromTheme(colorTheme, 'back', 3);
         code.data.background.stroke.color.setFromTheme(colorTheme, 'back', 8);
         code.data.background.stroke.width.set(2, viewSpace);
@@ -390,25 +383,43 @@ export class GraphDijkstraScene extends S2Scene {
             this.animateVisitVertex(currVertex, currId);
             this.animator.makeStep();
 
+            this.animateCodeLine(5);
+            this.animator.makeStep();
+
             for (const edge of this.graph.edgesOf(currId)) {
                 const edgeData = edge.data;
+
+                this.animateCodeLine(6);
                 this.animatedVisitEdge(edgeData);
+                this.animator.makeStep();
+
+                this.animateCodeLine(7);
                 this.animator.makeStep();
 
                 const nextId = edge.to;
                 const vertexData = this.graph.getVertex(nextId);
                 if (vertexData.visited === false) {
+                    this.animateCodeLine(9);
+                    this.animator.makeStep();
+
                     const newDistance = this.graph.getVertex(currId).distance + edgeData.weight;
                     if (newDistance < vertexData.distance) {
+                        this.animateCodeLine(10);
                         this.animateUpdateDistance(vertexData, newDistance);
+                        this.animator.makeStep();
+
+                        this.animateCodeLine(11);
                         this.animateUpdatePrev(vertexData, edgeData);
+                        this.animator.makeStep();
 
                         vertexData.distance = newDistance;
                         vertexData.prevId = currId;
                     }
+                } else {
+                    this.animateCodeLine(8);
+                    this.animator.makeStep();
                 }
                 this.animatedEndVisitEdge(edgeData);
-                this.animator.makeStep();
             }
         }
         this.update();
