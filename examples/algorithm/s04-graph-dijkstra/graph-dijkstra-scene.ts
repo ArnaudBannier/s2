@@ -13,6 +13,22 @@ import { S2LerpAnimFactory } from '../../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../../src/core/animation/s2-easing.ts';
 import type { S2Circle } from '../../../src/core/element/s2-circle.ts';
 import { S2TipTransform } from '../../../src/core/shared/s2-globals.ts';
+import { S2Code, tokenizeAlgorithm } from '../../../src/core/element/s2-code.ts';
+import { S2FontData } from '../../../src/core/element/base/s2-base-data.ts';
+
+const dijkstraAlgorithm =
+    'd[**var:départ**] = **num:0**\n' +
+    '**kw:tant que** non tous visités **kw:faire**\n' +
+    '  **type:noeud** **var:n** = sommet non visité\n' +
+    '    avec d[**var:n**] minimum\n' +
+    '  **fn:marquer**(**var:n**)\n' +
+    '  **kw:si** d[**var:n**] = +∞ **kw:alors** **kw:quitter**\n' +
+    '  **kw:pour** chaque voisin **var:v** de **var:n** **kw:faire**\n' +
+    '    **kw:si** **var:v** est déjà marqué **kw:alors**\n' +
+    '      **kw:continuer**\n' +
+    '    **kw:si** d[**var:n**] + poids(**var:n**, **var:v**) < d[**var:v**] **kw:alors**\n' +
+    '      d[**var:v**] = d[**var:n**] + poids(**var:n**, **var:v**)\n' +
+    '      pred[**var:v**] = **var:n**';
 
 const mode = 0; // 0 = dark, 1 = light
 let palette: S2Palette;
@@ -28,6 +44,7 @@ if (mode === 0) {
         back: radixLight.slate,
         main: radixLight.cyan,
         secondary: radixLight.mint,
+        temp: radixLight.ruby,
     };
 }
 const colorTheme = new S2ColorTheme(palette);
@@ -75,6 +92,8 @@ export class GraphDijkstraScene extends S2Scene {
     protected showHelperGrid: boolean = false;
     protected edgeEndDistance: number = 15;
 
+    protected code: S2Code;
+
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
         this.camera.setExtents(8.0, 4.5);
@@ -103,6 +122,14 @@ export class GraphDijkstraScene extends S2Scene {
 
         this.createGraph();
 
+        this.code = new S2Code(this);
+        this.code.setParent(this.getSVG());
+
+        this.setCodeStyle(this.code);
+        this.code.setContent(tokenizeAlgorithm(dijkstraAlgorithm));
+        this.code.data.anchor.set(-1, 0);
+        this.code.data.position.set(-7.5, 0, worldSpace);
+
         // this.createEdges();
         // this.initializeGraphCells();
         this.update();
@@ -110,6 +137,38 @@ export class GraphDijkstraScene extends S2Scene {
         this.createAnimation();
         // this.animator.playMaster();
         // this.animator.pause();
+    }
+
+    setDefaultFont(data: S2FontData): void {
+        data.family.set('monospace');
+        data.size.set(14, this.getViewSpace());
+        data.relativeLineHeight.set(1.3);
+    }
+
+    setCodeStyle(code: S2Code): void {
+        //const worldSpace = this.getWorldSpace();
+        const viewSpace = this.getViewSpace();
+        // const font = new S2FontData(this);
+        // font.family.set('monospace');
+        // font.size.set(16, viewSpace);
+        // font.relativeLineHeight.set(1.3);
+
+        this.setDefaultFont(code.data.text.font);
+        code.data.text.fill.color.setFromTheme(colorTheme, 'back', 12);
+        code.data.padding.set(10, 10, viewSpace);
+        //code.data.minExtents.set(3.5, 1, worldSpace);
+        code.data.background.fill.color.setFromTheme(colorTheme, 'back', 3);
+        code.data.background.stroke.color.setFromTheme(colorTheme, 'back', 8);
+        code.data.background.stroke.width.set(2, viewSpace);
+        code.data.background.cornerRadius.set(10, viewSpace);
+        code.data.currentLine.opacity.set(1);
+        code.data.currentLine.fill.color.setFromTheme(colorTheme, 'back', 1);
+        code.data.currentLine.fill.opacity.set(0.5);
+        code.data.currentLine.stroke.color.setFromTheme(colorTheme, 'back', 12);
+        code.data.currentLine.stroke.width.set(1, viewSpace);
+        code.data.currentLine.stroke.opacity.set(0.2);
+        code.data.currentLine.padding.set(-0.5, 2, viewSpace);
+        code.data.currentLine.index.set(0);
     }
 
     setVertexStyle(vertex: VertexData): void {
@@ -153,14 +212,14 @@ export class GraphDijkstraScene extends S2Scene {
         const edgeData = edge.edge.data;
         edgeData.stroke.color.setFromTheme(colorTheme, 'back', 7);
         edgeData.stroke.width.set(4, this.getViewSpace());
-        edgeData.startDistance.set(5, this.viewSpace);
+        edgeData.startDistance.set(0, this.viewSpace);
         edgeData.endDistance.set(this.edgeEndDistance, this.viewSpace);
         edgeData.pathFrom.set(0);
 
         const emphData = edge.emph.data;
         emphData.stroke.color.setFromTheme(colorTheme, 'back', 12);
-        emphData.stroke.width.set(8, this.getViewSpace());
-        emphData.startDistance.set(5, this.viewSpace);
+        emphData.stroke.width.set(6, this.getViewSpace());
+        emphData.startDistance.set(0, this.viewSpace);
         emphData.endDistance.set(this.edgeEndDistance, this.viewSpace);
         emphData.pathFrom.set(0);
         emphData.pathTo.set(0.0);
@@ -198,15 +257,16 @@ export class GraphDijkstraScene extends S2Scene {
         }
 
         const worldSpace = this.getWorldSpace();
-        const halfW = 4;
-        const halfH = 2;
-        nodes[0].data.position.set(-halfW, 0, worldSpace);
-        nodes[1].data.position.set(-halfW / 2, +halfH, worldSpace);
-        nodes[2].data.position.set(-halfW / 2, -halfH, worldSpace);
-        nodes[3].data.position.set(0, 0, worldSpace);
-        nodes[4].data.position.set(+halfW / 2, +halfH, worldSpace);
-        nodes[5].data.position.set(+halfW / 2, -halfH, worldSpace);
-        nodes[6].data.position.set(halfW, 0, worldSpace);
+        const halfW = 3.2;
+        const halfH = 1.6;
+        const shiftX = 3;
+        nodes[0].data.position.set(shiftX - halfW, 0, worldSpace);
+        nodes[1].data.position.set(shiftX - halfW / 2, +halfH, worldSpace);
+        nodes[2].data.position.set(shiftX - halfW / 2, -halfH, worldSpace);
+        nodes[3].data.position.set(shiftX, 0, worldSpace);
+        nodes[4].data.position.set(shiftX + halfW / 2, +halfH, worldSpace);
+        nodes[5].data.position.set(shiftX + halfW / 2, -halfH, worldSpace);
+        nodes[6].data.position.set(shiftX + halfW, 0, worldSpace);
 
         const d = 1;
         const distancesInfo = [
@@ -300,9 +360,13 @@ export class GraphDijkstraScene extends S2Scene {
         let currId = ids[0];
         let currVertex = this.graph.getVertex(currId);
         currVertex.distance = 0;
+        this.animateCodeLine(0);
         this.animateUpdateDistance(currVertex, 0);
+        this.animator.makeStep();
 
         while (true) {
+            this.animateCodeLine(1);
+            this.animator.makeStep();
             let allVisited = true;
             let minDistance = Infinity;
             for (const id of ids) {
@@ -321,6 +385,8 @@ export class GraphDijkstraScene extends S2Scene {
 
             currVertex = this.graph.getVertex(currId);
             currVertex.visited = true;
+
+            this.animateCodeLine(2, 3);
             this.animateVisitVertex(currVertex, currId);
             this.animator.makeStep();
 
@@ -449,6 +515,21 @@ export class GraphDijkstraScene extends S2Scene {
             vertex.prevCircle.data.position.setV(position, viewSpace);
             this.animator.addAnimation(animPosition.commitFinalState(), 'previous-end', 0);
         }
+    }
+
+    animateCodeLine(lineIndex: number, lineSpan: number = 1): void {
+        const code = this.code;
+        const animIndex = S2LerpAnimFactory.create(this, code.data.currentLine.index)
+            .setCycleDuration(500)
+            .setEasing(ease.inOut);
+        const animSpan = S2LerpAnimFactory.create(this, code.data.currentLine.span)
+            .setCycleDuration(500)
+            .setEasing(ease.inOut);
+        code.data.currentLine.index.set(lineIndex);
+        code.data.currentLine.span.set(lineSpan);
+        const label = this.animator.createLabelAtCurrentTime();
+        this.animator.addAnimation(animIndex.commitFinalState(), label, 0);
+        this.animator.addAnimation(animSpan.commitFinalState(), label, 0);
     }
 
     // initializeGraphCells(): void {

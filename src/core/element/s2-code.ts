@@ -31,9 +31,9 @@ export function tokenizeAlgorithm(input: string): S2CodeToken[] {
     // Regex qui capture :
     // 1. Balises **tag:texte**
     // 2. Espaces
-    // 3. Ponctuation (();,.)
+    // 3. Ponctuation (()[];,.)
     // 4. Tout le reste (mots)
-    const regex = /\*\*(\w+):(.*?)\*\*|(\s+)|([();,.])|([^\s();,.]+)/g;
+    const regex = /\*\*(\w+):(.*?)\*\*|(\s+)|([(){}\[\];,.])|([^\s(){}\[\];,.]+)/g;
 
     for (const line of input.split('\n')) {
         let match;
@@ -175,6 +175,7 @@ export class S2CodeCurrentLineData extends S2BaseData {
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
     public readonly index: S2Number;
+    public readonly span: S2Number;
     public readonly padding: S2Extents;
 
     constructor(scene: S2BaseScene) {
@@ -183,6 +184,7 @@ export class S2CodeCurrentLineData extends S2BaseData {
         this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(0);
         this.index = new S2Number(0);
+        this.span = new S2Number(1);
         this.padding = new S2Extents(0, 1, scene.getViewSpace());
 
         this.stroke.opacity.set(1);
@@ -194,6 +196,7 @@ export class S2CodeCurrentLineData extends S2BaseData {
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
         this.index.setOwner(owner);
+        this.span.setOwner(owner);
         this.padding.setOwner(owner);
     }
 
@@ -202,6 +205,7 @@ export class S2CodeCurrentLineData extends S2BaseData {
         this.stroke.clearDirty();
         this.opacity.clearDirty();
         this.index.clearDirty();
+        this.span.clearDirty();
         this.padding.clearDirty();
     }
 }
@@ -456,11 +460,16 @@ export class S2Code extends S2Element<S2CodeData> {
             line1.getExtentsInto(extents1, viewSpace);
             line0.getCenterInto(position0, viewSpace);
             line1.getCenterInto(position1, viewSpace);
-            const extentsY = extents0.y * (1 - t) + extents1.y * t;
-            const y = position0.y * (1 - t) + position1.y * t;
-            this.lineBackground.data.position.set(center.x, y, viewSpace);
+
+            position0.subV(extents0);
+            position1.subV(extents1);
+
+            const span = this.data.currentLine.span.get();
+            const extentsY = S2MathUtils.lerp(extents0.y, extents1.y, t) * span;
+            const y = S2MathUtils.lerp(position0.y, position1.y, t);
+            this.lineBackground.data.position.set(center.x, y - linePadding.y, viewSpace);
             this.lineBackground.data.extents.set(extents.x + linePadding.x, extentsY + linePadding.y, viewSpace);
-            this.lineBackground.data.anchor.set(0, 0);
+            this.lineBackground.data.anchor.set(0, -1);
             this.lineBackground.update();
 
             this.scene.releaseVec2(extents0);
