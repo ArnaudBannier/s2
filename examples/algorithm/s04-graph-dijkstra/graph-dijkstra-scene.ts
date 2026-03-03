@@ -36,14 +36,14 @@ if (mode === 0) {
     palette = {
         back: radixDark.slateDark,
         main: radixDark.cyanDark,
-        secondary: radixDark.mintDark,
+        secondary: radixDark.cyanDark,
         temp: radixDark.rubyDark,
     };
 } else {
     palette = {
         back: radixLight.slate,
         main: radixLight.cyan,
-        secondary: radixLight.mint,
+        secondary: radixLight.cyan,
         temp: radixLight.ruby,
     };
 }
@@ -72,9 +72,10 @@ class VertexData {
 }
 
 class EdgeData {
+    public weight: number = 1;
+
     public edge: S2CubicEdge;
     public emph: S2CubicEdge;
-    public weight: number = 1;
 
     constructor(scene: S2Scene, from: S2PlainNode, to: S2PlainNode) {
         this.edge = new S2CubicEdge(scene, from, to);
@@ -87,12 +88,12 @@ class EdgeData {
 export class GraphDijkstraScene extends S2Scene {
     public animator: S2StepAnimator;
 
+    protected code: S2Code;
     protected graph: DirectedGraph<VertexData, EdgeData>;
     protected nodeCount: number = 7;
+
     protected showHelperGrid: boolean = false;
     protected edgeEndDistance: number = 15;
-
-    protected code: S2Code;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -130,13 +131,8 @@ export class GraphDijkstraScene extends S2Scene {
         this.code.data.anchor.set(-1, 0);
         this.code.data.position.set(-7.5, 0, worldSpace);
 
-        // this.createEdges();
-        // this.initializeGraphCells();
         this.update();
-
         this.createAnimation();
-        // this.animator.playMaster();
-        // this.animator.pause();
     }
 
     setDefaultFont(data: S2FontData): void {
@@ -217,25 +213,6 @@ export class GraphDijkstraScene extends S2Scene {
         emphData.pathFrom.set(0);
         emphData.pathTo.set(0.0);
     }
-
-    // setEdgeDefaultStyle(edge: S2CubicEdge): void {
-    //     const data = edge.data;
-    //     data.stroke.color.setFromTheme(colorTheme, 'main', 8);
-    //     data.stroke.width.set(4, this.getViewSpace());
-    //     data.startDistance.set(5, this.viewSpace);
-    //     data.endDistance.set(this.edgeEndDistance, this.viewSpace);
-    //     data.pathFrom.set(0);
-    // }
-
-    // setEdgeEmphasizedStyle(edge: S2CubicEdge): void {
-    //     const data = edge.data;
-    //     data.stroke.color.setFromTheme(colorTheme, 'main', 12);
-    //     data.stroke.width.set(8, this.getViewSpace());
-    //     data.startDistance.set(5, this.viewSpace);
-    //     data.endDistance.set(this.edgeEndDistance, this.viewSpace);
-    //     data.pathFrom.set(0);
-    //     data.pathTo.set(0.0);
-    // }
 
     createGraph(): void {
         this.graph.clearEdges();
@@ -333,14 +310,6 @@ export class GraphDijkstraScene extends S2Scene {
     }
 
     createAnimation(): void {
-        //     const node = this.graph.getVertex('0')!.node;
-        // node.addState('1');
-        // node.addState('2');
-        // this.update();
-        // node.animateChangeState(1, this.animator, { timeOffset: 0 });
-        // node.animateChangeState(0, this.animator, { timeOffset: 0 });
-        // node.animateChangeState(2, this.animator, { timeOffset: 0 });
-        // node.animateChangeState(-1, this.animator, { timeOffset: 0 });
         const ids = this.graph.getVertices();
         for (const id of ids) {
             const vertexData = this.graph.getVertex(id);
@@ -542,304 +511,4 @@ export class GraphDijkstraScene extends S2Scene {
         this.animator.addAnimation(animIndex.commitFinalState(), label, 0);
         this.animator.addAnimation(animSpan.commitFinalState(), label, 0);
     }
-
-    // initializeGraphCells(): void {
-    //     const viewSpace = this.getViewSpace();
-    //     const worldSpace = this.getWorldSpace();
-    //     const gridWidth = 8.0;
-    //     const gridSpacing = 0.1;
-    //     const cellWidth = (gridWidth - gridSpacing * (this.size - 1)) / this.size;
-    //     const cellSep = cellWidth + gridSpacing;
-    //     this.cellWidth = cellWidth;
-
-    //     const nw = new S2Vec2(-gridWidth / 2, -gridWidth / 2);
-    //     for (let i = 0; i < this.size; i++) {
-    //         for (let j = 0; j < this.size; j++) {
-    //             const vertex = this.graph.getVertex(`${i},${j}`);
-    //             vertex.visited = false;
-    //             vertex.prevId = null;
-    //             vertex.depth = -1;
-
-    //             const center = new S2Vec2(
-    //                 nw.x + j * cellSep + cellWidth / 2,
-    //                 nw.y + (this.size - 1 - i) * cellSep + cellWidth / 2,
-    //             );
-
-    //             const cell = vertex.cell;
-    //             cell.data.layer.set(1);
-    //             cell.data.extents.set(cellWidth / 2, cellWidth / 2, worldSpace);
-    //             cell.data.position.setV(center, worldSpace);
-    //             cell.data.anchor.set(0, 0);
-    //             cell.data.pointerEvents.set('auto');
-
-    //             const cellEmph = vertex.cellEmph;
-    //             cellEmph.data.layer.set(2);
-    //             cellEmph.data.extents.set(1, 1, viewSpace);
-    //             cellEmph.data.position.setV(center, worldSpace);
-    //             cellEmph.data.anchor.set(0, 0);
-    //             cellEmph.data.opacity.set(0.0);
-    //         }
-    //     }
-    // }
-
-    // setInitialStyle(): void {
-    //     const viewSpace = this.getViewSpace();
-    //     for (let i = 0; i < this.size; i++) {
-    //         for (let j = 0; j < this.size; j++) {
-    //             const vertex = this.graph.getVertex(`${i},${j}`);
-    //             vertex.visited = false;
-    //             vertex.prevId = null;
-    //             vertex.depth = -1;
-
-    //             const cell = vertex.cell;
-    //             cell.data.layer.set(1);
-    //             cell.data.fill.color.setFromTheme(colorTheme, 'back', 1);
-    //             cell.data.stroke.color.setFromTheme(colorTheme, 'back', 5);
-    //             cell.data.stroke.width.set(2, viewSpace);
-    //             cell.data.pointerEvents.set('auto');
-
-    //             const cellEmph = vertex.cellEmph;
-    //             cellEmph.data.layer.set(2);
-    //             cellEmph.data.opacity.set(1);
-    //             cellEmph.data.fill.color.setFromTheme(colorTheme, 'main', 1);
-    //             cellEmph.data.stroke.color.setFromTheme(colorTheme, 'main', 5);
-    //             cellEmph.data.stroke.width.set(2, viewSpace);
-    //             cellEmph.data.opacity.set(0.0);
-
-    //             if (vertex.isWall) {
-    //                 cell.data.fill.color.setFromTheme(colorTheme, 'wall', 10);
-    //                 cell.data.stroke.color.setFromTheme(colorTheme, 'wall', 10);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // createEdges(): void {
-    //     this.graph.clearEdges();
-    //     for (let i = 0; i < this.size; i++) {
-    //         for (let j = 0; j < this.size; j++) {
-    //             for (let k = 0; k < this.directionOrder.length; k++) {
-    //                 let index = k;
-    //                 if (this.traversal === 'dfs') {
-    //                     // For DFS, we want to prioritize directions based on the order, so we add edges in reverse order
-    //                     index = this.directionOrder.length - 1 - k;
-    //                 }
-
-    //                 const dir = this.directionOrder[index];
-    //                 const vec = this.directionVectors[dir];
-    //                 const ni = i + vec[0];
-    //                 const nj = j + vec[1];
-    //                 if (ni < 0 || ni >= this.size || nj < 0 || nj >= this.size) {
-    //                     continue;
-    //                 }
-    //                 if (this.graph.getVertex(`${ni},${nj}`).isWall) {
-    //                     continue;
-    //                 }
-    //                 this.graph.setEdge(`${i},${j}`, `${ni},${nj}`, {});
-    //             }
-    //         }
-    //     }
-    // }
-
-    // createAnimation(): void {
-    //     switch (this.traversal) {
-    //         case 'bfs':
-    //             this.createBFSAnimation();
-    //             break;
-    //         case 'dfs':
-    //             this.createDFSAnimation();
-    //             break;
-    //     }
-    // }
-
-    // createBFSAnimation(): void {
-    //     const start: VertexId = `${this.startI},${this.startJ}`;
-
-    //     this.animator.stop();
-    //     this.animator.reset();
-    //     this.animator = new S2StepAnimator(this);
-
-    //     this.setInitialStyle();
-
-    //     const queue = new Queue<VertexId>();
-    //     const maxDepth = this.size * this.size;
-    //     queue.enqueue(start);
-    //     this.graph.getVertex(start).depth = 0;
-    //     this.graph.getVertex(start).visited = true;
-
-    //     let currTime = 0;
-    //     let timeStep = 50;
-    //     let cycleDuration = 500;
-    //     if (this.stepByStep) {
-    //         timeStep = 300;
-    //         cycleDuration = 300;
-    //     }
-
-    //     const startVertex = this.graph.getVertex(start);
-    //     startVertex.depth = 0;
-    //     startVertex.visited = true;
-
-    //     while (queue.length > 0) {
-    //         const current = queue.dequeue()!;
-    //         const vertex = this.graph.getVertex(current);
-
-    //         const isStart = current === start;
-    //         this.animateVisitVertex(vertex, isStart, maxDepth, currTime, cycleDuration, timeStep);
-    //         if (this.stepByStep) {
-    //             this.animator.makeStep();
-    //         }
-
-    //         currTime += timeStep;
-
-    //         for (const edge of this.graph.edgesOf(current)) {
-    //             const nextId = edge.to;
-    //             const nextVertex = this.graph.getVertex(nextId);
-    //             if (!nextVertex.visited) {
-    //                 queue.enqueue(nextId);
-    //                 nextVertex.prevId = current;
-    //                 nextVertex.depth = vertex.depth + 1;
-    //                 nextVertex.visited = true;
-    //             }
-    //         }
-    //     }
-    //     this.animator.finalize();
-    //     this.animator.setMasterElapsed(0);
-    //     this.update();
-    // }
-
-    // createDFSAnimation(): void {
-    //     const start: VertexId = `${this.startI},${this.startJ}`;
-
-    //     this.animator.stop();
-    //     this.animator.reset();
-    //     this.animator = new S2StepAnimator(this);
-
-    //     this.setInitialStyle();
-
-    //     const stack: VertexId[] = [];
-
-    //     const maxDepth = this.size * this.size;
-    //     stack.push(start);
-    //     this.graph.getVertex(start).depth = 0;
-
-    //     let currTime = 0;
-    //     let timeStep = 50;
-    //     let cycleDuration = 500;
-    //     if (this.stepByStep) {
-    //         timeStep = 300;
-    //         cycleDuration = 300;
-    //     }
-
-    //     while (stack.length > 0) {
-    //         const current = stack.pop()!;
-    //         const vertex = this.graph.getVertex(current);
-    //         if (vertex.visited) {
-    //             continue;
-    //         }
-    //         vertex.visited = true;
-
-    //         const isStart = current === start;
-    //         this.animateVisitVertex(vertex, isStart, maxDepth, currTime, cycleDuration, timeStep);
-    //         if (this.stepByStep) {
-    //             this.animator.makeStep();
-    //         }
-
-    //         currTime += timeStep;
-
-    //         for (const edge of this.graph.edgesOf(current)) {
-    //             const nextId = edge.to;
-    //             const nextVertex = this.graph.getVertex(nextId);
-    //             if (!nextVertex.visited) {
-    //                 stack.push(nextId);
-    //                 nextVertex.prevId = current;
-    //                 nextVertex.depth = vertex.depth + 1;
-    //             }
-    //         }
-    //     }
-    //     this.animator.finalize();
-    //     this.animator.setMasterElapsed(0);
-    //     this.update();
-    // }
-
-    // animateVisitVertex(
-    //     vertex: VertexData,
-    //     isStart: boolean,
-    //     maxdepth: number,
-    //     currTime: number,
-    //     cycleDuration: number,
-    //     timeStep: number,
-    // ): void {
-    //     const t = S2MathUtils.clamp01(vertex.depth / maxdepth);
-
-    //     // Circle
-    //     if (isStart) {
-    //         vertex.circle.data.fill.color.setFromTheme(colorTheme, 'back', 12);
-    //     } else {
-    //         this.treeColorScale.getInto(vertex.circle.data.fill.color, t);
-    //     }
-    //     vertex.circle.data.isEnabled.set(true);
-    //     vertex.circle.data.layer.set(4);
-    //     vertex.circle.data.position.copy(vertex.cell.data.position);
-    //     vertex.circle.data.radius.set(1, this.getViewSpace());
-    //     vertex.circle.data.opacity.set(0.0);
-
-    //     const animCircleRadius = S2LerpAnimFactory.create(this, vertex.circle.data.radius)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     if (isStart) {
-    //         vertex.circle.data.radius.set(this.cellWidth / 4, this.getWorldSpace());
-    //     } else {
-    //         vertex.circle.data.radius.set(5, this.getViewSpace());
-    //     }
-    //     this.animator.addAnimation(animCircleRadius.commitFinalState(), 'timeline-start', currTime);
-
-    //     const triggerCircleOpacity0 = new S2TriggerNumber(vertex.circle.data.opacity, 0.0);
-    //     this.animator.addTrigger(triggerCircleOpacity0, 'timeline-start', 0);
-
-    //     const triggerCircleOpacity1 = new S2TriggerNumber(vertex.circle.data.opacity, 1.0);
-    //     this.animator.addTrigger(triggerCircleOpacity1, 'timeline-start', currTime + 1);
-
-    //     // Cell emphasis
-    //     this.fillColorScale.getInto(vertex.cellEmph.data.fill.color, t);
-    //     this.strokeColorScale.getInto(vertex.cellEmph.data.stroke.color, t);
-
-    //     const animOpacity = S2LerpAnimFactory.create(this, vertex.cellEmph.data.opacity)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     vertex.cellEmph.data.opacity.set(1.0);
-    //     this.animator.addAnimation(animOpacity.commitFinalState(), 'timeline-start', currTime);
-
-    //     const animExt = S2LerpAnimFactory.create(this, vertex.cellEmph.data.extents)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     vertex.cellEmph.data.extents.set(this.cellWidth / 2, this.cellWidth / 2, this.getWorldSpace());
-    //     this.animator.addAnimation(animExt.commitFinalState(), 'timeline-start', currTime);
-
-    //     // Line to previous
-    //     if (vertex.prevId !== null) {
-    //         const prevVertex = this.graph.getVertex(vertex.prevId);
-    //         vertex.lineToPrev.data.isEnabled.set(true);
-    //         vertex.lineToPrev.data.layer.set(3);
-    //         vertex.lineToPrev.data.startPosition.copy(prevVertex.cell.data.position);
-    //         vertex.lineToPrev.data.endPosition.copy(vertex.cell.data.position);
-    //         vertex.lineToPrev.data.stroke.color.setFromTheme(colorTheme, 'back', 12);
-    //         vertex.lineToPrev.data.stroke.width.set(3, this.getViewSpace());
-    //         vertex.lineToPrev.data.pathFrom.set(0.0);
-    //         vertex.lineToPrev.data.pathTo.set(0.0);
-    //         vertex.lineToPrev.data.opacity.set(0.0);
-    //         this.treeColorScale.getInto(vertex.lineToPrev.data.stroke.color, t);
-
-    //         const triggerLineOpacity0 = new S2TriggerNumber(vertex.lineToPrev.data.opacity, 0.0);
-    //         this.animator.addTrigger(triggerLineOpacity0, 'timeline-start', 0);
-
-    //         const triggerLineOpacity1 = new S2TriggerNumber(vertex.lineToPrev.data.opacity, 1.0);
-    //         this.animator.addTrigger(triggerLineOpacity1, 'timeline-start', currTime);
-
-    //         const animPath = S2LerpAnimFactory.create(this, vertex.lineToPrev.data.pathTo)
-    //             .setCycleDuration(timeStep)
-    //             .setEasing(ease.linear);
-    //         vertex.lineToPrev.data.pathTo.set(1.0);
-    //         this.animator.addAnimation(animPath.commitFinalState(), 'timeline-start', currTime);
-    //     }
-    // }
 }
