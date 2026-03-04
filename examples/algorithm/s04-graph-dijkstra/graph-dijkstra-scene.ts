@@ -227,9 +227,9 @@ export class GraphDijkstraScene extends S2Scene {
         }
 
         const worldSpace = this.getWorldSpace();
-        const halfW = 3.2;
-        const halfH = 1.6;
-        const shiftX = 3;
+        const halfW = 3.0;
+        const halfH = 1.7;
+        const shiftX = 3.2;
         nodes[0].data.position.set(shiftX - halfW, 0, worldSpace);
         nodes[1].data.position.set(shiftX - halfW / 2, +halfH, worldSpace);
         nodes[2].data.position.set(shiftX - halfW / 2, -halfH, worldSpace);
@@ -238,7 +238,7 @@ export class GraphDijkstraScene extends S2Scene {
         nodes[5].data.position.set(shiftX + halfW / 2, -halfH, worldSpace);
         nodes[6].data.position.set(shiftX + halfW, 0, worldSpace);
 
-        const d = 1;
+        const d = 0.9;
         const distancesInfo = [
             { from: 0, offset: new S2Vec2(-d, 0) },
             { from: 1, offset: new S2Vec2(0, +d) },
