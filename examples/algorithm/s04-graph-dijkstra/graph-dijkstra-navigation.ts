@@ -18,6 +18,7 @@ export class GraphDijkstraNavigation {
     protected stopButton: HTMLButtonElement;
     protected nextButton: HTMLButtonElement;
     protected prevButton: HTMLButtonElement;
+    protected sliderMax: number = 1024;
 
     constructor(container: HTMLElement, scene: GraphDijkstraScene, animator: S2StepAnimator) {
         this.container = container;
@@ -34,7 +35,7 @@ export class GraphDijkstraNavigation {
         this.animator.addListener((anim) => {
             if (!this.isUpdatingFromSlider && this.slider) {
                 const ratio = anim.getElapsed() / anim.getDuration();
-                this.slider.valueAsNumber = ratio * 100;
+                this.slider.valueAsNumber = ratio * this.sliderMax;
             }
             this.updatePlayButton();
         });
@@ -60,10 +61,12 @@ export class GraphDijkstraNavigation {
     private initSlider(): void {
         this.slider.type = 'range';
         this.slider.style.width = '50%';
+        this.slider.valueAsNumber = 0;
+        this.slider.max = this.sliderMax.toString();
 
         this.slider.addEventListener('input', () => {
             this.isUpdatingFromSlider = true;
-            const ratio = this.slider.valueAsNumber / 100;
+            const ratio = this.slider.valueAsNumber / this.sliderMax;
             const elapsed = ratio * this.scene.animator.getMasterDuration();
             this.scene.animator.stop();
             this.scene.animator.setMasterElapsed(elapsed);

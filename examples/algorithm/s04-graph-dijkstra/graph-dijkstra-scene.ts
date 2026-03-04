@@ -133,6 +133,9 @@ export class GraphDijkstraScene extends S2Scene {
 
         this.update();
         this.createAnimation();
+
+        this.animator.setMasterElapsed(0);
+        this.update();
     }
 
     setDefaultFont(data: S2FontData): void {
