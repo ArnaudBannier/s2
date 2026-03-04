@@ -8,9 +8,13 @@
             for (const d of this.dependents)
                 d.markDirty();
         }
+- Revoir les states d'un noeud.
+    - Utiliser plutôt un dictionnaire qu'un tableau.
+    - Simplifier l'animation changeState.
 
 - Revoir le snap pour un draggable.
     - Il faut plutôt l'appliquer au draggable plutôt qu'à la target sinon il ne se replace pas correctement après le release.
+
 - Revoir le local bbox
     - Elle utilise la position du parent alors qu'elle dépend de sa position x,y du svg qui n'est pas la même de pas forcément à jour.
 
@@ -20,7 +24,6 @@
     - L'espace vue met tous les objets en dirty (mais pas les données, à vérifier)
     - Le prochain update met à jour tous les éléments qu'il faut
 
-- Possibilité d'ajouter des labels sur un edge
 - Tracer une fonction
 - stroke-dasharray : faut-il définir un nouveau type de données (principalement pour setParent avec un space global) ?
 - SpacialCurve = PolyCurve et space dans un nouveau type de données
