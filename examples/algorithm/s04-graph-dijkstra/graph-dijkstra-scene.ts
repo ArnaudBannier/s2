@@ -172,13 +172,12 @@ export class GraphDijkstraScene extends S2Scene {
         nodeData.background.fill.color.setFromTheme(colorTheme, 'back', 3);
         nodeData.background.stroke.color.setFromTheme(colorTheme, 'back', 8);
         nodeData.background.stroke.width.set(4, this.viewSpace);
-        nodeData.background.fill.opacity.set(1.0);
+        nodeData.background.shape.set('circle');
         nodeData.minExtents.set(0.5, 0.5, worldSpace);
         nodeData.text.horizontalAlign.set(0);
         nodeData.text.verticalAlign.set(0);
         nodeData.text.fill.color.setFromTheme(colorTheme, 'back', 12);
         nodeData.text.font.size.set(24, this.getViewSpace());
-        nodeData.background.shape.set('circle');
 
         const distData = vertex.distanceNode.data;
         distData.layer.set(4);
@@ -186,8 +185,7 @@ export class GraphDijkstraScene extends S2Scene {
         distData.anchor.set(0, 0);
         distData.background.fill.color.setFromTheme(colorTheme, 'temp', 4);
         distData.background.stroke.width.set(0, this.viewSpace);
-        distData.background.fill.opacity.set(1.0);
-        distData.background.shape.set('rectangle');
+        distData.background.shape.set('circle');
         distData.minExtents.set(0.25, 0.25, worldSpace);
         distData.text.horizontalAlign.set(0);
         distData.text.verticalAlign.set(0);
