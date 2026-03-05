@@ -489,7 +489,7 @@ export class S2Code extends S2Element<S2CodeData> implements S2HasBounds {
                 0.5 * lineHeight * span + linePadding.y,
                 viewSpace,
             );
-            this.lineBackground.data.anchor.set(0, -1);
+            this.lineBackground.data.anchor.set(0, 1);
             this.lineBackground.update();
 
             this.scene.releaseVec2(position0);

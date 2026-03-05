@@ -12,8 +12,10 @@ import { S2Point } from '../shared/s2-point';
 import { S2Extents } from '../shared/s2-extents';
 import { S2Length } from '../shared/s2-length';
 import { S2Anchor } from '../shared/s2-anchor';
+import { S2SpaceRef } from '../shared/s2-space-ref';
 
 export class S2RectData extends S2ElementData {
+    public readonly space: S2SpaceRef;
     public readonly fill: S2FillData;
     public readonly stroke: S2StrokeData;
     public readonly opacity: S2Number;
@@ -26,6 +28,7 @@ export class S2RectData extends S2ElementData {
 
     constructor(scene: S2BaseScene) {
         super();
+        this.space = new S2SpaceRef(scene.getWorldSpace());
         this.fill = new S2FillData();
         this.stroke = new S2StrokeData(scene);
         this.opacity = new S2Number(1);
@@ -41,6 +44,7 @@ export class S2RectData extends S2ElementData {
 
     setOwner(owner: S2Dirtyable | null = null): void {
         super.setOwner(owner);
+        this.space.setOwner(owner);
         this.fill.setOwner(owner);
         this.stroke.setOwner(owner);
         this.opacity.setOwner(owner);
@@ -53,6 +57,7 @@ export class S2RectData extends S2ElementData {
 
     clearDirty(): void {
         super.clearDirty();
+        this.space.clearDirty();
         this.fill.clearDirty();
         this.stroke.clearDirty();
         this.opacity.clearDirty();
@@ -107,11 +112,19 @@ export class S2Rect extends S2Element<S2RectData> implements S2HasBounds {
 
         const viewSpace = this.scene.getViewSpace();
         const position = this.scene.acquireVec2();
-        this.data.anchor.getRectPointInto(position, viewSpace, this.data.position, this.data.extents, -1, -1);
+        const extents = this.scene.acquireVec2();
+        const space = this.data.space.get();
+        this.data.anchor.getCenterInto(position, space, this.data.position, this.data.extents);
+        space.convertPointIntoV(position, position, viewSpace);
+        this.data.extents.getInto(extents, viewSpace);
+        position.subV(extents);
+
         this.svgPosition.setV(position, viewSpace);
         S2DataUtils.applyPosition(this.svgPosition, this.element, this.scene);
         this.svgPosition.clearDirty();
+
         this.scene.releaseVec2(position);
+        this.scene.releaseVec2(extents);
 
         this.clearDirty();
     }

@@ -8,6 +8,7 @@ import { S2Line } from '../../src/core/element/s2-line.ts';
 import { S2Color } from '../../src/core/shared/s2-color.ts';
 import { S2Circle } from '../../src/core/element/s2-circle.ts';
 import { S2Mat2x3 } from '../../src/core/math/s2-mat2x3.ts';
+import { S2PathCircle } from '../../src/core/element/s2-path-circle.ts';
 
 class SceneFigure extends S2Scene {
     public animator: S2StepAnimator;
@@ -30,15 +31,15 @@ class SceneFigure extends S2Scene {
         this.showSpace(worldSpace, 8, MTL.BLACK);
 
         const spaceA = this.createSpace();
-        spaceA.setSpaceToParent(2, 0, 3, 0, -1, -2);
+        spaceA.setSpaceToParent(2, 0, 2, 0, -1, -2);
         this.showSpace(spaceA, 1, MTL.BLUE);
 
         const spaceB = this.createSpace();
-        spaceB.setSpaceToParent(1, -1, -3, 1, 1, 0);
+        spaceB.setSpaceToParent(1, -1, -4, 1, 1, 0);
         this.showSpace(spaceB, 2, MTL.ORANGE);
 
         const spaceC = this.createSpace();
-        spaceC.setSpaceToParent(0, -0.5, 4, 1, 1, 2);
+        spaceC.setSpaceToParent(0, -1, 5, 1, 1, 0.5);
         this.showSpace(spaceC, 2, MTL.PINK);
 
         for (const space of [worldSpace, spaceA, spaceB, spaceC]) {
@@ -62,6 +63,15 @@ class SceneFigure extends S2Scene {
             canvasCircle.data.radius.set(0.5, worldSpace);
             canvasCircle.data.transform.set(res);
             //canvasCircle.getSVGElement().setAttribute('vector-effect', 'non-scaling-stroke');
+
+            const pathCircle = new S2PathCircle(this);
+            pathCircle.setParent(this.getSVG());
+            pathCircle.data.space.set(space);
+            pathCircle.data.stroke.color.copy(MTL.YELLOW);
+            pathCircle.data.stroke.width.set(4, this.getViewSpace());
+            pathCircle.data.fill.opacity.set(0.0);
+            pathCircle.data.position.set(1, 1, space);
+            pathCircle.data.radius.set(1, space);
         }
 
         this.update();

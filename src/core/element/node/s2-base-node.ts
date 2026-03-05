@@ -4,7 +4,7 @@ import type { S2SDF } from '../../math/curve/s2-sdf';
 import type { S2BaseEdge } from './s2-base-edge';
 import { S2Vec2 } from '../../math/s2-vec2';
 import { svgNS } from '../../shared/s2-globals';
-import { S2Element } from '../base/s2-element';
+import { S2Element, type S2HasBounds } from '../base/s2-element';
 import { S2Extents } from '../../shared/s2-extents';
 import { S2NodeData } from './s2-node-data';
 import { S2Point } from '../../shared/s2-point';
@@ -40,7 +40,7 @@ class S2NodeCenterSDF implements S2SDF {
     }
 }
 
-export abstract class S2BaseNode extends S2Element<S2NodeData> {
+export abstract class S2BaseNode extends S2Element<S2NodeData> implements S2HasBounds {
     protected readonly element: SVGGElement;
     protected readonly center: S2Point;
     protected readonly extents: S2Extents;
@@ -54,6 +54,27 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
         this.extents = new S2Extents(0, 0, scene.getViewSpace());
         this.center = new S2Point(0, 0, scene.getWorldSpace());
         this.element.dataset.role = 'plain-node';
+    }
+
+    getPositionInto(dst: S2Vec2, space: S2Space): void {
+        this.center.getInto(dst, space);
+    }
+
+    getExtentsInto(dst: S2Vec2, space: S2Space): void {
+        this.extents.getInto(dst, space);
+    }
+
+    getCenterInto(dst: S2Vec2, space: S2Space): void {
+        this.center.getInto(dst, space);
+    }
+
+    getRectPointInto(dst: S2Vec2, space: S2Space, anchorX: number, anchorY: number): void {
+        this.data.anchor.getRectPointInto(dst, space, this.data.position, this.extents, anchorX, anchorY);
+    }
+
+    getMinExtentsInto(dst: S2Vec2, space: S2Space): this {
+        this.data.minExtents.getInto(dst, space);
+        return this;
     }
 
     attachEdge(edge: S2BaseEdge): this {
@@ -100,26 +121,6 @@ export abstract class S2BaseNode extends S2Element<S2NodeData> {
 
     getBackground(): S2PathCircle | S2PathRect | null {
         return this.background;
-    }
-
-    getCenterInto(dst: S2Vec2, space: S2Space): this {
-        this.center.getInto(dst, space);
-        return this;
-    }
-
-    getPositionInto(dst: S2Vec2, space: S2Space): this {
-        this.data.position.getInto(dst, space);
-        return this;
-    }
-
-    getExtentsInto(dst: S2Vec2, space: S2Space): this {
-        this.extents.getInto(dst, space);
-        return this;
-    }
-
-    getMinExtentsInto(dst: S2Vec2, space: S2Space): this {
-        this.data.minExtents.getInto(dst, space);
-        return this;
     }
 
     protected updateBackground(): void {
