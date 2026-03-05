@@ -3,11 +3,13 @@ import type { S2Dirtyable } from '../shared/s2-globals';
 import { svgNS } from '../shared/s2-globals';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2FillData, S2ElementData, S2StrokeData } from './base/s2-base-data';
-import { S2Element } from './base/s2-element';
+import { S2Element, type S2HasBounds } from './base/s2-element';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
 import { S2Point } from '../shared/s2-point';
 import { S2Length } from '../shared/s2-length';
+import type { S2Vec2 } from '../math/s2-vec2';
+import type { S2Space } from '../math/s2-space';
 
 export class S2CircleData extends S2ElementData {
     public readonly fill: S2FillData;
@@ -51,7 +53,7 @@ export class S2CircleData extends S2ElementData {
     }
 }
 
-export class S2Circle extends S2Element<S2CircleData> {
+export class S2Circle extends S2Element<S2CircleData> implements S2HasBounds {
     protected element: SVGCircleElement;
 
     constructor(scene: S2BaseScene) {
@@ -61,6 +63,25 @@ export class S2Circle extends S2Element<S2CircleData> {
 
     getSVGElement(): SVGElement {
         return this.element;
+    }
+
+    getPositionInto(dst: S2Vec2, space: S2Space): void {
+        this.data.position.getInto(dst, space);
+    }
+
+    getExtentsInto(dst: S2Vec2, space: S2Space): void {
+        const radius = this.data.radius.get(space);
+        dst.set(radius, radius);
+    }
+
+    getCenterInto(dst: S2Vec2, space: S2Space): void {
+        this.data.position.getInto(dst, space);
+    }
+
+    getRectPointInto(dst: S2Vec2, space: S2Space, anchorX: number, anchorY: number): void {
+        const radius = this.data.radius.get(space);
+        this.data.position.getInto(dst, space);
+        dst.add(radius * anchorX, radius * anchorY);
     }
 
     update(): void {

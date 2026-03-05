@@ -13,6 +13,7 @@ import type { S2Circle } from '../../../src/core/element/s2-circle.ts';
 import { S2TipTransform } from '../../../src/core/shared/s2-globals.ts';
 import { S2Code, tokenizeAlgorithm } from '../../../src/core/element/s2-code.ts';
 import { S2FontData } from '../../../src/core/element/base/s2-base-data.ts';
+import { S2Rect } from '../../../src/core/element/s2-rect.ts';
 
 const dsaturAlgorithm =
     '**kw:tant que** **num:vrai** **kw:faire**\n' +
@@ -39,6 +40,12 @@ if (mode === 0) {
         main: radixDark.cyanDark,
         secondary: radixDark.cyanDark,
         temp: radixDark.rubyDark,
+        color1: radixDark.cyanDark,
+        color2: radixDark.rubyDark,
+        color3: radixDark.greenDark,
+        color4: radixDark.yellowDark,
+        color5: radixDark.orangeDark,
+        color6: radixDark.pinkDark,
     };
 } else {
     palette = {
@@ -57,14 +64,14 @@ class VertexData {
 
     public prevCircle: S2Circle;
     public node: S2PlainNode;
-    public distanceNode: S2PlainNode;
+    public satNode: S2PlainNode;
 
     constructor(scene: S2Scene) {
         this.node = new S2PlainNode(scene);
         this.node.setParent(scene.getSVG());
-        this.distanceNode = new S2PlainNode(scene);
-        this.distanceNode.setParent(scene.getSVG());
-        this.distanceNode.data.layer.set(4);
+        this.satNode = new S2PlainNode(scene);
+        this.satNode.setParent(scene.getSVG());
+        this.satNode.data.layer.set(4);
         this.prevCircle = scene.addCircle();
         this.prevCircle.setParent(scene.getSVG());
         this.prevCircle.data.layer.set(4);
@@ -95,6 +102,7 @@ export class GraphDsaturScene extends S2Scene {
 
     protected showHelperGrid: boolean = false;
     protected edgeEndDistance: number = 15;
+    protected panelWidth: number = 7;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -133,6 +141,7 @@ export class GraphDsaturScene extends S2Scene {
         this.code.data.position.set(-7.5, 0, worldSpace);
 
         this.update();
+        this.createColorPanel();
         //this.createAnimation();
 
         this.animator.setMasterElapsed(0);
@@ -147,9 +156,11 @@ export class GraphDsaturScene extends S2Scene {
 
     setCodeStyle(code: S2Code): void {
         const viewSpace = this.getViewSpace();
+        const worldSpace = this.getWorldSpace();
         this.setDefaultFont(code.data.text.font);
         code.data.text.fill.color.setFromTheme(colorTheme, 'back', 12);
         code.data.padding.set(20, 10, viewSpace);
+        code.data.minExtents.set(this.panelWidth / 2, 0, worldSpace);
         code.data.background.fill.color.setFromTheme(colorTheme, 'back', 3);
         code.data.background.stroke.color.setFromTheme(colorTheme, 'back', 8);
         code.data.background.stroke.width.set(2, viewSpace);
@@ -181,7 +192,7 @@ export class GraphDsaturScene extends S2Scene {
         nodeData.text.font.size.set(24, this.getViewSpace());
         nodeData.background.shape.set('circle');
 
-        const distData = vertex.distanceNode.data;
+        const distData = vertex.satNode.data;
         distData.layer.set(4);
         distData.padding.set(5, 5, this.viewSpace);
         distData.anchor.set(0, 0);
@@ -246,14 +257,14 @@ export class GraphDsaturScene extends S2Scene {
 
             vec.setPolar(90 - i * 60, radius + d, 'deg');
             vec.add(shiftX, 0);
-            vertexData.distanceNode.data.position.setV(vec, worldSpace);
+            vertexData.satNode.data.position.setV(vec, worldSpace);
         }
         {
             const vertexData = verticesData[6];
             vertexData.node.data.position.set(shiftX, 0, worldSpace);
             vec.setPolar(30, d, 'deg');
             vec.add(shiftX, 0);
-            vertexData.distanceNode.data.position.setV(vec, worldSpace);
+            vertexData.satNode.data.position.setV(vec, worldSpace);
         }
 
         this.releaseVec2(vec);
@@ -278,6 +289,41 @@ export class GraphDsaturScene extends S2Scene {
         this.update();
     }
 
+    createColorPanel(): void {
+        // TODO
+        const colorCount = 6;
+        const position = this.acquireVec2();
+        const sep = 0.2;
+
+        const rect = new S2Rect(this);
+        rect.setParent(this.getSVG());
+
+        this.code.getRectPointInto(position, this.getWorldSpace(), 0, 1);
+        position.y += sep;
+
+        rect.data.position.setV(position, this.getWorldSpace());
+        rect.data.anchor.set(0, 1);
+        rect.data.extents.set(this.panelWidth / 2, 0.3, this.getWorldSpace());
+        rect.data.cornerRadius.set(10, this.getViewSpace());
+        rect.data.fill.color.setFromTheme(colorTheme, 'back', 3);
+        rect.data.stroke.color.setFromTheme(colorTheme, 'back', 8);
+        rect.data.stroke.width.set(2, this.getViewSpace());
+
+        // node.data.position.setV(position, this.getWorldSpace());
+        // node.data.anchor.set(-1, -1);
+        // node.data.background.shape.set('none');
+        // node.data.padding.set(5, 5, this.getViewSpace());
+        // node.data.minExtents.set(this.panelWidth / 2, 0, this.getWorldSpace());
+        // node.data.background.fill.color.setFromTheme(colorTheme, 'color1', 5);
+        // node.data.background.stroke.color.setFromTheme(colorTheme, 'color1', 8);
+
+        // const node = new S2PlainNode(this);
+        // node.setParent(this.getSVG());
+
+        // node.addState('Algorithme de coloration DSATUR');
+        this.releaseVec2(position);
+    }
+
     createAnimation(): void {
         const ids = this.graph.getVertices();
         for (const id of ids) {
@@ -285,7 +331,7 @@ export class GraphDsaturScene extends S2Scene {
             vertexData.visited = false;
             vertexData.prevId = null;
             vertexData.distance = Infinity;
-            vertexData.distanceNode.addState('0');
+            vertexData.satNode.addState('0');
         }
 
         let currId = ids[0];
@@ -385,16 +431,16 @@ export class GraphDsaturScene extends S2Scene {
         node.data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
         this.animator.addAnimation(animText.commitFinalState(), animLabel, 0);
 
-        const animDist = S2LerpAnimFactory.create(this, vertex.distanceNode.data.background.fill.color)
+        const animDist = S2LerpAnimFactory.create(this, vertex.satNode.data.background.fill.color)
             .setCycleDuration(cycleDuration)
             .setEasing(ease.out);
-        vertex.distanceNode.data.background.fill.color.setFromTheme(colorTheme, 'main', 4);
+        vertex.satNode.data.background.fill.color.setFromTheme(colorTheme, 'main', 4);
         this.animator.addAnimation(animDist.commitFinalState(), animLabel, 0);
 
-        const animTextDist = S2LerpAnimFactory.create(this, vertex.distanceNode.data.text.fill.color)
+        const animTextDist = S2LerpAnimFactory.create(this, vertex.satNode.data.text.fill.color)
             .setCycleDuration(cycleDuration)
             .setEasing(ease.out);
-        vertex.distanceNode.data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
+        vertex.satNode.data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
         this.animator.addAnimation(animTextDist.commitFinalState(), animLabel, 0);
 
         for (const edge of this.graph.edgesOf(id)) {
@@ -434,7 +480,7 @@ export class GraphDsaturScene extends S2Scene {
 
     animateUpdateDistance(vertex: VertexData, newDistance: number): void {
         const cycleDuration = 500;
-        const node = vertex.distanceNode;
+        const node = vertex.satNode;
         const index = node.addState(newDistance.toString());
         node.animateChangeState(index, this.animator, { timeOffset: 0, duration: cycleDuration });
     }

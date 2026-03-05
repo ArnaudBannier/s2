@@ -5,7 +5,7 @@ import type { S2SDF } from '../math/curve/s2-sdf';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../shared/s2-globals';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
-import { S2Element } from './base/s2-element';
+import { S2Element, type S2HasBounds } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
@@ -59,7 +59,7 @@ export class S2PathCircleData extends S2ElementData {
     }
 }
 
-export class S2PathCircle extends S2Element<S2PathCircleData> implements S2SDF {
+export class S2PathCircle extends S2Element<S2PathCircleData> implements S2SDF, S2HasBounds {
     protected readonly element: SVGPathElement;
     protected readonly controlE: S2Vec2 = new S2Vec2();
     protected readonly controlNE1: S2Vec2 = new S2Vec2();
@@ -90,6 +90,25 @@ export class S2PathCircle extends S2Element<S2PathCircleData> implements S2SDF {
         return this.element;
     }
 
+    getPositionInto(dst: S2Vec2, space: S2Space): void {
+        this.data.position.getInto(dst, space);
+    }
+
+    getExtentsInto(dst: S2Vec2, space: S2Space): void {
+        const radius = this.data.radius.get(space);
+        dst.set(radius, radius);
+    }
+
+    getCenterInto(dst: S2Vec2, space: S2Space): void {
+        this.data.position.getInto(dst, space);
+    }
+
+    getRectPointInto(dst: S2Vec2, space: S2Space, anchorX: number, anchorY: number): void {
+        const radius = this.data.radius.get(space);
+        this.data.position.getInto(dst, space);
+        dst.add(radius * anchorX, radius * anchorY);
+    }
+
     evaluateSDF(x: number, y: number): number {
         const dx = Math.abs(x - this.sdfCenter.x);
         const dy = Math.abs(y - this.sdfCenter.y);
@@ -102,7 +121,7 @@ export class S2PathCircle extends S2Element<S2PathCircleData> implements S2SDF {
 
     protected updateGeometry(): void {
         const space = this.data.space.get();
-        const center = _vec0;
+        const center = this.scene.acquireVec2();
         this.data.position.getInto(center, space);
 
         const r = this.data.radius.get(space);
@@ -123,12 +142,13 @@ export class S2PathCircle extends S2Element<S2PathCircleData> implements S2SDF {
         this.controlSW2.copy(this.controlS).add(-k, 0);
         this.controlSE1.copy(this.controlS).add(+k, 0);
         this.controlSE2.copy(this.controlE).add(0, -k);
+        this.scene.releaseVec2(center);
     }
 
     protected updateSVGPath(): void {
         const viewSpace = this.scene.getViewSpace();
         const space = this.data.space.get();
-        const point = _vec0;
+        const point = this.scene.acquireVec2();
         let svgPath = '';
 
         point.copy(this.controlE);
@@ -176,6 +196,7 @@ export class S2PathCircle extends S2Element<S2PathCircleData> implements S2SDF {
         svgPath += `${point.x.toFixed(2)},${point.y.toFixed(2)} Z`;
 
         this.element.setAttribute('d', svgPath);
+        this.scene.releaseVec2(point);
     }
 
     protected updateSDF(): void {
@@ -200,5 +221,3 @@ export class S2PathCircle extends S2Element<S2PathCircleData> implements S2SDF {
         this.clearDirty();
     }
 }
-
-const _vec0 = new S2Vec2();

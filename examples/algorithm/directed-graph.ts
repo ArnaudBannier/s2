@@ -1,12 +1,3 @@
-// export interface VertexData {
-//     label?: string;
-//     // libre : position, couleur, etc.
-// }
-// export interface EdgeData {
-//     weight?: number;
-//     capacity?: number;
-// }
-
 export type VertexId = string;
 export interface Edge<EdgeData = object> {
     to: VertexId;

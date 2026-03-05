@@ -5,7 +5,7 @@ import type { S2SDF } from '../math/curve/s2-sdf';
 import { S2Vec2 } from '../math/s2-vec2';
 import { svgNS } from '../shared/s2-globals';
 import { S2ElementData, S2FillData, S2StrokeData } from './base/s2-base-data';
-import { S2Element } from './base/s2-element';
+import { S2Element, type S2HasBounds } from './base/s2-element';
 import { S2DataUtils } from './base/s2-data-utils';
 import { S2Number } from '../shared/s2-number';
 import { S2Transform } from '../shared/s2-transform';
@@ -69,7 +69,7 @@ export class S2PathRectData extends S2ElementData {
     }
 }
 
-export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF {
+export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF, S2HasBounds {
     protected readonly element: SVGPathElement;
     protected readonly cornerNE0: S2Vec2 = new S2Vec2();
     protected readonly cornerNE1: S2Vec2 = new S2Vec2();
@@ -99,6 +99,22 @@ export class S2PathRect extends S2Element<S2PathRectData> implements S2SDF {
     constructor(scene: S2BaseScene) {
         super(scene, new S2PathRectData(scene));
         this.element = document.createElementNS(svgNS, 'path');
+    }
+
+    getPositionInto(dst: S2Vec2, space: S2Space): void {
+        this.data.position.getInto(dst, space);
+    }
+
+    getExtentsInto(dst: S2Vec2, space: S2Space): void {
+        this.data.extents.getInto(dst, space);
+    }
+
+    getCenterInto(dst: S2Vec2, space: S2Space): void {
+        this.data.anchor.getCenterInto(dst, space, this.data.position, this.data.extents);
+    }
+
+    getRectPointInto(dst: S2Vec2, space: S2Space, anchorX: number, anchorY: number): void {
+        this.data.anchor.getRectPointInto(dst, space, this.data.position, this.data.extents, anchorX, anchorY);
     }
 
     getExtents(space: S2Space): S2Vec2 {

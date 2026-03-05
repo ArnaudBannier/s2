@@ -1,9 +1,24 @@
+import type { S2Space } from '../../math/s2-space';
+import type { S2Vec2 } from '../../math/s2-vec2';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
 import type { S2Dirtyable, S2Tipable } from '../../shared/s2-globals';
 import type { S2ElementData } from './s2-base-data';
 
 export type S2BaseElement = S2Element<S2ElementData>;
 export type S2BaseTipable = S2Element<S2ElementData> & S2Tipable;
+
+export interface S2HasExtents {
+    getExtentsInto(dst: S2Vec2, space: S2Space): void;
+}
+
+export interface S2HasPosition {
+    getPositionInto(dst: S2Vec2, space: S2Space): void;
+}
+
+export interface S2HasBounds extends S2HasPosition, S2HasExtents {
+    getCenterInto(dst: S2Vec2, space: S2Space): void;
+    getRectPointInto(dst: S2Vec2, space: S2Space, anchorX: number, anchorY: number): void;
+}
 
 export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyable {
     public readonly data: Data;

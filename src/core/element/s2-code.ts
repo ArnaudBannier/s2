@@ -7,7 +7,7 @@ import type { S2Dirtyable } from '../shared/s2-globals';
 import { svgNS } from '../shared/s2-globals';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2FillData, S2ElementData, S2StrokeData, S2FontData, S2BaseData } from './base/s2-base-data';
-import { S2Element } from './base/s2-element';
+import { S2Element, type S2HasBounds } from './base/s2-element';
 import { S2TextGroup } from './text/s2-text-group';
 import { S2Rect } from './s2-rect';
 import { S2DataUtils } from './base/s2-data-utils';
@@ -212,7 +212,7 @@ export class S2CodeCurrentLineData extends S2BaseData {
 
 export type S2TokenStyleSetter = (tspan: S2TSpan, type: string) => void;
 
-export class S2Code extends S2Element<S2CodeData> {
+export class S2Code extends S2Element<S2CodeData> implements S2HasBounds {
     protected readonly element: SVGGElement;
     protected readonly textGroup: S2TextGroup;
     protected readonly codeBackground: S2Rect;
@@ -274,6 +274,22 @@ export class S2Code extends S2Element<S2CodeData> {
                 tspan.data.fill.color.setFromHex('#E9C2EC').lock();
                 break;
         }
+    }
+
+    getPositionInto(dst: S2Vec2, space: S2Space): void {
+        this.center.getInto(dst, space);
+    }
+
+    getExtentsInto(dst: S2Vec2, space: S2Space): void {
+        this.extents.getInto(dst, space);
+    }
+
+    getCenterInto(dst: S2Vec2, space: S2Space): void {
+        this.center.getInto(dst, space);
+    }
+
+    getRectPointInto(dst: S2Vec2, space: S2Space, anchorX: number, anchorY: number): void {
+        this.data.anchor.getRectPointInto(dst, space, this.data.position, this.extents, anchorX, anchorY);
     }
 
     animateSetCurrentLine(
