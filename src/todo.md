@@ -11,6 +11,12 @@
 - Revoir les states d'un noeud.
     - Utiliser plutôt un dictionnaire qu'un tableau.
     - Simplifier l'animation changeState.
+- Implémenter S2SDF dans le noeud.
+- Implémenter S2SDF pour le code.
+- Implémenter HasBounds sur les éléments manquants.
+- Ajouter une pool de chaque S2BaseType.
+- Ajouter une méthode d'alignement pour les S2HasBounds.
+- Implémenter S2Path.
 
 - Revoir le snap pour un draggable.
     - Il faut plutôt l'appliquer au draggable plutôt qu'à la target sinon il ne se replace pas correctement après le release.
@@ -28,6 +34,7 @@
 - stroke-dasharray : faut-il définir un nouveau type de données (principalement pour setParent avec un space global) ?
 - SpacialCurve = PolyCurve et space dans un nouveau type de données
 - Gradients
+- Ajouter les polygones réguliers avec une option d'orientation.
 
 # Améliorations
 
@@ -42,7 +49,7 @@
 - Réflechir aux S2Group (pour les data)
 - Etat de la mémoire :
     - Valeur de variables dans un rectangle au dessus qui apparait lors d'une animation ou si possible avec la souris
-    - Possibilté d'afficher tous le code avec un bouton
+    - Possibilté d'afficher tout le code avec un bouton
 - S2SVG contient des fonctionnalités supplémentaires, comme ajouter des styles
 
 # Tests
