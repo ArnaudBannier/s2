@@ -16,19 +16,19 @@ import { S2Rect } from '../../../src/core/element/s2-rect.ts';
 
 const dsaturAlgorithm =
     '**kw:tant que** **num:vrai** **kw:faire**\n' +
-    '  **type:noeud** **var:n** = **num:null**\n' +
-    '  **kw:pour chaque** noeud **var:v** non colorié **kw:faire**\n' +
-    '    **kw:si** **var:n** = **num:null** **kw:alors**\n' +
-    '      **var:n** = **var:v**\n' +
-    '    **kw:sinon si** sat[**var:v**] > sat[**var:n**] **kw:alors**\n' +
-    '      **var:n** = **var:v**\n' +
-    '    **kw:sinon si** sat[**var:v**] = sat[**var:n**] et\n' +
-    '      deg[**var:v**] > deg[**var:n**] **kw:alors**\n' +
-    '      **var:n** = **var:v**\n' +
-    '  **kw:si** **var:n** = **num:null** **kw:quitter**\n' +
-    '  **var:n**.couleur = plus petite couleur disponible\n' +
-    '    dans le voisinage de **var:n**\n' +
-    '  **kw:pour** chaque voisin **var:v** de **var:n** **kw:faire**\n' +
+    '  **type:sommet** **var:u** = **num:null**\n' +
+    '  **kw:pour chaque** sommet **var:v** non colorié **kw:faire**\n' +
+    '    **kw:si** **var:u** = **num:null** **kw:alors**\n' +
+    '      **var:u** = **var:v**\n' +
+    '    **kw:sinon si** sat[**var:v**] > sat[**var:u**] **kw:alors**\n' +
+    '      **var:u** = **var:v**\n' +
+    '    **kw:sinon si** sat[**var:v**] = sat[**var:u**] et\n' +
+    '      deg[**var:v**] > deg[**var:u**] **kw:alors**\n' +
+    '      **var:u** = **var:v**\n' +
+    '  **kw:si** **var:u** = **num:null** **kw:quitter**\n' +
+    '  **var:u**.couleur = plus petite couleur disponible\n' +
+    '    dans le voisinage de **var:u**\n' +
+    '  **kw:pour** chaque voisin **var:v** de **var:u** **kw:faire**\n' +
     '    mettre à jour sat[**var:v**]';
 
 const mode = 0; // 0 = dark, 1 = light
@@ -72,8 +72,6 @@ class VertexData {
 }
 
 class EdgeData {
-    public weight: number = 1;
-
     public edge: S2CubicEdge;
     public emph: S2CubicEdge;
 
@@ -97,7 +95,8 @@ export class GraphDsaturScene extends S2Scene {
     protected panelWidth: number = 7;
 
     protected colorRects: S2PlainNode[] = [];
-    protected nCircle: S2Circle;
+    protected uCircle: S2Circle;
+    protected vCircle: S2Circle;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -138,12 +137,19 @@ export class GraphDsaturScene extends S2Scene {
         this.update();
         this.createColorPanel();
 
-        this.nCircle = new S2Circle(this);
-        this.nCircle.setParent(this.getSVG());
-        this.nCircle.data.layer.set(3);
-        this.nCircle.data.fill.color.setFromTheme(colorTheme, 'main', 9);
-        this.nCircle.data.stroke.width.set(0, viewSpace);
-        this.nCircle.data.radius.set(10, viewSpace);
+        this.uCircle = new S2Circle(this);
+        this.uCircle.setParent(this.getSVG());
+        this.uCircle.data.layer.set(3);
+        this.uCircle.data.fill.color.setFromTheme(colorTheme, 'main', 10);
+        this.uCircle.data.stroke.width.set(0, viewSpace);
+        this.uCircle.data.radius.set(10, viewSpace);
+
+        this.vCircle = new S2Circle(this);
+        this.vCircle.setParent(this.getSVG());
+        this.vCircle.data.layer.set(3);
+        this.vCircle.data.fill.color.setFromTheme(colorTheme, 'back', 12);
+        this.vCircle.data.stroke.width.set(0, viewSpace);
+        this.vCircle.data.radius.set(10, viewSpace);
 
         this.update();
         this.createAnimation();
@@ -336,7 +342,7 @@ export class GraphDsaturScene extends S2Scene {
             colorRect.data.background.stroke.width.set(2, this.getViewSpace());
             colorRect.data.background.cornerRadius.set(5, this.getViewSpace());
             colorRect.addState(colorStrings[i]);
-            //colorRect.addState('X');
+            colorRect.addState('X');
             this.colorRects.push(colorRect);
         }
 
@@ -365,7 +371,6 @@ export class GraphDsaturScene extends S2Scene {
         }
 
         let currId = ids[0];
-        let currVertex = this.graph.getVertex(currId);
         this.animateCodeLine(0);
         this.animator.makeStep();
 
@@ -373,16 +378,20 @@ export class GraphDsaturScene extends S2Scene {
             this.animateCodeLine(1);
             this.animator.makeStep();
 
+            let currVertex = null;
+            let first = true;
             for (const id of ids) {
                 const vertexData = this.graph.getVertex(id);
                 this.animateCodeLine(2);
                 this.animator.makeStep();
                 if (vertexData.color === -1) {
-                    this.animateSearchChangeVertex(vertexData);
+                    this.animateSearchChangeVertex(vertexData, true);
                     this.animator.makeStep();
                     if (currVertex === null) {
                         currId = id;
                         currVertex = vertexData;
+                        this.animateSearchFindVertex(vertexData, true);
+                        first = false;
                         continue;
                     }
 
@@ -475,15 +484,37 @@ export class GraphDsaturScene extends S2Scene {
         this.update();
     }
 
-    animateSearchChangeVertex(vertex: VertexData): void {
+    animateSearchChangeVertex(vertex: VertexData, first: boolean): void {
+        const cycleDuration = 500;
+        const position = this.acquireVec2();
+        const animLabel = this.animator.createLabelAtCurrentTime();
+        if (first) {
+            const animPosition = S2LerpAnimFactory.create(this, this.vCircle.data.position)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            vertex.node.getRectPointInto(position, this.getWorldSpace(), 1, 0);
+            this.vCircle.data.position.setV(position, this.getWorldSpace());
+            this.animator.addAnimation(animPosition.commitFinalState(), animLabel, 0);
+        } else {
+            const animPosition = S2LerpAnimFactory.create(this, this.vCircle.data.position)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            vertex.node.getRectPointInto(position, this.getWorldSpace(), 1, 0);
+            this.vCircle.data.position.setV(position, this.getWorldSpace());
+            this.animator.addAnimation(animPosition.commitFinalState(), animLabel, 0);
+        }
+        this.releaseVec2(position);
+    }
+
+    animateSearchFindVertex(vertex: VertexData, first: boolean): void {
         const cycleDuration = 500;
         const animLabel = this.animator.createLabelAtCurrentTime();
-        const animPosition = S2LerpAnimFactory.create(this, this.nCircle.data.position)
+        const animPosition = S2LerpAnimFactory.create(this, this.uCircle.data.position)
             .setCycleDuration(cycleDuration)
             .setEasing(ease.out);
         const position = this.acquireVec2();
-        vertex.node.getRectPointInto(position, this.getWorldSpace(), 1, 0);
-        this.nCircle.data.position.setV(position, this.getWorldSpace());
+        vertex.node.getRectPointInto(position, this.getWorldSpace(), -1, 0);
+        this.uCircle.data.position.setV(position, this.getWorldSpace());
         this.animator.addAnimation(animPosition.commitFinalState(), animLabel, 0);
         this.releaseVec2(position);
     }
