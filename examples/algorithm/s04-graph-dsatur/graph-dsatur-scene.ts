@@ -1,6 +1,6 @@
 import { S2Scene } from '../../../src/core/scene/s2-scene.ts';
 import { S2StepAnimator } from '../../../src/core/animation/s2-step-animator.ts';
-import { DirectedGraph } from '../directed-graph.ts';
+import { DirectedGraph, type VertexId } from '../directed-graph.ts';
 
 import { S2ColorTheme, type S2Palette } from '../../../src/core/shared/s2-color-theme.ts';
 import * as radixDark from '../../../src/utils/radix-colors-dark.ts';
@@ -9,23 +9,22 @@ import { S2PlainNode } from '../../../src/core/element/node/s2-plain-node.ts';
 import { S2CubicEdge } from '../../../src/core/element/node/s2-cubic-edge.ts';
 import { S2LerpAnimFactory } from '../../../src/core/animation/s2-lerp-anim.ts';
 import { ease } from '../../../src/core/animation/s2-easing.ts';
-import { S2Circle } from '../../../src/core/element/s2-circle.ts';
 import { S2Code, tokenizeAlgorithm } from '../../../src/core/element/s2-code.ts';
 import { S2FontData } from '../../../src/core/element/base/s2-base-data.ts';
 import { S2Rect } from '../../../src/core/element/s2-rect.ts';
 
 const dsaturAlgorithm =
     '**kw:tant que** **num:vrai** **kw:faire**\n' +
-    '  **type:sommet** **var:u** = **num:null**\n' +
+    '  **type:sommet** **var:u** = **num:indéfini**\n' +
     '  **kw:pour chaque** sommet **var:v** non colorié **kw:faire**\n' +
-    '    **kw:si** **var:u** = **num:null** **kw:alors**\n' +
+    '    **kw:si** **var:u** est **num:indéfini** **kw:alors**\n' +
     '      **var:u** = **var:v**\n' +
     '    **kw:sinon si** sat[**var:v**] > sat[**var:u**] **kw:alors**\n' +
     '      **var:u** = **var:v**\n' +
-    '    **kw:sinon si** sat[**var:v**] = sat[**var:u**] et\n' +
+    '    **kw:sinon si** sat[**var:v**] = sat[**var:u**] **kw:et**\n' +
     '      deg[**var:v**] > deg[**var:u**] **kw:alors**\n' +
     '      **var:u** = **var:v**\n' +
-    '  **kw:si** **var:u** = **num:null** **kw:quitter**\n' +
+    '  **kw:si** **var:u** est **num:indéfini** **kw:quitter**\n' +
     '  **var:u**.couleur = plus petite couleur disponible\n' +
     '    dans le voisinage de **var:u**\n' +
     '  **kw:pour** chaque voisin **var:v** de **var:u** **kw:faire**\n' +
@@ -50,7 +49,12 @@ if (mode === 0) {
         back: radixLight.slate,
         main: radixLight.cyan,
         secondary: radixLight.cyan,
-        temp: radixLight.ruby,
+        'no-color': radixLight.slate,
+        'color-0': radixLight.cyan,
+        'color-1': radixLight.purple,
+        'color-2': radixLight.red,
+        'color-3': radixLight.amber,
+        'color-4': radixLight.grass,
     };
 }
 const colorTheme = new S2ColorTheme(palette);
@@ -73,13 +77,16 @@ class VertexData {
 
 class EdgeData {
     public edge: S2CubicEdge;
-    public emph: S2CubicEdge;
+    public from: VertexId;
+    public to: VertexId;
+    // public emphFrom: S2CubicEdge;
+    // public emphTo: S2CubicEdge;
 
-    constructor(scene: S2Scene, from: S2PlainNode, to: S2PlainNode) {
-        this.edge = new S2CubicEdge(scene, from, to);
+    constructor(scene: S2Scene, edge: S2CubicEdge, from: VertexId, to: VertexId) {
+        this.edge = edge;
         this.edge.setParent(scene.getSVG());
-        this.emph = new S2CubicEdge(scene, from, to);
-        this.emph.setParent(scene.getSVG());
+        this.from = from;
+        this.to = to;
     }
 }
 
@@ -95,8 +102,9 @@ export class GraphDsaturScene extends S2Scene {
     protected panelWidth: number = 7;
 
     protected colorRects: S2PlainNode[] = [];
-    protected uCircle: S2Circle;
-    protected vCircle: S2Circle;
+    protected uMarker: S2PlainNode;
+    protected vMarker: S2PlainNode;
+    protected undefinedNode: S2PlainNode;
 
     constructor(svgElement: SVGSVGElement) {
         super(svgElement);
@@ -137,24 +145,37 @@ export class GraphDsaturScene extends S2Scene {
         this.update();
         this.createColorPanel();
 
-        this.uCircle = new S2Circle(this);
-        this.uCircle.setParent(this.getSVG());
-        this.uCircle.data.layer.set(3);
-        this.uCircle.data.fill.color.setFromTheme(colorTheme, 'main', 10);
-        this.uCircle.data.stroke.width.set(0, viewSpace);
-        this.uCircle.data.radius.set(10, viewSpace);
+        this.uMarker = this.createMarker();
+        this.vMarker = this.createMarker();
+        this.uMarker.addState('u');
+        this.vMarker.addState('v');
 
-        this.vCircle = new S2Circle(this);
-        this.vCircle.setParent(this.getSVG());
-        this.vCircle.data.layer.set(3);
-        this.vCircle.data.fill.color.setFromTheme(colorTheme, 'back', 12);
-        this.vCircle.data.stroke.width.set(0, viewSpace);
-        this.vCircle.data.radius.set(10, viewSpace);
+        this.undefinedNode = new S2PlainNode(this);
+        this.undefinedNode.setParent(this.getSVG());
+        this.undefinedNode.addState('indéfini');
+        this.undefinedNode.data.background.shape.set('rectangle');
+        this.undefinedNode.data.background.fill.color.setFromTheme(colorTheme, 'back', 5);
+        this.undefinedNode.data.position.set(1.0, 3.4, worldSpace);
 
         this.update();
         this.createAnimation();
         this.animator.setMasterElapsed(0);
         this.update();
+    }
+
+    createMarker(): S2PlainNode {
+        const marker = new S2PlainNode(this);
+        marker.setParent(this.getSVG());
+        marker.data.layer.set(5);
+        marker.data.background.shape.set('circle');
+        marker.data.background.fill.color.setFromTheme(colorTheme, 'back', 12);
+        //marker.data.background.stroke.color.setFromTheme(colorTheme, 'main', 8);
+        marker.data.background.stroke.width.set(0, this.getViewSpace());
+        marker.data.minExtents.set(0.2, 0.2, this.getWorldSpace());
+        marker.data.padding.set(0, 0, this.getViewSpace());
+        marker.data.text.font.size.set(12, this.getViewSpace());
+        marker.data.text.fill.color.setFromTheme(colorTheme, 'back', 1);
+        return marker;
     }
 
     setDefaultFont(data: S2FontData): void {
@@ -224,13 +245,13 @@ export class GraphDsaturScene extends S2Scene {
         edgeData.endDistance.set(0, this.viewSpace);
         edgeData.pathFrom.set(0);
 
-        const emphData = edge.emph.data;
-        emphData.stroke.color.setFromTheme(colorTheme, 'back', 12);
-        emphData.stroke.width.set(6, this.getViewSpace());
-        emphData.startDistance.set(0, this.viewSpace);
-        emphData.endDistance.set(this.edgeEndDistance, this.viewSpace);
-        emphData.pathFrom.set(0);
-        emphData.pathTo.set(0.0);
+        // const emphData = edge.emph.data;
+        // emphData.stroke.color.setFromTheme(colorTheme, 'back', 12);
+        // emphData.stroke.width.set(6, this.getViewSpace());
+        // emphData.startDistance.set(0, this.viewSpace);
+        // emphData.endDistance.set(this.edgeEndDistance, this.viewSpace);
+        // emphData.pathFrom.set(0);
+        // emphData.pathTo.set(0.0);
     }
 
     createGraph(): void {
@@ -285,10 +306,18 @@ export class GraphDsaturScene extends S2Scene {
             { from: 2, to: 6 },
             { from: 3, to: 5 },
         ];
+        const edgeDataArray: EdgeData[] = [];
         for (const edgeInfo of edgesInfo) {
-            const edgeData = new EdgeData(this, nodes[edgeInfo.from], nodes[edgeInfo.to]);
-            this.graph.setEdge(edgeInfo.from.toString(), edgeInfo.to.toString(), edgeData);
+            const edge = new S2CubicEdge(this, nodes[edgeInfo.from], nodes[edgeInfo.to]);
+            const from = edgeInfo.from.toString();
+            const to = edgeInfo.to.toString();
+            const edgeData = new EdgeData(this, edge, from, to);
             this.setEdgeStyle(edgeData);
+            edgeDataArray.push(edgeData);
+        }
+        for (const edgeData of edgeDataArray) {
+            this.graph.setEdge(edgeData.from, edgeData.to, edgeData);
+            this.graph.setEdge(edgeData.to, edgeData.from, edgeData);
         }
         this.update();
     }
@@ -374,288 +403,201 @@ export class GraphDsaturScene extends S2Scene {
         this.animateCodeLine(0);
         this.animator.makeStep();
 
+        this.uMarker.data.position.set(1.0, 3.5, this.getWorldSpace());
+        let label = '';
+
         while (true) {
-            this.animateCodeLine(1);
+            label = this.animator.createLabelAtCurrentTime();
+            this.animateCodeLine(1, { timeLabel: label });
+            this.animateMarker(this.uMarker, this.undefinedNode, 'fade-in', {
+                timeLabel: label,
+                anchorX: 0,
+                anchorY: -1.5,
+            });
             this.animator.makeStep();
 
             let currVertex = null;
             let first = true;
+
             for (const id of ids) {
                 const vertexData = this.graph.getVertex(id);
-                this.animateCodeLine(2);
+                if (vertexData.color !== -1) continue;
+
+                label = this.animator.createLabelAtCurrentTime();
+                this.animateCodeLine(2, { timeLabel: label });
+                this.animateMarker(this.vMarker, vertexData.node, first ? 'fade-in' : 'move', {
+                    timeLabel: label,
+                    anchorX: 1,
+                    anchorY: 0,
+                });
                 this.animator.makeStep();
-                if (vertexData.color === -1) {
-                    this.animateSearchChangeVertex(vertexData, true);
-                    this.animator.makeStep();
-                    if (currVertex === null) {
-                        currId = id;
-                        currVertex = vertexData;
-                        this.animateSearchFindVertex(vertexData, true);
-                        first = false;
-                        continue;
-                    }
 
-                    const label = this.animator.createLabelAtCurrentTime();
-                    this.animateCodeLine(5, 1, { label: label });
-                    this.animateSearchSaturationStart(vertexData, currVertex, { label: label });
+                this.animateCodeLine(3);
+                this.animator.makeStep();
+                if (currVertex === null) {
+                    currId = id;
+                    currVertex = vertexData;
+                    this.animateCodeLine(4);
+                    this.animateMarker(this.uMarker, vertexData.node, 'move', {
+                        anchorX: -1,
+                        anchorY: 0,
+                    });
                     this.animator.makeStep();
-
-                    this.animateSearchSaturationEnd(vertexData, currVertex);
-                    this.animator.makeStep();
-                    //  else if (
-                    //     vertexData.saturation > currVertex.saturation ||
-                    //     (vertexData.saturation === currVertex.saturation &&
-                    //         this.graph.outEdgesOf(id).length > this.graph.outEdgesOf(currId).length)
-                    // ) {
-                    //     currId = id;
-                    //     currVertex = vertexData;
-                    // }
+                    first = false;
+                    continue;
                 }
+
+                this.animateCodeLine(5);
+                label = this.animator.createLabelAtCurrentTime();
+                this.animateEmphSaturation(currVertex, 'start', { timeLabel: label });
+                this.animateEmphSaturation(vertexData, 'start', { timeLabel: label });
+                this.animator.makeStep();
+
+                if (vertexData.saturation > currVertex.saturation) {
+                    currId = id;
+                    currVertex = vertexData;
+                    this.animateCodeLine(6);
+                    this.animateMarker(this.uMarker, vertexData.node, 'move', {
+                        anchorX: -1,
+                        anchorY: 0,
+                        timeLabel: label,
+                    });
+                    this.animator.makeStep();
+
+                    label = this.animator.createLabelAtCurrentTime();
+                    this.animateEmphSaturation(currVertex, 'end', { timeLabel: label });
+                    this.animateEmphSaturation(vertexData, 'end', { timeLabel: label });
+                    continue;
+                }
+
+                this.animateCodeLine(7, { lineSpan: 2 });
+
+                const edgeDataSet = new Set<EdgeData>();
+                for (const edge of this.graph.edgesOf(id)) {
+                    edgeDataSet.add(edge.data);
+                }
+                for (const edge of this.graph.edgesOf(currId)) {
+                    edgeDataSet.add(edge.data);
+                }
+                label = this.animator.createLabelAtCurrentTime();
+                for (const edgeData of edgeDataSet) {
+                    this.animateEmphEdge(edgeData, 'start', { timeLabel: label });
+                }
+                this.animator.makeStep();
+
+                label = this.animator.createLabelAtCurrentTime();
+                this.animateEmphSaturation(currVertex, 'end', { timeLabel: label });
+                this.animateEmphSaturation(vertexData, 'end', { timeLabel: label });
+                for (const edgeData of edgeDataSet) {
+                    this.animateEmphEdge(edgeData, 'end', { timeLabel: label });
+                }
+                //  else if (
+                //     vertexData.saturation > currVertex.saturation ||
+                //     (vertexData.saturation === currVertex.saturation &&
+                //         this.graph.outEdgesOf(id).length > this.graph.outEdgesOf(currId).length)
+                // ) {
+                //     currId = id;
+                //     currVertex = vertexData;
+                // }
             }
 
             break;
         }
 
-        // while (true) {
-        //     this.animateCodeLine(1);
-        //     this.animator.makeStep();
-        //     let allVisited = true;
-        //     let minDistance = Infinity;
-        //     for (const id of ids) {
-        //         const vertexData = this.graph.getVertex(id);
-        //         if (vertexData.visited === false) {
-        //             allVisited = false;
-        //             if (vertexData.distance < minDistance) {
-        //                 minDistance = vertexData.distance;
-        //                 currId = id;
-        //             }
-        //         }
-        //     }
-        //     if (allVisited || minDistance === Infinity) {
-        //         break;
-        //     }
-
-        //     currVertex = this.graph.getVertex(currId);
-        //     currVertex.visited = true;
-
-        //     this.animateCodeLine(2, 3);
-        //     this.animateVisitVertex(currVertex, currId);
-        //     this.animator.makeStep();
-
-        //     this.animateCodeLine(5);
-        //     this.animator.makeStep();
-
-        //     for (const edge of this.graph.edgesOf(currId)) {
-        //         const edgeData = edge.data;
-
-        //         this.animateCodeLine(6);
-        //         this.animatedVisitEdge(edgeData);
-        //         this.animator.makeStep();
-
-        //         this.animateCodeLine(7);
-        //         this.animator.makeStep();
-
-        //         const nextId = edge.to;
-        //         const vertexData = this.graph.getVertex(nextId);
-        //         if (vertexData.visited === false) {
-        //             this.animateCodeLine(9);
-        //             this.animator.makeStep();
-
-        //             const newDistance = this.graph.getVertex(currId).distance + edgeData.weight;
-        //             if (newDistance < vertexData.distance) {
-        //                 this.animateCodeLine(10);
-        //                 this.animateUpdateDistance(vertexData, newDistance);
-        //                 this.animator.makeStep();
-
-        //                 this.animateCodeLine(11);
-        //                 this.animateUpdatePrev(vertexData, edgeData);
-        //                 this.animator.makeStep();
-
-        //                 vertexData.distance = newDistance;
-        //                 vertexData.prevId = currId;
-        //             }
-        //         } else {
-        //             this.animateCodeLine(8);
-        //             this.animator.makeStep();
-        //         }
-        //         this.animatedEndVisitEdge(edgeData);
-        //     }
-        // }
         this.update();
     }
 
-    animateSearchChangeVertex(vertex: VertexData, first: boolean): void {
+    animateSearchChangeVertex(vertex: VertexData, options: { first?: boolean; label?: string } = {}): void {
+        const first = options.first ?? false;
         const cycleDuration = 500;
         const position = this.acquireVec2();
-        const animLabel = this.animator.createLabelAtCurrentTime();
+        const label = this.animator.ensureLabel(options.label);
         if (first) {
-            const animPosition = S2LerpAnimFactory.create(this, this.vCircle.data.position)
+            this.vMarker.data.text.opacity.set(0);
+            this.vMarker.data.background.opacity.set(0);
+            const animOpacity1 = S2LerpAnimFactory.create(this, this.vMarker.data.text.opacity)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            const animOpacity2 = S2LerpAnimFactory.create(this, this.vMarker.data.background.opacity)
                 .setCycleDuration(cycleDuration)
                 .setEasing(ease.out);
             vertex.node.getRectPointInto(position, this.getWorldSpace(), 1, 0);
-            this.vCircle.data.position.setV(position, this.getWorldSpace());
-            this.animator.addAnimation(animPosition.commitFinalState(), animLabel, 0);
+            this.vMarker.data.position.setV(position, this.getWorldSpace());
+            this.vMarker.data.text.opacity.set(1);
+            this.vMarker.data.background.opacity.set(1);
+            this.animator.addAnimation(animOpacity1.commitFinalState(), label, 0);
+            this.animator.addAnimation(animOpacity2.commitFinalState(), label, 0);
         } else {
-            const animPosition = S2LerpAnimFactory.create(this, this.vCircle.data.position)
+            const animPosition = S2LerpAnimFactory.create(this, this.vMarker.data.position)
                 .setCycleDuration(cycleDuration)
                 .setEasing(ease.out);
             vertex.node.getRectPointInto(position, this.getWorldSpace(), 1, 0);
-            this.vCircle.data.position.setV(position, this.getWorldSpace());
-            this.animator.addAnimation(animPosition.commitFinalState(), animLabel, 0);
+            this.vMarker.data.position.setV(position, this.getWorldSpace());
+            this.animator.addAnimation(animPosition.commitFinalState(), label, 0);
         }
         this.releaseVec2(position);
     }
 
-    animateSearchFindVertex(vertex: VertexData, first: boolean): void {
+    animateMarker(
+        marker: S2PlainNode,
+        target: S2PlainNode,
+        animationType: 'fade-in' | 'move' | 'fade-out',
+        options: { timeLabel?: string; anchorX?: number; anchorY?: number } = {},
+    ): void {
         const cycleDuration = 500;
-        const animLabel = this.animator.createLabelAtCurrentTime();
-        const animPosition = S2LerpAnimFactory.create(this, this.uCircle.data.position)
-            .setCycleDuration(cycleDuration)
-            .setEasing(ease.out);
+        const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const anchorX = options.anchorX ?? 1;
+        const anchorY = options.anchorY ?? 0;
         const position = this.acquireVec2();
-        vertex.node.getRectPointInto(position, this.getWorldSpace(), -1, 0);
-        this.uCircle.data.position.setV(position, this.getWorldSpace());
-        this.animator.addAnimation(animPosition.commitFinalState(), animLabel, 0);
+        target.getRectPointInto(position, this.getWorldSpace(), anchorX, anchorY);
+        const opacity0 = animationType === 'fade-in' ? 0 : 1;
+        const opacity1 = animationType === 'fade-in' ? 1 : 0;
+        if (animationType === 'move') {
+            const animPosition = S2LerpAnimFactory.create(this, marker.data.position)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            marker.data.position.setV(position, this.getWorldSpace());
+            this.animator.addAnimation(animPosition.commitFinalState(), timeLabel, 0);
+        } else {
+            marker.data.text.opacity.set(opacity0);
+            marker.data.background.opacity.set(opacity0);
+            const animTextOpacity = S2LerpAnimFactory.create(this, marker.data.text.opacity)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            const animBackOpacity = S2LerpAnimFactory.create(this, marker.data.background.opacity)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.out);
+            marker.data.position.setV(position, this.getWorldSpace());
+            marker.data.text.opacity.set(opacity1);
+            marker.data.background.opacity.set(opacity1);
+            this.animator.addAnimation(animTextOpacity.commitFinalState(), timeLabel, 0);
+            this.animator.addAnimation(animBackOpacity.commitFinalState(), timeLabel, 0);
+        }
         this.releaseVec2(position);
     }
 
-    animateSearchSaturationStart(vertex1: VertexData, vertex2: VertexData, options: { label?: string } = {}): void {
-        const label = this.animator.ensureLabel(options.label);
-        const cycleDuration = 500;
-        const animFill1 = S2LerpAnimFactory.create(this, vertex1.satNode.data.background.fill.color)
+    animateEmphSaturation(vertex: VertexData, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
+        const cycleDuration = 200;
+        const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const colorName = type === 'start' ? 'main' : 'back';
+        const animFill = S2LerpAnimFactory.create(this, vertex.satNode.data.background.fill.color)
             .setCycleDuration(cycleDuration)
             .setEasing(ease.out);
-        vertex1.satNode.data.background.fill.color.setFromTheme(colorTheme, 'main', 5);
-        this.animator.addAnimation(animFill1.commitFinalState(), label, 0);
-
-        const animFill2 = S2LerpAnimFactory.create(this, vertex2.satNode.data.background.fill.color)
-            .setCycleDuration(cycleDuration)
-            .setEasing(ease.out);
-        vertex2.satNode.data.background.fill.color.setFromTheme(colorTheme, 'main', 5);
-        this.animator.addAnimation(animFill2.commitFinalState(), label, 0);
+        vertex.satNode.data.background.fill.color.setFromTheme(colorTheme, colorName, 5);
+        this.animator.addAnimation(animFill.commitFinalState(), timeLabel, 0);
     }
 
-    animateSearchSaturationEnd(vertex1: VertexData, vertex2: VertexData, options: { label?: string } = {}): void {
-        const label = this.animator.ensureLabel(options.label);
+    animateEmphEdge(edge: EdgeData, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
         const cycleDuration = 500;
-        const animFill1 = S2LerpAnimFactory.create(this, vertex1.satNode.data.background.fill.color)
-            .setCycleDuration(cycleDuration)
-            .setEasing(ease.out);
-        vertex1.satNode.data.background.fill.color.setFromTheme(colorTheme, 'back', 5);
-        this.animator.addAnimation(animFill1.commitFinalState(), label, 0);
-
-        const animFill2 = S2LerpAnimFactory.create(this, vertex2.satNode.data.background.fill.color)
-            .setCycleDuration(cycleDuration)
-            .setEasing(ease.out);
-        vertex2.satNode.data.background.fill.color.setFromTheme(colorTheme, 'back', 5);
-        this.animator.addAnimation(animFill2.commitFinalState(), label, 0);
+        const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const animStroke = S2LerpAnimFactory.create(this, edge.edge.data.stroke.color).setCycleDuration(cycleDuration);
+        edge.edge.data.stroke.color.setFromTheme(colorTheme, 'back', type === 'start' ? 12 : 7);
+        this.animator.addAnimation(animStroke.commitFinalState(), timeLabel, 0);
     }
 
-    // animateVisitVertex(vertex: VertexData, id: VertexId): void {
-    //     const cycleDuration = 500;
-    //     const node = vertex.node;
-    //     const animLabel = this.animator.createLabelAtCurrentTime();
-    //     const animFill = S2LerpAnimFactory.create(this, node.data.background.fill.color)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     node.data.background.fill.color.setFromTheme(colorTheme, 'main', 5);
-    //     this.animator.addAnimation(animFill.commitFinalState(), animLabel, 0);
-
-    //     const animStroke = S2LerpAnimFactory.create(this, node.data.background.stroke.color)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     node.data.background.stroke.color.setFromTheme(colorTheme, 'main', 8);
-    //     this.animator.addAnimation(animStroke.commitFinalState(), animLabel, 0);
-
-    //     const animText = S2LerpAnimFactory.create(this, node.data.text.fill.color)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     node.data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
-    //     this.animator.addAnimation(animText.commitFinalState(), animLabel, 0);
-
-    //     const animDist = S2LerpAnimFactory.create(this, vertex.satNode.data.background.fill.color)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     vertex.satNode.data.background.fill.color.setFromTheme(colorTheme, 'main', 4);
-    //     this.animator.addAnimation(animDist.commitFinalState(), animLabel, 0);
-
-    //     const animTextDist = S2LerpAnimFactory.create(this, vertex.satNode.data.text.fill.color)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     vertex.satNode.data.text.fill.color.setFromTheme(colorTheme, 'main', 12);
-    //     this.animator.addAnimation(animTextDist.commitFinalState(), animLabel, 0);
-
-    //     for (const edge of this.graph.edgesOf(id)) {
-    //         const edgeData = edge.data;
-    //         const animEdge = S2LerpAnimFactory.create(this, edgeData.edge.data.stroke.color)
-    //             .setCycleDuration(cycleDuration)
-    //             .setEasing(ease.out);
-    //         edgeData.edge.data.stroke.color.setFromTheme(colorTheme, 'main', 8);
-    //         this.animator.addAnimation(animEdge.commitFinalState(), animLabel, 0);
-    //     }
-    // }
-
-    // animatedVisitEdge(edge: EdgeData): void {
-    //     const cycleDuration = 500;
-    //     edge.emph.data.pathTo.set(0);
-    //     const animPath = S2LerpAnimFactory.create(this, edge.emph.data.pathTo)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     edge.emph.data.pathTo.set(1);
-    //     this.animator.addAnimation(animPath.commitFinalState(), 'previous-end', 0);
-    // }
-
-    // animatedEndVisitEdge(edge: EdgeData): void {
-    //     const cycleDuration = 500;
-    //     const animPath = S2LerpAnimFactory.create(this, edge.emph.data.pathTo)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     edge.emph.data.pathTo.set(0);
-    //     this.animator.addAnimation(animPath.commitFinalState(), 'previous-end', 0);
-
-    //     const animFill = S2LerpAnimFactory.create(this, edge.edge.data.stroke.color)
-    //         .setCycleDuration(cycleDuration)
-    //         .setEasing(ease.out);
-    //     edge.edge.data.stroke.color.setFromTheme(colorTheme, 'back', 7);
-    //     this.animator.addAnimation(animFill.commitFinalState(), 'previous-end', 0);
-    // }
-
-    // animateUpdateDistance(vertex: VertexData, newDistance: number): void {
-    //     const cycleDuration = 500;
-    //     const node = vertex.satNode;
-    //     const index = node.addState(newDistance.toString());
-    //     node.animateChangeState(index, this.animator, { timeOffset: 0, duration: cycleDuration });
-    // }
-
-    // animateUpdatePrev(vertex: VertexData, edge: EdgeData): void {
-    //     const viewSpace = this.getViewSpace();
-    //     const tipTransform = new S2TipTransform(this);
-    //     edge.edge.getTipTransformAtInto(tipTransform, 1);
-    //     const position = this.acquireVec2();
-    //     const tangent = this.acquireVec2();
-    //     tipTransform.position.getInto(position, viewSpace);
-    //     tipTransform.tangent.getInto(tangent, viewSpace);
-    //     position.addV(tangent.normalize().scale(this.edgeEndDistance));
-
-    //     if (vertex.prevId === null) {
-    //         vertex.prevCircle.data.position.setV(position, viewSpace);
-    //         vertex.prevCircle.data.radius.set(0, this.viewSpace);
-    //         const animRadius = S2LerpAnimFactory.create(this, vertex.prevCircle.data.radius)
-    //             .setCycleDuration(500)
-    //             .setEasing(ease.out);
-    //         vertex.prevCircle.data.radius.set(10, this.viewSpace);
-    //         this.animator.addAnimation(animRadius.commitFinalState(), 'previous-end', 0);
-    //     } else {
-    //         const animPosition = S2LerpAnimFactory.create(this, vertex.prevCircle.data.position)
-    //             .setCycleDuration(500)
-    //             .setEasing(ease.out);
-    //         vertex.prevCircle.data.position.setV(position, viewSpace);
-    //         this.animator.addAnimation(animPosition.commitFinalState(), 'previous-end', 0);
-    //     }
-    // }
-
-    animateCodeLine(lineIndex: number, lineSpan: number = 1, options: { label?: string } = {}): void {
-        const label = this.animator.ensureLabel(options.label);
+    animateCodeLine(lineIndex: number, options: { timeLabel?: string; lineSpan?: number } = {}): void {
+        const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const lineSpan = options.lineSpan ?? 1;
         const code = this.code;
         const animIndex = S2LerpAnimFactory.create(this, code.data.currentLine.index)
             .setCycleDuration(500)
@@ -665,7 +607,7 @@ export class GraphDsaturScene extends S2Scene {
             .setEasing(ease.inOut);
         code.data.currentLine.index.set(lineIndex);
         code.data.currentLine.span.set(lineSpan);
-        this.animator.addAnimation(animIndex.commitFinalState(), label, 0);
-        this.animator.addAnimation(animSpan.commitFinalState(), label, 0);
+        this.animator.addAnimation(animIndex.commitFinalState(), timeLabel, 0);
+        this.animator.addAnimation(animSpan.commitFinalState(), timeLabel, 0);
     }
 }

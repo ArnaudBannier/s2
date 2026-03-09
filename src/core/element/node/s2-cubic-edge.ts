@@ -60,6 +60,10 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         end.attachEdge(this);
     }
 
+    getLength(): number {
+        return this.lengthMapper.getLength();
+    }
+
     getTipTransformAtInto(dst: S2TipTransform, t: number): S2TipTransform {
         const space = this.scene.getWorldSpace();
         t = this.lengthMapper.getTFromU(t);
