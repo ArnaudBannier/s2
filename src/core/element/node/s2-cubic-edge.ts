@@ -4,10 +4,10 @@ import type { S2BaseNode } from './s2-base-node';
 import { S2BezierLengthMapper } from '../../math/curve/length-mapper/s2-bezier-length-mapper';
 import { S2CubicCurve } from '../../math/curve/s2-cubic-curve';
 import { S2SDFUtils } from '../../math/curve/s2-sdf';
-import { S2Mat2x3 } from '../../math/s2-mat2x3';
 import { S2Number } from '../../shared/s2-number';
 import { S2StringPath } from '../base/s2-string-path';
 import { S2Edge, S2EdgeData } from './s2-base-edge';
+import type { S2Space } from '../../math/s2-space';
 
 export class S2CubicEdgeData extends S2EdgeData {
     public readonly startAngle: S2Number;
@@ -77,6 +77,30 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         return dst;
     }
 
+    getPathTFromU(u: number): number {
+        return this.lengthMapper.getTFromU(u);
+    }
+
+    getPathTfromLength(length: number): number {
+        return this.lengthMapper.getTFromLength(length);
+    }
+
+    getPathTFromStartDistance(distance: number, space: S2Space): number {
+        const sdf = this.start.getSDF();
+        const nodeSpace = this.start.data.space.get();
+        const mat = this.scene.acquireMat2x3();
+        space.getThisToSpaceInto(mat, nodeSpace);
+        return S2SDFUtils.findPointAtDistance(sdf, this.curve, mat, distance, 0, 1);
+    }
+
+    getPathTFromEndDistance(distance: number, space: S2Space): number {
+        const sdf = this.end.getSDF();
+        const nodeSpace = this.end.data.space.get();
+        const mat = this.scene.acquireMat2x3();
+        space.getThisToSpaceInto(mat, nodeSpace);
+        return S2SDFUtils.findPointAtDistance(sdf, this.curve, mat, distance, 0, 1);
+    }
+
     protected updateCurve(): void {
         const space = this.scene.getWorldSpace();
         const p0 = this.scene.acquireVec2();
@@ -110,27 +134,29 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
 
         this.curve.setControlPointsV(p0, p1, p2, p3);
 
-        this.scene.releaseVec2(p0);
-        this.scene.releaseVec2(p1);
-        this.scene.releaseVec2(p2);
-        this.scene.releaseVec2(p3);
-
         const sdf0 = this.start.getSDF();
         const sdf1 = this.end.getSDF();
         const space0 = this.start.data.space.get();
         const space1 = this.end.data.space.get();
         const d0 = this.data.startDistance.get(space0);
         const d1 = this.data.endDistance.get(space1);
-        space.getThisToSpaceInto(_mat, space0);
-        let t0 = S2SDFUtils.findPointAtDistance(sdf0, this.curve, _mat, d0, 0, 1);
-        space.getThisToSpaceInto(_mat, space1);
-        let t1 = S2SDFUtils.findPointAtDistance(sdf1, this.curve, _mat, d1, 0, 1);
+        const mat = this.scene.acquireMat2x3();
+        space.getThisToSpaceInto(mat, space0);
+        let t0 = S2SDFUtils.findPointAtDistance(sdf0, this.curve, mat, d0, 0, 1);
+        space.getThisToSpaceInto(mat, space1);
+        let t1 = S2SDFUtils.findPointAtDistance(sdf1, this.curve, mat, d1, 0, 1);
         const deltaT = t1 - t0;
         t0 += this.data.pathFrom.get() * deltaT;
         t1 -= (1 - this.data.pathTo.get()) * deltaT;
 
         this.curve.subdivideInto(this.curve, t0, t1);
         this.lengthMapper.update();
+
+        this.scene.releaseVec2(p0);
+        this.scene.releaseVec2(p1);
+        this.scene.releaseVec2(p2);
+        this.scene.releaseVec2(p3);
+        this.scene.releaseMat2x3(mat);
     }
 
     protected updatePath(): void {
@@ -182,5 +208,3 @@ export class S2CubicEdge extends S2Edge<S2CubicEdgeData> {
         this.clearDirty();
     }
 }
-
-const _mat = new S2Mat2x3();

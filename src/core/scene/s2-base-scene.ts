@@ -3,6 +3,7 @@ import { S2Camera } from '../math/s2-camera';
 import { S2SVG } from '../element/s2-svg';
 import { S2Vec2 } from '../math/s2-vec2';
 import { S2Space } from '../math/s2-space';
+import { S2Mat2x3 } from '../math/s2-mat2x3';
 
 export abstract class S2BaseScene {
     protected readonly svg: S2SVG;
@@ -13,6 +14,7 @@ export abstract class S2BaseScene {
     protected readonly camera: S2Camera;
     protected readonly vecPool: S2Vec2[] = [];
     protected readonly usedVecs: Set<S2Vec2> = new Set();
+    protected readonly matPool: S2Mat2x3[] = [];
 
     public tracePoolAllocations: boolean = false;
     private nextElementId: number;
@@ -56,6 +58,20 @@ export abstract class S2BaseScene {
 
     getUsedVecCount(): number {
         return this.usedVecs.size;
+    }
+
+    acquireMat2x3(): S2Mat2x3 {
+        let mat = this.matPool.pop();
+        mat = mat ? mat : new S2Mat2x3();
+        return mat;
+    }
+
+    releaseMat2x3(mat: S2Mat2x3): void {
+        this.matPool.push(mat);
+    }
+
+    getMatPoolSize(): number {
+        return this.matPool.length;
     }
 
     getViewportSizeInto(dst: S2Vec2): this {

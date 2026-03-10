@@ -17,14 +17,20 @@ const dsaturAlgorithm =
     '**kw:tant que** **num:vrai** **kw:faire**\n' +
     '  **type:sommet** **var:u** = **num:indéfini**\n' +
     '  **kw:pour chaque** sommet **var:v** non colorié **kw:faire**\n' +
-    '    **kw:si** **var:u** est **num:indéfini** **kw:alors**\n' +
+    '    **kw:si** (**var:u** est **num:indéfini**)\n' +
+    '      **kw:ou** (sat[**var:v**] > sat[**var:u**])\n' +
+    '      **kw:ou** (sat[**var:v**] = sat[**var:u**] **kw:et** deg[**var:v**] > deg[**var:u**])\n' +
+    '      **kw:alors**\n' +
     '      **var:u** = **var:v**\n' +
-    '    **kw:sinon si** sat[**var:v**] > sat[**var:u**] **kw:alors**\n' +
-    '      **var:u** = **var:v**\n' +
-    '    **kw:sinon si** sat[**var:v**] = sat[**var:u**] **kw:et**\n' +
-    '      deg[**var:v**] > deg[**var:u**] **kw:alors**\n' +
-    '      **var:u** = **var:v**\n' +
-    '  **kw:si** **var:u** est **num:indéfini** **kw:quitter**\n' +
+    // '    **kw:si** **var:u** est **num:indéfini** **kw:alors**\n' +
+    // '      **var:u** = **var:v**\n' +
+    // '    **kw:sinon si** sat[**var:v**] > sat[**var:u**] **kw:alors**\n' +
+    // '      **var:u** = **var:v**\n' +
+    // '    **kw:sinon si** sat[**var:v**] = sat[**var:u**] **kw:et**\n' +
+    // '      deg[**var:v**] > deg[**var:u**] **kw:alors**\n' +
+    // '      **var:u** = **var:v**\n' +
+    '  **kw:si** **var:u** est **num:indéfini** **kw:alors**\n' +
+    '    **kw:quitter**\n' +
     '  **var:u**.couleur = plus petite couleur disponible\n' +
     '    dans le voisinage de **var:u**\n' +
     '  **kw:pour** chaque voisin **var:v** de **var:u** **kw:faire**\n' +
@@ -79,12 +85,16 @@ class EdgeData {
     public edge: S2CubicEdge;
     public from: VertexId;
     public to: VertexId;
-    // public emphFrom: S2CubicEdge;
-    // public emphTo: S2CubicEdge;
+    public emphFrom: S2CubicEdge;
+    public emphTo: S2CubicEdge;
 
-    constructor(scene: S2Scene, edge: S2CubicEdge, from: VertexId, to: VertexId) {
-        this.edge = edge;
+    constructor(scene: S2Scene, from: VertexId, to: VertexId, nodeFrom: S2PlainNode, nodeTo: S2PlainNode) {
+        this.edge = new S2CubicEdge(scene, nodeFrom, nodeTo);
         this.edge.setParent(scene.getSVG());
+        this.emphFrom = new S2CubicEdge(scene, nodeFrom, nodeTo);
+        this.emphFrom.setParent(scene.getSVG());
+        this.emphTo = new S2CubicEdge(scene, nodeTo, nodeFrom);
+        this.emphTo.setParent(scene.getSVG());
         this.from = from;
         this.to = to;
     }
@@ -208,6 +218,7 @@ export class GraphDsaturScene extends S2Scene {
     setVertexStyle(vertex: VertexData): void {
         const worldSpace = this.getWorldSpace();
         const nodeData = vertex.node.data;
+        nodeData.space.set(worldSpace);
         nodeData.layer.set(1);
         nodeData.padding.set(5, 5, this.viewSpace);
         nodeData.anchor.set(0, 0);
@@ -245,13 +256,15 @@ export class GraphDsaturScene extends S2Scene {
         edgeData.endDistance.set(0, this.viewSpace);
         edgeData.pathFrom.set(0);
 
-        // const emphData = edge.emph.data;
-        // emphData.stroke.color.setFromTheme(colorTheme, 'back', 12);
-        // emphData.stroke.width.set(6, this.getViewSpace());
-        // emphData.startDistance.set(0, this.viewSpace);
-        // emphData.endDistance.set(this.edgeEndDistance, this.viewSpace);
-        // emphData.pathFrom.set(0);
-        // emphData.pathTo.set(0.0);
+        for (const emphEdge of [edge.emphFrom, edge.emphTo]) {
+            const emphData = emphEdge.data;
+            emphData.stroke.color.setFromTheme(colorTheme, 'main', 10);
+            emphData.stroke.width.set(6, this.getViewSpace());
+            emphData.startDistance.set(0, this.viewSpace);
+            emphData.endDistance.set(0, this.viewSpace);
+            emphData.pathFrom.set(0);
+            emphData.pathTo.set(0);
+        }
     }
 
     createGraph(): void {
@@ -308,10 +321,9 @@ export class GraphDsaturScene extends S2Scene {
         ];
         const edgeDataArray: EdgeData[] = [];
         for (const edgeInfo of edgesInfo) {
-            const edge = new S2CubicEdge(this, nodes[edgeInfo.from], nodes[edgeInfo.to]);
             const from = edgeInfo.from.toString();
             const to = edgeInfo.to.toString();
-            const edgeData = new EdgeData(this, edge, from, to);
+            const edgeData = new EdgeData(this, from, to, nodes[edgeInfo.from], nodes[edgeInfo.to]);
             this.setEdgeStyle(edgeData);
             edgeDataArray.push(edgeData);
         }
@@ -472,24 +484,26 @@ export class GraphDsaturScene extends S2Scene {
 
                 this.animateCodeLine(7, { lineSpan: 2 });
 
-                const edgeDataSet = new Set<EdgeData>();
+                label = this.animator.createLabelAtCurrentTime();
                 for (const edge of this.graph.edgesOf(id)) {
-                    edgeDataSet.add(edge.data);
+                    this.animateEmphEdge(id, edge.data, 'start', { timeLabel: label });
                 }
                 for (const edge of this.graph.edgesOf(currId)) {
-                    edgeDataSet.add(edge.data);
+                    this.animateEmphEdge(currId, edge.data, 'start', { timeLabel: label });
                 }
-                label = this.animator.createLabelAtCurrentTime();
-                for (const edgeData of edgeDataSet) {
-                    this.animateEmphEdge(edgeData, 'start', { timeLabel: label });
-                }
+                // for (const edgeData of edgeDataSet) {
+                //     this.animateEmphEdge(edgeData, 'start', { timeLabel: label });
+                // }
                 this.animator.makeStep();
 
                 label = this.animator.createLabelAtCurrentTime();
                 this.animateEmphSaturation(currVertex, 'end', { timeLabel: label });
                 this.animateEmphSaturation(vertexData, 'end', { timeLabel: label });
-                for (const edgeData of edgeDataSet) {
-                    this.animateEmphEdge(edgeData, 'end', { timeLabel: label });
+                for (const edge of this.graph.edgesOf(id)) {
+                    this.animateEmphEdge(id, edge.data, 'end', { timeLabel: label });
+                }
+                for (const edge of this.graph.edgesOf(currId)) {
+                    this.animateEmphEdge(currId, edge.data, 'end', { timeLabel: label });
                 }
                 //  else if (
                 //     vertexData.saturation > currVertex.saturation ||
@@ -576,6 +590,26 @@ export class GraphDsaturScene extends S2Scene {
         this.releaseVec2(position);
     }
 
+    animateSearch(vertexId: VertexId, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
+        // const vertexData = this.graph.getVertex(vertexId);
+        // const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        // const cycleDuration = 250;
+        //         for (const edge of this.graph.edgesOf(vertexId)) {
+        // const emphEdge = edge.from === vertexId ? edge.emphFrom : edge.emphTo;
+        //             const animPath = S2LerpAnimFactory.create(this, emphEdge.data.pathTo)
+        //             .setCycleDuration(cycleDuration)
+        //             .setEasing(ease.inOut);
+        //         if (type === 'start') {
+        //             const t = 0.5 / edge.edge.getLength();
+        //             console.log(emphEdge.getLength());
+        //             emphEdge.data.pathTo.set(t);
+        //         } else {
+        //             emphEdge.data.pathTo.set(0.0);
+        //         }
+        //         this.animator.addAnimation(animPath.commitFinalState(), timeLabel, 0);
+        //         }
+    }
+
     animateEmphSaturation(vertex: VertexData, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
         const cycleDuration = 200;
         const timeLabel = this.animator.ensureLabel(options.timeLabel);
@@ -587,12 +621,26 @@ export class GraphDsaturScene extends S2Scene {
         this.animator.addAnimation(animFill.commitFinalState(), timeLabel, 0);
     }
 
-    animateEmphEdge(edge: EdgeData, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
-        const cycleDuration = 500;
+    animateEmphEdge(
+        vertexId: VertexId,
+        edge: EdgeData,
+        type: 'start' | 'end',
+        options: { timeLabel?: string } = {},
+    ): void {
+        const cycleDuration = 250;
         const timeLabel = this.animator.ensureLabel(options.timeLabel);
-        const animStroke = S2LerpAnimFactory.create(this, edge.edge.data.stroke.color).setCycleDuration(cycleDuration);
-        edge.edge.data.stroke.color.setFromTheme(colorTheme, 'back', type === 'start' ? 12 : 7);
-        this.animator.addAnimation(animStroke.commitFinalState(), timeLabel, 0);
+        const emphEdge = edge.from === vertexId ? edge.emphFrom : edge.emphTo;
+        const animPath = S2LerpAnimFactory.create(this, emphEdge.data.pathTo)
+            .setCycleDuration(cycleDuration)
+            .setEasing(ease.inOut);
+        if (type === 'start') {
+            const t = 0.5 / edge.edge.getLength();
+            console.log(emphEdge.getLength());
+            emphEdge.data.pathTo.set(t);
+        } else {
+            emphEdge.data.pathTo.set(0.0);
+        }
+        this.animator.addAnimation(animPath.commitFinalState(), timeLabel, 0);
     }
 
     animateCodeLine(lineIndex: number, options: { timeLabel?: string; lineSpan?: number } = {}): void {
