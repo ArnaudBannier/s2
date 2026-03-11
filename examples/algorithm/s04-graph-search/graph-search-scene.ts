@@ -560,6 +560,7 @@ export class GraphSearchScene extends S2Scene {
 
     setStepByStep(enabled: boolean): void {
         this.stepByStep = enabled;
+        this.createEdges();
         this.createAnimation();
         this.animator.setMasterElapsed(this.animator.getMasterDuration());
         this.update();
@@ -571,6 +572,7 @@ export class GraphSearchScene extends S2Scene {
 
     setTraversal(traversal: 'bfs' | 'dfs'): void {
         this.traversal = traversal;
+        this.createEdges();
         this.createAnimation();
         this.animator.setMasterElapsed(this.animator.getMasterDuration());
         this.update();

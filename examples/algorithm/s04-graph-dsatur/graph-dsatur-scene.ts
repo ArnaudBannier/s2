@@ -411,7 +411,6 @@ export class GraphDsaturScene extends S2Scene {
             vertexData.satNode.addState('0');
         }
 
-        let currId = ids[0];
         this.animateCodeLine(0);
         this.animator.makeStep();
 
@@ -428,92 +427,79 @@ export class GraphDsaturScene extends S2Scene {
             });
             this.animator.makeStep();
 
-            let currVertex = null;
-            let first = true;
+            let idU = '';
+            let vertexU = null;
+            let idEmphU: VertexId | null = null;
+            let idEmphV: VertexId | null = null;
 
-            for (const id of ids) {
-                const vertexData = this.graph.getVertex(id);
-                if (vertexData.color !== -1) continue;
+            for (const idV of ids) {
+                const vertexV = this.graph.getVertex(idV);
+                if (vertexV.color !== -1) continue;
 
+                this.animateCodeLine(2);
                 label = this.animator.createLabelAtCurrentTime();
-                this.animateCodeLine(2, { timeLabel: label });
-                this.animateMarker(this.vMarker, vertexData.node, first ? 'fade-in' : 'move', {
+                this.animateMarker(this.vMarker, vertexV.node, idEmphV === null ? 'fade-in' : 'move', {
                     timeLabel: label,
                     anchorX: 1,
                     anchorY: 0,
                 });
-                this.animator.makeStep();
-
-                this.animateCodeLine(3);
-                this.animator.makeStep();
-                if (currVertex === null) {
-                    currId = id;
-                    currVertex = vertexData;
-                    this.animateCodeLine(4);
-                    this.animateMarker(this.uMarker, vertexData.node, 'move', {
-                        anchorX: -1,
-                        anchorY: 0,
-                    });
-                    this.animator.makeStep();
-                    first = false;
-                    continue;
+                if (idEmphV !== null && idEmphV !== idEmphU) {
+                    this.animateSearch(idEmphV, 'end', { timeLabel: label });
+                    this.animateSearch(idV, 'start', { timeLabel: label });
+                } else {
+                    this.animateSearch(idV, 'start', { timeLabel: label });
                 }
-
-                this.animateCodeLine(5);
-                label = this.animator.createLabelAtCurrentTime();
-                this.animateEmphSaturation(currVertex, 'start', { timeLabel: label });
-                this.animateEmphSaturation(vertexData, 'start', { timeLabel: label });
                 this.animator.makeStep();
+                idEmphV = idV;
 
-                if (vertexData.saturation > currVertex.saturation) {
-                    currId = id;
-                    currVertex = vertexData;
-                    this.animateCodeLine(6);
-                    this.animateMarker(this.uMarker, vertexData.node, 'move', {
+                this.animateCodeLine(3, { lineSpan: 3 });
+                this.animator.makeStep();
+                if (
+                    vertexU === null ||
+                    vertexV.saturation > vertexU.saturation ||
+                    (vertexV.saturation === vertexU.saturation &&
+                        this.graph.edgesOf(idV).length > this.graph.edgesOf(idU).length)
+                ) {
+                    idU = idV;
+                    vertexU = vertexV;
+                    this.animateCodeLine(7);
+                    this.animateMarker(this.uMarker, vertexV.node, 'move', {
                         anchorX: -1,
                         anchorY: 0,
-                        timeLabel: label,
                     });
-                    this.animator.makeStep();
 
                     label = this.animator.createLabelAtCurrentTime();
-                    this.animateEmphSaturation(currVertex, 'end', { timeLabel: label });
-                    this.animateEmphSaturation(vertexData, 'end', { timeLabel: label });
+                    if (idEmphU) {
+                        this.animateSearch(idEmphU, 'end', { timeLabel: label });
+                    }
+                    idEmphU = idU;
+
+                    // this.animateSearch(id, 'start');
+                    this.animator.makeStep();
                     continue;
                 }
-
-                this.animateCodeLine(7, { lineSpan: 2 });
-
-                label = this.animator.createLabelAtCurrentTime();
-                for (const edge of this.graph.edgesOf(id)) {
-                    this.animateEmphEdge(id, edge.data, 'start', { timeLabel: label });
-                }
-                for (const edge of this.graph.edgesOf(currId)) {
-                    this.animateEmphEdge(currId, edge.data, 'start', { timeLabel: label });
-                }
-                // for (const edgeData of edgeDataSet) {
-                //     this.animateEmphEdge(edgeData, 'start', { timeLabel: label });
-                // }
-                this.animator.makeStep();
-
-                label = this.animator.createLabelAtCurrentTime();
-                this.animateEmphSaturation(currVertex, 'end', { timeLabel: label });
-                this.animateEmphSaturation(vertexData, 'end', { timeLabel: label });
-                for (const edge of this.graph.edgesOf(id)) {
-                    this.animateEmphEdge(id, edge.data, 'end', { timeLabel: label });
-                }
-                for (const edge of this.graph.edgesOf(currId)) {
-                    this.animateEmphEdge(currId, edge.data, 'end', { timeLabel: label });
-                }
-                //  else if (
-                //     vertexData.saturation > currVertex.saturation ||
-                //     (vertexData.saturation === currVertex.saturation &&
-                //         this.graph.outEdgesOf(id).length > this.graph.outEdgesOf(currId).length)
-                // ) {
-                //     currId = id;
-                //     currVertex = vertexData;
-                // }
             }
+
+            label = this.animator.createLabelAtCurrentTime();
+            this.animateCodeLine(2, { timeLabel: label });
+            this.animateMarker(this.vMarker, this.undefinedNode, 'fade-out', {
+                timeLabel: label,
+                anchorX: 0,
+                anchorY: -1.5,
+            });
+            if (idEmphV !== null && idEmphV !== idEmphU) {
+                this.animateSearch(idEmphV, 'end', { timeLabel: label });
+                this.animator.makeStep();
+            }
+            this.animator.makeStep();
+
+            label = this.animator.createLabelAtCurrentTime();
+            this.animateCodeLine(8, { timeLabel: label });
+            this.animator.makeStep();
+
+            label = this.animator.createLabelAtCurrentTime();
+            this.animateCodeLine(10, { lineSpan: 2, timeLabel: label });
+            this.animator.makeStep();
 
             break;
         }
@@ -591,23 +577,31 @@ export class GraphDsaturScene extends S2Scene {
     }
 
     animateSearch(vertexId: VertexId, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
-        // const vertexData = this.graph.getVertex(vertexId);
-        // const timeLabel = this.animator.ensureLabel(options.timeLabel);
-        // const cycleDuration = 250;
-        //         for (const edge of this.graph.edgesOf(vertexId)) {
-        // const emphEdge = edge.from === vertexId ? edge.emphFrom : edge.emphTo;
-        //             const animPath = S2LerpAnimFactory.create(this, emphEdge.data.pathTo)
-        //             .setCycleDuration(cycleDuration)
-        //             .setEasing(ease.inOut);
-        //         if (type === 'start') {
-        //             const t = 0.5 / edge.edge.getLength();
-        //             console.log(emphEdge.getLength());
-        //             emphEdge.data.pathTo.set(t);
-        //         } else {
-        //             emphEdge.data.pathTo.set(0.0);
-        //         }
-        //         this.animator.addAnimation(animPath.commitFinalState(), timeLabel, 0);
-        //         }
+        const vertexData = this.graph.getVertex(vertexId);
+        const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const cycleDuration = 250;
+        for (const edge of this.graph.edgesOf(vertexId)) {
+            console.log(vertexId, edge.to);
+            const emphEdge = edge.data.from === vertexId ? edge.data.emphFrom : edge.data.emphTo;
+            const animPath = S2LerpAnimFactory.create(this, emphEdge.data.pathTo)
+                .setCycleDuration(cycleDuration)
+                .setEasing(ease.inOut);
+            if (type === 'start') {
+                const t = 0.5 / edge.data.edge.getLength();
+                console.log(emphEdge.getLength());
+                emphEdge.data.pathTo.set(t);
+            } else {
+                emphEdge.data.pathTo.set(0.0);
+            }
+            this.animator.addAnimation(animPath.commitFinalState(), timeLabel, 0);
+        }
+
+        const colorName = type === 'start' ? 'main' : 'back';
+        const animFill = S2LerpAnimFactory.create(this, vertexData.satNode.data.background.fill.color)
+            .setCycleDuration(cycleDuration)
+            .setEasing(ease.out);
+        vertexData.satNode.data.background.fill.color.setFromTheme(colorTheme, colorName, 5);
+        this.animator.addAnimation(animFill.commitFinalState(), timeLabel, 0);
     }
 
     animateEmphSaturation(vertex: VertexData, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
