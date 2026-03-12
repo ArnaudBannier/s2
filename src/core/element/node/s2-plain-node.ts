@@ -37,6 +37,10 @@ export class S2PlainNode extends S2BaseNode {
         return this.states[index].text;
     }
 
+    getStateIndex(): number {
+        return this.stateIndex;
+    }
+
     addState(value: string): number {
         const content = new S2PlainNodeState(this.scene);
         content.offset.setOwner(this);

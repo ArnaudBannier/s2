@@ -7,6 +7,8 @@ import type { S2SpaceRef } from '../shared/s2-space-ref';
 import type { S2Space } from '../math/s2-space';
 import type { S2AnimatableColor, S2AnimatableExtents } from './s2-animatable';
 import { S2Extents } from '../shared/s2-extents';
+import type { S2Point } from '../shared/s2-point';
+import type { S2Vec2 } from '../math/s2-vec2';
 
 export abstract class S2TimelineTrigger<T extends S2AnimProperty = S2AnimProperty> {
     public property: T;
@@ -67,6 +69,21 @@ export class S2TriggerNumber extends S2TimelineTrigger<S2Number> {
 
     onTrigger(): void {
         this.property.set(this.value);
+    }
+}
+
+export class S2TriggerPoint extends S2TimelineTrigger<S2Point> {
+    public value: S2Vec2;
+    public space: S2Space;
+
+    constructor(property: S2Point, value: S2Vec2, space: S2Space) {
+        super(property);
+        this.value = value.clone();
+        this.space = space;
+    }
+
+    onTrigger(): void {
+        this.property.setV(this.value, this.space);
     }
 }
 
