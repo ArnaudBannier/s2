@@ -8,9 +8,7 @@
             for (const d of this.dependents)
                 d.markDirty();
         }
-- Revoir les states d'un noeud.
-    - Utiliser plutôt un dictionnaire qu'un tableau.
-    - Simplifier l'animation changeState.
+
 - Implémenter S2SDF dans le noeud.
 - Implémenter S2SDF pour le code.
 - Implémenter HasBounds sur les éléments manquants.

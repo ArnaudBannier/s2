@@ -7,6 +7,7 @@ export class S2AnimationManager {
     protected timer: S2Timer;
     protected activeAnimations: Set<S2Playable> = new Set();
     protected sceneToUpdate: Set<S2BaseScene> = new Set();
+    protected isAwake: boolean = false;
 
     private constructor() {
         this.timer = new S2Timer();
@@ -24,19 +25,25 @@ export class S2AnimationManager {
     }
 
     static addAnimation(animation: S2Playable): void {
-        S2AnimationManager.getInstance().activeAnimations.add(animation);
+        const instance = S2AnimationManager.getInstance();
+        instance.activeAnimations.add(animation);
+        instance.wakeUp();
     }
 
     static removeAnimation(animation: S2Playable): void {
-        S2AnimationManager.getInstance().activeAnimations.delete(animation);
+        const instance = S2AnimationManager.getInstance();
+        instance.activeAnimations.delete(animation);
     }
 
     static requestUpdate(scene: S2BaseScene): void {
-        S2AnimationManager.getInstance().sceneToUpdate.add(scene);
+        const instance = S2AnimationManager.getInstance();
+        instance.sceneToUpdate.add(scene);
+        instance.wakeUp();
     }
 
     addAnimation(animation: S2Playable): this {
         this.activeAnimations.add(animation);
+        this.wakeUp();
         return this;
     }
 
@@ -45,9 +52,10 @@ export class S2AnimationManager {
         return this;
     }
 
-    wakeUp(): this {
+    wakeUp(): void {
+        if (this.isAwake) return;
+        this.isAwake = true;
         requestAnimationFrame(this.onUpdate);
-        return this;
     }
 
     private onFirstFrame = (timestamp: number): void => {
@@ -58,6 +66,8 @@ export class S2AnimationManager {
         this.timer.update(timestamp);
         const delta = this.timer.getDelta();
 
+        console.log(`Active animations: ${this.activeAnimations.size}, scenes to update: ${this.sceneToUpdate.size}`);
+
         for (const anim of this.activeAnimations) {
             anim.update(delta);
         }
@@ -67,6 +77,12 @@ export class S2AnimationManager {
         }
 
         this.sceneToUpdate.clear();
-        requestAnimationFrame(this.onUpdate);
+
+        if (this.activeAnimations.size > 0) {
+            requestAnimationFrame(this.onUpdate);
+            this.isAwake = true;
+        } else {
+            this.isAwake = false;
+        }
     };
 }
