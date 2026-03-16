@@ -38,11 +38,10 @@ if (mode === 0) {
         main: radixDark.cyanDark,
         secondary: radixDark.cyanDark,
         'no-color': radixDark.slateDark,
-        'color-0': radixDark.purpleDark,
-        'color-1': radixDark.redDark,
-        'color-2': radixDark.amberDark,
-        'color-3': radixDark.grassDark,
-        'color-4': radixDark.cyanDark,
+        'color-0': radixDark.irisDark,
+        'color-1': radixDark.rubyDark,
+        'color-2': radixDark.orangeDark,
+        'color-3': radixDark.amberDark,
     };
 } else {
     palette = {
@@ -50,11 +49,10 @@ if (mode === 0) {
         main: radixLight.cyan,
         secondary: radixLight.cyan,
         'no-color': radixLight.slate,
-        'color-0': radixLight.cyan,
-        'color-1': radixLight.purple,
-        'color-2': radixLight.red,
+        'color-0': radixLight.iris,
+        'color-1': radixLight.ruby,
+        'color-2': radixLight.orange,
         'color-3': radixLight.amber,
-        'color-4': radixLight.grass,
     };
 }
 const colorTheme = new S2ColorTheme(palette);
@@ -331,17 +329,30 @@ export class GraphDsaturScene extends S2Scene {
     }
 
     createColorPanel(): void {
-        // TODO
         const viewSpace = this.getViewSpace();
         const worldSpace = this.getWorldSpace();
-        const colorCount = 5;
+        const colorCount = 4;
         const position = this.acquireVec2();
+        const extents = this.acquireVec2();
         const sep = 0.2;
 
-        const paddingX = viewSpace.convertLength(10, worldSpace);
+        const sepX = viewSpace.convertLength(10, worldSpace);
+        const paddingX = viewSpace.convertLength(20, worldSpace);
         const paddingY = viewSpace.convertLength(10, worldSpace);
+
+        const labelNode = new S2PlainNode(this);
+        labelNode.setParent(this.getSVG());
+        labelNode.data.background.shape.set('none');
+        labelNode.addState('Couleurs :');
+        labelNode.data.text.fill.color.setFromTheme(colorTheme, 'back', 12);
+        labelNode.data.layer.set(1);
+        labelNode.data.padding.set(0, 0, viewSpace);
+        this.update();
+        labelNode.getExtentsInto(extents, worldSpace);
+
+        const labelWidth = 2 * extents.x;
+        const colorRectWidth = (this.panelWidth - labelWidth - 2 * paddingX - colorCount * sepX) / colorCount;
         const colorRectHeight = 0.5;
-        const colorRectWidth = (this.panelWidth - paddingX * (colorCount + 1)) / colorCount;
         const panelHeight = colorRectHeight + paddingY * 2;
 
         const colorPanel = new S2Rect(this);
@@ -359,15 +370,20 @@ export class GraphDsaturScene extends S2Scene {
         colorPanel.data.stroke.width.set(2, this.getViewSpace());
         this.update();
 
-        const colors = ['color-0', 'color-1', 'color-2', 'color-3', 'color-4', 'color-5'];
-        const colorStrings = ['0', '1', '2', '3', '4'];
+        const colors = ['color-0', 'color-1', 'color-2', 'color-3'];
+        const colorStrings = ['0', '1', '2', '3'];
 
-        for (let i = 0; i < colorCount; i++) {
+        colorPanel.getRectPointInto(position, worldSpace, -1, 0);
+        position.x += paddingX;
+        labelNode.data.position.setV(position, worldSpace);
+        labelNode.data.anchor.set(-1, 0);
+
+        for (let i = 0; i < colors.length; i++) {
             const colorRect = new S2PlainNode(this);
             colorRect.setParent(this.getSVG());
 
             colorPanel.getRectPointInto(position, worldSpace, -1, 1);
-            position.x += paddingX + i * (colorRectWidth + paddingX);
+            position.x += paddingX + labelWidth + sep + i * (colorRectWidth + sepX);
             position.y -= paddingY;
 
             colorRect.data.position.setV(position, worldSpace);
@@ -379,14 +395,11 @@ export class GraphDsaturScene extends S2Scene {
             colorRect.data.background.stroke.width.set(2, this.getViewSpace());
             colorRect.data.background.cornerRadius.set(5, this.getViewSpace());
             colorRect.addState(colorStrings[i]);
-            // colorRect.addState('X');
-            // const state = colorRect.getState(colorRect.getStateCount() - 1);
-            // this.animator.enableElement(state, false);
-            // state.data.opacity.set(0.1);
 
             this.colorRects.push(colorRect);
         }
         this.releaseVec2(position);
+        this.releaseVec2(extents);
     }
 
     createAnimation(): void {
@@ -663,14 +676,12 @@ export class GraphDsaturScene extends S2Scene {
         const timeOffset = options.timeOffset ?? 0;
         const cycleDuration = 250;
         for (const edge of this.graph.edgesOf(vertexId)) {
-            console.log(vertexId, edge.to);
             const emphEdge = edge.data.from === vertexId ? edge.data.emphFrom : edge.data.emphTo;
             const animPath = S2LerpAnimFactory.create(this, emphEdge.data.pathTo)
                 .setCycleDuration(cycleDuration)
                 .setEasing(ease.inOut);
             if (type === 'start') {
                 const t = 0.5 / edge.data.edge.getLength();
-                console.log(emphEdge.getLength());
                 emphEdge.data.pathTo.set(t);
             } else {
                 emphEdge.data.pathTo.set(0.0);
@@ -707,7 +718,6 @@ export class GraphDsaturScene extends S2Scene {
         const cycleDuration = 250;
         const usedColors = [false, false, false, false, false];
         for (const edge of this.graph.edgesOf(vertexId)) {
-            console.log(vertexId, edge.to);
             const emphEdge = edge.data.from === vertexId ? edge.data.emphFrom : edge.data.emphTo;
             const targetData = this.graph.getVertex(edge.to);
             const animPath = S2LerpAnimFactory.create(this, emphEdge.data.pathTo)
@@ -719,7 +729,7 @@ export class GraphDsaturScene extends S2Scene {
             if (type === 'start') {
                 emphEdge.data.pathTo.set(1.0);
                 if (targetData.color >= 0) {
-                    emphEdge.data.stroke.color.setFromTheme(colorTheme, `color-${targetData.color}`, 10);
+                    emphEdge.data.stroke.color.setFromTheme(colorTheme, `color-${targetData.color}`, 9);
                     usedColors[targetData.color] = true;
                 } else {
                     emphEdge.data.stroke.color.setFromTheme(colorTheme, 'no-color', 11);
@@ -753,7 +763,7 @@ export class GraphDsaturScene extends S2Scene {
         const animStroke = S2LerpAnimFactory.create(this, vertexData.node.data.background.stroke.color)
             .setCycleDuration(cycleDuration)
             .setEasing(ease.out);
-        vertexData.node.data.background.stroke.color.setFromTheme(colorTheme, colorName, 8);
+        vertexData.node.data.background.stroke.color.setFromTheme(colorTheme, colorName, 9);
         this.animator.addAnimation(animStroke.commitFinalState(), timeLabel, 0);
     }
 
@@ -781,7 +791,6 @@ export class GraphDsaturScene extends S2Scene {
             .setEasing(ease.inOut);
         if (type === 'start') {
             const t = 0.5 / edge.edge.getLength();
-            console.log(emphEdge.getLength());
             emphEdge.data.pathTo.set(t);
         } else {
             emphEdge.data.pathTo.set(0.0);
