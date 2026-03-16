@@ -379,9 +379,9 @@ export class GraphDsaturScene extends S2Scene {
             colorRect.data.background.stroke.width.set(2, this.getViewSpace());
             colorRect.data.background.cornerRadius.set(5, this.getViewSpace());
             colorRect.addState(colorStrings[i]);
-            colorRect.addState('X');
-            const state = colorRect.getState(colorRect.getStateCount() - 1);
-            this.animator.enableElement(state, false);
+            // colorRect.addState('X');
+            // const state = colorRect.getState(colorRect.getStateCount() - 1);
+            // this.animator.enableElement(state, false);
             // state.data.opacity.set(0.1);
 
             this.colorRects.push(colorRect);
@@ -760,9 +760,9 @@ export class GraphDsaturScene extends S2Scene {
     animateSetSaturation(vertexId: VertexId, saturation: number, options: { timeLabel?: string } = {}): void {
         const vertexData = this.graph.getVertex(vertexId);
         const timeLabel = this.animator.ensureLabel(options.timeLabel);
-        const stateId = vertexData.satNode.addState(saturation.toString());
-        vertexData.satNode.animateChangeState(stateId, this.animator, {
-            label: timeLabel,
+        //const stateId = vertexData.satNode.addState(saturation.toString());
+        vertexData.satNode.animateChangeState(saturation.toString(), this.animator, {
+            timeLabel: timeLabel,
             duration: 250,
         });
     }

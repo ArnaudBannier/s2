@@ -467,8 +467,7 @@ export class GraphDijkstraScene extends S2Scene {
     animateUpdateDistance(vertex: VertexData, newDistance: number): void {
         const cycleDuration = 500;
         const node = vertex.distanceNode;
-        const index = node.addState(newDistance.toString());
-        node.animateChangeState(index, this.animator, { timeOffset: 0, duration: cycleDuration });
+        node.animateChangeState(newDistance.toString(), this.animator, { timeOffset: 0, duration: cycleDuration });
     }
 
     animateUpdatePrev(vertex: VertexData, edge: EdgeData): void {
