@@ -398,15 +398,30 @@ export class GraphDsaturScene extends S2Scene {
             vertexData.satNode.addState('0');
         }
 
-        this.animateCodeLine(0);
-        this.animator.makeStep();
-
-        this.uMarker.data.position.set(1.0, 3.5, this.getWorldSpace());
         let label = '';
+        let idU = '';
+        let vertexU = null;
+        let idEmphU: VertexId | null = null;
+        let idEmphV: VertexId | null = null;
 
         const colorSet = new Set<number>();
 
         while (true) {
+            if (idEmphU && vertexU) {
+                label = this.animator.createLabelAtCurrentTime();
+                this.animateCodeLine(0, { timeLabel: label });
+                this.animateMarker(this.uMarker, vertexU.node, 'fade-out', {
+                    timeLabel: label,
+                    anchorX: -1,
+                    anchorY: 0,
+                });
+                this.animator.makeStep();
+            }
+
+            idU = '';
+            idEmphU = null;
+            vertexU = null;
+            idEmphV = null;
             label = this.animator.createLabelAtCurrentTime();
             this.animateCodeLine(1, { timeLabel: label });
             this.animateMarker(this.uMarker, this.undefinedNode, 'fade-in', {
@@ -416,75 +431,86 @@ export class GraphDsaturScene extends S2Scene {
             });
             this.animator.makeStep();
 
-            let idU = '';
-            let vertexU = null;
-            let idEmphU: VertexId | null = null;
-            let idEmphV: VertexId | null = null;
-            let targetNodeV = this.undefinedNode;
-
-            for (const idV of ids) {
+            const uncoloredIds = ids.filter((id) => this.graph.getVertex(id).color === -1);
+            if (uncoloredIds.length === 0) {
+                this.animateCodeLine(2);
+                this.animator.makeStep();
+            }
+            for (let i = 0; i < uncoloredIds.length; i++) {
+                const idV = uncoloredIds[i];
                 const vertexV = this.graph.getVertex(idV);
-                if (vertexV.color !== -1) continue;
 
-                targetNodeV = vertexV.node;
-
+                // Pour chaque sommet v non colorié faire
                 this.animateCodeLine(2);
                 label = this.animator.createLabelAtCurrentTime();
-                this.animateMarker(this.vMarker, targetNodeV, idEmphV === null ? 'fade-in' : 'move', {
+                this.animateMarker(this.vMarker, vertexV.node, idEmphV === null ? 'fade-in' : 'move', {
                     timeLabel: label,
                     anchorX: 1,
                     anchorY: 0,
                 });
                 if (idEmphV !== null && idEmphV !== idEmphU) {
-                    this.animateSearch(idEmphV, 'end', { timeLabel: label });
-                    this.animateSearch(idV, 'start', { timeLabel: label });
+                    this.animateSearch(idEmphV, 'end', { timeLabel: label, timeOffset: 0 });
+                    this.animateSearch(idV, 'start', { timeLabel: label, timeOffset: 250 });
+                    this.animateSaturation(idEmphV, 'end', { timeLabel: label, timeOffset: 0 });
+                    this.animateSaturation(idV, 'start', { timeLabel: label, timeOffset: 250 });
                 } else {
-                    this.animateSearch(idV, 'start', { timeLabel: label });
+                    this.animateSearch(idV, 'start', { timeLabel: label, timeOffset: 250 });
+                    this.animateSaturation(idV, 'start', { timeLabel: label, timeOffset: 250 });
                 }
                 this.animator.makeStep();
                 idEmphV = idV;
 
+                // Si u est indéfini ou sat[v] > sat[u] ou (sat[v] = sat[u] et deg[v] > deg[u]) alors
                 this.animateCodeLine(3, { lineSpan: 3 });
                 this.animator.makeStep();
+
                 if (
                     vertexU === null ||
                     vertexV.saturation > vertexU.saturation ||
                     (vertexV.saturation === vertexU.saturation &&
                         this.graph.edgesOf(idV).length > this.graph.edgesOf(idU).length)
                 ) {
+                    // u = v
                     idU = idV;
                     vertexU = vertexV;
                     this.animateCodeLine(7);
+                    label = this.animator.createLabelAtCurrentTime();
+
                     this.animateMarker(this.uMarker, vertexV.node, 'move', {
                         anchorX: -1,
                         anchorY: 0,
+                        timeLabel: label,
                     });
-
-                    label = this.animator.createLabelAtCurrentTime();
                     if (idEmphU) {
-                        this.animateSearch(idEmphU, 'end', { timeLabel: label });
+                        this.animateSearch(idEmphU, 'end', { timeLabel: label, timeOffset: 0 });
+                        this.animateSaturation(idEmphU, 'end', { timeLabel: label, timeOffset: 0 });
                     }
                     idEmphU = idU;
-
-                    // this.animateSearch(id, 'start');
                     this.animator.makeStep();
-                    continue;
+                }
+
+                // Last iteration, fade out v marker
+                if (i === uncoloredIds.length - 1) {
+                    label = this.animator.createLabelAtCurrentTime();
+                    this.animateCodeLine(2, { timeLabel: label });
+                    this.animateMarker(this.vMarker, vertexV.node, 'fade-out', {
+                        timeLabel: label,
+                        anchorX: 1,
+                        anchorY: 0,
+                    });
+                    if (idEmphV !== null && idEmphV !== idEmphU) {
+                        this.animateSearch(idEmphV, 'end', { timeLabel: label });
+                        this.animateSaturation(idEmphV, 'end', { timeLabel: label });
+                        this.animator.makeStep();
+                    }
+                    if (idEmphU) {
+                        this.animateSaturation(idEmphU, 'end', { timeLabel: label });
+                    }
+                    this.animator.makeStep();
                 }
             }
 
-            label = this.animator.createLabelAtCurrentTime();
-            this.animateCodeLine(2, { timeLabel: label });
-            this.animateMarker(this.vMarker, targetNodeV, 'fade-out', {
-                timeLabel: label,
-                anchorX: 1,
-                anchorY: 0,
-            });
-            if (idEmphV !== null && idEmphV !== idEmphU) {
-                this.animateSearch(idEmphV, 'end', { timeLabel: label });
-                this.animator.makeStep();
-            }
-            this.animator.makeStep();
-
+            // Si u est indéfini alors quitter
             label = this.animator.createLabelAtCurrentTime();
             this.animateCodeLine(8, { timeLabel: label });
             this.animator.makeStep();
@@ -496,12 +522,9 @@ export class GraphDsaturScene extends S2Scene {
                 break;
             }
 
-            label = this.animator.createLabelAtCurrentTime();
-            this.animateCodeLine(10, { lineSpan: 2, timeLabel: label });
-            this.animator.makeStep();
-
-            label = this.animator.createLabelAtCurrentTime();
-            this.animateShowColors(idU, 'start', { timeLabel: label });
+            // u.couleur = plus petite couleur disponible dans le voisinage de u
+            this.animateCodeLine(10, { lineSpan: 2 });
+            this.animateShowColors(idU, 'start');
             this.animator.makeStep();
 
             colorSet.clear();
@@ -522,11 +545,17 @@ export class GraphDsaturScene extends S2Scene {
             this.animateShowColors(idU, 'end', { timeLabel: label });
             this.animator.makeStep();
 
+            // Pour chaque voisin v de u non colorié faire mettre à jour sat[v]
+            const edgesU = this.graph.edgesOf(idU).filter((edge) => this.graph.getVertex(edge.to).color === -1);
+            if (edgesU.length === 0) {
+                this.animateCodeLine(12);
+                this.animator.makeStep();
+            }
             idEmphV = null;
-            for (const edge of this.graph.edgesOf(idU)) {
+            for (let i = 0; i < edgesU.length; i++) {
+                const edge = edgesU[i];
                 const idV = edge.to;
                 const vertexV = this.graph.getVertex(idV);
-                if (vertexV.color !== -1) continue;
 
                 label = this.animator.createLabelAtCurrentTime();
                 colorSet.clear();
@@ -539,15 +568,19 @@ export class GraphDsaturScene extends S2Scene {
 
                 this.animateCodeLine(12);
                 label = this.animator.createLabelAtCurrentTime();
-                this.animateShowColors(idV, 'start');
+                this.animateShowColors(idV, 'start', { timeLabel: label, timeOffset: 250 });
+
+                this.animateSaturation(idV, 'start', { timeLabel: label, timeOffset: 250 });
                 this.animateMarker(this.vMarker, vertexV.node, idEmphV === null ? 'fade-in' : 'move', {
                     anchorX: 1,
                     anchorY: 0,
+                    timeLabel: label,
                 });
                 this.animator.makeStep();
                 idEmphV = idV;
 
                 this.animateCodeLine(13);
+                label = this.animator.createLabelAtCurrentTime();
                 if (colorSet.size !== vertexV.saturation) {
                     vertexV.saturation = colorSet.size;
                     this.animateSetSaturation(idV, vertexV.saturation, { timeLabel: label });
@@ -556,53 +589,36 @@ export class GraphDsaturScene extends S2Scene {
 
                 label = this.animator.createLabelAtCurrentTime();
                 this.animateShowColors(idV, 'end', { timeLabel: label });
+                this.animateSaturation(idV, 'end', { timeLabel: label, timeOffset: 0 });
                 this.animator.makeStep();
                 idEmphV = idV;
+
+                // Last iteration, fade out v marker
+                if (i === edgesU.length - 1) {
+                    label = this.animator.createLabelAtCurrentTime();
+                    this.animateCodeLine(12, { timeLabel: label });
+                    this.animateMarker(this.vMarker, vertexV.node, 'fade-out', {
+                        timeLabel: label,
+                        anchorX: 1,
+                        anchorY: 0,
+                    });
+                    this.animator.makeStep();
+                }
             }
         }
 
         this.update();
     }
 
-    animateSearchChangeVertex(vertex: VertexData, options: { first?: boolean; label?: string } = {}): void {
-        const first = options.first ?? false;
-        const cycleDuration = 500;
-        const position = this.acquireVec2();
-        const label = this.animator.ensureLabel(options.label);
-        if (first) {
-            this.vMarker.data.text.opacity.set(0);
-            this.vMarker.data.background.opacity.set(0);
-            const animOpacity1 = S2LerpAnimFactory.create(this, this.vMarker.data.text.opacity)
-                .setCycleDuration(cycleDuration)
-                .setEasing(ease.out);
-            const animOpacity2 = S2LerpAnimFactory.create(this, this.vMarker.data.background.opacity)
-                .setCycleDuration(cycleDuration)
-                .setEasing(ease.out);
-            vertex.node.getRectPointInto(position, this.getWorldSpace(), 1, 0);
-            this.vMarker.data.position.setV(position, this.getWorldSpace());
-            this.vMarker.data.text.opacity.set(1);
-            this.vMarker.data.background.opacity.set(1);
-            this.animator.addAnimation(animOpacity1.commitFinalState(), label, 0);
-            this.animator.addAnimation(animOpacity2.commitFinalState(), label, 0);
-        } else {
-            const animPosition = S2LerpAnimFactory.create(this, this.vMarker.data.position)
-                .setCycleDuration(cycleDuration)
-                .setEasing(ease.out);
-            vertex.node.getRectPointInto(position, this.getWorldSpace(), 1, 0);
-            this.vMarker.data.position.setV(position, this.getWorldSpace());
-            this.animator.addAnimation(animPosition.commitFinalState(), label, 0);
-        }
-        this.releaseVec2(position);
-    }
-
     animateMarker(
         marker: S2PlainNode,
         target: S2PlainNode,
         animationType: 'fade-in' | 'move' | 'fade-out',
-        options: { timeLabel?: string; anchorX?: number; anchorY?: number } = {},
+        options: { timeLabel?: string; timeOffset?: number; anchorX?: number; anchorY?: number } = {},
     ): void {
         const cycleDuration = 500;
         const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const timeOffset = options.timeOffset ?? 0;
         const anchorX = options.anchorX ?? 1;
         const anchorY = options.anchorY ?? 0;
         const position = this.acquireVec2();
@@ -614,7 +630,7 @@ export class GraphDsaturScene extends S2Scene {
                 .setCycleDuration(cycleDuration)
                 .setEasing(ease.out);
             marker.data.position.setV(position, this.getWorldSpace());
-            this.animator.addAnimation(animPosition.commitFinalState(), timeLabel, 0);
+            this.animator.addAnimation(animPosition.commitFinalState(), timeLabel, timeOffset);
         } else {
             marker.data.text.opacity.set(opacity0);
             marker.data.background.opacity.set(opacity0);
@@ -627,8 +643,8 @@ export class GraphDsaturScene extends S2Scene {
             marker.data.position.setV(position, this.getWorldSpace());
             marker.data.text.opacity.set(opacity1);
             marker.data.background.opacity.set(opacity1);
-            this.animator.addAnimation(animTextOpacity.commitFinalState(), timeLabel, 0);
-            this.animator.addAnimation(animBackOpacity.commitFinalState(), timeLabel, 0);
+            this.animator.addAnimation(animTextOpacity.commitFinalState(), timeLabel, timeOffset);
+            this.animator.addAnimation(animBackOpacity.commitFinalState(), timeLabel, timeOffset);
             this.animator.addTrigger(
                 new S2TriggerPoint(marker.data.position, position, this.getWorldSpace()),
                 timeLabel,
@@ -638,9 +654,13 @@ export class GraphDsaturScene extends S2Scene {
         this.releaseVec2(position);
     }
 
-    animateSearch(vertexId: VertexId, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
-        const vertexData = this.graph.getVertex(vertexId);
+    animateSearch(
+        vertexId: VertexId,
+        type: 'start' | 'end',
+        options: { timeLabel?: string; timeOffset?: number } = {},
+    ): void {
         const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const timeOffset = options.timeOffset ?? 0;
         const cycleDuration = 250;
         for (const edge of this.graph.edgesOf(vertexId)) {
             console.log(vertexId, edge.to);
@@ -655,19 +675,35 @@ export class GraphDsaturScene extends S2Scene {
             } else {
                 emphEdge.data.pathTo.set(0.0);
             }
-            this.animator.addAnimation(animPath.commitFinalState(), timeLabel, 0);
+            this.animator.addAnimation(animPath.commitFinalState(), timeLabel, timeOffset);
         }
-
-        // const animFill = S2LerpAnimFactory.create(this, vertexData.satNode.data.background.fill.color)
-        //     .setCycleDuration(cycleDuration)
-        //     .setEasing(ease.out);
-        // vertexData.satNode.data.background.fill.color.setFromTheme(colorTheme, 'back', type === 'start' ? 5 : 8);
-        // this.animator.addAnimation(animFill.commitFinalState(), timeLabel, 0);
     }
 
-    animateShowColors(vertexId: VertexId, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
+    animateSaturation(
+        vertexId: VertexId,
+        type: 'start' | 'end',
+        options: { timeLabel?: string; timeOffset?: number } = {},
+    ): void {
         const vertexData = this.graph.getVertex(vertexId);
         const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const timeOffset = options.timeOffset ?? 0;
+        const cycleDuration = 250;
+        const colorName = type === 'start' ? 'main' : 'back';
+        const animFill = S2LerpAnimFactory.create(this, vertexData.satNode.data.background.fill.color)
+            .setCycleDuration(cycleDuration)
+            .setEasing(ease.out);
+        vertexData.satNode.data.background.fill.color.setFromTheme(colorTheme, colorName, 5);
+        this.animator.addAnimation(animFill.commitFinalState(), timeLabel, timeOffset);
+    }
+
+    animateShowColors(
+        vertexId: VertexId,
+        type: 'start' | 'end',
+        options: { timeLabel?: string; timeOffset?: number } = {},
+    ): void {
+        //const vertexData = this.graph.getVertex(vertexId);
+        const timeLabel = this.animator.ensureLabel(options.timeLabel);
+        const timeOffset = options.timeOffset ?? 0;
         const cycleDuration = 250;
         const usedColors = [false, false, false, false, false];
         for (const edge of this.graph.edgesOf(vertexId)) {
@@ -692,23 +728,8 @@ export class GraphDsaturScene extends S2Scene {
                 emphEdge.data.pathTo.set(0.0);
                 emphEdge.data.stroke.color.setFromTheme(colorTheme, 'no-color', 12);
             }
-            this.animator.addAnimation(animPath.commitFinalState(), timeLabel, 0);
-            this.animator.addAnimation(colorAnim.commitFinalState(), timeLabel, 0);
-        }
-
-        for (let i = 0; i < usedColors.length; i++) {
-            if (usedColors[i] == false) continue;
-            if (type === 'start') {
-                this.colorRects[i].animateChangeState(1, this.animator, {
-                    label: timeLabel,
-                    duration: cycleDuration,
-                });
-            } else {
-                this.colorRects[i].animateChangeState(0, this.animator, {
-                    label: timeLabel,
-                    duration: cycleDuration,
-                });
-            }
+            this.animator.addAnimation(animPath.commitFinalState(), timeLabel, timeOffset);
+            this.animator.addAnimation(colorAnim.commitFinalState(), timeLabel, timeOffset);
         }
     }
 
@@ -734,17 +755,6 @@ export class GraphDsaturScene extends S2Scene {
             .setEasing(ease.out);
         vertexData.node.data.background.stroke.color.setFromTheme(colorTheme, colorName, 8);
         this.animator.addAnimation(animStroke.commitFinalState(), timeLabel, 0);
-    }
-
-    animateEmphSaturation(vertex: VertexData, type: 'start' | 'end', options: { timeLabel?: string } = {}): void {
-        const cycleDuration = 200;
-        const timeLabel = this.animator.ensureLabel(options.timeLabel);
-        const colorName = type === 'start' ? 'main' : 'back';
-        const animFill = S2LerpAnimFactory.create(this, vertex.satNode.data.background.fill.color)
-            .setCycleDuration(cycleDuration)
-            .setEasing(ease.out);
-        vertex.satNode.data.background.fill.color.setFromTheme(colorTheme, colorName, 5);
-        this.animator.addAnimation(animFill.commitFinalState(), timeLabel, 0);
     }
 
     animateSetSaturation(vertexId: VertexId, saturation: number, options: { timeLabel?: string } = {}): void {
