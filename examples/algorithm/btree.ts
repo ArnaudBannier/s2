@@ -490,7 +490,7 @@ class SceneFigure extends S2Scene {
         const outputNW = new S2Vec2(codeNW.x, -codeNW.y + outputHeight);
         this.outputBackground.data.position.setV(outputNW, worldSpace);
         this.outputBackground.data.extents.set(3.5, outputHeight / 2, worldSpace);
-        this.outputBackground.data.anchor.set(-1, -1);
+        this.outputBackground.data.anchor.set(-1, 1);
         this.outputTitle.data.position.set(
             outputNW.x + outputPadding,
             outputNW.y - fontAscender - 0.5 * outputPadding,
