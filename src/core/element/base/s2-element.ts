@@ -1,6 +1,7 @@
 import type { S2Space } from '../../math/s2-space';
 import type { S2Vec2 } from '../../math/s2-vec2';
 import type { S2BaseScene } from '../../scene/s2-base-scene';
+//import type { S2DependencyGraph } from '../../shared/s2-dependency-graph';
 import type { S2Dirtyable, S2Tipable } from '../../shared/s2-globals';
 import type { S2ElementData } from './s2-base-data';
 
@@ -49,9 +50,17 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
         return this.dirty;
     }
 
+    // getDependencyGraph(): S2DependencyGraph | null {
+    //     return this.scene.getDependencyGraph();
+    // }
+
     markDirty(): void {
-        //if (this.isDirty()) return;
         this.dirty = true;
+        // const dependencyGraph = this.getDependencyGraph();
+        // if (dependencyGraph !== null) {
+        //     dependencyGraph.invalidate(this);
+        //     return;
+        // }
         this.parent?.markDirty();
     }
 
@@ -72,6 +81,12 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
 
     setParent(parent: S2BaseElement | null): this {
         if (this.parent === parent) return this;
+
+        // const dependencyGraph = this.getDependencyGraph();
+        // if (this.parent !== null && dependencyGraph !== null) {
+        //     dependencyGraph.unlink(this, this.parent);
+        // }
+
         if (this.parent !== null) {
             const index = this.parent.children.indexOf(this);
             if (index !== -1) {
@@ -86,6 +101,7 @@ export abstract class S2Element<Data extends S2ElementData> implements S2Dirtyab
             parent.children.push(this);
             parent.childrenChanged = true;
             parent.markDirty();
+            //dependencyGraph?.link(this, parent);
         }
         this.parent = parent;
         return this;
