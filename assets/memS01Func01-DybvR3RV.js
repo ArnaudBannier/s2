@@ -1,4 +1,4 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{S as C,k as d}from"./s2-playable-Bd3fk5vd.js";import{B as F,S as L}from"./base-memory-scene-pl9tyc5Q.js";import{S as b,t as k}from"./s2-code-C40UCgSW.js";import{l as x,s as A,c as H,p as I}from"./radix-colors-dark-BlcgjLJ6.js";import"./s2-step-animator-OXYWjTz6.js";const w="Etat de la mémoire : fonctions simples 1",V=`**type:int** **fn:main**(**type:void**) {
+import"./modulepreload-polyfill-B5Qt9EMX.js";import{S as C,k as d}from"./s2-playable-DSEVfDnI.js";import{B as F,S as L}from"./base-memory-scene-CVtO2dOv.js";import{S as b,t as k}from"./s2-code-Tvsn7EYW.js";import{l as x,s as A,c as H,p as I}from"./radix-colors-dark-B7PoIpvT.js";import"./s2-step-animator-CB9pMuEC.js";const w="Etat de la mémoire : fonctions simples 1",V=`**type:int** **fn:main**(**type:void**) {
     **type:short** **var:a** = **num:1337**;
     **type:int** **var:b** = (**type:int**)**var:a** / **num:133**;
     **var:b** = **fn:func**(**var:a**, **var:b**);
