@@ -97,7 +97,7 @@ export class GraphDsaturScene extends S2Scene {
 
     protected code: S2Code;
     protected graph: DirectedGraph<VertexData, EdgeData>;
-    protected nodeCount: number = 7;
+    protected nodeCount: number = 0;
 
     protected showHelperGrid: boolean = false;
     protected edgeEndDistance: number = 15;
@@ -108,7 +108,7 @@ export class GraphDsaturScene extends S2Scene {
     protected vMarker: S2PlainNode;
     protected undefinedNode: S2PlainNode;
 
-    constructor(svgElement: SVGSVGElement) {
+    constructor(svgElement: SVGSVGElement, graphIndex: number) {
         super(svgElement);
         this.camera.setExtents(8.0, 4.5);
         this.setViewportSize(640.0 * 1.5, 360.0 * 1.5);
@@ -134,7 +134,8 @@ export class GraphDsaturScene extends S2Scene {
         const graph = new DirectedGraph<VertexData, EdgeData>();
         this.graph = graph;
 
-        this.createGraph();
+        if (graphIndex === 0) this.createGraphA();
+        else this.createGraphB();
 
         this.code = new S2Code(this);
         this.code.setParent(this.getSVG());
@@ -261,8 +262,9 @@ export class GraphDsaturScene extends S2Scene {
         }
     }
 
-    createGraph(): void {
+    createGraphA(): void {
         this.graph.clearEdges();
+        this.nodeCount = 7;
         const nodes: S2PlainNode[] = [];
         const verticesData: VertexData[] = [];
         for (let i = 0; i < this.nodeCount; i++) {
@@ -312,6 +314,84 @@ export class GraphDsaturScene extends S2Scene {
             { from: 4, to: 5 },
             { from: 4, to: 6 },
             { from: 5, to: 6 },
+        ];
+        const edgeDataArray: EdgeData[] = [];
+        for (const edgeInfo of edgesInfo) {
+            const from = edgeInfo.from.toString();
+            const to = edgeInfo.to.toString();
+            const edgeData = new EdgeData(this, from, to, nodes[edgeInfo.from], nodes[edgeInfo.to]);
+            this.setEdgeStyle(edgeData);
+            edgeDataArray.push(edgeData);
+        }
+        for (const edgeData of edgeDataArray) {
+            this.graph.setEdge(edgeData.from, edgeData.to, edgeData);
+            this.graph.setEdge(edgeData.to, edgeData.from, edgeData);
+        }
+        this.update();
+    }
+
+    createGraphB(): void {
+        this.graph.clearEdges();
+        this.nodeCount = 10;
+        const nodes: S2PlainNode[] = [];
+        const verticesData: VertexData[] = [];
+        for (let i = 0; i < this.nodeCount; i++) {
+            const vertexData = new VertexData(this);
+            this.setVertexStyle(vertexData);
+            const node = vertexData.node;
+            nodes.push(node);
+            node.addState(i.toString());
+            verticesData.push(vertexData);
+            this.graph.addVertex(i.toString(), vertexData);
+        }
+
+        const worldSpace = this.getWorldSpace();
+        const shiftX = 4.0;
+        const vec = this.acquireVec2();
+        const xSep = 2;
+        const ySep = 2;
+        const verticesInfo = [
+            { index: 0, x: -1.5 * xSep, y: 0 },
+            { index: 1, x: -1.2 * xSep, y: +ySep },
+            { index: 2, x: -1.2 * xSep, y: -ySep },
+            { index: 3, x: -0.5 * xSep, y: 0 },
+            { index: 4, x: 0, y: +1.5 * ySep },
+            { index: 5, x: 0, y: -1.5 * ySep },
+            { index: 6, x: +0.5 * xSep, y: 0 },
+            { index: 7, x: +1.2 * xSep, y: +ySep },
+            { index: 8, x: +1.2 * xSep, y: -ySep },
+            { index: 9, x: +1.5 * xSep, y: 0 },
+        ];
+        for (const vertexInfo of verticesInfo) {
+            const vertexData = verticesData[vertexInfo.index];
+            vertexData.node.data.position.set(shiftX + vertexInfo.x, vertexInfo.y, worldSpace);
+            vertexData.satNode.data.position.set(shiftX + vertexInfo.x, vertexInfo.y + 0.6, worldSpace);
+        }
+
+        this.releaseVec2(vec);
+
+        const edgesInfo = [
+            { from: 0, to: 1 },
+            { from: 0, to: 2 },
+            { from: 0, to: 4 },
+            { from: 0, to: 5 },
+            { from: 0, to: 8 },
+            { from: 1, to: 3 },
+            { from: 1, to: 4 },
+            { from: 2, to: 3 },
+            { from: 2, to: 5 },
+            { from: 2, to: 6 },
+            { from: 2, to: 8 },
+            { from: 3, to: 7 },
+            { from: 4, to: 5 },
+            { from: 4, to: 7 },
+            { from: 5, to: 8 },
+            { from: 5, to: 9 },
+            { from: 6, to: 7 },
+            { from: 6, to: 8 },
+            { from: 6, to: 9 },
+            { from: 7, to: 9 },
+            { from: 8, to: 9 },
         ];
         const edgeDataArray: EdgeData[] = [];
         for (const edgeInfo of edgesInfo) {

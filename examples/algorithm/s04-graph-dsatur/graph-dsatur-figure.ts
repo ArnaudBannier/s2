@@ -5,7 +5,7 @@ export class GraphDsaturFigure {
     protected scene: GraphDsaturScene;
     protected navigation: GraphDsaturNavigation;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, graphIndex: number) {
         // conteneur figure
         const divFigure = document.createElement('div');
         divFigure.className = 'figure';
@@ -23,7 +23,7 @@ export class GraphDsaturFigure {
         container.append(divFigure, divNavigation);
 
         // création de la scène et de l'interface
-        this.scene = new GraphDsaturScene(svg);
+        this.scene = new GraphDsaturScene(svg, graphIndex);
 
         this.navigation = new GraphDsaturNavigation(divNavigation, this.scene, this.scene.animator);
         this.navigation.init();
